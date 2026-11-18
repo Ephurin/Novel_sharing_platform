@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
 import { authorHomeCrumb } from '../../shared/components/navigation';
@@ -19,10 +19,7 @@ export function AuthorNovelReviewsPage() {
       <Breadcrumbs className="mb-4" items={[authorHomeCrumb, { label: novel.data?.title || 'Tác phẩm', to: `/author/novels/${novelId}` }, { label: 'Đánh giá độc giả' }]} />
       <div className="sc-reviews-panel">
         <header className="sc-reviews-header">
-          <Link to={`/author/novels/${novelId}`} className="sc-icon-button" aria-label="Quay lại quản lý tác phẩm" title="Quay lại quản lý tác phẩm">
-            <span className="material-symbols-outlined" aria-hidden="true">arrow_back</span>
-          </Link>
-          <div><h1 className="text-page">Đánh giá độc giả</h1>{novel.data && <p>{novel.data.title}</p>}</div>
+          <div><h1 className="text-page-title">Đánh giá độc giả</h1></div>
         </header>
         <div className="sc-reviews-body">
           {novel.isPending && <LoadingState label="Đang tải tác phẩm…" />}

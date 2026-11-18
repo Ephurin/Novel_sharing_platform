@@ -45,14 +45,21 @@ export function EntityMergeControl({ novelId, version, entities, disabled = fals
       Gộp hai tên trùng
     </Button>
     {notice && <Alert color="teal" withCloseButton onClose={() => setNotice('')}>{notice}</Alert>}
-    <Modal opened={opened} onClose={() => { if (!merge.isPending) setOpened(false); }} title="Gộp hai tên trùng" centered>
+    <Modal
+      opened={opened}
+      onClose={() => { if (!merge.isPending) setOpened(false); }}
+      title="Gộp hai tên trùng"
+      centered
+      classNames={{ content: 'sc-author-theme' }}
+      styles={{ content: { minHeight: 'auto', background: 'var(--sc-surface-elevated)' } }}
+    >
       <Stack>
         <Text size="sm">Chỉ gộp khi bạn xác nhận hai hồ sơ là cùng một nhân vật, địa danh hoặc vật. Mục giữ lại sẽ có tên chính thức bạn chọn.</Text>
         <Select searchable label="Tên cần gộp (sẽ thành tên gọi khác)" data={options.filter(o => o.value !== target && sameType(o, to))}
           value={source} onChange={setSource} disabled={merge.isPending} />
         <Select searchable label="Mục giữ lại (tên chính thức)" data={options.filter(o => o.value !== source && sameType(o, from))}
           value={target} onChange={setTarget} disabled={merge.isPending} />
-        {from && to && <Alert color="blue">Gộp “{from.name}” vào “{to.name}”. Sự kiện, dữ kiện và quan hệ sẽ được chuyển về mục giữ lại. Thông tin bổ sung của hai hồ sơ Cẩm nang được giữ; nội dung khác nhau được lưu trong ghi chú.</Alert>}
+        {from && to && <Alert>Gộp “{from.name}” vào “{to.name}”. Sự kiện, dữ kiện và quan hệ sẽ được chuyển về mục giữ lại. Thông tin bổ sung của hai hồ sơ Cẩm nang được giữ; nội dung khác nhau được lưu trong ghi chú.</Alert>}
         {merge.error && <Alert color="red">{merge.error instanceof ApiClientError && merge.error.status === 409
           ? 'Bộ nhớ đã thay đổi. Hãy tải lại danh sách trước khi gộp.' : getApiErrorMessage(merge.error)}
           <Button size="xs" variant="subtle" onClick={() => void refresh()}>Tải lại danh sách</Button></Alert>}

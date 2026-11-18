@@ -71,8 +71,10 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
       const login = (await h.api('POST', '/auth/login', { identifier: email, password })).data;
       const promoted = (await h.api('POST', '/auth/become-author', {}, login.accessToken)).data;
       a = { email, password, token: promoted.accessToken || login.accessToken };
-      novel = (await h.api('POST', '/novels', { title: 'UX checkpoint tổng duyệt', synopsis: 'Offline fictional fixture' }, a.token)).data.novelId;
-      const content = 'Lâm Phong gặp Diệp Linh Nhi tại Cồn Vân. Cồn Vân có cổng đá.';
+      novel = (await h.api('POST', '/novels', { title: 'UX checkpoint tổng duyệt', synopsis: 'Offline fictional fixture for the checkpoint review, long enough for the 50-character rule.' }, a.token)).data.novelId;
+      // The extractor no longer emits noise candidates, so two minor names give the stale-409 step
+      // two unresolved occurrences to reject; they never become entities.
+      const content = 'Lâm Phong gặp Diệp Linh Nhi tại Cồn Vân. Cồn Vân có cổng đá. Trương Ba và Lý Tứ đứng xem.';
       chapter = (await h.api('POST', '/novels/' + novel + '/chapters', { title: 'Chương 1 — Cổng đá', content }, a.token)).data.chapterId;
       await f.login(a); await page.goto(f.ide(novel, chapter));
       await expect(f.editor()).toHaveValue(content);
@@ -105,7 +107,7 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
       await assign(locs[0].candidate_id, 'con-van');
       const c = occurrence(locs[0].candidate_id);
       await c.getByRole('button', { name: 'Sửa thuộc tính', exact: true }).click();
-      for (const type of ['PER', 'LOC']) {
+      for (const type of ['Nhân vật', 'Địa điểm']) {
         await c.getByLabel('Loại thực thể', { exact: true }).click();
         await page.getByRole('option', { name: type, exact: true }).click();
       }
@@ -124,7 +126,8 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
       const c = occurrence(locs[0].candidate_id);
       await c.getByRole('button', { name: /Áp dụng quyết định này/ }).click();
       await c.getByRole('button', { name: 'Xác nhận gán toàn bộ', exact: true }).click();
-      await checkpoint().getByRole('button', { name: '1', exact: true }).click();
+      // Pagination only renders above five occurrences (same rule as position()).
+      if (initial.candidates.length > 5) await checkpoint().getByRole('button', { name: '1', exact: true }).click();
       const r = await save(); assert.equal(r.status(), 200);
       const decisions = r.request().postDataJSON().decisions;
       checkQuotes(decisions); checkQuotes((await storedAudit()).reviewed_decisions);
@@ -174,10 +177,10 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
         await position(c.candidate_id);
         await occurrence(c.candidate_id).getByRole('button', { name: 'Loại bỏ', exact: true }).click();
       }
-      await expect(checkpoint().getByTestId('entity-freeze-summary')).toContainText('Cồn Vân [LOC]');
+      await expect(checkpoint().getByTestId('entity-freeze-summary')).toContainText('Cồn Vân (Địa điểm)');
       await h.shot('checkpoint-final-summary');
       const frozen = response('review');
-      await checkpoint().getByRole('button', { name: /Đóng băng danh sách entity/ }).click();
+      await checkpoint().getByRole('button', { name: /Chốt danh sách tên/ }).click();
       const r = await frozen; assert.equal(r.status(), 200);
       const body = r.request().postDataJSON(); assert.equal(body.finalize, true);
       assert.equal(body.decisions.length, initial.candidates.length);
@@ -200,7 +203,7 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
     });
     await h.step('Separate HITL proposal approval and activation; final PostgreSQL Canon readback', async () => {
       const continued = response('continue');
-      await checkpoint().getByRole('button', { name: '3. Tiếp tục trích xuất event/fact', exact: true }).click();
+      await checkpoint().getByRole('button', { name: '3. Tiếp tục trích xuất sự kiện và dữ kiện', exact: true }).click();
       assert.equal((await continued).status(), 200);
       const queue = await until(async () => {
         const q = (await h.api('GET', endpoint() + '/review-queue', undefined, a.token)).data;
@@ -219,7 +222,7 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
         assert.equal(payload.entity_type, payload.canonical_name === 'Cồn Vân' ? 'LOC' : 'PER');
       }
       const accepted = page.waitForResponse(r => r.url().includes('/ai/proposal-groups/') && r.url().endsWith('/accept') && r.request().method() === 'POST');
-      await page.getByRole('button', { name: /Duyệt nguyên tử toàn bộ nhóm/ }).click();
+      await page.getByRole('button', { name: /Duyệt cả nhóm/ }).click();
       assert.equal((await accepted).status(), 200);
       const activated = page.waitForResponse(r => r.url().endsWith('/baseline/activate') && r.request().method() === 'POST');
       await page.getByRole('button', { name: 'Kích hoạt bộ nhớ sau duyệt', exact: true }).click();

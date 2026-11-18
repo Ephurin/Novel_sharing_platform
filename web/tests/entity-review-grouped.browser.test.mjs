@@ -73,9 +73,9 @@ test('Grouped entity review decides each name once', { timeout: 180000 }, async 
   await expect(group('Linh').getByText('18 vị trí', { exact: true })).toBeVisible();
 
   // One choice links all 18 "Linh" to the known entity.
-  await group('Linh').getByLabel('Cả nhóm là thực thể Canon đã có', { exact: true }).click();
-  await page.getByRole('option', { name: /^Linh \[PER\]/ }).click();
-  await expect(group('Linh').getByText('Canon: Linh')).toBeVisible();
+  await group('Linh').getByLabel('Cả nhóm là nhân vật hoặc địa danh đã có', { exact: true }).click();
+  await page.getByRole('option', { name: /^Linh \(Nhân vật\)/ }).click();
+  await expect(group('Linh').getByText('Đã có: Linh')).toBeVisible();
 
   // One click makes "Ba Lắm" a new identity; another rejects every "Nếu".
   await group('Ba Lắm').getByRole('button', { name: 'Thực thể mới “Ba Lắm”', exact: true }).click();
@@ -87,7 +87,7 @@ test('Grouped entity review decides each name once', { timeout: 180000 }, async 
   await group('Linh').getByRole('button', { name: 'Loại cả nhóm', exact: true }).click();
   await expect(group('Linh').getByText('18/18 vị trí “Linh” đang gán cho danh tính khác.')).toBeVisible();
   await group('Linh').getByRole('button', { name: 'Hủy', exact: true }).click();
-  await expect(group('Linh').getByText('Canon: Linh')).toBeVisible();
+  await expect(group('Linh').getByText('Đã có: Linh')).toBeVisible();
 
   // Single occurrences stay reachable inside a group.
   await group('đèn bão').getByRole('button', { name: 'Xem từng vị trí (4)', exact: true }).click();

@@ -47,13 +47,13 @@ test('Cẩm nang shows approved knowledge, preserves author enrichment and perfo
     await page.goto(`http://127.0.0.1:${server.address().port}`);
     await page.locator('textarea').filter({ hasText: 'Author biography remains' }).waitFor();
     assert.ok(await page.locator('textarea').evaluateAll(nodes => nodes.some(n => n.value === 'My personal notes')));
-    await page.getByRole('button', { name: 'Địa danh & dữ kiện', exact: true }).click();
+    await page.getByRole('tab', { name: 'Địa danh & dữ kiện', exact: true }).click();
     await page.getByRole('heading', { name: 'Hà Nội', exact: true }).waitFor();
     assert.equal(await page.getByText('Magic is forbidden', { exact: true }).isVisible(), true);
     await page.getByRole('button', { name: 'Cập nhật từ Story Brain', exact: true }).click();
     await page.getByText('Đã cập nhật Cẩm nang từ dữ liệu đã duyệt trong Story Brain.', { exact: true }).waitFor();
     assert.equal(syncs, 1);
-    await page.getByRole('button', { name: /Nhân vật/ }).first().click();
+    await page.getByRole('tab', { name: /Nhân vật/ }).first().click();
     await page.getByRole('button', { name: 'Gộp hai tên trùng', exact: true }).click();
     const confirm = page.getByRole('button', { name: 'Xác nhận gộp', exact: true });
     assert.equal(await confirm.isDisabled(), true);
@@ -71,7 +71,7 @@ test('Cẩm nang shows approved knowledge, preserves author enrichment and perfo
       && (await response.json()).data.brain_version === 5);
     await page.getByRole('button', { name: 'Cập nhật từ Story Brain', exact: true }).click();
     await refreshed;
-    await page.getByRole('button', { name: 'Địa danh & dữ kiện', exact: true }).click();
+    await page.getByRole('tab', { name: 'Địa danh & dữ kiện', exact: true }).click();
     await page.getByRole('heading', { name: 'Hà Nội', exact: true }).waitFor({ state: 'detached' });
     const downloading = page.waitForEvent('download');
     await page.getByRole('button', { name: /Xuất file Bible/ }).click();

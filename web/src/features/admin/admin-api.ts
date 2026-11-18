@@ -42,6 +42,8 @@ export type ModerationReview = {
   reviewId: string;
   targetType: string;
   targetId: string;
+  targetTitle?: string | null;
+  summary?: string | null;
   status: string;
   source: string;
   evidenceId?: string | null;

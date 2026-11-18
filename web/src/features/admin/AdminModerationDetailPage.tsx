@@ -252,7 +252,12 @@ export function AdminModerationDetailPage() {
         </dl>
       </AnimatedDisclosure>
       <AdminConfirm
-        destructive={decision === 'REJECTED' || commentReport}
+        destructive={
+          decision === 'REJECTED' ||
+          (Boolean(report) &&
+            decision === 'APPROVED' &&
+            (reportAction || (commentReport ? 'HIDE' : 'WARN')) !== 'WARN')
+        }
         opened={!!decision}
         title={decision === 'APPROVED' ? approveLabel : rejectLabel}
         confirmLabel="Xác nhận xử lý"

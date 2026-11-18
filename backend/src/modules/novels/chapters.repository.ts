@@ -37,12 +37,25 @@ function mapChapter(row: QueryResultRow): ChapterRecord {
 
 export async function getNextChapterNumber(client: DbClient, novelId: string) {
   await client.query('select novel_id from novels where novel_id = $1 for update', [novelId]);
+  // UI walkthrough (UI-1): a deleted last chapter used to keep its number, so the next new chapter
+  // skipped it ("Chương 18" shown as number 19). Number after the last chapter that still exists, and
+  // move deleted rows that hold that number or a later one to negative numbers, which no screen shows.
+  // A deleted chapter in the middle keeps its number, so later chapters are not renumbered.
   const result = await client.query(
-    'select coalesce(max(chapter_number), 0) + 1 as next_number from chapters where novel_id = $1',
+    'select coalesce(max(chapter_number), 0) + 1 as next_number from chapters where novel_id = $1 and deleted_at is null',
     [novelId]
   );
+  const next = Number(result.rows[0].next_number);
+  await client.query(
+    `update chapters c set chapter_number = base.low - t.rn
+       from (select least(coalesce(min(chapter_number), 0), 0) as low from chapters where novel_id = $1) base,
+            (select chapter_id, row_number() over (order by chapter_number) as rn
+               from chapters where novel_id = $1 and deleted_at is not null and chapter_number >= $2) t
+      where c.chapter_id = t.chapter_id`,
+    [novelId, next]
+  );
 
-  return Number(result.rows[0].next_number);
+  return next;
 }
 
 export async function createChapter(

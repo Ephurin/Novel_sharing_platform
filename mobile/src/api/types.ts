@@ -16,12 +16,15 @@ export type ReaderNovel = {
   synopsis?: string;
   coverImageUrl?: string | null;
   genre?: string | null;
+  genres?: string[];
   tags?: string[];
   status?: string;
   serialStatus?: string;
   likesCount?: number;
   viewsCount?: number;
   chaptersCount?: number;
+  ratingAverage?: number | null;
+  ratingsCount?: number;
   updatedAt?: string;
 };
 
@@ -56,17 +59,22 @@ export type ReadingHistoryItem = {
   };
 };
 
+export type ReadingBackground = 'LIGHT' | 'DARK' | 'SEPIA' | 'MINT' | 'BLUE' | 'ROSE' | 'BLACK';
+
+export type ReadingTextAlign = 'LEFT' | 'CENTER' | 'RIGHT' | 'JUSTIFY';
+
 export type ReadingPreferences = {
   fontFamily: string | null;
   fontSize: number;
-  background: 'LIGHT' | 'DARK' | 'SEPIA';
+  background: ReadingBackground;
   lineHeight: number;
+  margin?: number;
+  textAlign?: ReadingTextAlign;
 };
 
 export type ReaderComment = {
   audience: 'PUBLIC' | 'FRIENDS_ALL' | 'FRIENDS_SELECTED' | 'AUTHOR_PRIVATE';
   novelId: string;
-  displayName: string;
   parentCommentId: string | null;
   repliesCount: number;
   canReply: boolean;
@@ -75,34 +83,47 @@ export type ReaderComment = {
   imageUrl?: string | null;
   anchor?: { quote: string; detached: boolean; currentParagraphId: string | null; paragraphId: string } | null;
   commentId: string;
-  chapterId: string;
+  chapterId: string | null;
   userId: string;
+  displayName?: string | null;
+  username?: string | null;
+  avatarUrl?: string | null;
+  isAuthor?: boolean;
   paragraphOffset: number | null;
   content: string;
   status: string;
   createdAt: string;
 };
 
+export type DepositPackageCode = 'COIN_100' | 'COIN_500' | 'COIN_1000' | 'COIN_5000';
+
 export type Wallet = {
-  userId: string;
-  balanceCoins: number;
+  walletId?: string;
+  userId?: string;
+  coinsBalance: number;
+  lockedCoins?: number;
 };
 
 export type WalletTransaction = {
   transactionId: string;
   type: string;
+  direction?: 'IN' | 'OUT';
   amountCoins: number;
+  balanceChangeCoins?: number;
   status: string;
+  description?: string | null;
   createdAt: string;
 };
 
 export type NotificationItem = {
-  content?: string;
-  payload?: Record<string, unknown>;
   notificationId: string;
+  userId?: string;
   type: string;
   title: string;
+  content?: string | null;
   body?: string | null;
+  payload?: Record<string, unknown> | null;
   status: 'UNREAD' | 'READ';
   createdAt: string;
+  readAt?: string | null;
 };

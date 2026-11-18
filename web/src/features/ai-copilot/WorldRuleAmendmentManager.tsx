@@ -462,7 +462,7 @@ export function WorldRuleAmendmentManager({
 
       {/* UXF-03: M0 Not Active Banner */}
       {!isM0Verified && (
-        <Alert color="blue" title="Thiết lập M0 chưa được kích hoạt" data-testid="m0-not-active-banner">
+        <Alert title="Thiết lập M0 chưa được kích hoạt" data-testid="m0-not-active-banner">
           <Text size="sm">
             Quy tắc thế giới chỉ có thể hiệu chỉnh sau khi hoàn tất phê duyệt và kích hoạt mốc M0.
             Vui lòng kích hoạt thiết lập M0 ở trên trước khi thực hiện hiệu chỉnh.
@@ -600,13 +600,13 @@ export function WorldRuleAmendmentManager({
                 {matchingPreservedProposals.map((pDraft) => (
                   <Alert
                     key={pDraft.id}
-                    color="violet"
+                    color="orange"
                     title="Bản nháp đề xuất đã được bảo lưu (Chưa gửi)"
                     data-testid={`preserved-proposal-alert-${rule.fact_id}`}
                   >
                     <Stack gap="xs">
                       <div>
-                        <Text size="xs" fw={700} c="violet.9">
+                        <Text size="xs" fw={700} c="var(--sc-warning)">
                           Nội dung bản nháp đã lưu:
                         </Text>
                         <Text
@@ -626,7 +626,7 @@ export function WorldRuleAmendmentManager({
                             Ghi chú riêng: {pDraft.private_notes}
                           </Text>
                         )}
-                        <Text size="10px" c="dimmed" mt={4}>
+                        <Text size="xs" c="dimmed" mt={4}>
                           Được lưu tự động khi bạn xác nhận yêu cầu trước đó.
                         </Text>
                       </div>
@@ -635,7 +635,6 @@ export function WorldRuleAmendmentManager({
                         <Button
                           size="xs"
                           variant="light"
-                          color="violet"
                           onClick={() =>
                             downloadJsonFile(`ban-nhap-de-xuat-${pDraft.factKey}.json`, pDraft)
                           }
@@ -679,13 +678,13 @@ export function WorldRuleAmendmentManager({
                 {matchingPreservedDecisions.map((dDraft) => (
                   <Alert
                     key={dDraft.id}
-                    color="violet"
+                    color="orange"
                     title="Ghi chú lý do quyết định đã được bảo lưu (Chưa gửi)"
                     data-testid={`preserved-decision-alert-${rule.fact_id}`}
                   >
                     <Stack gap="xs">
                       <div>
-                        <Text size="xs" fw={700} c="violet.9">
+                        <Text size="xs" fw={700} c="var(--sc-warning)">
                           Ghi chú lý do đã lưu:
                         </Text>
                         <Text
@@ -695,7 +694,7 @@ export function WorldRuleAmendmentManager({
                         >
                           {dDraft.reason}
                         </Text>
-                        <Text size="10px" c="dimmed" mt={4}>
+                        <Text size="xs" c="dimmed" mt={4}>
                           Được lưu tự động khi bạn xác nhận quyết định trước đó ({dDraft.decision === 'accept' ? 'Chấp thuận' : 'Từ chối'}).
                         </Text>
                       </div>
@@ -704,7 +703,6 @@ export function WorldRuleAmendmentManager({
                         <Button
                           size="xs"
                           variant="light"
-                          color="violet"
                           onClick={() =>
                             downloadJsonFile(`ban-nhap-ly-do-${dDraft.factKey}.json`, dDraft)
                           }
@@ -735,7 +733,7 @@ export function WorldRuleAmendmentManager({
                 ))}
 
                 {/* Canon Content */}
-                <Card withBorder p="sm" bg="var(--mantine-color-gray-0)">
+                <Card withBorder p="sm" bg="var(--sc-surface-subtle)">
                   <Text size="xs" fw={600} c="dimmed" mb={4}>
                     NỘI DUNG CANON ĐANG HIỆU LỰC:
                   </Text>
@@ -805,6 +803,8 @@ export function WorldRuleAmendmentManager({
           </Text>
         }
         size="lg"
+        classNames={{ content: 'sc-author-theme' }}
+        styles={{ content: { minHeight: 'auto', background: 'var(--sc-surface-elevated)' } }}
       >
         {historyLoading && <Text size="sm">Đang tải phả hệ và lịch sử sửa đổi...</Text>}
         {historyError && (
@@ -843,7 +843,7 @@ export function WorldRuleAmendmentManager({
                       {item.fact_value}
                     </Text>
                     {item.supersedes_id && (
-                      <Text size="10px" c="dimmed" mt={2}>
+                      <Text size="xs" c="dimmed" mt={2}>
                         Kế nhiệm từ: {item.supersedes_id}
                       </Text>
                     )}
@@ -900,7 +900,7 @@ export function WorldRuleAmendmentManager({
                         </Text>
                       )}
                       {item.successor_fact_id && (
-                        <Text size="10px" c="teal">
+                        <Text size="xs" c="teal">
                           Fact mới sinh: {item.successor_fact_id}
                         </Text>
                       )}
@@ -1320,10 +1320,10 @@ function ProposeAmendmentForm({
   }
 
   return (
-    <Card withBorder p="md" mt="xs" bg="var(--mantine-color-blue-0)">
+    <Card withBorder p="md" mt="xs" bg="var(--sc-surface-subtle)">
       <Stack gap="sm">
         <Group justify="space-between">
-          <Text fw={700} c="blue">
+          <Text fw={700} c="var(--sc-primary-text)">
             Đề xuất chỉnh sửa quy tắc: {rule.fact_key}
           </Text>
           <Badge size="xs" variant="outline">
@@ -1331,7 +1331,7 @@ function ProposeAmendmentForm({
           </Badge>
         </Group>
 
-        <Alert color={rule.is_locked ? 'red' : 'blue'} p="xs">
+        <Alert color={rule.is_locked ? 'red' : undefined} p="xs">
           <Text size="xs">{lockNotice}</Text>
         </Alert>
 
@@ -1400,7 +1400,6 @@ function ProposeAmendmentForm({
                 </Button>
                 <Button
                   size="xs"
-                  color="blue"
                   onClick={handleSafeRetry}
                   loading={submitting}
                   data-testid="safe-retry-btn"
@@ -1429,7 +1428,6 @@ function ProposeAmendmentForm({
             Hủy
           </Button>
           <Button
-            color="blue"
             onClick={handleSubmit}
             loading={submitting}
             disabled={!replacement_text.trim()}
@@ -1886,7 +1884,7 @@ function PendingProposalDecisionView({
       withBorder
       p="md"
       mt="xs"
-      bg="var(--mantine-color-yellow-0)"
+      bg="var(--sc-warning-bg)"
       data-testid={`pending-decision-card-${rule.fact_id}`}
     >
       <Stack gap="sm">
@@ -1905,10 +1903,10 @@ function PendingProposalDecisionView({
         </Group>
 
         {/* Before / After Comparison */}
-        <Group grow align="stretch">
-          <Card withBorder p="xs" bg="white">
+        <Group grow align="stretch" wrap="wrap">
+          <Card withBorder p="xs" bg="var(--sc-surface)">
             <Badge size="xs" color="gray" variant="light" mb={4}>
-              TRƯỚC (Bản Canon đang hiệu lực)
+              Đang áp dụng
             </Badge>
             <Text
               size="xs"
@@ -1918,9 +1916,9 @@ function PendingProposalDecisionView({
               {rule.fact_value}
             </Text>
           </Card>
-          <Card withBorder p="xs" bg="var(--mantine-color-teal-0)">
+          <Card withBorder p="xs" bg="var(--sc-success-bg)">
             <Badge size="xs" color="teal" variant="filled" mb={4}>
-              SAU (Bản đề xuất sửa đổi mới)
+              Đề xuất sửa đổi mới
             </Badge>
             <Text
               size="xs"
@@ -1971,7 +1969,6 @@ function PendingProposalDecisionView({
                 </Button>
                 <Button
                   size="xs"
-                  color="blue"
                   onClick={handleSafeRetryDecision}
                   loading={deciding}
                   data-testid="safe-retry-decision-btn"

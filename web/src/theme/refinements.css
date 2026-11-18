@@ -26,8 +26,8 @@
   --sc-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%23bdb6ad' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
-/* Native selects: one chevron, compact height, light border. */
-.sc-author-theme:not(:has(.sc-writing-studio)) select:not([multiple]):not([size]) {
+/* Native selects: one chevron, compact height, light border (including portaled modals & mobile drawers). */
+:is(.sc-author-theme:not(:has(.sc-writing-studio)), .sc-animated-modal-body, .sc-vaul-sheet) select:not([multiple]):not([size]) {
   appearance: none;
   -webkit-appearance: none;
   min-height: 34px;
@@ -48,16 +48,16 @@
 }
 
 /* Author screens draw their own expand_more icon next to the select; the chevron above replaces it. */
-.sc-author-theme:not(:has(.sc-writing-studio)) select + .material-symbols-outlined { display: none; }
+:is(.sc-author-theme:not(:has(.sc-writing-studio)), .sc-animated-modal-body, .sc-vaul-sheet) select + .material-symbols-outlined { display: none; }
 
-.sc-author-theme:not(:has(.sc-writing-studio)) select:not([multiple]):not([size]):hover { border-color: var(--sc-control-border-hover); }
+:is(.sc-author-theme:not(:has(.sc-writing-studio)), .sc-animated-modal-body, .sc-vaul-sheet) select:not([multiple]):not([size]):hover { border-color: var(--sc-control-border-hover); }
 
 /* Text fields share the same quiet border and focus ring. */
-.sc-author-theme:not(:has(.sc-writing-studio)) :is(input:not([type="checkbox"]):not([type="radio"]), textarea) {
+:is(.sc-author-theme:not(:has(.sc-writing-studio)), .sc-animated-modal-body, .sc-vaul-sheet) :is(input:not([type="checkbox"]):not([type="radio"]), textarea) {
   border-color: var(--sc-control-border);
 }
 
-.sc-author-theme:not(:has(.sc-writing-studio)) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):focus,
+:is(.sc-author-theme:not(:has(.sc-writing-studio)), .sc-animated-modal-body, .sc-vaul-sheet) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):focus,
 :root :is(.mantine-Input-input, .mantine-PasswordInput-innerInput):focus {
   border-color: rgb(var(--sc-primary-rgb));
   box-shadow: 0 0 0 3px rgb(var(--sc-primary-rgb) / .15);
@@ -96,7 +96,7 @@
 .sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button).sc-button-soft:hover { background: rgb(var(--sc-primary-rgb) / .16); color: rgb(var(--sc-primary-text-strong-rgb)); }
 
 /* Any filled-orange surface (count badges, avatars, tabs) uses the dark label, even if the markup says text-white. */
-.sc-author-theme:not(:has(.sc-writing-studio)) :is(.bg-primary, .bg-primary-500, .bg-primary-600, .bg-primary-700) { color: var(--sc-on-primary); }
+:is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) :is(.bg-primary, .bg-primary-500, .bg-primary-600, .bg-primary-700) { color: var(--sc-on-primary); }
 
 /* Neutral: white with a hairline border. */
 .sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button, span).sc-button:not(.sc-button-primary):not(.sc-button-soft) {
@@ -122,6 +122,9 @@
 
 /* Icon-only and support variants used on the author profile. */
 .sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button).sc-button.sc-button-icon { width: 34px; padding: 0; }
+@media (pointer: coarse) {
+  .sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button).sc-button.sc-button-icon { width: 44px; min-width: 44px; min-height: 44px; }
+}
 .sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button).sc-button.sc-button-support:not(.sc-button-primary):not(.sc-button-soft) { background: var(--sc-warning-bg); border-color: transparent; color: var(--sc-warning); }
 .sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button).sc-button.sc-button-support:not(.sc-button-primary):not(.sc-button-soft):hover { background: var(--sc-warning-bg); border-color: rgb(148 96 26 / .35); }
 

@@ -43,7 +43,8 @@ test('reader catalog: cover cards, unified sorting, selectable filters and scrol
         await expect(card).toContainText('12 chương');
         await expect(card).toContainText('1.250 lượt đọc');
         await expect(card).toContainText('Đang ra');
-        await expect(card).not.toContainText(/Hidden author|Hidden synopsis|Fantasy|99|Xem truyện/);
+        await expect(card).toContainText('Fantasy');
+        await expect(card).not.toContainText(/Hidden author|Hidden synopsis|99|Xem truyện/);
         const cover = await card.locator('.sc-book-cover').boundingBox();
         assert.ok(cover.height / cover.width > 1.45);
         if (width === 390) await page.getByRole('button', { name: 'Bộ lọc', exact: true }).click();

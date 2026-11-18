@@ -44,6 +44,12 @@ function useSessionRestore() {
   return { accessToken, user, clearSession };
 }
 
+const roleLabels: Record<UserRole, string> = {
+  READER: 'Độc giả',
+  AUTHOR: 'Tác giả',
+  ADMIN: 'Quản trị viên'
+};
+
 export function AuthGate({ children }: PropsWithChildren) {
   const { accessToken, user, clearSession } = useSessionRestore();
 
@@ -52,11 +58,11 @@ export function AuthGate({ children }: PropsWithChildren) {
   }
 
   if (!user) {
-    return <LoadingState label="Restoring session..." />;
+    return <LoadingState label="Đang khôi phục phiên đăng nhập..." />;
   }
 
   if (user.status === 'LOCKED') {
-    return <PermissionState requiredRole="Unlocked account" onBack={clearSession} />;
+    return <PermissionState requiredRole="Tài khoản đang hoạt động (chưa bị khóa)" onBack={clearSession} />;
   }
 
   return children;
@@ -68,7 +74,7 @@ export function OptionalSession({ children }: PropsWithChildren) {
   const { accessToken, user } = useSessionRestore();
 
   if (accessToken && !user) {
-    return <LoadingState label="Restoring session..." />;
+    return <LoadingState label="Đang khôi phục phiên đăng nhập..." />;
   }
 
   return children;
@@ -83,7 +89,12 @@ export function RoleGuard({ roles, children }: PropsWithChildren<{ roles: UserRo
   }
 
   if (!roles.includes(user.role)) {
-    return <PermissionState requiredRole={roles.join(' or ')} onBack={() => navigate(getRoleHomePath(user.role), { replace: true })} />;
+    return (
+      <PermissionState
+        requiredRole={roles.map((role) => roleLabels[role]).join(' hoặc ')}
+        onBack={() => navigate(getRoleHomePath(user.role), { replace: true })}
+      />
+    );
   }
 
   return children;

@@ -4,6 +4,9 @@ import { useAuthStore } from '../auth/useAuthStore';
 import { ApiClientError } from '../../shared/api/api-client';
 import { getEntityProfile, updateEntityProfile, type EntityProfile, type EntityProfilePatch, type MemoryEntity } from './author-memory-api';
 import { PROFILE_FIELDS, buildProfilePatch, canonicalChanged, codePointCount, emptyProfileDraft, profileDraft, type ProfileDraft } from './entity-profile-form';
+import { CopyTextButton } from '../../shared/components/ActionFeedback';
+import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
+import { entityOptionLabel, entityTypeLabel } from './event-labels';
 
 type Props = { novelId: string; entities: MemoryEntity[]; active: boolean; onSaved: () => Promise<unknown> };
 const LABELS = { description: 'Mô tả', appearance: 'Ngoại hình', personality: 'Tính cách', background: 'Bối cảnh xuất thân' };
@@ -28,7 +31,7 @@ function ProfileSelection({ novelId, entities, onSaved }: Props) {
     <Text fw={600}>Hồ sơ entity đã xác nhận</Text>
     <Text size="xs" c="dimmed">Đổi entity, truyện hoặc phiên tài khoản sẽ xóa bản nhập riêng tư chưa lưu.</Text>
     <Select label="Chọn entity theo UUID" placeholder="Chọn hồ sơ trong Canon" searchable clearable
-      data={entities.map(e => ({ value: e.entity_id, label: `${e.name} · ${e.entity_type} · ${e.entity_id}` }))}
+      data={entities.map(e => ({ value: e.entity_id, label: entityOptionLabel(e, entities) }))}
       value={entity?.entity_id ?? null} onChange={setSelected} />
     {!entities.length && <Text size="sm" c="dimmed">Chưa có entity đã duyệt để chỉnh hồ sơ.</Text>}
     {entity && <PrivateProfileForm key={entity.entity_id} novelId={novelId} entity={entity} onSaved={onSaved} />}
@@ -133,25 +136,33 @@ function PrivateProfileForm({ novelId, entity, onSaved }: { novelId: string; ent
   }
 
   return <Stack gap="sm" data-testid="entity-profile-editor">
-    <Group><Text fw={600}>{entity.name} · {entity.entity_type}</Text>{base && <Badge>Profile v{base.version} · Brain v{base.brain_version}</Badge>}</Group>
-    <Text size="xs" ff="monospace">UUID: {entity.entity_id}</Text>
+    <Group justify="space-between" align="center" wrap="wrap">
+      <Group gap="xs"><Text fw={600}>{entity.name} · {entityTypeLabel(entity.entity_type)}</Text>{base && <Badge>Profile v{base.version} · Brain v{base.brain_version}</Badge>}</Group>
+      <CopyTextButton value={entity.entity_id} label="Sao chép UUID" />
+    </Group>
+    <AnimatedDisclosure summary="Xem mã định danh UUID">
+      <Text size="xs" ff="monospace" c="dimmed" pt={4}>{entity.entity_id}</Text>
+    </AnimatedDisclosure>
     {message && <Paper withBorder p="sm" role={success ? 'status' : 'alert'} aria-live={success ? 'polite' : 'assertive'}><Text size="sm" c={success ? 'teal' : 'orange'}>{message}</Text></Paper>}
     {phase === 'loading' && <Text role="status">Đang tải hồ sơ riêng tư…</Text>}
     {phase === 'load-error' && <Button variant="light" onClick={() => void load()}>Tải lại hồ sơ</Button>}
     {base && <>
-      <Text size="sm" fw={600}>Canon Profile — thông tin nền do tác giả xác nhận</Text>
-      <Text size="xs" c="dimmed">Có thể được chọn vào AI context khi phù hợp. Sửa hồ sơ không tạo sự kiện lịch sử.</Text>
+      <Text size="sm" fw={600}>Hồ sơ Canon</Text>
       {PROFILE_FIELDS.map(key => <Textarea key={key} label={LABELS[key]} autoComplete="off" autosize minRows={2} maxRows={8}
         value={draft[key]} disabled={!editing} onChange={e => change(key, e.currentTarget.value)}
         description={`${codePointCount(draft[key])}/4.000 ký tự Unicode`} />)}
       <TextInput label="Chương bắt đầu có hiệu lực" type="number" inputMode="numeric" min={1} max={1000000} step={1}
         value={draft.cutoff} disabled={!editing || !canonicalChanged(base, draft)} onChange={e => change('cutoff', e.currentTarget.value)} />
-      <Text size="xs" c="dimmed">Chương hiệu lực áp dụng cho toàn bộ snapshot hiện tại, kể cả các trường giữ nguyên. Không tái dựng profile cũ ở các chương trước. Đổi chương cùng một thay đổi Canon.</Text>
       <Divider />
       <Textarea label="Private Author Notes — ghi chú riêng" autoComplete="off" autosize minRows={3} maxRows={10} value={draft.author_notes}
         disabled={!editing} onChange={e => change('author_notes', e.currentTarget.value)}
         description={`${codePointCount(draft.author_notes)}/8.000 ký tự Unicode · Không đưa vào AI context hoặc approved memory.`} />
-      <Text size="xs" c="dimmed">Historical Events/State: thay đổi diễn ra trong truyện dùng Event Correction/Canon review hiện có. Future Plans: tiếp tục dùng Story Plan.</Text>
+      <AnimatedDisclosure summary="Quy tắc áp dụng chương hiệu lực & phạm vi hồ sơ">
+        <Stack gap={4} pt={4}>
+          <Text size="xs" c="dimmed">Có thể được chọn vào AI context khi phù hợp. Chương hiệu lực áp dụng cho toàn bộ snapshot hiện tại mà không tạo sự kiện lịch sử.</Text>
+          <Text size="xs" c="dimmed">Thay đổi diễn ra trong truyện dùng Duyệt Canon; dự định tương lai dùng Định hướng.</Text>
+        </Stack>
+      </AnimatedDisclosure>
       {phase === 'reconcile' && <Paper withBorder p="sm" data-testid="profile-server-comparison">
         <Text fw={600}>Phiên bản server để đối chiếu</Text>
         {PROFILE_FIELDS.map(key => <Text key={key} size="sm" style={{ whiteSpace: 'pre-wrap' }}>{LABELS[key]}: {base.profile[key] || '(trống)'}</Text>)}

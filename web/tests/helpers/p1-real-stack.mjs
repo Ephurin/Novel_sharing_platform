@@ -86,6 +86,8 @@ export async function createHarness() {
     const registration = await api('POST', '/auth/register', { username: 'p1_' + suffix, email, password });
     const userId = registration.data.user.userId;
     await sql('UPDATE users SET role=$1 WHERE user_id=$2', [role, userId]);
+    // Admin requests also need an admin_access scope (migration 018), not only role=ADMIN.
+    if (role === 'ADMIN') await sql("INSERT INTO admin_access(user_id,scope) VALUES($1,'SUPER_ADMIN')", [userId]);
     const login = await api('POST', '/auth/login', { identifier: email, password });
     secrets.add(login.data.accessToken);
     return { userId, email, password, token: login.data.accessToken, role };
@@ -144,6 +146,9 @@ export async function createHarness() {
     if (url.origin === origin || url.protocol === 'data:' || url.protocol === 'blob:') return route.continue();
     blockedExternal.push({ host: url.host, path: url.pathname }); return route.abort('blockedbyclient');
   });
+  // These suites drive the plain-text manuscript (textarea.sc-manuscript). Since the visual editor
+  // became the Writer default, start every page in "Ký hiệu định dạng" (source) mode.
+  await context.addInitScript(() => { try { localStorage.setItem('storycraft-studio-editor-mode', 'source'); } catch {} });
   await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
   context.on('page', page => {
     page.on('pageerror', error => browserErrors.push(error.message));

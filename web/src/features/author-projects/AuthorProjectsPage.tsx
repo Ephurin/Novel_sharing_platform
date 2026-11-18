@@ -8,7 +8,11 @@ import { CoverCropEditor } from '../../shared/components/CoverCropEditor';
 import { prepareCoverImage } from '../../shared/components/cover-image';
 import { WorkspacePreview } from '../../shared/components/WorkspacePreview';
 import { ReactionIcon } from '../../shared/components/InteractionWidgets';
-import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
+import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
+import { AnimatedModal } from '../../shared/components/AnimatedModal';
+import { TagsInput } from '@mantine/core';
 import { navigationLabels } from '../../shared/components/navigation';
 import React, { useState, useMemo, useRef, useEffect, useId } from 'react';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
@@ -60,37 +64,20 @@ export function AuthorProjectsPage() {
   const [pinnedIds, setPinnedIds] = useWorkspacePreference<string[]>('pinned-projects', [], stringArray);
   const [recentIds] = useWorkspacePreference<string[]>('recent-projects', [], stringArray);
   const togglePin = (id: string) => setPinnedIds(ids => ids.includes(id) ? ids.filter(item => item !== id) : [id, ...ids].slice(0, 200));
-  const [activeMenuNovelId, setActiveMenuNovelId] = useState<string | null>(null);
   const [previewId, setPreviewId] = useState<string | null>(null);
 
   // Modal State for New Project
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
-  const [newGenre, setNewGenre] = useState('');
+  const [newGenres, setNewGenres] = useState<string[]>([]);
   const [newSynopsis, setNewSynopsis] = useState('');
   const [newCoverUrl, setNewCoverUrl] = useState('');
   const [coverToCrop, setCoverToCrop] = useState<File | null>(null);
   const [coverSource, setCoverSource] = useState<File | null>(null);
   useEffect(() => { if (!createModalOpen) setCoverToCrop(null); }, [createModalOpen]);
-  const [isGenreDropdownOpen, setIsGenreDropdownOpen] = useState(false);
   const [isCoverDragging, setIsCoverDragging] = useState(false);
 
-  const genreDropdownRef = useRef<HTMLDivElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (genreDropdownRef.current && !genreDropdownRef.current.contains(e.target as Node)) {
-        setIsGenreDropdownOpen(false);
-      }
-    };
-    if (isGenreDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isGenreDropdownOpen]);
 
   // Toast State
   const { showToast } = useToast();
@@ -166,8 +153,9 @@ export function AuthorProjectsPage() {
     return projects.reduce((sum, p) => sum + (p.viewsCount ?? 0), 0);
   }, [projects]);
 
-  const totalChapters = useMemo(() => {
-    return projects.reduce((sum, p) => sum + (p.chaptersCount || 0), 0);
+  // UI walkthrough (UI-7): the card is "published chapters", so count only those.
+  const publishedChapters = useMemo(() => {
+    return projects.reduce((sum, p) => sum + (p.publishedChaptersCount ?? 0), 0);
   }, [projects]);
 
   // Create Project Mutation
@@ -185,10 +173,12 @@ export function AuthorProjectsPage() {
       if (trimmedTitle.length > NOVEL_TITLE_MAX) throw new Error(`Tên tác phẩm tối đa ${NOVEL_TITLE_MAX} ký tự.`);
       if (newSynopsis.trim().length < NOVEL_SYNOPSIS_MIN) throw new Error(`Giới thiệu cần tối thiểu ${NOVEL_SYNOPSIS_MIN} ký tự.`);
 
+      const cleanedGenres = newGenres.map((g) => g.trim()).filter(Boolean);
       const novel = await createNovel({
         title: trimmedTitle,
         synopsis: newSynopsis.trim(),
-        genre: newGenre.trim() || undefined,
+        genre: cleanedGenres[0] || undefined,
+        genres: cleanedGenres.length ? cleanedGenres : undefined,
         tags: [],
         coverImageUrl: newCoverUrl.trim() || null
       });
@@ -198,13 +188,13 @@ export function AuthorProjectsPage() {
     onSuccess: async (novel: Novel) => {
       writeAuthorContext(user?.userId ?? '', { novelId: novel.novelId, chapterId: '' });
       await queryClient.invalidateQueries({ queryKey: ['author-projects'] });
+      await queryClient.invalidateQueries({ queryKey: ['novel-genres'] });
       setCreateModalOpen(false);
       setNewTitle('');
-      setNewGenre('');
+      setNewGenres([]);
       setNewSynopsis('');
       setNewCoverUrl('');
       setCoverSource(null);
-      setIsGenreDropdownOpen(false);
       showToast('Đã tạo tác phẩm mới thành công!');
       navigate(`/author/novels/${novel.novelId}`);
     },
@@ -213,8 +203,11 @@ export function AuthorProjectsPage() {
     }
   });
 
+  // UI walkthrough (UI-3): "Viết tiếp" opens the chapter the author edited last, not the chapter
+  // remembered in this browser (which could be an old one) or the first chapter.
   const openIde = (novelId: string) => {
-    navigate(`/author/ide?novelId=${novelId}`);
+    const latest = projects.find(project => project.novelId === novelId)?.latestChapter;
+    navigate(`/author/ide?novelId=${novelId}${latest ? `&chapterId=${latest.chapterId}` : ''}`);
   };
   const selectCover = (file: File) => {
     if (coverUpload.isPending || createProjectMutation.isPending) return;
@@ -259,56 +252,45 @@ export function AuthorProjectsPage() {
             {/* Card 1: Tổng tác phẩm */}
             <div className="bg-surface-container-lowest rounded-xl p-4 shadow-2xs border border-stone-200/80 flex items-center justify-between">
               <div className="flex flex-col gap-1">
-                <span className="text-meta text-stone-500 uppercase tracking-wider font-semibold">
+                <span className="text-form-label text-stone-500">
                   Tổng tác phẩm
                 </span>
                 <span className="font-headline-sm text-2xl font-bold text-stone-900 leading-none">
                   <AnimatedNumber value={counts.all} ready={Boolean(projectsQuery.data)} />
                 </span>
-                <span className="text-meta text-stone-500 flex items-center gap-1 mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary-600 inline-block"></span>
-                  Tất cả dự án sáng tác
-                </span>
               </div>
-              <div className="w-11 h-11 rounded-xl bg-primary-600/10 flex items-center justify-center text-primary-600 shrink-0">
-                <span className="material-symbols-outlined text-[24px]">auto_stories</span>
+              <div className="w-10 h-10 rounded-xl bg-primary-600/10 flex items-center justify-center text-primary-600 shrink-0">
+                <span className="material-symbols-outlined text-[22px]" aria-hidden="true">auto_stories</span>
               </div>
             </div>
 
             {/* Card 2: Tổng lượt đọc */}
             <div className="bg-surface-container-lowest rounded-xl p-4 shadow-2xs border border-stone-200/80 flex items-center justify-between">
               <div className="flex flex-col gap-1">
-                <span className="text-meta text-stone-500 uppercase tracking-wider font-semibold">
+                <span className="text-form-label text-stone-500">
                   Tổng lượt đọc
                 </span>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="font-headline-sm text-2xl font-bold text-stone-900 leading-none">
-                    <AnimatedNumber value={totalReads} ready={Boolean(projectsQuery.data)} format={value => value >= 1000 ? `${(value / 1000).toFixed(1)}K` : String(value)} />
-                  </span>
-                </div>
-                <span className="text-meta text-stone-500 mt-0.5">Lượt đọc tích lũy từ các tác phẩm</span>
+                <span className="font-headline-sm text-2xl font-bold text-stone-900 leading-none">
+                  <AnimatedNumber value={totalReads} ready={Boolean(projectsQuery.data)} format={value => value >= 1000 ? `${(value / 1000).toFixed(1)}K` : String(value)} />
+                </span>
               </div>
-              <div className="w-11 h-11 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 shrink-0">
-                <span className="material-symbols-outlined text-[24px]">visibility</span>
+              <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 shrink-0">
+                <span className="material-symbols-outlined text-[22px]" aria-hidden="true">visibility</span>
               </div>
             </div>
 
             {/* Card 3: Chương đã xuất bản */}
             <div className="bg-surface-container-lowest rounded-xl p-4 shadow-2xs border border-stone-200/80 flex items-center justify-between">
               <div className="flex flex-col gap-1">
-                <span className="text-meta text-stone-500 uppercase tracking-wider font-semibold">
+                <span className="text-form-label text-stone-500">
                   Chương đã xuất bản
                 </span>
                 <span className="font-headline-sm text-2xl font-bold text-stone-900 leading-none">
-                  <AnimatedNumber value={totalChapters} ready={Boolean(projectsQuery.data)} />
-                </span>
-                <span className="text-meta text-stone-500 flex items-center gap-1 mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
-                  Trên {counts.all} bộ truyện đang chạy
+                  <AnimatedNumber value={publishedChapters} ready={Boolean(projectsQuery.data)} />
                 </span>
               </div>
-              <div className="w-11 h-11 rounded-xl bg-stone-100 flex items-center justify-center text-stone-700 shrink-0">
-                <span className="material-symbols-outlined text-[24px]">history_edu</span>
+              <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center text-stone-700 shrink-0">
+                <span className="material-symbols-outlined text-[22px]" aria-hidden="true">history_edu</span>
               </div>
             </div>
           </section>
@@ -346,6 +328,7 @@ export function AuthorProjectsPage() {
                 </span>
                 <input
                   type="text"
+                  aria-label="Tìm kiếm tác phẩm"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   data-workspace-search placeholder="Tìm kiếm tác phẩm theo tên..."
@@ -371,9 +354,10 @@ export function AuthorProjectsPage() {
                         <button
                           key={value}
                           type="button"
+                          aria-pressed={active}
                           onClick={() => setSelectedStatusTab(value)}
                           className={`relative z-10 px-3 py-1 rounded-md transition-colors cursor-pointer ${
-                            active ? 'text-white font-semibold' : 'text-stone-600 hover:text-stone-900'
+                            active ? 'text-on-primary font-semibold' : 'text-stone-600 hover:text-stone-900'
                           }`}
                         >
                           {active && (
@@ -394,6 +378,7 @@ export function AuthorProjectsPage() {
                 {/* Genre Dropdown */}
                 <div className="relative">
                   <select
+                    aria-label="Lọc theo thể loại"
                     value={selectedGenre}
                     onChange={(e) => setSelectedGenre(e.target.value)}
                     className="appearance-none bg-stone-50/80 hover:bg-stone-50 border border-stone-200/80 text-stone-700 text-meta py-1.5 pl-3 pr-7 rounded-lg focus:outline-none focus:border-primary-600 cursor-pointer transition-colors"
@@ -424,6 +409,8 @@ export function AuthorProjectsPage() {
                         <button
                           key={mode}
                           type="button"
+                          aria-pressed={active}
+                          aria-label={`Chế độ hiển thị ${title}`}
                           onClick={() => setViewMode(mode)}
                           className={`relative z-10 p-1 rounded-md cursor-pointer transition-colors ${
                             active ? 'text-primary-600' : 'text-stone-400 hover:text-stone-700'
@@ -450,7 +437,15 @@ export function AuthorProjectsPage() {
             <div className="sc-project-library-options">
               <label className="text-meta"><input type="checkbox" checked={onlyPinned} onChange={e => setOnlyPinned(e.target.checked)} /> Chỉ tác phẩm đã ghim</label>
               <FilterPresets name="author-projects" fields={['q', 'status', 'sort', 'genre', 'pinned']} presentation="popover" />
-              {recentIds.some(id => projects.some(p => p.novelId === id)) && <details className="sc-filter-presets"><summary><span className="material-symbols-outlined" aria-hidden="true">chevron_right</span><span>Vừa làm việc</span></summary><div className="sc-workspace-row">{recentIds.map(id => projects.find(p => p.novelId === id)).filter((p): p is Novel => Boolean(p)).slice(0, 5).map(project => <Link className="sc-workspace-button" key={project.novelId} to={`/author/novels/${project.novelId}`}>{project.title}</Link>)}</div></details>}
+              {recentIds.some(id => projects.some(p => p.novelId === id)) && (
+                <AnimatedDisclosure className="sc-filter-presets" summary={<span>Vừa làm việc</span>}>
+                  <div className="sc-workspace-row">
+                    {recentIds.map(id => projects.find(p => p.novelId === id)).filter((p): p is Novel => Boolean(p)).slice(0, 5).map(project => (
+                      <Link className="sc-workspace-button" key={project.novelId} to={`/author/novels/${project.novelId}`}>{project.title}</Link>
+                    ))}
+                  </div>
+                </AnimatedDisclosure>
+              )}
             </div>
             <ActiveFilterChips items={[
               ...(onlyPinned ? [{ id: 'pinned', label: 'Đã ghim', onRemove: () => setOnlyPinned(false) }] : []),
@@ -505,7 +500,7 @@ export function AuthorProjectsPage() {
             {/* Novel Cards: Grid View (Strict 3 columns on desktop) */}
             <ProjectLayout>
             {viewMode === 'grid' && (
-              <AnimatedCollection key="grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-4.5">
+              <AnimatedCollection key="grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-4">
                 {filteredProjects.map((project) => {
                   const cover = project.coverImageUrl;
                   const statusLabel =
@@ -516,8 +511,6 @@ export function AuthorProjectsPage() {
                       : project.serialStatus === 'COMPLETED'
                       ? 'Hoàn thành'
                       : 'Đang sáng tác';
-
-                  const isMenuOpen = activeMenuNovelId === project.novelId;
 
                   const readsFormatted = (project.viewsCount ?? 0).toLocaleString('vi-VN');
 
@@ -542,17 +535,20 @@ export function AuthorProjectsPage() {
                               <span className="text-meta font-medium text-stone-500 truncate">
                                 {project.genre || 'Chưa phân loại'}
                               </span>
-                              <span
-                                className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-meta font-semibold whitespace-nowrap ${
-                                  project.status === 'DRAFT'
-                                    ? 'bg-stone-100 text-stone-600 border border-stone-200/60'
-                                    : project.serialStatus === 'COMPLETED'
-                                    ? 'bg-blue-50 text-blue-700 border border-blue-200/60'
-                                    : 'bg-primary-50 text-primary-700 border border-primary-200/60'
-                                }`}
-                              >
-                                {statusLabel}
-                              </span>
+                              <div className="flex items-center gap-1 shrink-0">
+                                <span
+                                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-meta font-semibold whitespace-nowrap ${
+                                    project.status === 'DRAFT'
+                                      ? 'bg-stone-100 text-stone-600 border border-stone-200/60'
+                                      : project.serialStatus === 'COMPLETED'
+                                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
+                                      : 'bg-primary-50 text-primary-700 border border-primary-200/60'
+                                  }`}
+                                >
+                                  {statusLabel}
+                                </span>
+                                <ProjectPin title={project.title} active={pinnedIds.includes(project.novelId)} onClick={() => togglePin(project.novelId)} />
+                              </div>
                             </div>
 
                             {/* Novel Title: Prominently, up to 2 lines */}
@@ -585,23 +581,13 @@ export function AuthorProjectsPage() {
 
                       {/* Bottom Action Footer */}
                       <div className="mt-3.5 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-1.5 relative">
-                        <ProjectPin title={project.title} active={pinnedIds.includes(project.novelId)} onClick={() => togglePin(project.novelId)} />
-                        <button type="button" className="sc-project-pin" aria-label={`Xem nhanh ${project.title}`} title="Xem nhanh tác phẩm" onClick={() => setPreviewId(project.novelId)}><span className="material-symbols-outlined" aria-hidden="true">visibility</span></button>
                         <div className="flex items-center gap-1.5 flex-1">
-                          <Link
-                            to={`/author/novels/${project.novelId}`}
-                            className="inline-flex items-center justify-center gap-1 flex-1 py-1 px-2.5 rounded-lg bg-stone-50 hover:bg-stone-100 text-meta font-medium text-stone-700 border border-stone-200/80 shadow-2xs transition-colors"
-                          >
-                            <span className="material-symbols-outlined text-[15px]">settings</span>
-                            <span>Quản lý</span>
-                          </Link>
-
                           {project.serialStatus === 'COMPLETED' ? (
                             <Link
                               to={`/public/novels/${project.novelId}`}
                               className="inline-flex items-center justify-center gap-1 flex-1 py-1 px-2.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-meta font-semibold shadow-2xs transition-colors"
                             >
-                              <span className="material-symbols-outlined text-[15px]">visibility</span>
+                              <span className="material-symbols-outlined text-[15px]" aria-hidden="true">visibility</span>
                               <span>Xem tác phẩm</span>
                             </Link>
                           ) : (
@@ -610,57 +596,62 @@ export function AuthorProjectsPage() {
                               onClick={() => openIde(project.novelId)}
                               className="inline-flex items-center justify-center gap-1 flex-1 py-1 px-2.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-meta font-semibold shadow-2xs transition-colors cursor-pointer"
                             >
-                              <span className="material-symbols-outlined text-[15px]">draw</span>
+                              <span className="material-symbols-outlined text-[15px]" aria-hidden="true">draw</span>
                               <span>Viết tiếp</span>
                             </button>
                           )}
+
+                          <Link
+                            to={`/author/novels/${project.novelId}`}
+                            className="inline-flex items-center justify-center gap-1 py-1 px-2.5 rounded-lg bg-stone-50 hover:bg-stone-100 text-meta font-medium text-stone-700 border border-stone-200/80 shadow-2xs transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-[15px]" aria-hidden="true">settings</span>
+                            <span>Quản lý</span>
+                          </Link>
                         </div>
 
                         {/* Three-dot overflow menu */}
-                        <div className="relative">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setActiveMenuNovelId(isMenuOpen ? null : project.novelId)
-                            }
-                            className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer"
-                            title="Thêm thao tác"
-                          >
-                            <span className="material-symbols-outlined text-[18px]">more_vert</span>
-                          </button>
-
-                          {isMenuOpen && (
-                            <div className="absolute right-0 bottom-full mb-1.5 w-44 bg-surface-container-lowest rounded-lg shadow-sm border border-stone-200 py-1 z-30 animate-in fade-in zoom-in-95 duration-100">
-                              <Link
-                                to={`/author/context/${project.novelId}`}
-                                className="w-full px-3 py-1.5 text-left text-meta text-stone-700 hover:bg-stone-50 hover:text-primary-600 flex items-center gap-2 transition-colors"
-                              >
-                                <span className="material-symbols-outlined text-[16px] text-primary-500">
-                                  menu_book
-                                </span>
-                                <span>Cẩm nang bối cảnh</span>
-                              </Link>
-                              <Link
-                                to={`/author/import/${project.novelId}`}
-                                className="w-full px-3 py-1.5 text-left text-meta text-stone-700 hover:bg-stone-50 hover:text-primary-600 flex items-center gap-2 transition-colors"
-                              >
-                                <span className="material-symbols-outlined text-[16px] text-emerald-600">
-                                  file_upload
-                                </span>
-                                <span>Nhập bản thảo</span>
-                              </Link>
-                              <Link
-                                to={`/public/novels/${project.novelId}`}
-                                className="w-full px-3 py-1.5 text-left text-meta text-stone-700 hover:bg-stone-50 hover:text-primary-600 flex items-center gap-2 transition-colors"
-                              >
-                                <span className="material-symbols-outlined text-[16px] text-stone-400">
-                                  visibility
-                                </span>
-                                <span>Xem trang độc giả</span>
-                              </Link>
-                            </div>
-                          )}
-                        </div>
+                        <Menu position="bottom-end">
+                          <Menu.Target>
+                            <button
+                              type="button"
+                              className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer"
+                              title="Thêm thao tác"
+                              aria-label={`Thêm thao tác ${project.title}`}
+                            >
+                              <span className="material-symbols-outlined text-[18px]" aria-hidden="true">more_vert</span>
+                            </button>
+                          </Menu.Target>
+                          <Menu.Dropdown>
+                            <Menu.Item
+                              leftSection={<span className="material-symbols-outlined text-[16px] text-stone-500" aria-hidden="true">preview</span>}
+                              onClick={() => setPreviewId(project.novelId)}
+                            >
+                              Xem nhanh
+                            </Menu.Item>
+                            <Menu.Item
+                              component={Link}
+                              to={`/author/context/${project.novelId}`}
+                              leftSection={<span className="material-symbols-outlined text-[16px] text-primary-600" aria-hidden="true">menu_book</span>}
+                            >
+                              Cẩm nang bối cảnh
+                            </Menu.Item>
+                            <Menu.Item
+                              component={Link}
+                              to={`/author/import/${project.novelId}`}
+                              leftSection={<span className="material-symbols-outlined text-[16px] text-emerald-600" aria-hidden="true">file_upload</span>}
+                            >
+                              Nhập bản thảo
+                            </Menu.Item>
+                            <Menu.Item
+                              component={Link}
+                              to={`/public/novels/${project.novelId}`}
+                              leftSection={<span className="material-symbols-outlined text-[16px] text-stone-500" aria-hidden="true">visibility</span>}
+                            >
+                              Xem trang độc giả
+                            </Menu.Item>
+                          </Menu.Dropdown>
+                        </Menu>
                       </div>
                     </ProjectMotionCard>
                   );
@@ -707,7 +698,7 @@ export function AuthorProjectsPage() {
                                 project.status === 'DRAFT'
                                   ? 'bg-stone-100 text-stone-600 border border-stone-200/60'
                                   : project.serialStatus === 'COMPLETED'
-                                  ? 'bg-blue-50 text-blue-700 border border-blue-200/60'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
                                   : 'bg-primary-50 text-primary-700 border border-primary-200/60'
                               }`}
                             >
@@ -736,14 +727,14 @@ export function AuthorProjectsPage() {
                         <button type="button" className="sc-project-pin" aria-label={`Xem nhanh ${project.title}`} title="Xem nhanh tác phẩm" onClick={() => setPreviewId(project.novelId)}><span className="material-symbols-outlined" aria-hidden="true">visibility</span></button>
                         <Link
                           to={`/author/novels/${project.novelId}`}
-                          className="px-2.5 py-1 rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200/80 text-meta font-medium text-stone-700 shadow-2xs transition-colors"
+                          className="inline-flex items-center justify-center px-2.5 py-1 min-h-[32px] rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200/80 text-meta font-medium text-stone-700 shadow-2xs transition-colors"
                         >
                           Quản lý
                         </Link>
                         {project.serialStatus === 'COMPLETED' ? (
                           <Link
                             to={`/public/novels/${project.novelId}`}
-                            className="px-3 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-meta font-semibold shadow-2xs transition-colors"
+                            className="inline-flex items-center justify-center px-3 py-1 min-h-[32px] rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-meta font-semibold shadow-2xs transition-colors"
                           >
                             Xem tác phẩm
                           </Link>
@@ -751,7 +742,7 @@ export function AuthorProjectsPage() {
                           <button
                             type="button"
                             onClick={() => openIde(project.novelId)}
-                            className="px-3 py-1 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-meta font-semibold shadow-2xs transition-colors cursor-pointer"
+                            className="inline-flex items-center justify-center px-3 py-1 min-h-[32px] rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-meta font-semibold shadow-2xs transition-colors cursor-pointer"
                           >
                             Viết tiếp
                           </button>
@@ -773,38 +764,28 @@ export function AuthorProjectsPage() {
       {/* ──────────────────────────────────────────
           3. Create Novel Modal Dialog
          ────────────────────────────────────────── */}
-      {createModalOpen && (
-        <AuthorDialog onClose={() => setCreateModalOpen(false)}><div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md bg-surface-container-lowest rounded-2xl shadow-sm border border-stone-200/80 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
-            {/* Modal Header */}
-            <div className="px-5 py-4 bg-surface-subtle border-b border-primary-50/70 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary-600 text-[22px]">menu_book</span>
-                <h3 className="text-body font-bold text-stone-900">Tạo tác phẩm mới</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setCreateModalOpen(false)}
-                className="p-1 rounded-full hover:bg-stone-200/60 text-stone-400 hover:text-stone-700 transition-colors cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[19px]">close</span>
-              </button>
-            </div>
-
+      <AnimatedModal
+        opened={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Tạo tác phẩm mới"
+        size="md"
+        centered
+      >
             {/* Modal Form */}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 if (!coverUpload.isPending && !coverToCrop) createProjectMutation.mutate();
               }}
-              className="p-5 flex flex-col gap-4"
+              className="flex flex-col gap-4"
             >
               {/* Field 1: Tên tác phẩm */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-meta font-bold text-stone-900">
+                <label htmlFor="create-novel-title" className="text-meta font-bold text-stone-900">
                   Tên tác phẩm <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="create-novel-title"
                   type="text"
                   required
                   minLength={2}
@@ -819,61 +800,28 @@ export function AuthorProjectsPage() {
                 </p>
               </div>
 
-              {/* Field 2: Thể loại chính (dropdown menu) */}
-              <div className="flex flex-col gap-1.5 relative" ref={genreDropdownRef}>
-                <label className="text-meta font-bold text-stone-900">
-                  Thể loại chính
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setIsGenreDropdownOpen(!isGenreDropdownOpen)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low text-meta text-stone-900 font-medium flex items-center justify-between hover:bg-surface-container focus:outline-none focus:ring-1 focus:ring-primary-600 transition-colors cursor-pointer text-left"
-                >
-                  <span>{newGenre || 'Chọn thể loại'}</span>
-                  <span
-                    className={`material-symbols-outlined text-stone-500 text-[20px] transition-transform duration-200 ${
-                      isGenreDropdownOpen ? 'rotate-180 text-primary-600' : ''
-                    }`}
-                  >
-                    expand_more
-                  </span>
-                </button>
-
-                {isGenreDropdownOpen && (
-                  <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200/90 py-1.5 max-h-56 overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
-                    {genres.map((genre) => (
-                      <button
-                        key={genre}
-                        type="button"
-                        onClick={() => {
-                          setNewGenre(genre);
-                          setIsGenreDropdownOpen(false);
-                        }}
-                        className={`w-full px-3.5 py-2 text-left text-meta flex items-center justify-between transition-colors cursor-pointer ${
-                          newGenre === genre
-                            ? 'bg-primary-50 text-primary-600 font-semibold'
-                            : 'text-stone-700 hover:bg-surface-subtle'
-                        }`}
-                      >
-                        <span>{genre}</span>
-                        {newGenre === genre && (
-                          <span className="material-symbols-outlined text-[16px] text-primary-600">check</span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                <input type="text" value={newGenre} onChange={(e) => setNewGenre(e.target.value)} maxLength={100} placeholder="Hoặc nhập thể loại mới" className="w-full px-3.5 py-2 rounded-xl bg-surface-container-low text-meta text-stone-900" />
-                {genresQuery.isError && <span className="text-meta text-red-600">Không tải được danh sách thể loại; bạn vẫn có thể nhập thể loại mới.</span>}
-              </div>
+              {/* Field 2: Thể loại (accessible TagsInput combobox) */}
+              <TagsInput
+                label="Thể loại"
+                description={genresQuery.isError ? 'Không tải được danh sách thể loại; bạn vẫn có thể nhập thể loại mới.' : 'Chọn hoặc nhập tối đa 5 thể loại.'}
+                placeholder="Chọn hoặc nhập thể loại"
+                data={genres}
+                value={newGenres}
+                onChange={setNewGenres}
+                maxTags={5}
+                maxLength={100}
+                clearable
+                comboboxProps={{ withinPortal: false }}
+              />
 
               {/* Field 3: Giới thiệu ngắn */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-meta font-bold text-stone-900">Giới thiệu ngắn</label>
+                  <label htmlFor="create-novel-synopsis" className="text-meta font-bold text-stone-900">Giới thiệu ngắn</label>
                   <span className="text-meta text-stone-400 font-normal">Tối thiểu {NOVEL_SYNOPSIS_MIN} ký tự · {newSynopsis.trim().length}/{NOVEL_SYNOPSIS_MIN}</span>
                 </div>
                 <textarea
+                  id="create-novel-synopsis"
                   rows={5}
                   value={newSynopsis}
                   onChange={(e) => setNewSynopsis(e.target.value)}
@@ -943,6 +891,7 @@ export function AuthorProjectsPage() {
                     {newCoverUrl && (
                       <button
                         type="button"
+                        aria-label="Xóa ảnh bìa"
                         onClick={() => { setNewCoverUrl(''); setCoverSource(null); setCoverToCrop(null); }}
                         disabled={coverUpload.isPending}
                         title="Xóa ảnh"
@@ -973,7 +922,7 @@ export function AuthorProjectsPage() {
                 <span className="material-symbols-outlined text-primary-600 text-[18px] shrink-0 mt-0.5">
                   info
                 </span>
-                <p className="text-meta text-stone-600 leading-relaxed">
+                <p className="text-meta text-stone-800 leading-relaxed">
                   Tác phẩm mới sẽ được lưu dưới dạng bản nháp riêng tư. Bạn có thể thay đổi trạng thái sau.
                 </p>
               </div>
@@ -999,9 +948,7 @@ export function AuthorProjectsPage() {
                 </button>
               </div>
             </form>
-          </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
 
       {/* ──────────────────────────────────────────
           Toast Notification

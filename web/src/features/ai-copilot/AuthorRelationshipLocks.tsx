@@ -13,6 +13,7 @@ import {
   TextInput,
   ThemeIcon
 } from '@mantine/core';
+import { entityOptionLabel } from './event-labels';
 import { IconAlertTriangle, IconCheck, IconLock, IconLockOpen, IconRefresh } from '@tabler/icons-react';
 import {
   type MemoryEntity,
@@ -44,10 +45,11 @@ export function AuthorRelationshipLocks({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // Entities mapped to select options with explicit UUIDs
+  // Same option labels as the other memory pickers: "Name (Type)", plus a short ID code only when
+  // two entities share a name. The value is still the exact entity_id.
   const entityOptions = entities.map(e => ({
     value: e.entity_id,
-    label: `${e.name} [${e.entity_type}] · ID: ${e.entity_id.slice(0, 8)}...`
+    label: entityOptionLabel(e, entities)
   }));
 
   const handleLock = () => {
@@ -121,9 +123,9 @@ export function AuthorRelationshipLocks({
 
     if (!subjId || !objId) {
       setErrorMsg(
-        `Quan hệ cũ thiếu UUID chính xác cho ${!subjId ? `chủ thể "${rel.subject}"` : ''}${
+        `Quan hệ cũ chưa gắn với thực thể cụ thể cho ${!subjId ? `chủ thể "${rel.subject}"` : ''}${
           !subjId && !objId ? ' và ' : ''
-        }${!objId ? `đối tượng "${rel.object}"` : ''}. Vui lòng chọn UUID chính xác từ danh sách Canon trước khi khóa.`
+        }${!objId ? `đối tượng "${rel.object}"` : ''}. Hãy chọn đúng thực thể trong danh sách trước khi khóa.`
       );
       setSuccessMsg(null);
     } else {
@@ -142,22 +144,22 @@ export function AuthorRelationshipLocks({
         <Stack gap="sm">
           <Group justify="space-between" align="center">
             <Group gap="xs">
-              <ThemeIcon color="indigo" variant="light" size="sm">
+              <ThemeIcon variant="light" size="sm">
                 <IconLock size={14} />
               </ThemeIcon>
               <Text fw={600} size="sm">
-                Khóa quan hệ Canon (Exact-ID Relationship Lock)
+                Khóa quan hệ giữa hai thực thể
               </Text>
             </Group>
             <Badge variant="outline" color="gray">
-              Brain v{brainVersion}
+              Bộ nhớ v{brainVersion}
             </Badge>
           </Group>
 
           <Text size="xs" c="dimmed">
-            Khóa quan hệ bằng UUID định danh duy nhất giữa hai thực thể. Khi đã khóa, AI không thể
-            tự động thay đổi quan hệ này trong các lần trích xuất tiếp theo. Hai nhân vật cùng tên
-            (ví dụ: Minh A và Minh B) sẽ có các khóa quan hệ hoàn toàn độc lập.
+            Khi đã khóa, AI không thể tự động thay đổi quan hệ này trong các lần phân tích chương sau.
+            Khóa gắn với đúng thực thể bạn chọn, nên hai nhân vật cùng tên (ví dụ hai người tên Minh)
+            có khóa quan hệ riêng.
           </Text>
 
           {errorMsg && (
@@ -186,7 +188,7 @@ export function AuthorRelationshipLocks({
           <Group grow align="flex-start">
             <Select
               size="xs"
-              label="Chủ thể (Subject)"
+              label="Thực thể thứ nhất"
               placeholder="Chọn thực thể đã duyệt..."
               data={entityOptions}
               value={subjectId}
@@ -198,7 +200,7 @@ export function AuthorRelationshipLocks({
 
             <Select
               size="xs"
-              label="Đối tượng (Object)"
+              label="Thực thể thứ hai"
               placeholder="Chọn thực thể đã duyệt..."
               data={entityOptions}
               value={objectId}
@@ -213,8 +215,8 @@ export function AuthorRelationshipLocks({
             <TextInput
               style={{ flex: 1 }}
               size="xs"
-              label="Loại quan hệ (Relation Type, tối đa 80 ký tự)"
-              placeholder="Ví dụ: ally, enemy, mentor, sibling, đồng minh, kẻ thù..."
+              label="Loại quan hệ (tối đa 80 ký tự)"
+              placeholder="Ví dụ: đồng minh, kẻ thù, sư phụ, huynh muội..."
               value={relationType}
               onChange={e => setRelationType(e.currentTarget.value)}
               disabled={disabled}
@@ -222,7 +224,6 @@ export function AuthorRelationshipLocks({
 
             <Button
               size="xs"
-              color="indigo"
               leftSection={<IconLock size={14} />}
               disabled={disabled || !subjectId || !objectId || !relationType.trim()}
               onClick={handleLock}
@@ -264,10 +265,10 @@ export function AuthorRelationshipLocks({
                       </Text>
                       {!rel.metadata?.subject_entity_id && (
                         <Badge color="red" size="xs" variant="filled">
-                          Thiếu UUID
+                          Chưa xác định
                         </Badge>
                       )}
-                      <Badge variant="light" color="indigo" size="xs">
+                      <Badge variant="light" size="xs">
                         {rel.relation}
                       </Badge>
                       <Text fw={600} size="sm">
@@ -275,7 +276,7 @@ export function AuthorRelationshipLocks({
                       </Text>
                       {!rel.metadata?.object_entity_id && (
                         <Badge color="red" size="xs" variant="filled">
-                          Thiếu UUID
+                          Chưa xác định
                         </Badge>
                       )}
                     </Group>
@@ -291,37 +292,19 @@ export function AuthorRelationshipLocks({
                     )}
                   </Group>
 
-                  {/* Metadata and Exact ID display */}
-                  {hasExactIds ? (
-                    <Paper p="xs" bg="var(--mantine-color-gray-0)" radius="xs">
-                      <Group gap="md">
-                        <Text size="xs" c="dimmed">
-                          Chủ thể UUID:{' '}
-                          <Text component="span" ff="monospace" size="xs">
-                            {rel.metadata?.subject_entity_id}
-                          </Text>
-                        </Text>
-                        <Text size="xs" c="dimmed">
-                          Đối tượng UUID:{' '}
-                          <Text component="span" ff="monospace" size="xs">
-                            {rel.metadata?.object_entity_id}
-                          </Text>
-                        </Text>
-                      </Group>
-                    </Paper>
-                  ) : null}
+                  {/* Demo walkthrough 2026-11-17: the exact IDs stay in the data; the author sees names only. */}
 
                   {/* Ambiguous Legacy Lock Warning & Remediation */}
                   {isAmbiguousLegacy && (
                     <Alert
                       color="orange"
                       icon={<IconAlertTriangle size={14} />}
-                      title="Cảnh báo: Khóa quan hệ cũ thiếu UUID chính xác (Ambiguous Legacy Lock)"
+                      title="Khóa quan hệ cũ chưa gắn với thực thể cụ thể"
                     >
                       <Stack gap="xs">
                         <Text size="xs">
                           Khóa này được tạo từ phiên bản cũ chỉ lưu tên hiển thị &ldquo;{rel.subject}&rdquo; và &ldquo;{rel.object}&rdquo;.
-                          Nếu truyện có nhiều nhân vật cùng tên, khóa này có thể gây nhầm lẫn. Vui lòng chọn lại UUID chính xác để cập nhật.
+                          Nếu truyện có nhiều nhân vật cùng tên, khóa này có thể gây nhầm lẫn. Hãy chọn lại đúng thực thể để cập nhật.
                         </Text>
                         <Group justify="flex-end">
                           <Button
@@ -331,7 +314,7 @@ export function AuthorRelationshipLocks({
                             onClick={() => handlePrefillForRemediation(rel)}
                             disabled={disabled}
                           >
-                            Cập nhật khóa bằng UUID chính xác
+                            Chọn lại thực thể để cập nhật khóa
                           </Button>
                         </Group>
                       </Stack>

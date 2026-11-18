@@ -1,4 +1,5 @@
 import type { Decision, EntityReview, EntityType } from './author-memory-api';
+import { entityTypeLabel } from './event-labels';
 
 type Candidate = EntityReview['candidates'][number];
 
@@ -82,7 +83,9 @@ export function summarizeGroup(group: SurfaceGroup, choices: Record<string, Deci
   const types = new Map<EntityType, number>();
   for (const c of group.candidates) {
     const m = machineFor(c.candidate_id);
-    const label = m.verdict === 'entity' && m.entity_type ? `entity [${m.entity_type}]` : m.verdict;
+    // UI walkthrough (UI-5): the author reads "Tên riêng (Nhân vật)", not "entity [PER]".
+    const label = m.verdict === 'entity' && m.entity_type ? `Tên riêng (${entityTypeLabel(m.entity_type)})`
+      : m.verdict === 'not_entity' ? 'Không phải tên riêng' : 'Chưa chắc';
     machineCounts.set(label, (machineCounts.get(label) ?? 0) + 1);
     if (m.verdict === 'entity' && m.entity_type) types.set(m.entity_type, (types.get(m.entity_type) ?? 0) + 1);
   }

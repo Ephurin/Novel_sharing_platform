@@ -101,3 +101,120 @@ test('notification links open the right comment and reply page, including existi
     console.log(`Notification link screenshots: ${output}`);
   } finally { await browser.close(); await new Promise(resolve => server.httpServer.close(resolve)); }
 });
+
+test('mark all notifications read clears 101+ unread items across pages even under READ filter and reconciles partial failures', { timeout: 120000 }, async () => {
+  const server = await preview({ root: fileURLToPath(new URL('../', import.meta.url)), preview: { host: '127.0.0.1', port: 0 } });
+  const base = `http://127.0.0.1:${server.httpServer.address().port}`;
+  const browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
+  try {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    await page.addInitScript(() => {
+      localStorage.setItem('ephurin_access_token', 'fixture-token');
+      localStorage.setItem('storycraft-theme', 'light');
+    });
+
+    const store = [
+      ...Array.from({ length: 105 }, (_, index) => ({
+        notificationId: `unread-${index + 1}`,
+        type: 'NEW_CHAPTER',
+        status: 'UNREAD',
+        title: `Thông báo chưa đọc #${index + 1}`,
+        content: `Nội dung thông báo #${index + 1}`,
+        payload: {},
+        createdAt: new Date(Date.UTC(2026, 10, 18, 0, 0, index)).toISOString(),
+        readAt: null
+      })),
+      ...Array.from({ length: 4 }, (_, index) => ({
+        notificationId: `read-${index + 1}`,
+        type: 'SYSTEM',
+        status: 'READ',
+        title: `Thông báo đã đọc #${index + 1}`,
+        content: `Nội dung cũ #${index + 1}`,
+        payload: {},
+        createdAt: new Date(Date.UTC(2026, 10, 17, 0, 0, index)).toISOString(),
+        readAt: '2026-11-17T00:00:00Z'
+      }))
+    ];
+    const failingIds = new Set(['unread-104', 'unread-105']);
+    const patchCalls = [];
+
+    await page.route('**/api/v1/**', async route => {
+      const url = new URL(route.request().url());
+      const method = route.request().method();
+      if (url.pathname.endsWith('/auth/me')) {
+        return route.fulfill({ json: { success: true, data: { userId: 'reader-1', username: 'reader', role: 'READER', status: 'ACTIVE' }, meta: {} } });
+      }
+      if (url.pathname.endsWith('/notifications') && method === 'GET') {
+        const statusFilter = url.searchParams.get('status');
+        const pageNum = Math.max(1, Number(url.searchParams.get('page') || 1));
+        const limit = Math.max(1, Number(url.searchParams.get('limit') || 20));
+        const filtered = statusFilter ? store.filter(item => item.status === statusFilter) : store;
+        const slice = filtered.slice((pageNum - 1) * limit, pageNum * limit);
+        return route.fulfill({
+          json: {
+            success: true,
+            data: slice,
+            meta: {
+              page: pageNum,
+              limit,
+              totalItems: filtered.length,
+              totalPages: Math.max(1, Math.ceil(filtered.length / limit))
+            }
+          }
+        });
+      }
+      const patchMatch = url.pathname.match(/\/notifications\/([^/]+)\/read$/);
+      if (patchMatch && method === 'PATCH') {
+        const id = decodeURIComponent(patchMatch[1]);
+        patchCalls.push(id);
+        if (failingIds.has(id)) {
+          return route.fulfill({ status: 500, json: { success: false, error: { code: 'INTERNAL_ERROR', message: 'Lỗi đánh dấu tạm thời' } } });
+        }
+        const entry = store.find(item => item.notificationId === id);
+        if (entry) {
+          entry.status = 'READ';
+          entry.readAt = '2026-11-18T12:00:00Z';
+        }
+        return route.fulfill({ json: { success: true, data: entry ?? null, meta: {} } });
+      }
+      return route.fulfill({ json: { success: true, data: [], meta: { totalItems: 0, totalPages: 0 } } });
+    });
+
+    await page.goto(`${base}/notifications`);
+    const bell = page.locator('.sc-notification-bell');
+    await expect(bell).toHaveAttribute('aria-label', /105 chưa đọc/);
+    await expect(bell.locator('.sc-notification-count')).toHaveText('99+');
+
+    // Switch to the READ filter while 105 unread items still exist across pages 1..6.
+    await page.locator('.mantine-SegmentedControl-label', { hasText: 'Đã đọc' }).click();
+    await expect(page.getByText('Thông báo đã đọc #1', { exact: true })).toBeVisible();
+    const markAllBtn = page.getByRole('button', { name: 'Đánh dấu tất cả đã đọc', exact: true });
+    await expect(markAllBtn).toBeVisible();
+
+    await markAllBtn.click();
+    // 103 succeed and 2 fail -> alert reports partial failure, badge and remaining count reconcile immediately to 2.
+    await expect(page.getByRole('alert')).toContainText('2/105 thông báo');
+    await expect(bell).toHaveAttribute('aria-label', /2 chưa đọc/);
+    await expect(bell.locator('.sc-notification-count')).toHaveText('2');
+    assert.equal(store.filter(item => item.status === 'UNREAD').length, 2);
+
+    // Clear transient failures and retry: only the remaining 2 unread notifications are patched.
+    failingIds.clear();
+    patchCalls.length = 0;
+    await expect(markAllBtn).toBeVisible();
+    await markAllBtn.click();
+    await expect(markAllBtn).toHaveCount(0);
+    await expect(bell).toHaveAttribute('aria-label', /0 chưa đọc/);
+    await expect(bell.locator('.sc-notification-count')).toHaveCount(0);
+    assert.deepEqual(patchCalls.sort(), ['unread-104', 'unread-105']);
+    assert.equal(store.filter(item => item.status === 'UNREAD').length, 0);
+    assert.deepEqual(errors, []);
+    await context.close();
+  } finally {
+    await browser.close();
+    await new Promise(resolve => server.httpServer.close(resolve));
+  }
+});

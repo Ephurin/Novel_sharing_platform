@@ -1,4 +1,5 @@
 import { useAuthStore } from '../auth/useAuthStore';
+import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -56,8 +57,13 @@ import {
 } from './entity-review-groups';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
 import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
+import { entityOptionLabel, entityTypeLabel } from './event-labels';
 
 const ENTITY_TYPES: EntityType[] = ['PER', 'LOC', 'ORG', 'ITEM', 'SKILL'];
+// UI walkthrough (UI-5): show "Nhân vật", "Địa điểm"… while the stored value stays PER, LOC…
+const ENTITY_TYPE_OPTIONS = ENTITY_TYPES.map(value => ({ value, label: entityTypeLabel(value) }));
+const VERDICT_LABELS: Record<string, string> = { entity: 'Tên riêng', not_entity: 'Không phải tên riêng' };
+const verdictLabel = (verdict: string) => VERDICT_LABELS[verdict] ?? 'Chưa chắc';
 const STATUS_OPTIONS: Array<'Alive' | 'Dead' | 'Unknown'> = ['Alive', 'Dead', 'Unknown'];
 
 const HUMAN_FIELDS: Array<keyof Decision> = [
@@ -126,8 +132,8 @@ export function EntityExtractionReview({
     <Stack gap="md">
       {guidance.data && !guidance.data.chapter_review_enabled && (
         <Alert color="orange" title="Cấu hình trích xuất">
-          Chế độ duyệt entity trước event/fact chưa bật trên server này. Danh sách vẫn được lưu;
-          cần cấu hình kiểm thử hoặc bật tính năng để áp dụng cho extraction chương.
+          Bước duyệt tên trước khi trích xuất sự kiện chưa bật trên máy chủ này. Danh sách vẫn được lưu,
+          nhưng chưa áp dụng cho việc phân tích chương.
         </Alert>
       )}
 
@@ -146,7 +152,7 @@ export function EntityExtractionReview({
 
           <Textarea
             label="Tên cần chú ý (mỗi dòng một tên)"
-            placeholder="Ví dụ: Minh\nThái\nLâm Phong"
+            placeholder={"Ví dụ:\nMinh\nThái\nLâm Phong"}
             value={names}
             onChange={e => {
               setNames(e.currentTarget.value);
@@ -187,45 +193,52 @@ export function EntityExtractionReview({
 
           <Divider my="xs" />
 
-          <Text size="xs" fw={500}>
-            Khai báo thực thể thế giới (Tạo đề xuất duyệt độc lập, không khẳng định có trong chương)
-          </Text>
-          <Group align="flex-end">
-            <TextInput
-              style={{ flex: 1 }}
-              size="xs"
-              label="Tên thực thể"
-              placeholder="Ví dụ: Vạn Tiên Tông"
-              value={declaredName}
-              onChange={e => setDeclaredName(e.currentTarget.value)}
-              disabled={disabled}
-            />
-            <Select
-              style={{ width: 120 }}
-              size="xs"
-              label="Loại"
-              data={ENTITY_TYPES}
-              value={declaredType}
-              onChange={v => setDeclaredType(v as EntityType)}
-              disabled={disabled}
-            />
-            <Button
-              size="xs"
-              disabled={disabled || !declaredName.trim() || !declaredType}
-              onClick={() =>
-                perform(async () => {
-                  await memoryPost(`/ai/story-brains/${novelId}/author-entities`, {
-                    name: declaredName.trim(),
-                    entity_type: declaredType
-                  });
-                  setDeclaredName('');
-                  await refreshAll();
-                })
-              }
-            >
-              Khai báo thực thể
-            </Button>
-          </Group>
+          <AnimatedDisclosure
+            summaryClassName="text-meta font-semibold text-stone-700"
+            summary="Khai báo thực thể thế giới (chưa xuất hiện trong chương)"
+          >
+            <Stack gap="xs" pt="xs">
+              <Text size="xs" c="dimmed">
+                Tạo đề xuất duyệt độc lập mà không khẳng định thực thể đã xuất hiện trong chương đang mở.
+              </Text>
+              <Group align="flex-end" wrap="wrap">
+                <TextInput
+                  style={{ flex: 1, minWidth: 180 }}
+                  size="xs"
+                  label="Tên thực thể"
+                  placeholder="Ví dụ: Vạn Tiên Tông"
+                  value={declaredName}
+                  onChange={e => setDeclaredName(e.currentTarget.value)}
+                  disabled={disabled}
+                />
+                <Select
+                  style={{ width: 120 }}
+                  size="xs"
+                  label="Loại"
+                  data={ENTITY_TYPE_OPTIONS}
+                  value={declaredType}
+                  onChange={v => setDeclaredType(v as EntityType)}
+                  disabled={disabled}
+                />
+                <Button
+                  size="xs"
+                  disabled={disabled || !declaredName.trim() || !declaredType}
+                  onClick={() =>
+                    perform(async () => {
+                      await memoryPost(`/ai/story-brains/${novelId}/author-entities`, {
+                        name: declaredName.trim(),
+                        entity_type: declaredType
+                      });
+                      setDeclaredName('');
+                      await refreshAll();
+                    })
+                  }
+                >
+                  Khai báo thực thể
+                </Button>
+              </Group>
+            </Stack>
+          </AnimatedDisclosure>
         </Stack>
       </Paper>
 
@@ -238,14 +251,14 @@ export function EntityExtractionReview({
       {/* ──────────────────────────────────────────
           Section 2: Checkpoint Review List
          ────────────────────────────────────────── */}
-      <Stack ref={checkpointsListRef} gap="xs">
+      <Stack key={novelId} ref={checkpointsListRef} gap="xs">
         <Text fw={600} size="sm">
-          2. Duyệt danh tính — trước bước duyệt đề xuất Canon
+          2. Duyệt tên nhân vật và địa danh — trước khi duyệt đề xuất cho bộ nhớ truyện
         </Text>
 
         <Text size="xs" c="dimmed">
-          Đây là checkpoint xác định mỗi lần xuất hiện thuộc danh tính nào, độc lập với số đề xuất Canon chờ duyệt.
-          Freeze không thay thế bước duyệt event/fact và kích hoạt Story Brain.
+          Ở bước này bạn xác nhận mỗi tên trong chương là ai hoặc ở đâu. Sau khi chốt danh sách, AI mới trích xuất
+          sự kiện và dữ kiện, rồi bạn duyệt chúng ở bước sau.
         </Text>
         {continueNotice && <Alert color="orange" withCloseButton onClose={() => setContinueNotice(null)} data-testid="entity-dropped-events">{continueNotice}</Alert>}
         {reviews.data && reviews.data.length > 0 ? (
@@ -267,7 +280,7 @@ export function EntityExtractionReview({
         ) : (
           <Paper p="md" withBorder radius="md">
             <Text size="sm" c="dimmed" ta="center">
-              Chưa có checkpoint chờ duyệt entity. Hãy lưu danh sách rồi trích xuất nội dung chương.
+              Chưa có chương nào chờ duyệt tên.
             </Text>
           </Paper>
         )}
@@ -543,7 +556,7 @@ function EntityCheckpoint({
         const allDecisions = candidates.map(c => {
           const d = choices[c.candidate_id];
           if (!d || d.verdict === 'unresolved') {
-            throw new Error(`Chưa có quyết định cho vị trí "${c.surface}" tại [${c.start}, ${c.end})`);
+            throw new Error(`Chưa có quyết định cho một lần xuất hiện của "${c.surface}"`);
           }
           return d;
         });
@@ -637,15 +650,15 @@ function EntityCheckpoint({
                   review.status === 'entities_reviewed'
                     ? 'teal'
                     : review.status === 'completed'
-                    ? 'blue'
+                    ? 'green'
                     : 'yellow'
                 }
                 variant="light"
               >
                 {review.status === 'waiting_entity_review'
-                  ? 'Chờ duyệt entity'
+                  ? 'Chờ duyệt tên'
                   : review.status === 'entities_reviewed'
-                  ? 'Đã đóng băng entity'
+                  ? 'Đã chốt danh sách tên'
                   : 'Đã hoàn tất'}
               </Badge>
               <Badge variant="outline" color="gray">
@@ -653,7 +666,7 @@ function EntityCheckpoint({
               </Badge>
             </Group>
             <Text size="xs" c="dimmed">
-              Bản lưu: {review.revision_id?.slice(0, 8)} · Tiến độ: {resolvedCandidates.length}/
+              Tiến độ: {resolvedCandidates.length}/
               {candidates.length} vị trí đã quyết định · Còn {candidates.length - resolvedCandidates.length} vị trí chưa quyết định
             </Text>
           </div>
@@ -667,7 +680,7 @@ function EntityCheckpoint({
               onClick={handleRefresh}
               data-testid="btn-refresh-entity-review"
             >
-              Làm mới (Refresh)
+              Làm mới
             </Button>
           </Group>
         </Group>
@@ -709,16 +722,16 @@ function EntityCheckpoint({
 
         {staleGuidance && (
           <Alert color="yellow" icon={<IconAlertTriangle size={16} />}>
-            Danh sách tăng cường vừa thay đổi. Hãy bấm &quot;Làm mới (Refresh)&quot; để cập nhật lại
+            Danh sách tăng cường vừa thay đổi. Hãy bấm &quot;Làm mới&quot; để cập nhật lại
             các gợi ý theo danh sách mới.
           </Alert>
         )}
 
         {/* Provisional Group Creation Bar */}
-        <Paper p="xs" withBorder radius="sm" bg="var(--mantine-color-gray-0)">
+        <Paper p="xs" withBorder radius="sm" bg="var(--sc-surface-subtle)">
           <Stack gap="xs">
             <Text size="xs" fw={600}>
-              Nhóm danh tính mới (Provisional Groups) của chương này:
+              Nhân vật mới trùng tên trong chương này:
             </Text>
             <Group gap="xs">
               {authorGroups.length === 0 ? (
@@ -728,22 +741,22 @@ function EntityCheckpoint({
                 </Text>
               ) : (
                 authorGroups.map(grp => (
-                  <Badge key={grp} variant="filled" color="indigo" size="sm">
+                  <Badge key={grp} variant="filled" size="sm">
                     {grp}
                   </Badge>
                 ))
               )}
             </Group>
 
-            <Group gap="xs" align="flex-start">
+            <Group gap="xs" align="flex-start" wrap="wrap">
               <TextInput
                 size="xs"
                 placeholder="Tên nhóm mới (ví dụ: minh-bac-si)"
-                description="Khóa kỹ thuật ASCII, không phải tên hiển thị. Ví dụ con-van; tên hiển thị vẫn là Cồn Vân."
+                description="Mã ngắn không dấu để phân biệt hai người trùng tên, ví dụ minh-bac-si. Tên hiển thị không đổi."
                 value={newGroupInput}
                 onChange={e => setNewGroupInput(e.currentTarget.value)}
                 error={newGroupError}
-                style={{ width: 240 }}
+                style={{ width: 240, maxWidth: '100%' }}
                 disabled={disabled}
               />
               <Button size="xs" variant="light" onClick={handleAddGroup} disabled={disabled || !newGroupInput.trim()}>
@@ -754,14 +767,14 @@ function EntityCheckpoint({
         </Paper>
 
         {review.status === 'waiting_entity_review' && suggestible.length > 0 && (
-          <Alert color="indigo" variant="light" data-testid="entity-accept-all-panel">
+          <Alert variant="light" data-testid="entity-accept-all-panel">
             <Stack gap={6}>
               <Text size="sm">
                 AI đã có gợi ý cho {suggestible.length} vị trí: nối với nhân vật đã duyệt, tạo nhân vật mới theo tên, hoặc loại từ thường.
                 {machineUnresolved > 0 ? ` Còn ${machineUnresolved} vị trí AI chưa chắc, bạn tự quyết định.` : ''}
               </Text>
               <Group gap="xs">
-                <Button size="xs" color="indigo" disabled={disabled} onClick={acceptAllSuggestions} data-testid="entity-accept-all">
+                <Button size="xs" disabled={disabled} onClick={acceptAllSuggestions} data-testid="entity-accept-all">
                   Chấp nhận mọi gợi ý của AI ({suggestible.length})
                 </Button>
                 <Text size="xs" c="dimmed">Bạn vẫn sửa được từng vị trí trước khi đóng băng.</Text>
@@ -792,8 +805,8 @@ function EntityCheckpoint({
             data-testid="entity-review-view-mode"
           />
         </Group>
-        <Group justify="space-between" align="center">
-          <Group gap="xs">
+        <Group justify="space-between" align="center" wrap="wrap">
+          <Group gap="xs" wrap="wrap">
             <Button
               size="xs"
               variant={filterMode === 'all' ? 'filled' : 'subtle'}
@@ -832,7 +845,6 @@ function EntityCheckpoint({
             <Button
               size="xs"
               variant="subtle"
-              color="blue"
               disabled={disabled}
               onClick={() => {
                 // Explicit author rejection action; preserve it as a dirty draft across refresh.
@@ -843,7 +855,7 @@ function EntityCheckpoint({
                 setDirtyCandidateIds(previous => new Set([...previous, ...Object.keys(updates)]));
               }}
             >
-              Tự động loại các từ AI chắc chắn không phải entity
+              Tự động loại các từ AI chắc chắn không phải tên riêng
             </Button>
           )}
         </Group>
@@ -888,30 +900,30 @@ function EntityCheckpoint({
         <Divider my="xs" />
 
         <Paper withBorder p="xs" data-testid="entity-freeze-summary">
-          <Text size="sm" fw={600}>Tóm tắt quyết định trước Freeze</Text>
+          <Text size="sm" fw={600}>Tóm tắt trước khi chốt danh sách</Text>
           {Array.from(new Map(resolvedCandidates.filter(c => choices[c.candidate_id].verdict === 'entity').map(c => {
             const d = choices[c.candidate_id];
             const key = d.canonical_entity_id || d.provisional_identity_key || `reject:${c.candidate_id}`;
             return [JSON.stringify([key, d.canonical_name, d.entity_type, d.initial_status]), d] as const;
           })).values()).map(d => (
             <Text size="xs" key={JSON.stringify([d.canonical_entity_id || d.provisional_identity_key || d.candidate_id, d.canonical_name, d.entity_type, d.initial_status])}>
-              {`${d.canonical_name} [${d.entity_type}] · ${d.canonical_entity_id || d.provisional_identity_key.split('/').at(-1)}`}
+              {`${d.canonical_name} (${entityTypeLabel(d.entity_type)})${d.canonical_entity_id ? ' · đã có trong bộ nhớ' : ' · mới'}`}
             </Text>
           ))}
           <Text size="xs">Đã loại {resolvedCandidates.filter(c => choices[c.candidate_id].verdict === 'not_entity').length} vị trí không phải thực thể.</Text>
           {inconsistentIdentity && <Alert color="orange" mt="xs">
-            Cùng một UUID/nhóm đang có tên, loại hoặc trạng thái khác nhau. Kiểm tra từng vị trí hoặc áp dụng có xác nhận cho cùng danh tính trước Freeze.
+            Cùng một nhân vật đang có tên, loại hoặc trạng thái khác nhau. Kiểm tra lại từng vị trí trước khi chốt danh sách.
           </Alert>}
           <Text size="xs" mt="xs">
-            {review.status === 'entities_reviewed' ? 'Bước tiếp theo: tiếp tục trích xuất event/fact, rồi duyệt đề xuất Canon.' :
+            {review.status === 'entities_reviewed' ? 'Bước tiếp theo: tiếp tục trích xuất sự kiện và dữ kiện, rồi duyệt đề xuất.' :
               !allCandidatesResolved ? 'Bước tiếp theo: quyết định các vị trí còn lại; có thể lưu một phần để tiếp tục sau.' :
-              'Bước tiếp theo: kiểm tra tên và loại ở trên, rồi Freeze. Đề xuất Canon sẽ được duyệt ở bước riêng.'}
+              'Bước tiếp theo: kiểm tra tên và loại ở trên, rồi chốt danh sách. Đề xuất cho bộ nhớ truyện được duyệt ở bước sau.'}
           </Text>
         </Paper>
 
         {/* Review Action Controls */}
-        <Group justify="space-between" align="center">
-          <Group gap="xs">
+        <Group justify="space-between" align="center" wrap="wrap">
+          <Group gap="xs" wrap="wrap">
             {review.status === 'waiting_entity_review' && (
               <>
                 <Button
@@ -925,18 +937,17 @@ function EntityCheckpoint({
 
                 <Button
                   size="sm"
-                  color="indigo"
                   disabled={disabled || !allCandidatesResolved || inconsistentIdentity}
                   onClick={handleFreeze}
                 >
-                  Đóng băng danh sách entity (Freeze)
+                  Chốt danh sách tên
                 </Button>
               </>
             )}
 
             {review.status === 'entities_reviewed' && (
               <Badge color="teal" size="lg" leftSection={<IconCheck size={14} />}>
-                Đã đóng băng ({review.entities?.length ?? 0} thực thể được bảo lưu UUID)
+                Đã chốt ({review.entities?.length ?? 0} tên)
               </Badge>
             )}
           </Group>
@@ -947,7 +958,7 @@ function EntityCheckpoint({
             disabled={disabled || review.status !== 'entities_reviewed'}
             onClick={handleContinue}
           >
-            3. Tiếp tục trích xuất event/fact
+            3. Tiếp tục trích xuất sự kiện và dữ kiện
           </Button>
         </Group>
       </Stack>
@@ -1014,7 +1025,7 @@ function OccurrenceCard({
   // Format known entities for Mantine Select with explicit ID disambiguation
   const knownOptions = knownEntities.map(e => ({
     value: e.entity_id,
-    label: `${e.name} [${e.entity_type}] · ID: ${e.entity_id.slice(0, 8)}...`
+    label: entityOptionLabel(e, knownEntities)
   }));
 
   // Handle Known Entity Selection
@@ -1072,14 +1083,11 @@ function OccurrenceCard({
     <Paper p="xs" withBorder radius="sm" data-testid={`entity-occurrence-${candidate.candidate_id}`}>
       <Stack gap="xs">
         {/* Header row: Surface, Offset, Decision badge */}
-        <Group justify="space-between" align="center">
-          <Group gap="xs">
+        <Group justify="space-between" align="center" wrap="wrap">
+          <Group gap="xs" wrap="wrap">
             <Text fw={600} size="sm">
               &ldquo;{candidate.surface}&rdquo;
             </Text>
-            <Badge size="xs" variant="outline" color="gray">
-              [{candidate.start}, {candidate.end})
-            </Badge>
 
             {/* Current Decision Pill */}
             {currentMode === 'reject' ? (
@@ -1088,11 +1096,11 @@ function OccurrenceCard({
               </Badge>
             ) : currentMode === 'known' ? (
               <Badge color="teal" size="xs" leftSection={<IconCheck size={10} />}>
-                Canon: {decision?.canonical_name} ({decision?.canonical_entity_id?.slice(0, 8)}...)
+                Đã có: {decision?.canonical_name}
               </Badge>
             ) : currentMode === 'provisional' ? (
-              <Badge color="blue" size="xs" leftSection={<IconUserCheck size={10} />}>
-                Nhóm tạm: {currentProvisionalGroup} ({decision?.canonical_name}) [{decision?.entity_type}]
+              <Badge variant="light" size="xs" leftSection={<IconUserCheck size={10} />}>
+                Mới: {decision?.canonical_name} ({entityTypeLabel(decision?.entity_type)})
               </Badge>
             ) : (
               <Badge color="gray" size="xs">
@@ -1111,20 +1119,20 @@ function OccurrenceCard({
               variant="light"
               color={
                 machine.verdict === 'entity'
-                  ? 'cyan'
+                  ? 'teal'
                   : machine.verdict === 'not_entity'
                   ? 'gray'
                   : 'yellow'
               }
             >
-              {machine.verdict} {machine.entity_type ? `[${machine.entity_type}]` : ''}{' '}
+              {verdictLabel(machine.verdict)} {machine.entity_type ? `(${entityTypeLabel(machine.entity_type)})` : ''}{' '}
               {machine.confidence ? `(${(machine.confidence * 100).toFixed(0)}%)` : ''}
             </Badge>
           </Group>
         </Group>
 
         {/* Source Context Snippet */}
-        <Paper p="xs" bg="var(--mantine-color-gray-1)" radius="xs">
+        <Paper p="xs" bg="var(--sc-surface-subtle)" radius="xs">
           <Text size="xs" style={{ whiteSpace: 'pre-wrap' }}>
             &ldquo;{candidate.context}&rdquo;
           </Text>
@@ -1132,19 +1140,19 @@ function OccurrenceCard({
 
         {/* Human Decision Controls */}
         <Stack gap="xs">
-          <Group gap="md" align="flex-end">
+          <Group gap="md" align="flex-end" wrap="wrap">
             {/* 1. Known Entity Selector */}
             <Select
               size="xs"
-              label="Chọn thực thể Canon đã có"
-              placeholder="Chọn theo tên & UUID..."
+              label="Là nhân vật hoặc địa danh đã có"
+              placeholder="Chọn theo tên..."
               data={knownOptions}
               value={selectedKnownId || null}
               onChange={handleSelectKnown}
               searchable
               clearable
               disabled={disabled || knownEntities.length === 0}
-              style={{ flex: 1 }}
+              style={{ flex: 1, minWidth: 180 }}
             />
 
             {/* 2. Provisional Group Selector */}
@@ -1185,7 +1193,7 @@ function OccurrenceCard({
                 <Text size="xs" fw={600}>
                   Thuộc tính định danh tạm thời:
                 </Text>
-                <Group grow>
+                <Group grow wrap="wrap">
                   <TextInput
                     size="xs"
                     label="Tên chuẩn (phải có bằng chứng trong chương)"
@@ -1196,8 +1204,7 @@ function OccurrenceCard({
                   <Select
                     size="xs"
                     label="Loại thực thể"
-                    description="PER: nhân vật · LOC: địa danh · ORG: tổ chức · ITEM: vật phẩm · SKILL: kỹ năng"
-                    data={ENTITY_TYPES}
+                    data={ENTITY_TYPE_OPTIONS}
                     value={entityType}
                     onChange={v => { if (v) handleCommitEdits({ entity_type: v as EntityType }); }}
                     disabled={disabled}
@@ -1211,7 +1218,7 @@ function OccurrenceCard({
                     disabled={disabled}
                   />
                 </Group>
-                <Group grow>
+                <Group grow wrap="wrap">
                   <TextInput
                     size="xs"
                     label="Bằng chứng alias / tên khác"
@@ -1230,7 +1237,7 @@ function OccurrenceCard({
                   />
                 </Group>
                 <Text size="xs" c="dimmed">
-                  Thuộc tính đang ở bản nháp của checkpoint. Chọn Lưu quyết định một phần hoặc Freeze để lưu lên máy chủ.
+                  Thuộc tính đang ở bản nháp. Chọn Lưu quyết định một phần hoặc Chốt danh sách tên để lưu lên máy chủ.
                 </Text>
               </Stack>
             </Paper>
@@ -1250,14 +1257,14 @@ function OccurrenceCard({
                   Áp dụng quyết định này cho các vị trí phù hợp &ldquo;{candidate.surface}&rdquo;
                 </Button>
               ) : (
-                <Paper p="xs" withBorder radius="xs" bg="var(--mantine-color-orange-0)">
+                <Paper p="xs" withBorder radius="xs" bg="var(--sc-warning-bg)">
                   <Stack gap="xs">
-                    <Text size="xs" fw={500} c="orange.9">
+                    <Text size="xs" fw={500} c="var(--sc-warning)">
                       Xác nhận áp dụng cho {bulkCandidates.length} vị trí:
                     </Text>
                     <Text size="xs">
                       Hai nhân vật khác nhau có thể trùng tên mặt chữ &ldquo;{candidate.surface}&rdquo;.
-                      Chỉ áp dụng cho vị trí chưa quyết định hoặc đã chọn cùng danh tính. Quyết định khác UUID/nhóm hoặc đã loại được giữ nguyên. Các vị trí: {bulkCandidates.map(c => `[${c.start}, ${c.end})`).join(', ')}.
+                      Chỉ áp dụng cho vị trí chưa quyết định hoặc đã chọn cùng danh tính. Vị trí đã gán cho người khác hoặc đã loại được giữ nguyên. Các vị trí: {bulkCandidates.map(c => `[${c.start}, ${c.end})`).join(', ')}.
                     </Text>
                     <Group justify="flex-end" gap="xs">
                       <Button size="compact-xs" variant="default" onClick={() => setConfirmBatchOpen(false)}>
@@ -1364,26 +1371,26 @@ function SurfaceGroupCard({
 
   const knownOptions = knownEntities.map(e => ({
     value: e.entity_id,
-    label: `${e.name} [${e.entity_type}] · ID: ${e.entity_id.slice(0, 8)}...`
+    label: entityOptionLabel(e, knownEntities)
   }));
 
   return (
     <Paper p="xs" withBorder radius="sm" data-testid={`entity-surface-group-${group.key}`}>
       <Stack gap="xs">
-        <Group justify="space-between" align="center">
-          <Group gap="xs">
+        <Group justify="space-between" align="center" wrap="wrap">
+          <Group gap="xs" wrap="wrap">
             <Text fw={600} size="sm">&ldquo;{group.surface}&rdquo;</Text>
             <Badge size="xs" variant="outline" color="gray">{count} vị trí</Badge>
             {shared?.verdict === 'not_entity' ? (
               <Badge color="red" size="xs" leftSection={<IconX size={10} />}>Đã loại cả nhóm</Badge>
             ) : shared?.canonical_entity_id ? (
-              <Badge color="teal" size="xs" leftSection={<IconCheck size={10} />}>Canon: {shared.canonical_name}</Badge>
+              <Badge color="teal" size="xs" leftSection={<IconCheck size={10} />}>Đã có: {shared.canonical_name}</Badge>
             ) : shared ? (
-              <Badge color="blue" size="xs" leftSection={<IconUserCheck size={10} />}>
+              <Badge variant="light" size="xs" leftSection={<IconUserCheck size={10} />}>
                 Mới: {shared.canonical_name} [{shared.entity_type}] · {sharedGroup}
               </Badge>
             ) : (
-              <Badge color={summary.resolved === count ? 'grape' : 'gray'} size="xs">
+              <Badge color={summary.resolved === count ? 'orange' : 'gray'} size="xs">
                 {summary.resolved === count ? 'Quyết định khác nhau' : `${summary.resolved}/${count} đã quyết định`}
               </Badge>
             )}
@@ -1393,17 +1400,17 @@ function SurfaceGroupCard({
           </Text>
         </Group>
 
-        <Paper p="xs" bg="var(--mantine-color-gray-1)" radius="xs">
+        <Paper p="xs" bg="var(--sc-surface-subtle)" radius="xs">
           <Text size="xs" style={{ whiteSpace: 'pre-wrap' }} lineClamp={3}>
             &ldquo;{group.candidates[0].context}&rdquo;
           </Text>
         </Paper>
 
-        <Group gap="md" align="flex-end">
+        <Group gap="md" align="flex-end" wrap="wrap">
           <Select
             size="xs"
-            label="Cả nhóm là thực thể Canon đã có"
-            placeholder="Chọn theo tên & UUID..."
+            label="Cả nhóm là nhân vật hoặc địa danh đã có"
+            placeholder="Chọn theo tên..."
             data={knownOptions}
             value={shared?.canonical_entity_id || null}
             onChange={id => {
@@ -1431,7 +1438,7 @@ function SurfaceGroupCard({
           <Select
             size="xs"
             label="Loại"
-            data={ENTITY_TYPES}
+            data={ENTITY_TYPE_OPTIONS}
             value={newType}
             onChange={v => { if (v) setNewType(v as EntityType); }}
             disabled={disabled}
@@ -1477,9 +1484,9 @@ function SurfaceGroupCard({
           </Alert>
         )}
         {pending && (
-          <Paper p="xs" withBorder radius="xs" bg="var(--mantine-color-orange-0)">
+          <Paper p="xs" withBorder radius="xs" bg="var(--sc-warning-bg)">
             <Stack gap="xs">
-              <Text size="xs" fw={500} c="orange.9">
+              <Text size="xs" fw={500} c="var(--sc-warning)">
                 {pending.replaced}/{count} vị trí &ldquo;{group.surface}&rdquo; đang gán cho danh tính khác.
               </Text>
               <Text size="xs">

@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { Text, View } from 'react-native';
 import type { CurrentUser } from '../api/types';
 import { listSocialComments, postComment, type AnchorInput, type Audience, type CommentTarget, type Person } from '../api/social-api';
-import { ErrorState, GhostButton, LoadingState, Screen, Section, styles } from '../components/Screen';
+import { ErrorState, GhostButton, LoadingState, Screen, Section, useScreenStyles } from '../components/Screen';
 import { Pages, PeoplePicker, SocialComposer } from '../components/Social';
 import { CommentCard } from './SocialScreens';
 import { useFocusedResource } from '../state/useFocusedResource';
 
 export function CommentsScreen({ target, anchor, user, onLoginRequired, onThread, onProfile }: { target: CommentTarget; anchor?: AnchorInput; user: CurrentUser | null; onLoginRequired: () => void; onThread: (id: string) => void; onProfile: (id: string) => void }) {
+  const styles = useScreenStyles();
   const [channel, setChannel] = useState<Audience>(anchor && user ? 'FRIENDS_ALL' : 'PUBLIC'); const [page, setPage] = useState(1); const [recipients, setRecipients] = useState<Person[]>([]);
   const comments = useFocusedResource(`${user?.userId}:${target.kind}:${target.id}:${channel}:${page}`, () => listSocialComments(target, channel, page));
   const scopes: [Audience, string][] = [['PUBLIC', 'Công khai'], ['AUTHOR_PRIVATE', 'Chỉ tác giả'], ['FRIENDS_ALL', 'Tất cả bạn bè hiện tại'], ['FRIENDS_SELECTED', 'Chọn bạn bè']];

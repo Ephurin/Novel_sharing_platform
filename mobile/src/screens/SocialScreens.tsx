@@ -1,14 +1,16 @@
+import { AvatarBadge } from '../components/BookCover';
 import { useState } from 'react';
 import { Image, Text, View } from 'react-native';
 import type { CurrentUser, ReaderComment } from '../api/types';
 import { changeFollow, getPerson, getThread, listFeedback, listPeople, postReply, type Person } from '../api/social-api';
 import { apiClient, getApiErrorMessage } from '../api/api-client';
-import { Card, ErrorState, GhostButton, LoadingState, PrimaryButton, Screen, Section, styles } from '../components/Screen';
+import { Card, ErrorState, GhostButton, LoadingState, PrimaryButton, Screen, Section, useScreenStyles } from '../components/Screen';
 import { Field } from '../components/Form';
 import { Pages, SocialComposer } from '../components/Social';
 import { useFocusedResource } from '../state/useFocusedResource';
 
 function PersonCard({ person, user, onProfile, onChanged }: { person: Person; user: CurrentUser | null; onProfile: (id: string) => void; onChanged: () => void }) {
+  const styles = useScreenStyles();
   const [busy, setBusy] = useState(false); const [error, setError] = useState('');
   return <Card><GhostButton label={`${person.displayName || person.username} (@${person.username})`} onPress={() => onProfile(person.userId)} />
     {person.mutual && <Text style={styles.muted}>Bạn bè</Text>}{person.bio && <Text style={styles.muted}>{person.bio}</Text>}
@@ -18,6 +20,7 @@ function PersonCard({ person, user, onProfile, onChanged }: { person: Person; us
     }} />}{error ? <Text style={styles.error}>{error}</Text> : null}</Card>;
 }
 export function ConnectionsScreen({ user, onProfile }: { user: CurrentUser; onProfile: (id: string) => void }) {
+  const styles = useScreenStyles();
   const [type, setType] = useState('SEARCH'); const [q, setQ] = useState(''); const [page, setPage] = useState(1);
   const data = useFocusedResource(`${user.userId}:${type}:${q}:${page}`, () => listPeople(type, q, page));
   return <Screen><Section title="Bạn bè"><Field label="Tìm độc giả" value={q} onChangeText={value => { setQ(value); setPage(1); }} />
@@ -30,8 +33,9 @@ export function ReaderProfileScreen({ userId, user, onProfile }: { userId: strin
   return <Screen><Section title="Hồ sơ độc giả">{data.loading && <LoadingState />}{data.error && <ErrorState message={data.error} onRetry={data.reload} />}{data.data && <PersonCard person={data.data} user={user} onProfile={onProfile} onChanged={data.reload} />}</Section></Screen>;
 }
 export function CommentCard({ comment, onProfile, onOpen, focused = false, spoiler = false }: { comment: ReaderComment; onProfile: (id: string) => void; onOpen?: () => void; focused?: boolean; spoiler?: boolean }) {
+  const styles = useScreenStyles();
   const [revealed, setRevealed] = useState(false); const hidden = (comment.isSpoiler || spoiler) && !revealed;
-  return <Card><GhostButton label={comment.displayName || 'Độc giả'} onPress={() => onProfile(comment.userId)} />
+  return <Card><View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><AvatarBadge uri={comment.avatarUrl} name={comment.displayName} size="sm" /><GhostButton label={comment.displayName || 'Độc giả'} onPress={() => onProfile(comment.userId)} /></View>
     {focused && <Text accessibilityRole="header" style={styles.ghostButtonText}>Bình luận được chọn</Text>}
     {comment.status !== 'APPROVED' && <Text style={styles.muted}>{comment.status === 'REJECTED' ? 'Không được duyệt' : 'Chờ duyệt'}</Text>}
     {comment.anchor && !comment.parentCommentId && <Text style={styles.muted}>{comment.anchor.detached ? 'Đoạn gốc đã thay đổi: ' : 'Đoạn: '}{comment.anchor.quote}</Text>}
@@ -40,6 +44,7 @@ export function CommentCard({ comment, onProfile, onOpen, focused = false, spoil
     {onOpen && <GhostButton label={`Mở trao đổi · ${comment.repliesCount ?? 0} trả lời`} onPress={onOpen} />}</Card>;
 }
 export function ThreadScreen({ commentId, user, onProfile, onLoginRequired }: { commentId: string; user: CurrentUser | null; onProfile: (id: string) => void; onLoginRequired: () => void }) {
+  const styles = useScreenStyles();
   const [page, setPage] = useState(1); const [rootId, setRootId] = useState<string>(); const [replyTo, setReplyTo] = useState<Pick<ReaderComment, 'commentId' | 'displayName'>>(); const [notice, setNotice] = useState('');
   const [focusY, setFocusY] = useState<number>();
   const thread = useFocusedResource(`${user?.userId}:${commentId}:${rootId}:${page}`, () => getThread(rootId ?? commentId, page));
@@ -58,6 +63,7 @@ export function ThreadScreen({ commentId, user, onProfile, onLoginRequired }: { 
   </Section></Screen>;
 }
 export function FeedbackScreen({ user, box, onThread, onProfile }: { user: CurrentUser; box: 'sent' | 'received'; onThread: (id: string) => void; onProfile: (id: string) => void }) {
+  const styles = useScreenStyles();
   const [page, setPage] = useState(1); const result = useFocusedResource(`${user.userId}:${box}:${page}`, () => listFeedback(box, page));
   return <Screen><Section title={box === 'sent' ? 'Góp ý đã gửi' : 'Góp ý gửi tôi'}>{result.loading && <LoadingState />}{result.error && <ErrorState message={result.error} onRetry={result.reload} />}
     {result.data?.items.map(comment => <CommentCard key={comment.commentId} comment={comment} onProfile={onProfile} onOpen={() => onThread(comment.commentId)} />)}{result.data?.items.length === 0 && <Text style={styles.muted}>Chưa có góp ý.</Text>}{result.data && <Pages page={page} pages={result.data.pages} onChange={setPage} />}</Section></Screen>;

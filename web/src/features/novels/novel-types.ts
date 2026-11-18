@@ -24,6 +24,7 @@ export type Novel = {
     status: ChapterStatus;
     updatedAt: string;
   } | null;
+  publishedChaptersCount?: number;
   createdAt: string;
   updatedAt: string;
 };

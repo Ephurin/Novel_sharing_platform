@@ -5,6 +5,7 @@ import { until } from './p1-real-stack.mjs';
 export async function crossFeatureSmoke(h, f, x) {
   const { page } = h, results = [];
   let reader, admin, novel, free, vip;
+  // Page headings follow the Vietnamese UI (reader catalog, wallet and admin titles were translated).
   async function visit(path, heading, evidence) {
     await page.goto(h.origin + path);
     await page.getByRole('heading', { name: heading, exact: true }).waitFor();
@@ -24,23 +25,23 @@ export async function crossFeatureSmoke(h, f, x) {
   });
   await h.step('G4: actual Reader/free content, VIP lock, private draft denial, library/history, wallet and notifications', async () => {
     await f.login(reader);
-    await visit('/reader', 'Reader Home', 'g4-reader-home');
+    await visit('/reader', 'Danh sách truyện', 'g4-reader-home');
     await page.goto(h.origin + '/reader/chapters/' + free);
     await page.getByText('PUBLIC_FREE_READER_CONTENT', { exact: false }).waitFor();
     assert.ok(!(await page.textContent('body')).includes('PRIVATE_FREE_AUTHOR_DRAFT'));
     const locked = page.waitForResponse(r => r.url().endsWith('/api/v1/reading/chapters/' + vip));
     await page.goto(h.origin + '/reader/chapters/' + vip);
     assert.equal((await locked).status(), 402);
-    await page.getByRole('heading', { name: 'VIP Chapter Locked', exact: true }).waitFor();
+    await page.getByRole('heading', { name: 'Chương VIP đang khóa', exact: true }).waitFor();
     assert.ok(!(await page.textContent('body')).includes('LOCKED_VIP_READER_CONTENT'));
     await h.shot('g4-vip-unpaid-locked');
     const before = await h.snapshot('G4-before-reader-private-denial', x.owned);
     await h.api('GET', '/chapters/' + x.first, undefined, reader.token, [403]);
     await h.api('GET', `/ai/story-brains/${x.novelA}/memory`, undefined, reader.token, [403]);
     assert.deepEqual(await h.snapshot('G4-after-reader-private-denial', x.owned), before);
-    await visit('/reader/library', 'Library', 'g4-reader-library');
-    await visit('/reader/history', 'Reading History', 'g4-reader-history');
-    await visit('/wallet', 'Ví & Doanh Thu', 'g4-reader-wallet');
+    await visit('/reader/library', 'Thư viện của tôi', 'g4-reader-library');
+    await visit('/reader/history', 'Lịch sử đọc', 'g4-reader-history');
+    await visit('/wallet', 'Ví xu', 'g4-reader-wallet');
     await visit('/notifications', 'Thông báo', 'g4-reader-notifications');
     await h.api('GET', '/admin/users', undefined, reader.token, [403]);
     results.push({ case: 'VIP negative authorization / private draft and Canon isolation', status: 'PASS' });
@@ -84,9 +85,9 @@ export async function crossFeatureSmoke(h, f, x) {
   });
   await h.step('G4: actual Admin role access and moderation/novel management read smoke', async () => {
     await f.login(admin);
-    await visit('/admin', 'Admin Console', 'g4-admin-console');
-    await visit('/admin/novels', 'Admin Novel Management', 'g4-admin-novels');
-    await visit('/admin/moderation', 'Moderation Queue', 'g4-admin-moderation');
+    await visit('/admin', 'Tổng quan hệ thống', 'g4-admin-console');
+    await visit('/admin/novels', 'Danh sách truyện', 'g4-admin-novels');
+    await visit('/admin/moderation', 'Hàng đợi kiểm duyệt', 'g4-admin-moderation');
     await h.snapshot('G4-final-local-smoke', x.owned);
   });
   await h.save('G4-smoke-matrix.json', { results, not_run: ['real payment/deposit/withdrawal', 'VIP purchase',

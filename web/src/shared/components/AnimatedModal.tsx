@@ -20,6 +20,8 @@ type AnimatedModalProps = PropsWithChildren<{
   onCloseAutoFocus?: (event: Event) => void;
 }>;
 
+const openModalStack: symbol[] = [];
+
 /** Guard combobox escape key before dismissing parent dialog or mobile sheet. */
 function isListboxOpen(target: EventTarget | null) {
   return target instanceof Element && Boolean(target.closest('[aria-expanded="true"][aria-haspopup="listbox"], [data-expanded="true"][aria-haspopup="listbox"]'));
@@ -29,16 +31,49 @@ function isListboxOpen(target: EventTarget | null) {
 export function AnimatedModal({ opened, onClose, title, children, size = 'md', centered = false,
   closeOnClickOutside = true, closeOnEscape = true, withCloseButton = true, className = '', side, onCloseAutoFocus }: AnimatedModalProps) {
   const previousFocus = useRef<HTMLElement | null>(null);
+  const modalIdRef = useRef<symbol | null>(null);
+  if (!modalIdRef.current) modalIdRef.current = Symbol('animated-modal');
+  const closeStateRef = useRef({ onClose, closeOnEscape });
+  closeStateRef.current = { onClose, closeOnEscape };
   const reduceMotion = useReducedMotion();
   const mobile = useMediaQuery('(max-width: 767px)', undefined, { getInitialValueInEffect: false });
   const hidden = side ? { opacity: reduceMotion ? 0 : 1, x: reduceMotion ? 0 : '100%' } : { opacity: 0, scale: reduceMotion ? 1 : 0.96 };
   useLayoutEffect(() => {
-    if (opened && document.activeElement instanceof HTMLElement) {
+    if (!opened) return;
+    if (document.activeElement instanceof HTMLElement) {
       const active = document.activeElement;
       const menuTriggerId = active.closest('[role="menu"]')?.getAttribute('aria-labelledby');
       // Menu items unmount on selection. Return to their trigger when the dialog closes.
       previousFocus.current = (menuTriggerId ? document.getElementById(menuTriggerId) : null) ?? active;
     }
+    const id = modalIdRef.current!;
+    openModalStack.push(id);
+    let blockedInCapture = false;
+    const hasOpenPopup = (target: EventTarget | null) =>
+      isListboxOpen(target) || Boolean(document.querySelector('[role="menu"][data-state="open"]'));
+    const onCapture = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      blockedInCapture = !closeStateRef.current.closeOnEscape || hasOpenPopup(event.target);
+    };
+    // Handle Escape synchronously from first paint before Radix DismissableLayer settles its layer index.
+    const onBubble = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.defaultPrevented || blockedInCapture) return;
+      if (openModalStack[openModalStack.length - 1] !== id) return;
+      if (!closeStateRef.current.closeOnEscape || hasOpenPopup(event.target)) return;
+      event.preventDefault();
+      closeStateRef.current.onClose();
+    };
+    document.addEventListener('keydown', onCapture, true);
+    document.addEventListener('keydown', onBubble);
+    return () => {
+      document.removeEventListener('keydown', onCapture, true);
+      document.removeEventListener('keydown', onBubble);
+      const index = openModalStack.lastIndexOf(id);
+      if (index >= 0) openModalStack.splice(index, 1);
+      if ((!document.activeElement || document.activeElement === document.body) && previousFocus.current?.isConnected) {
+        previousFocus.current.focus({ preventScroll: true });
+      }
+    };
   }, [opened]);
 
   const handleCloseAutoFocus = (event: Event) => {

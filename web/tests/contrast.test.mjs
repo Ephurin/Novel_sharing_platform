@@ -52,9 +52,12 @@ function contrast(a, b) {
 const blend = (top, bottom, alpha) => top.map((value, index) => Math.round(value * alpha + bottom[index] * (1 - alpha)));
 
 const readerCss = readFileSync(new URL('../src/features/reader/chapter-reading-workspace.css', import.meta.url), 'utf8');
-for (const background of ['LIGHT', 'SEPIA', 'MINT', 'BLUE', 'ROSE', 'DARK', 'BLACK']) {
-  const tokens = readBlock(readerCss, `[data-reader-background="${background}"]`);
-  for (const foreground of ['--reader-ink', '--reader-muted', '--reader-accent']) {
+for (const [background, selector] of [
+  ['default', '.sc-reader-workspace'],
+  ...['LIGHT', 'SEPIA', 'MINT', 'BLUE', 'ROSE', 'DARK', 'BLACK'].map((bg) => [bg, `[data-reader-background="${bg}"]`])
+]) {
+  const tokens = readBlock(readerCss, selector);
+  for (const foreground of ['--reader-ink', '--reader-muted', '--reader-accent', '--reader-danger']) {
     test(`reader ${background}: ${foreground} reaches 4.5:1`, () => {
       const ratio = contrast(rgb(tokens, foreground), rgb(tokens, '--reader-page'));
       assert.ok(ratio >= 4.5, `${background} ${foreground} is ${ratio.toFixed(2)}:1`);
@@ -75,9 +78,19 @@ for (const theme of ['light', 'dark']) {
     ['body text on surface', color('--sc-text-rgb'), surface],
     ['body text on page background', color('--sc-text-rgb'), color('--sc-bg-rgb')],
     ['danger label on surface', color('--sc-danger'), surface],
+    ['success label on surface', color('--sc-success'), surface],
+    ['warning label on surface', color('--sc-warning'), surface],
+    ['success badge label', color('--sc-success'), color('--sc-success-bg')],
+    ['warning badge label', color('--sc-warning'), color('--sc-warning-bg')],
+    ['danger badge label', color('--sc-danger'), color('--sc-danger-bg')],
+    ['neutral filled badge label', color('--sc-text-rgb'), color('--sc-neutral-bg')],
+    ['neutral light badge label', theme === 'dark' ? color('--sc-muted-rgb') : [99, 94, 90], color('--sc-neutral-bg')],
     ['library unfollow label', color('--sc-danger'), color('--sc-danger-bg')],
     ['library unfollow label (hover)', surface, color('--sc-danger')],
-    ['support button label', color('--sc-warning'), color('--sc-warning-bg')]
+    ['support button label', color('--sc-warning'), color('--sc-warning-bg')],
+    ['filled success status button label', theme === 'dark' ? color('--sc-on-primary-rgb') : [255, 255, 255], color('--sc-success')],
+    ['filled warning status button label', theme === 'dark' ? color('--sc-on-primary-rgb') : [255, 255, 255], color('--sc-warning')],
+    ['filled danger status button label', theme === 'dark' ? color('--sc-on-primary-rgb') : [255, 255, 255], color('--sc-danger')]
   ];
 
   for (const [label, foreground, background] of pairs) {

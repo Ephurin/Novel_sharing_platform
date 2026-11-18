@@ -67,7 +67,7 @@ for (const mode of ['source', 'visual']) test('Writing studio preserves insertio
       await editor.evaluate((el, range) => { if(el.hidden)el.dispatchEvent(new CustomEvent('studio-select-source',{detail:{start:range[0],end:range[1]},cancelable:true}));else el.setSelectionRange(...range); el.dispatchEvent(new Event('select', { bubbles: true })); }, [start, end]);
       const focusStyle = await surface.evaluate(el => ({ outline: getComputedStyle(el).outlineStyle, shadow: getComputedStyle(el).boxShadow }));
       assert.deepEqual(focusStyle, { outline: 'none', shadow: 'none' });
-      await page.getByRole('button', { name: '✍️ Viết tiếp', exact: true }).click();
+      await page.getByRole('button', { name: 'Viết tiếp', exact: true }).click();
       // Move the DOM selection while async preparation is pending: request must use the captured position.
       await editor.evaluate(el => {if(el.hidden)el.dispatchEvent(new CustomEvent('studio-select-source',{detail:{start:el.value.length,end:el.value.length},cancelable:true}));else el.setSelectionRange(el.value.length, el.value.length);});
       await page.getByRole('button', { name: 'Chấp nhận bản thảo', exact: true }).waitFor();
