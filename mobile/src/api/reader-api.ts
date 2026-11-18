@@ -44,7 +44,16 @@ export async function getReadingPreferences() {
 }
 
 export async function saveReadingPreferences(input: ReadingPreferences) {
-  const response = await apiClient.put<ApiEnvelope<ReadingPreferences>>('/reading/preferences/me', input);
+  const normalizedFont = input.fontFamily?.trim() ? input.fontFamily.trim() : null;
+  const payload: ReadingPreferences = {
+    fontFamily: normalizedFont,
+    fontSize: input.fontSize,
+    background: input.background,
+    lineHeight: input.lineHeight,
+    ...(input.margin !== undefined ? { margin: input.margin } : {}),
+    ...(input.textAlign !== undefined ? { textAlign: input.textAlign } : {})
+  };
+  const response = await apiClient.put<ApiEnvelope<ReadingPreferences>>('/reading/preferences/me', payload);
   return response.data.data;
 }
 

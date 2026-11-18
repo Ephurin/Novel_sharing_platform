@@ -1,5 +1,5 @@
 import { apiClient, type ApiEnvelope } from './api-client';
-import type { Wallet, WalletTransaction } from './types';
+import type { DepositPackageCode, Wallet, WalletTransaction } from './types';
 
 export async function getWallet() {
   const response = await apiClient.get<ApiEnvelope<Wallet>>('/wallet/me');
@@ -13,10 +13,10 @@ export async function listWalletTransactions() {
   return response.data.data;
 }
 
-export async function createDepositSession(amountCoins: number) {
+export async function createDepositSession(packageCode: DepositPackageCode = 'COIN_1000') {
   const response = await apiClient.post<ApiEnvelope<{ depositSessionId: string; amountCoins: number; status: string; mockPaymentUrl: string }>>(
     '/wallet/deposit-sessions',
-    { amountCoins }
+    { packageCode }
   );
   return response.data.data;
 }

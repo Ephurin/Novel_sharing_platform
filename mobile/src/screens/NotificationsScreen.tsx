@@ -5,6 +5,16 @@ import { listNotifications, markNotificationRead } from '../api/notification-api
 import type { NotificationItem } from '../api/types';
 import { Badge, Card, EmptyState, ErrorState, GhostButton, LoadingState, Screen, Section, useScreenStyles } from '../components/Screen';
 
+const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
+  NOVEL_CHAPTER_PUBLISHED: 'Chương mới vừa xuất bản',
+  COMMENT_REPLY: 'Phản hồi bình luận mới',
+  AUTHOR_REPLY: 'Tác giả đã phản hồi bình luận của bạn',
+  NOVEL_FOLLOW: 'Cập nhật từ tác phẩm đang theo dõi',
+  AUTHOR_FOLLOW: 'Cập nhật từ tác giả đang theo dõi',
+  MODERATION_UPDATE: 'Cập nhật kiểm duyệt nội dung',
+  WALLET_TRANSACTION: 'Biến động số dư Ví Xu'
+};
+
 export function NotificationsScreen() {
   const themed = useScreenStyles();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -36,6 +46,11 @@ export function NotificationsScreen() {
         {!notifications.length ? <EmptyState label="Chưa có thông báo mới." /> : null}
         {notifications.map((notification) => {
           const unread = notification.status === 'UNREAD';
+          const detailText =
+            notification.content?.trim() ||
+            notification.body?.trim() ||
+            NOTIFICATION_TYPE_LABELS[notification.type] ||
+            notification.type;
           return (
             <Card key={notification.notificationId}>
               <Badge
@@ -43,7 +58,7 @@ export function NotificationsScreen() {
                 tone={unread ? 'warning' : 'default'}
               />
               <Text style={themed.cardTitle}>{notification.title}</Text>
-              <Text style={themed.muted}>{notification.body ?? notification.type}</Text>
+              <Text style={themed.muted}>{detailText}</Text>
               {unread ? (
                 <GhostButton
                   label="Đánh dấu đã đọc"

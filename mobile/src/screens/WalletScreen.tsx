@@ -8,16 +8,26 @@ import { useStoryCraftTheme } from '../theme/ThemeProvider';
 
 const TX_TYPE_LABELS: Record<string, string> = {
   DEPOSIT: 'Nạp Xu mô phỏng',
+  UNLOCK: 'Mở khóa chương VIP',
   CHAPTER_UNLOCK: 'Mở khóa chương VIP',
+  DONATE: 'Ủng hộ tác giả',
   DONATION: 'Ủng hộ tác giả',
   WITHDRAW: 'Rút Xu mô phỏng'
 };
 
 const TX_STATUS_LABELS: Record<string, string> = {
+  SUCCESS: 'Thành công',
   COMPLETED: 'Hoàn tất',
   PENDING: 'Đang xử lý',
   FAILED: 'Thất bại'
 };
+
+function resolveTxStatusTone(status: string): 'success' | 'warning' | 'danger' | 'default' {
+  if (status === 'SUCCESS' || status === 'COMPLETED') return 'success';
+  if (status === 'PENDING') return 'warning';
+  if (status === 'FAILED') return 'danger';
+  return 'default';
+}
 
 export function WalletScreen() {
   const { palette } = useStoryCraftTheme();
@@ -48,7 +58,7 @@ export function WalletScreen() {
 
   const deposit = async () => {
     try {
-      const session = await createDepositSession(1000);
+      const session = await createDepositSession('COIN_1000');
       await completeMockDeposit(session.depositSessionId);
       setNotice('Đã nạp mô phỏng +1.000 Xu thành công.');
       await load();
@@ -69,9 +79,14 @@ export function WalletScreen() {
         <Card>
           <Text style={themed.muted}>Số dư khả dụng</Text>
           <Text style={{ color: palette.text, fontSize: 28, fontWeight: '700' }}>
-            {(wallet?.balanceCoins ?? 0).toLocaleString('vi-VN')}{' '}
+            {(wallet?.coinsBalance ?? 0).toLocaleString('vi-VN')}{' '}
             <Text style={{ color: palette.primaryMuted, fontSize: 16 }}>Xu</Text>
           </Text>
+          {(wallet?.lockedCoins ?? 0) > 0 ? (
+            <Text style={themed.muted}>
+              Đang tạm khóa: {(wallet?.lockedCoins ?? 0).toLocaleString('vi-VN')} Xu
+            </Text>
+          ) : null}
           {notice ? (
             <Text accessibilityLiveRegion="polite" style={themed.notice}>
               {notice}
@@ -89,7 +104,7 @@ export function WalletScreen() {
               <Badge label={TX_TYPE_LABELS[transaction.type] ?? transaction.type} tone="primary" />
               <Badge
                 label={TX_STATUS_LABELS[transaction.status] ?? transaction.status}
-                tone={transaction.status === 'COMPLETED' ? 'success' : 'default'}
+                tone={resolveTxStatusTone(transaction.status)}
               />
             </View>
             <Text style={themed.cardTitle}>

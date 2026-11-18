@@ -12,7 +12,13 @@ export async function getMyProfile() {
   return response.data.data;
 }
 
-export async function updateMyProfile(input: Pick<UserProfile, 'displayName' | 'avatarUrl' | 'bio'>) {
+export type UpdateProfilePayload = {
+  displayName?: string;
+  avatarUrl?: string | null;
+  bio?: string | null;
+};
+
+export async function updateMyProfile(input: UpdateProfilePayload) {
   const response = await apiClient.patch<ApiEnvelope<UserProfile>>('/users/me/profile', input);
   return response.data.data;
 }

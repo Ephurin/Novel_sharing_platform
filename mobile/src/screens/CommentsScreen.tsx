@@ -6,6 +6,13 @@ import type { ReaderComment } from '../api/types';
 import { Field } from '../components/Form';
 import { Badge, Card, EmptyState, ErrorState, LoadingState, PrimaryButton, Screen, Section, useScreenStyles } from '../components/Screen';
 
+const COMMENT_STATUS_LABELS: Record<string, string> = {
+  APPROVED: 'Đã duyệt',
+  PENDING_MODERATION: 'Chờ duyệt',
+  REJECTED: 'Từ chối',
+  DELETED: 'Đã ẩn'
+};
+
 export function CommentsScreen({
   chapterId,
   authenticated,
@@ -95,8 +102,16 @@ export function CommentsScreen({
         {comments.map((comment) => (
           <Card key={comment.commentId}>
             <Badge
-              label={comment.status === 'APPROVED' ? 'Đã duyệt' : comment.status}
-              tone={comment.status === 'APPROVED' ? 'success' : 'default'}
+              label={COMMENT_STATUS_LABELS[comment.status] ?? comment.status}
+              tone={
+                comment.status === 'APPROVED'
+                  ? 'success'
+                  : comment.status === 'PENDING_MODERATION'
+                  ? 'warning'
+                  : comment.status === 'REJECTED'
+                  ? 'danger'
+                  : 'default'
+              }
             />
             <Text style={themed.body}>{comment.content}</Text>
           </Card>

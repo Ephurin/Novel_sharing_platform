@@ -2,10 +2,31 @@ import { useEffect, useMemo, useState } from 'react';
 import { Platform, Text, View } from 'react-native';
 import { ApiClientError, getApiErrorMessage } from '../api/api-client';
 import { getReaderChapter, getReadingPreferences, reportContent, saveReadingPreferences, syncHistory } from '../api/reader-api';
-import type { ReaderChapter, ReadingPreferences } from '../api/types';
+import type { ReaderChapter, ReadingBackground, ReadingPreferences } from '../api/types';
 import { unlockVipChapter } from '../api/wallet-api';
 import { Badge, Card, ErrorState, GhostButton, LoadingState, PrimaryButton, Screen, Section, useScreenStyles } from '../components/Screen';
 import { useStoryCraftTheme } from '../theme/ThemeProvider';
+
+export function resolveMobileReaderFontFamily(
+  fontFamily: string | null | undefined,
+  os: string = Platform.OS
+): string | undefined {
+  const trimmed = fontFamily?.trim() ?? '';
+  if (os === 'web') {
+    return trimmed || 'Georgia, serif';
+  }
+  const prefersSans = trimmed.length > 0 && /sans|vietnam|jakarta|inter|system/i.test(trimmed);
+  if (os === 'ios') {
+    return prefersSans ? undefined : 'Georgia';
+  }
+  return prefersSans ? 'sans-serif' : 'serif';
+}
+
+export function resolveReaderPaperTone(background: ReadingBackground): 'light' | 'sepia' | 'dark' {
+  if (background === 'SEPIA') return 'sepia';
+  if (background === 'DARK' || background === 'BLACK') return 'dark';
+  return 'light';
+}
 
 export function ReaderScreen({
   chapterId,
@@ -25,7 +46,7 @@ export function ReaderScreen({
 
   const fallbackPreferences = useMemo<ReadingPreferences>(
     () => ({
-      fontFamily: Platform.select({ ios: 'Georgia', android: 'serif', default: 'Georgia' }),
+      fontFamily: null,
       fontSize: 18,
       background: scheme === 'dark' ? 'DARK' : 'LIGHT',
       lineHeight: 1.8
@@ -73,28 +94,30 @@ export function ReaderScreen({
     void load();
   }, [chapterId, authenticated]);
 
+  const paperTone = resolveReaderPaperTone(preferences.background);
+
   const readerStyle = useMemo(() => {
     const backgroundColor =
-      preferences.background === 'LIGHT'
+      paperTone === 'light'
         ? palette.lightBackground
-        : preferences.background === 'SEPIA'
+        : paperTone === 'sepia'
         ? palette.sepiaBackground
         : palette.darkBackground;
     const color =
-      preferences.background === 'LIGHT'
+      paperTone === 'light'
         ? palette.lightText
-        : preferences.background === 'SEPIA'
+        : paperTone === 'sepia'
         ? palette.sepiaText
         : palette.darkText;
 
     return {
       backgroundColor,
       color,
-      fontFamily: preferences.fontFamily ?? Platform.select({ ios: 'Georgia', android: 'serif', default: 'Georgia' }),
+      fontFamily: resolveMobileReaderFontFamily(preferences.fontFamily),
       fontSize: preferences.fontSize,
       lineHeight: Math.round(preferences.fontSize * preferences.lineHeight)
     };
-  }, [palette, preferences]);
+  }, [palette, paperTone, preferences.fontFamily, preferences.fontSize, preferences.lineHeight]);
 
   const adjustPreference = async (next: ReadingPreferences) => {
     setPreferences(next);
@@ -206,7 +229,7 @@ export function ReaderScreen({
           />
           <GhostButton
             label="Tối"
-            active={preferences.background === 'DARK'}
+            active={preferences.background === 'DARK' || preferences.background === 'BLACK'}
             onPress={() => adjustPreference({ ...preferences, background: 'DARK' })}
           />
         </View>

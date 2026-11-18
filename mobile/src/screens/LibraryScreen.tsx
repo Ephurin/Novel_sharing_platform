@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Text, View } from 'react-native';
+import { Alert, Platform, Text, View } from 'react-native';
 import { getApiErrorMessage } from '../api/api-client';
 import { listLibrary, removeFromLibrary } from '../api/reader-api';
 import type { ReaderNovel } from '../api/types';
@@ -28,19 +28,29 @@ export function LibraryScreen({ onOpenNovel }: { onOpenNovel: (novelId: string) 
   }, []);
 
   const confirmRemove = (novel: ReaderNovel) => {
+    const message = `Bạn muốn bỏ "${novel.title}" khỏi tủ sách cá nhân?`;
+    const performRemove = () => {
+      void removeFromLibrary(novel.novelId)
+        .then(() => load())
+        .catch((caughtError) => setError(getApiErrorMessage(caughtError)));
+    };
+
+    if (Platform.OS === 'web' && typeof globalThis.confirm === 'function') {
+      if (globalThis.confirm(message)) {
+        performRemove();
+      }
+      return;
+    }
+
     Alert.alert(
       'Bỏ khỏi tủ sách',
-      `Bạn muốn bỏ "${novel.title}" khỏi tủ sách cá nhân?`,
+      message,
       [
         { text: 'Hủy', style: 'cancel' },
         {
           text: 'Bỏ lưu',
           style: 'destructive',
-          onPress: () => {
-            void removeFromLibrary(novel.novelId)
-              .then(() => load())
-              .catch((caughtError) => setError(getApiErrorMessage(caughtError)));
-          }
+          onPress: performRemove
         }
       ]
     );
