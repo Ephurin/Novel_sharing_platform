@@ -5,12 +5,17 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "android": {
       "package": "com.ephurin.reader"
     },
     "extra": {
       "apiBaseUrl": "http://localhost:4000/api/v1"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

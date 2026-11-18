@@ -1,10 +1,20 @@
-import { useMemo, type PropsWithChildren } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useMemo, type PropsWithChildren, type ReactNode } from 'react';
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { lightColors, type StoryCraftPalette } from '../theme/colors';
-import { useStoryCraftTheme } from '../theme/ThemeProvider';
+import { resolveStoryCraftFontFamily, useStoryCraftTheme } from '../theme/ThemeProvider';
 
-export function createScreenStyles(palette: StoryCraftPalette) {
+export function createScreenStyles(palette: StoryCraftPalette, fontsLoaded = false) {
   return StyleSheet.create({
     safeArea: {
       flex: 1,
@@ -21,27 +31,38 @@ export function createScreenStyles(palette: StoryCraftPalette) {
     section: {
       gap: 10
     },
+    pageTitle: {
+      color: palette.text,
+      fontSize: 24,
+      lineHeight: 32,
+      fontWeight: '700',
+      fontFamily: resolveStoryCraftFontFamily('700', fontsLoaded),
+      letterSpacing: -0.2
+    },
     sectionTitle: {
       color: palette.text,
-      fontSize: 20,
+      fontSize: 18,
       lineHeight: 26,
-      fontWeight: '700',
-      letterSpacing: -0.2
+      fontWeight: '600',
+      fontFamily: resolveStoryCraftFontFamily('600', fontsLoaded)
     },
     cardTitle: {
       color: palette.text,
       fontSize: 16,
-      lineHeight: 22,
-      fontWeight: '700'
+      lineHeight: 24,
+      fontWeight: '600',
+      fontFamily: resolveStoryCraftFontFamily('600', fontsLoaded)
     },
     sectionSubtitle: {
       color: palette.textMuted,
       fontSize: 14,
-      lineHeight: 20
+      lineHeight: 22,
+      fontWeight: '400',
+      fontFamily: resolveStoryCraftFontFamily('400', fontsLoaded)
     },
     card: {
       gap: 10,
-      padding: 14,
+      padding: 16,
       borderWidth: 1,
       borderColor: palette.border,
       borderRadius: 12,
@@ -49,33 +70,41 @@ export function createScreenStyles(palette: StoryCraftPalette) {
     },
     button: {
       minHeight: 44,
+      minWidth: 44,
+      flexDirection: 'row',
+      gap: 8,
       alignItems: 'center',
       justifyContent: 'center',
       paddingVertical: 10,
       paddingHorizontal: 16,
-      borderRadius: 10,
+      borderRadius: 8,
       backgroundColor: palette.primary
     },
     buttonPressed: {
       backgroundColor: palette.primaryHover
     },
     buttonDisabled: {
-      opacity: 0.5
+      opacity: 0.55
     },
     buttonText: {
       color: palette.onPrimary,
       fontSize: 14,
-      fontWeight: '700'
+      lineHeight: 20,
+      fontWeight: '600',
+      fontFamily: resolveStoryCraftFontFamily('600', fontsLoaded)
     },
     ghostButton: {
       minHeight: 44,
+      minWidth: 44,
+      flexDirection: 'row',
+      gap: 6,
       alignItems: 'center',
       justifyContent: 'center',
       paddingVertical: 10,
       paddingHorizontal: 14,
       borderWidth: 1,
       borderColor: palette.controlBorder,
-      borderRadius: 10,
+      borderRadius: 8,
       backgroundColor: palette.surface
     },
     ghostButtonActive: {
@@ -88,19 +117,25 @@ export function createScreenStyles(palette: StoryCraftPalette) {
     ghostButtonText: {
       color: palette.primaryMuted,
       fontSize: 14,
-      fontWeight: '600'
+      lineHeight: 20,
+      fontWeight: '600',
+      fontFamily: resolveStoryCraftFontFamily('600', fontsLoaded)
     },
     badge: {
       alignSelf: 'flex-start',
+      minHeight: 22,
+      justifyContent: 'center',
       paddingHorizontal: 8,
-      paddingVertical: 4,
+      paddingVertical: 3,
       borderRadius: 999,
       backgroundColor: palette.neutralBg
     },
     badgeText: {
       color: palette.text,
       fontSize: 12,
-      fontWeight: '600'
+      lineHeight: 16,
+      fontWeight: '500',
+      fontFamily: resolveStoryCraftFontFamily('500', fontsLoaded)
     },
     state: {
       flex: 1,
@@ -113,24 +148,30 @@ export function createScreenStyles(palette: StoryCraftPalette) {
     body: {
       color: palette.text,
       fontSize: 14,
-      lineHeight: 21
+      lineHeight: 22,
+      fontWeight: '400',
+      fontFamily: resolveStoryCraftFontFamily('400', fontsLoaded)
     },
     muted: {
       color: palette.textMuted,
-      fontSize: 13,
-      lineHeight: 19
+      fontSize: 12,
+      lineHeight: 18,
+      fontWeight: '400',
+      fontFamily: resolveStoryCraftFontFamily('400', fontsLoaded)
     },
     notice: {
       color: palette.primaryMuted,
       fontSize: 13,
       lineHeight: 19,
-      fontWeight: '600'
+      fontWeight: '600',
+      fontFamily: resolveStoryCraftFontFamily('600', fontsLoaded)
     },
     error: {
       color: palette.danger,
       fontSize: 13,
       lineHeight: 19,
-      fontWeight: '600'
+      fontWeight: '600',
+      fontFamily: resolveStoryCraftFontFamily('600', fontsLoaded)
     }
   });
 }
@@ -139,11 +180,19 @@ export function createScreenStyles(palette: StoryCraftPalette) {
 export const styles = createScreenStyles(lightColors);
 
 export function useScreenStyles() {
-  const { palette } = useStoryCraftTheme();
-  return useMemo(() => createScreenStyles(palette), [palette]);
+  const { palette, fontsLoaded } = useStoryCraftTheme();
+  return useMemo(() => createScreenStyles(palette, fontsLoaded), [palette, fontsLoaded]);
 }
 
-export function Screen({ children }: PropsWithChildren) {
+export function Screen({
+  children,
+  refreshing = false,
+  onRefresh
+}: PropsWithChildren<{
+  refreshing?: boolean;
+  onRefresh?: () => void;
+}>) {
+  const { palette } = useStoryCraftTheme();
   const themed = useScreenStyles();
   return (
     <SafeAreaView edges={['left', 'right', 'bottom']} style={themed.safeArea}>
@@ -155,6 +204,16 @@ export function Screen({ children }: PropsWithChildren) {
           contentContainerStyle={themed.screen}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
+          refreshControl={
+            onRefresh ? (
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={palette.primaryMuted}
+                colors={[palette.primary]}
+              />
+            ) : undefined
+          }
         >
           {children}
         </ScrollView>
@@ -163,13 +222,31 @@ export function Screen({ children }: PropsWithChildren) {
   );
 }
 
-export function Section({ title, subtitle, children }: PropsWithChildren<{ title: string; subtitle?: string }>) {
+export function Section({
+  title,
+  subtitle,
+  rightAction,
+  children
+}: PropsWithChildren<{
+  title?: string;
+  subtitle?: string;
+  rightAction?: ReactNode;
+}>) {
   const themed = useScreenStyles();
   return (
     <View style={themed.section}>
-      <Text accessibilityRole="header" style={themed.sectionTitle}>
-        {title}
-      </Text>
+      {title || rightAction ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+          {title ? (
+            <Text accessibilityRole="header" style={[themed.sectionTitle, { flex: 1 }]}>
+              {title}
+            </Text>
+          ) : (
+            <View style={{ flex: 1 }} />
+          )}
+          {rightAction}
+        </View>
+      ) : null}
       {subtitle ? <Text style={themed.sectionSubtitle}>{subtitle}</Text> : null}
       {children}
     </View>
@@ -183,27 +260,40 @@ export function Card({ children }: PropsWithChildren) {
 
 export function PrimaryButton({
   label,
+  accessibilityLabel,
   onPress,
-  disabled = false
+  disabled = false,
+  loading = false,
+  icon,
+  flex
 }: {
   label: string;
+  accessibilityLabel?: string;
   onPress: () => void;
   disabled?: boolean;
+  loading?: boolean;
+  icon?: ReactNode;
+  flex?: number;
 }) {
+  const { palette } = useStoryCraftTheme();
   const themed = useScreenStyles();
+  const isDisabled = disabled || loading;
+
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ disabled }}
+      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
       style={({ pressed }) => [
         themed.button,
-        pressed && !disabled ? themed.buttonPressed : null,
-        disabled ? themed.buttonDisabled : null
+        flex ? { flex } : null,
+        pressed && !isDisabled ? themed.buttonPressed : null,
+        isDisabled ? themed.buttonDisabled : null
       ]}
       onPress={onPress}
-      disabled={disabled}
+      disabled={isDisabled}
     >
+      {loading ? <ActivityIndicator size="small" color={palette.onPrimary} /> : icon}
       <Text style={themed.buttonText}>{label}</Text>
     </Pressable>
   );
@@ -216,6 +306,9 @@ export function GhostButton({
   active = false,
   danger = false,
   disabled = false,
+  loading = false,
+  expanded,
+  icon,
   flex
 }: {
   label: string;
@@ -224,26 +317,41 @@ export function GhostButton({
   active?: boolean;
   danger?: boolean;
   disabled?: boolean;
+  loading?: boolean;
+  expanded?: boolean;
+  icon?: ReactNode;
   flex?: number;
 }) {
   const { palette } = useStoryCraftTheme();
   const themed = useScreenStyles();
+  const isDisabled = disabled || loading;
+
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
-      accessibilityState={{ disabled, selected: active }}
-      disabled={disabled}
+      accessibilityState={{
+        disabled: isDisabled,
+        busy: loading,
+        selected: active,
+        ...(expanded !== undefined ? { expanded } : {})
+      }}
+      disabled={isDisabled}
       style={({ pressed }) => [
         themed.ghostButton,
         flex ? { flex } : null,
         active ? themed.ghostButtonActive : null,
         danger ? { borderColor: palette.danger, backgroundColor: palette.dangerBg } : null,
-        pressed && !disabled ? themed.ghostButtonPressed : null,
-        disabled ? themed.buttonDisabled : null
+        pressed && !isDisabled ? themed.ghostButtonPressed : null,
+        isDisabled ? themed.buttonDisabled : null
       ]}
       onPress={onPress}
     >
+      {loading ? (
+        <ActivityIndicator size="small" color={danger ? palette.danger : palette.primaryMuted} />
+      ) : (
+        icon
+      )}
       <Text
         style={[
           themed.ghostButtonText,
@@ -295,9 +403,22 @@ export function LoadingState({ label = 'Đang tải dữ liệu...' }: { label?:
   );
 }
 
-export function EmptyState({ label }: { label: string }) {
+export function EmptyState({
+  label,
+  actionLabel,
+  onAction
+}: {
+  label: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
   const themed = useScreenStyles();
-  return <Text style={themed.muted}>{label}</Text>;
+  return (
+    <View style={{ gap: 10, paddingVertical: 8 }}>
+      <Text style={themed.muted}>{label}</Text>
+      {actionLabel && onAction ? <PrimaryButton label={actionLabel} onPress={onAction} /> : null}
+    </View>
+  );
 }
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {

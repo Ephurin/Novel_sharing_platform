@@ -66,6 +66,23 @@ function createHarnessPlugin() {
       build.onResolve({ filter: /^react-native$/ }, () => ({ path: 'react-native', namespace: 'rn-shim' }));
       build.onResolve({ filter: /^react-native-safe-area-context$/ }, () => ({ path: 'rn-safe-area', namespace: 'rn-shim' }));
       build.onResolve({ filter: /^@react-native-async-storage\/async-storage$/ }, () => ({ path: 'async-storage', namespace: 'rn-shim' }));
+      build.onResolve({ filter: /^react-native-svg$/ }, () => ({ path: 'rn-svg', namespace: 'rn-shim' }));
+
+      build.onLoad({ filter: /^rn-svg$/, namespace: 'rn-shim' }, () => ({
+        contents: `
+          import * as React from 'react';
+          export function Svg({ children, width, height, viewBox }) {
+            return React.createElement('svg', { width, height, viewBox, 'aria-hidden': 'true' }, children);
+          }
+          export default Svg;
+          export const Path = (props) => React.createElement('path', props);
+          export const Circle = (props) => React.createElement('circle', props);
+          export const Rect = (props) => React.createElement('rect', props);
+          export const Line = (props) => React.createElement('line', props);
+          export const Polyline = (props) => React.createElement('polyline', props);
+        `,
+        loader: 'js'
+      }));
 
       build.onLoad({ filter: /^react-native$/, namespace: 'rn-shim' }, () => ({
         contents: `
@@ -107,6 +124,44 @@ function createHarnessPlugin() {
           export function ScrollView({ children }) {
             return React.createElement('div', { 'data-rn': 'ScrollView' }, children);
           }
+          export function RefreshControl() {
+            return null;
+          }
+          export function FlatList({ data = [], renderItem, keyExtractor, ListHeaderComponent, ListEmptyComponent, ListFooterComponent, ItemSeparatorComponent }) {
+            const header = typeof ListHeaderComponent === 'function' ? React.createElement(ListHeaderComponent) : ListHeaderComponent;
+            const footer = typeof ListFooterComponent === 'function' ? React.createElement(ListFooterComponent) : ListFooterComponent;
+            const empty = typeof ListEmptyComponent === 'function' ? React.createElement(ListEmptyComponent) : ListEmptyComponent;
+            return React.createElement(
+              'div',
+              { 'data-rn': 'FlatList' },
+              header,
+              data.length > 0
+                ? data.map((item, index) =>
+                    React.createElement(
+                      React.Fragment,
+                      { key: keyExtractor ? keyExtractor(item, index) : String(index) },
+                      index > 0 && ItemSeparatorComponent
+                        ? typeof ItemSeparatorComponent === 'function'
+                          ? React.createElement(ItemSeparatorComponent)
+                          : ItemSeparatorComponent
+                        : null,
+                      renderItem({ item, index })
+                    )
+                  )
+                : empty,
+              footer
+            );
+          }
+          export function Image({ source, onError }) {
+            return React.createElement('img', {
+              src: source?.uri ?? '',
+              alt: '',
+              onError: () => onError?.()
+            });
+          }
+          export function Modal({ visible, children }) {
+            return visible ? React.createElement('div', { role: 'dialog', 'aria-modal': 'true' }, children) : null;
+          }
           export function KeyboardAvoidingView({ children }) {
             return React.createElement('div', { 'data-rn': 'KeyboardAvoidingView' }, children);
           }
@@ -127,18 +182,24 @@ function createHarnessPlugin() {
               type: 'button',
               role: accessibilityRole,
               'aria-selected': accessibilityState?.selected,
+              'aria-checked': accessibilityState?.checked,
+              'aria-expanded': accessibilityState?.expanded,
+              'aria-busy': accessibilityState?.busy || undefined,
               disabled: Boolean(disabled),
               'aria-label': accessibilityLabel,
               onClick: () => { if (!disabled) onPress?.(); }
             }, typeof children === 'function' ? children({ pressed: false }) : children);
           }
-          export const TextInput = React.forwardRef(function TextInput({ value, onChangeText, placeholder, accessibilityLabel }, ref) {
+          export const TextInput = React.forwardRef(function TextInput({ value, onChangeText, placeholder, accessibilityLabel, onFocus, onBlur, editable = true, secureTextEntry }, ref) {
             return React.createElement('input', {
               ref,
-              type: 'text',
+              type: secureTextEntry ? 'password' : 'text',
+              disabled: editable === false,
               value: value ?? '',
               placeholder,
               'aria-label': accessibilityLabel,
+              onFocus: () => onFocus?.(),
+              onBlur: () => onBlur?.(),
               onChange: (event) => onChangeText?.(event.target.value)
             });
           });
@@ -175,17 +236,21 @@ async function buildBundle() {
   const entryCode = `
     import * as React from 'react';
     import { createRoot } from 'react-dom/client';
-    import { apiClient } from './src/api/api-client';
+    import { apiClient, ApiClientError } from './src/api/api-client';
     import { StoryCraftThemeProvider } from './src/theme/ThemeProvider';
     import { ReaderScreen, resolveMobileReaderFontFamily, resolveReaderPaperTone } from './src/screens/ReaderScreen';
+    import { NovelDetailScreen } from './src/screens/NovelDetailScreen';
+    import { AuthScreen } from './src/screens/AuthScreen';
+    import { CommentsScreen } from './src/screens/CommentsScreen';
     import { WalletScreen } from './src/screens/WalletScreen';
     import { ProfileScreen } from './src/screens/ProfileScreen';
     import { NotificationsScreen } from './src/screens/NotificationsScreen';
     import { lightColors } from './src/theme/colors';
 
-    window.__helpers = { resolveMobileReaderFontFamily, resolveReaderPaperTone, lightPalette: lightColors };
+    window.__helpers = { resolveMobileReaderFontFamily, resolveReaderPaperTone, lightPalette: lightColors, ApiClientError };
     window.__capturedRequests = [];
     window.__mockHandlers = {};
+    window.__walletOpenedCount = 0;
 
     apiClient.defaults.adapter = async (config) => {
       const method = (config.method || 'get').toUpperCase();
@@ -220,10 +285,25 @@ async function buildBundle() {
           authenticated: true,
           onLoginRequired: () => {},
           onOpenComments: () => {},
-          onOpenWallet: () => {}
+          onOpenWallet: () => {
+            window.__walletOpenedCount += 1;
+          }
         })
       );
 
+    window.__mountNovelDetail = (novelId) =>
+      mountElement(
+        React.createElement(NovelDetailScreen, {
+          novelId,
+          authenticated: true,
+          onLoginRequired: () => {},
+          onOpenChapter: () => {}
+        })
+      );
+
+    window.__mountAuth = () => mountElement(React.createElement(AuthScreen, { onAuthenticated: () => {} }));
+    window.__mountComments = (chapterId) =>
+      mountElement(React.createElement(CommentsScreen, { chapterId, authenticated: true, onLoginRequired: () => {} }));
     window.__mountWallet = () => mountElement(React.createElement(WalletScreen));
     window.__mountProfile = () => mountElement(React.createElement(ProfileScreen, { onLogout: () => {} }));
     window.__mountNotifications = () => mountElement(React.createElement(NotificationsScreen));
@@ -337,13 +417,36 @@ test('Mobile Reader, Wallet, Profile, and Notifications screens satisfy backend 
       );
       return {
         actualBg: span?.parentElement?.getAttribute('data-bg'),
-        expectedLightBg: window.__helpers.lightPalette.lightBackground
+        expectedMintBg: window.__helpers.lightPalette.mintBackground
       };
     });
-    assert.equal(paperBg.actualBg, paperBg.expectedLightBg, 'MINT Web background must render as light paper, not dark');
+    assert.equal(paperBg.actualBg, paperBg.expectedMintBg, 'MINT Web background must render with dedicated mint paper token');
 
+    // Reader customization panel is collapsed by default so prose dominates immediately on open
+    await expect(page.getByText('Màu nền trang sách')).toHaveCount(0);
     await page.getByRole('button', { name: 'Tăng cỡ chữ' }).click();
     await expect(page.getByText('Đã lưu tùy chỉnh đọc truyện.')).toBeVisible();
+
+    // Opening "Aa Tùy chỉnh" exposes all 7 ReadingBackground options; reporting requires confirmation + reason
+    await page.getByRole('button', { name: 'Aa Tùy chỉnh' }).click();
+    await expect(page.getByText('Màu nền trang sách')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Nền đọc Đen sâu' })).toBeVisible();
+
+    await page.evaluate(() => {
+      window.__mockHandlers['POST /reports'] = (body) => ({ reportId: 'rep-1', status: 'PENDING', ...body });
+    });
+    await page.getByRole('button', { name: 'Báo cáo chương' }).click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await page.getByRole('radio', { name: 'Bản quyền' }).click();
+    await page.getByRole('button', { name: 'Gửi báo cáo' }).click();
+    await expect(page.getByText('Đã gửi báo cáo chương.')).toBeVisible();
+
+    const reportReq = await page.evaluate(() =>
+      window.__capturedRequests.find((r) => r.method === 'POST' && r.url === '/reports')
+    );
+    assert.ok(reportReq, 'Expected POST /reports after confirming reason');
+    const parsedReport = schemas.createReportSchema.parse({ body: reportReq.body });
+    assert.equal(parsedReport.body.reason, 'Bản quyền');
 
     const readerRequests = await page.evaluate(() => window.__capturedRequests);
     const historyPut = readerRequests.find((r) => r.method === 'PUT' && r.url === '/reading/history/me');
@@ -448,7 +551,7 @@ test('Mobile Reader, Wallet, Profile, and Notifications screens satisfy backend 
       bio: null
     });
 
-    // 4. Verify NotificationsScreen renders backend `content` field instead of raw enum key
+    // 4. Verify NotificationsScreen renders backend `content` field instead of raw enum key and updates read status in-place
     await page.evaluate(() => {
       window.__capturedRequests = [];
       window.__mockHandlers = {
@@ -460,8 +563,26 @@ test('Mobile Reader, Wallet, Profile, and Notifications screens satisfy backend 
             content: 'Thanh Vân Kiếm vừa ra mắt Chương 12: Tuyết Rơi Đỉnh Núi.',
             status: 'UNREAD',
             createdAt: '2026-11-18T00:05:00.000Z'
+          },
+          {
+            notificationId: 'notif-2',
+            type: 'COMMENT_REPLY',
+            title: 'Phản hồi bình luận mới',
+            content: 'Độc giả Minh Nguyệt đã trả lời bình luận của bạn.',
+            status: 'UNREAD',
+            createdAt: '2026-11-18T00:06:00.000Z'
           }
-        ]
+        ],
+        'PATCH /notifications/notif-1/read': () => ({
+          notificationId: 'notif-1',
+          status: 'READ',
+          readAt: '2026-11-18T00:07:00.000Z'
+        }),
+        'PATCH /notifications/notif-2/read': () => ({
+          notificationId: 'notif-2',
+          status: 'READ',
+          readAt: '2026-11-18T00:07:00.000Z'
+        })
       };
       window.__mountNotifications();
     });
@@ -469,6 +590,104 @@ test('Mobile Reader, Wallet, Profile, and Notifications screens satisfy backend 
     await expect(page.getByText('Chương 12 vừa lên sóng')).toBeVisible();
     await expect(page.getByText('Thanh Vân Kiếm vừa ra mắt Chương 12: Tuyết Rơi Đỉnh Núi.')).toBeVisible();
     await expect(page.getByText('NOVEL_CHAPTER_PUBLISHED')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Đánh dấu tất cả đã đọc' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Đánh dấu đã đọc' }).first().click();
+    await expect(page.getByText('Đã đọc', { exact: true })).toBeVisible();
+    const getNotifCount = await page.evaluate(
+      () => window.__capturedRequests.filter((r) => r.method === 'GET' && r.url === '/notifications').length
+    );
+    assert.equal(getNotifCount, 1, 'Marking notification read must update in-place without refetching/unmounting list');
+
+    // 5. Verify NovelDetailScreen chapter normalization ("Chương X: Chương X"), sort toggle, and single primary CTA
+    await page.evaluate((novelId) => {
+      window.__capturedRequests = [];
+      window.__mockHandlers = {
+        [`GET /reading/novels/${novelId}`]: () => ({
+          novelId,
+          authorId: 'a1',
+          authorName: 'Tác giả Hàn Sơn',
+          title: 'Kiếm Lai Phong',
+          genre: 'Tiên hiệp',
+          serialStatus: 'ONGOING',
+          viewsCount: 1500,
+          likesCount: 92,
+          synopsis: 'Hành trình kiếm đạo giữa mây ngàn.',
+          chapters: [
+            { chapterId: 'ch-1', novelId, chapterNumber: 1, title: 'Chương 1: Hạt sương mai', isVip: false, priceCoins: 0, wordCount: 980 },
+            { chapterId: 'ch-2', novelId, chapterNumber: 2, title: 'Chương 2: Tiếng chuông cổ', isVip: true, priceCoins: 20, wordCount: 1200 }
+          ]
+        }),
+        'GET /reading/history/me': () => []
+      };
+      window.__mountNovelDetail(novelId);
+    }, NOVEL_UUID);
+
+    await expect(page.getByRole('button', { name: 'Đọc ngay' })).toBeVisible();
+    await expect(page.getByText('Chương 1: Hạt sương mai')).toBeVisible();
+    await expect(page.getByText('Chương 1: Chương 1: Hạt sương mai')).toHaveCount(0);
+    await page.getByRole('button', { name: /Đang sắp xếp cũ đến mới/ }).click();
+    await expect(page.getByRole('button', { name: /Đang sắp xếp mới đến cũ/ })).toBeVisible();
+
+    // 6. Verify VIP Reader unlock only opens Wallet on insufficient coins, keeping network errors inline
+    await page.evaluate((chapterId) => {
+      window.__walletOpenedCount = 0;
+      let unlockAttempt = 0;
+      window.__mockHandlers = {
+        [`GET /reading/chapters/${chapterId}`]: () => {
+          throw new window.__helpers.ApiClientError({ status: 402, code: 'PAYMENT_002', message: 'Chapter unlock required' });
+        },
+        'GET /reading/preferences/me': () => ({ fontFamily: null, fontSize: 18, background: 'LIGHT', lineHeight: 1.8 }),
+        [`POST /chapters/${chapterId}/unlock`]: () => {
+          unlockAttempt += 1;
+          if (unlockAttempt === 1) {
+            throw new window.__helpers.ApiClientError({ status: 503, code: 'NETWORK_ERROR', message: 'Mất kết nối tạm thời' });
+          }
+          throw new window.__helpers.ApiClientError({ status: 402, code: 'PAYMENT_003', message: 'Insufficient Coins balance' });
+        }
+      };
+      window.__mountReader(chapterId);
+    }, CHAPTER_UUID);
+
+    await expect(page.getByText('Chương VIP đang khóa')).toBeVisible();
+    await page.getByRole('button', { name: 'Mở khóa chương' }).click();
+    await expect(page.getByText(/Mất kết nối tạm thời/)).toBeVisible();
+    assert.equal(await page.evaluate(() => window.__walletOpenedCount), 0, 'Network error must NOT jump to Wallet');
+
+    await page.getByRole('button', { name: 'Mở khóa chương' }).click();
+    assert.equal(await page.evaluate(() => window.__walletOpenedCount), 1, 'Insufficient coins error MUST open Wallet');
+
+    // 7. Verify AuthScreen password visibility toggle and CommentsScreen author avatar/name rendering
+    await page.evaluate(() => window.__mountAuth());
+    const pwdInput = page.getByRole('textbox', { name: 'Mật khẩu' }).or(page.locator('input[aria-label="Mật khẩu"]'));
+    assert.equal(await page.locator('input[aria-label="Mật khẩu"]').getAttribute('type'), 'password');
+    await page.getByRole('button', { name: 'Hiện mật khẩu' }).click();
+    assert.equal(await page.locator('input[aria-label="Mật khẩu"]').getAttribute('type'), 'text');
+    void pwdInput;
+
+    await page.evaluate((chapterId) => {
+      window.__mockHandlers = {
+        [`GET /chapters/${chapterId}/comments`]: () => [
+          {
+            commentId: 'cm-1',
+            chapterId,
+            userId: 'u-2',
+            displayName: 'Minh Nguyệt',
+            avatarUrl: null,
+            isAuthor: true,
+            paragraphOffset: null,
+            content: 'Chương này nhịp truyện rất cuốn!',
+            status: 'APPROVED',
+            createdAt: '2026-11-18T02:30:00.000Z'
+          }
+        ]
+      };
+      window.__mountComments(chapterId);
+    }, CHAPTER_UUID);
+
+    await expect(page.getByText('Minh Nguyệt')).toBeVisible();
+    await expect(page.getByText('MN', { exact: true })).toBeVisible();
+    await expect(page.getByText('Chương này nhịp truyện rất cuốn!')).toBeVisible();
   } finally {
     await browser.close();
   }

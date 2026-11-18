@@ -31,12 +31,38 @@ function createHarnessPlugin() {
       build.onResolve({ filter: /^react-native$/ }, () => ({ path: 'react-native', namespace: 'rn-shim' }));
       build.onResolve({ filter: /^react-native-safe-area-context$/ }, () => ({ path: 'rn-safe-area', namespace: 'rn-shim' }));
       build.onResolve({ filter: /^@react-native-async-storage\/async-storage$/ }, () => ({ path: 'async-storage', namespace: 'rn-shim' }));
+      build.onResolve({ filter: /^react-native-svg$/ }, () => ({ path: 'rn-svg', namespace: 'rn-shim' }));
+
+      build.onLoad({ filter: /^rn-svg$/, namespace: 'rn-shim' }, () => ({
+        contents: `
+          import * as React from 'react';
+          export function Svg({ children, width, height, viewBox }) {
+            return React.createElement('svg', { width, height, viewBox, 'aria-hidden': 'true' }, children);
+          }
+          export default Svg;
+          export const Path = (props) => React.createElement('path', props);
+          export const Circle = (props) => React.createElement('circle', props);
+          export const Rect = (props) => React.createElement('rect', props);
+          export const Line = (props) => React.createElement('line', props);
+          export const Polyline = (props) => React.createElement('polyline', props);
+        `,
+        loader: 'js'
+      }));
 
       build.onLoad({ filter: /^react-native$/, namespace: 'rn-shim' }, () => ({
         contents: `
           import * as React from 'react';
           export const Platform = { OS: 'web', select: (obj) => obj.web ?? obj.default };
-          export const StyleSheet = { create: (styles) => styles };
+          export const StyleSheet = {
+            create: (styles) => styles,
+            flatten: (style) => {
+              if (!style) return {};
+              if (Array.isArray(style)) {
+                return style.reduce((acc, item) => Object.assign(acc, StyleSheet.flatten(item)), {});
+              }
+              return style;
+            }
+          };
           export const useColorScheme = () => 'light';
           export function View({ children, accessibilityRole, accessibilityLabel, accessibilityLiveRegion }) {
             return React.createElement('div', {
@@ -48,6 +74,44 @@ function createHarnessPlugin() {
           export function ScrollView({ children }) {
             return React.createElement('div', { 'data-rn': 'ScrollView' }, children);
           }
+          export function RefreshControl() {
+            return null;
+          }
+          export function FlatList({ data = [], renderItem, keyExtractor, ListHeaderComponent, ListEmptyComponent, ListFooterComponent, ItemSeparatorComponent }) {
+            const header = typeof ListHeaderComponent === 'function' ? React.createElement(ListHeaderComponent) : ListHeaderComponent;
+            const footer = typeof ListFooterComponent === 'function' ? React.createElement(ListFooterComponent) : ListFooterComponent;
+            const empty = typeof ListEmptyComponent === 'function' ? React.createElement(ListEmptyComponent) : ListEmptyComponent;
+            return React.createElement(
+              'div',
+              { 'data-rn': 'FlatList' },
+              header,
+              data.length > 0
+                ? data.map((item, index) =>
+                    React.createElement(
+                      React.Fragment,
+                      { key: keyExtractor ? keyExtractor(item, index) : String(index) },
+                      index > 0 && ItemSeparatorComponent
+                        ? typeof ItemSeparatorComponent === 'function'
+                          ? React.createElement(ItemSeparatorComponent)
+                          : ItemSeparatorComponent
+                        : null,
+                      renderItem({ item, index })
+                    )
+                  )
+                : empty,
+              footer
+            );
+          }
+          export function Image({ source, onError }) {
+            return React.createElement('img', {
+              src: source?.uri ?? '',
+              alt: '',
+              onError: () => onError?.()
+            });
+          }
+          export function Modal({ visible, children }) {
+            return visible ? React.createElement('div', { role: 'dialog', 'aria-modal': 'true' }, children) : null;
+          }
           export function KeyboardAvoidingView({ children }) {
             return React.createElement('div', { 'data-rn': 'KeyboardAvoidingView' }, children);
           }
@@ -58,21 +122,26 @@ function createHarnessPlugin() {
           export function ActivityIndicator() {
             return React.createElement('span', { 'data-rn': 'ActivityIndicator', 'aria-hidden': 'true' }, '...');
           }
-          export function Pressable({ children, onPress, disabled, accessibilityLabel }) {
+          export function Pressable({ children, onPress, disabled, accessibilityLabel, accessibilityState }) {
             return React.createElement('button', {
               type: 'button',
               disabled: Boolean(disabled),
+              'aria-busy': accessibilityState?.busy || undefined,
+              'aria-expanded': accessibilityState?.expanded,
               'aria-label': accessibilityLabel,
               onClick: () => { if (!disabled) onPress?.(); }
             }, typeof children === 'function' ? children({ pressed: false }) : children);
           }
-          export const TextInput = React.forwardRef(function TextInput({ value, onChangeText, placeholder, accessibilityLabel }, ref) {
+          export const TextInput = React.forwardRef(function TextInput({ value, onChangeText, placeholder, accessibilityLabel, onFocus, onBlur, editable = true, secureTextEntry }, ref) {
             return React.createElement('input', {
               ref,
-              type: 'text',
+              type: secureTextEntry ? 'password' : 'text',
+              disabled: editable === false,
               value: value ?? '',
               placeholder,
               'aria-label': accessibilityLabel,
+              onFocus: () => onFocus?.(),
+              onBlur: () => onBlur?.(),
               onChange: (event) => onChangeText?.(event.target.value)
             });
           });
