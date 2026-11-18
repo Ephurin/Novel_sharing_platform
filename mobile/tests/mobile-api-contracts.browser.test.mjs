@@ -64,6 +64,16 @@ function createHarnessPlugin() {
       build.onResolve({ filter: /^axios$/ }, () => ({ path: axiosPath }));
 
       build.onResolve({ filter: /^react-native$/ }, () => ({ path: 'react-native', namespace: 'rn-shim' }));
+      build.onResolve({ filter: /^@react-navigation\/native$/ }, () => ({ path: 'navigation', namespace: 'rn-shim' }));
+      build.onResolve({ filter: /^@react-native-community\/netinfo$/ }, () => ({ path: 'netinfo', namespace: 'rn-shim' }));
+      build.onLoad({ filter: /^navigation$/, namespace: 'rn-shim' }, () => ({
+        contents: 'export const useIsFocused = () => true;',
+        loader: 'js'
+      }));
+      build.onLoad({ filter: /^netinfo$/, namespace: 'rn-shim' }, () => ({
+        contents: 'export const useNetInfo = () => ({ isConnected: true });',
+        loader: 'js'
+      }));
       build.onResolve({ filter: /^react-native-safe-area-context$/ }, () => ({ path: 'rn-safe-area', namespace: 'rn-shim' }));
       build.onResolve({ filter: /^@react-native-async-storage\/async-storage$/ }, () => ({ path: 'async-storage', namespace: 'rn-shim' }));
       build.onResolve({ filter: /^react-native-svg$/ }, () => ({ path: 'rn-svg', namespace: 'rn-shim' }));
@@ -87,6 +97,7 @@ function createHarnessPlugin() {
       build.onLoad({ filter: /^react-native$/, namespace: 'rn-shim' }, () => ({
         contents: `
           import * as React from 'react';
+          export const AppState = { currentState: 'active', addEventListener: () => ({ remove() {} }) };
           export const Platform = {
             get OS() {
               return window.__simulatedOS || 'ios';
@@ -381,7 +392,7 @@ async function buildBundle() {
 
     window.__mountAuth = () => mountElement(React.createElement(AuthScreen, { onAuthenticated: () => {} }));
     window.__mountComments = (chapterId) =>
-      mountElement(React.createElement(CommentsScreen, { chapterId, authenticated: true, onLoginRequired: () => {} }));
+      mountElement(React.createElement(CommentsScreen, { target: { kind: 'chapter', id: chapterId }, user: null, onLoginRequired: () => {}, onThread: () => {}, onProfile: () => {} }));
     window.__mountWallet = () => mountElement(React.createElement(WalletScreen));
     window.__mountProfile = () => mountElement(React.createElement(ProfileScreen, { onLogout: () => {} }));
     window.__mountNotifications = (props = {}) =>

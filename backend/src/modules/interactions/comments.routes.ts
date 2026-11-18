@@ -1,3 +1,4 @@
+import { commentThreadsRoutes } from './comment-threads.routes.js';
 import { createCommentReply, listAuthorComments, listCommentReplies, locateComment, reactToComment } from './comments.service.js';
 import { createReplySchema, listRepliesSchema, authorCommentsSchema, commentReactionSchema, commentLocationSchema } from './comments.schemas.js';
 import { successResponse } from '../../core/response/response.js';
@@ -19,6 +20,8 @@ import {
 } from './comments.schemas.js';
 
 export const commentsRoutes = Router();
+commentsRoutes.use((_req,res,next)=>{res.setHeader('Cache-Control','private, no-store');next();});
+commentsRoutes.use(commentThreadsRoutes);
 
 commentsRoutes.get('/comments/:commentId/location', optionalAuth, validateRequest(commentLocationSchema), async (request, response, next) => {
   try { response.json(successResponse(await locateComment(String(request.params.commentId), request.query as never, request.auth))); } catch (error) { next(error); }

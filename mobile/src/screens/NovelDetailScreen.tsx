@@ -38,12 +38,14 @@ export function NovelDetailScreen({
   novelId,
   authenticated,
   onLoginRequired,
-  onOpenChapter
+  onOpenChapter,
+  onOpenComments
 }: {
   novelId: string;
   authenticated: boolean;
   onLoginRequired: () => void;
   onOpenChapter: (chapterId: string) => void;
+  onOpenComments?: () => void;
 }) {
   const { palette } = useStoryCraftTheme();
   const themed = useScreenStyles();
@@ -265,6 +267,7 @@ export function NovelDetailScreen({
         />
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+          {onOpenComments && <GhostButton label="Bình luận và góp ý" onPress={onOpenComments} />}
           <GhostButton
             flex={1}
             label={saved ? 'Đã lưu' : 'Lưu tủ sách'}

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useMemo, type PropsWithChildren, type ReactNode } from 'react';
 import {
   ActivityIndicator,
@@ -187,20 +188,28 @@ export function useScreenStyles() {
 export function Screen({
   children,
   refreshing = false,
-  onRefresh
+  onRefresh,
+  focusY
 }: PropsWithChildren<{
   refreshing?: boolean;
   onRefresh?: () => void;
+  focusY?: number;
 }>) {
   const { palette } = useStoryCraftTheme();
   const themed = useScreenStyles();
+  const scroll = useRef<ScrollView>(null);
+  useEffect(() => {
+    if (focusY === undefined) return;
+    const frame = requestAnimationFrame(() => scroll.current?.scrollTo({ y: Math.max(0, focusY - 20), animated: false }));
+    return () => cancelAnimationFrame(frame);
+  }, [focusY]);
   return (
     <SafeAreaView edges={['left', 'right', 'bottom']} style={themed.safeArea}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={themed.safeArea}
       >
-        <ScrollView
+        <ScrollView ref={scroll}
           contentContainerStyle={themed.screen}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"

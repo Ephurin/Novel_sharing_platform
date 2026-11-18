@@ -1,3 +1,4 @@
+import type { CurrentUser } from '../api/types';
 import { useEffect, useState } from 'react';
 import { Alert, Platform, Text, View } from 'react-native';
 import { getApiErrorMessage } from '../api/api-client';
@@ -17,7 +18,7 @@ import {
 import { clearSession } from '../state/session';
 import { ThemeSegmentedPicker } from '../theme/ThemeProvider';
 
-export function ProfileScreen({ onLogout }: { onLogout: () => void }) {
+export function ProfileScreen({ user, onLogout, onConnections, onFeedback }: { user?: CurrentUser; onLogout: () => void; onConnections?: () => void; onFeedback?: (box: 'sent' | 'received') => void }) {
   const themed = useScreenStyles();
   const [displayName, setDisplayName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
@@ -116,6 +117,11 @@ export function ProfileScreen({ onLogout }: { onLogout: () => void }) {
 
   return (
     <Screen refreshing={refreshing} onRefresh={() => void load(true)}>
+      {user && onConnections && onFeedback && <Card>
+        <GhostButton label="Bạn bè" onPress={onConnections} />
+        <GhostButton label="Góp ý đã gửi" onPress={() => onFeedback('sent')} />
+        {(user.role === 'AUTHOR' || user.role === 'ADMIN') && <GhostButton label="Góp ý gửi tôi" onPress={() => onFeedback('received')} />}
+      </Card>}
       <Card>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
           <AvatarBadge size="lg" uri={previewAvatar} name={previewName} />

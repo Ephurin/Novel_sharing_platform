@@ -1,5 +1,7 @@
+import { paragraphCounts, type AnchorInput } from '../api/social-api';
+import { useFocusedResource } from '../state/useFocusedResource';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, Text, View } from 'react-native';
+import { Platform, Pressable, Text, View } from 'react-native';
 import { ApiClientError, getApiErrorMessage } from '../api/api-client';
 import {
   getReaderChapter,
@@ -91,7 +93,7 @@ export function ReaderScreen({
   novelId?: string;
   authenticated: boolean;
   onLoginRequired: () => void;
-  onOpenComments: (chapterId: string) => void;
+  onOpenComments: (chapterId: string, anchor?: AnchorInput) => void;
   onOpenWallet: () => void;
   onOpenChapter?: (chapterId: string) => void;
 }) {
@@ -320,6 +322,8 @@ export function ReaderScreen({
     onOpenChapter?.(nextId);
   };
 
+  const markers = useFocusedResource(`markers:${activeChapterId}:${authenticated}:${chapter?.contentVersion ?? chapter?.chapterId}`, () =>
+    authenticated && chapter?.chapterId === activeChapterId ? paragraphCounts(activeChapterId) : Promise.resolve({} as Record<string, number>));
   const readerStyle = useMemo(() => {
     const paper = getReadingBackgroundColors(palette, preferences.background);
     return {
@@ -586,16 +590,23 @@ export function ReaderScreen({
           backgroundColor: readerStyle.backgroundColor
         }}
       >
-        <Text
-          style={{
-            color: readerStyle.color,
-            fontFamily: readerStyle.fontFamily,
-            fontSize: readerStyle.fontSize,
-            lineHeight: readerStyle.lineHeight
-          }}
-        >
+        {chapter?.paragraphs?.length ? (chapter.content ?? '').replace(/\r\n?/g, '\n').split(/\n\s*\n/)
+          .map(block => block.trim()).filter(Boolean).map((block, index) => {
+          const paragraph = chapter.paragraphs?.find(item => item.paragraphIndex === index && item.text === block);
+          const open = paragraph && chapter.contentVersion ? () => {
+            if (!authenticated) onLoginRequired();
+            else if (chapter.contentVersion) onOpenComments(activeChapterId, { contentVersion: chapter.contentVersion, paragraphId: paragraph.paragraphId });
+          } : undefined;
+          const count = paragraph ? markers.data?.[paragraph.paragraphId] : undefined;
+          return <Pressable key={paragraph?.paragraphId ?? index} onLongPress={open} onAccessibilityTap={open}
+            accessibilityHint={open ? 'Nhấn giữ để trao đổi về đoạn này' : undefined}>
+            <Text style={{ color: readerStyle.color, fontFamily: readerStyle.fontFamily, fontSize: readerStyle.fontSize, lineHeight: readerStyle.lineHeight, marginBottom: 14 }}>
+              {block}{count ? `  · ${count} trao đổi riêng` : ''}
+            </Text>
+          </Pressable>;
+        }) : <Text style={{ color: readerStyle.color, fontFamily: readerStyle.fontFamily, fontSize: readerStyle.fontSize, lineHeight: readerStyle.lineHeight }}>
           {chapter?.content ?? 'Chương này chưa có nội dung.'}
-        </Text>
+        </Text>}
       </View>
 
       <View style={{ flexDirection: 'row', gap: 10 }}>

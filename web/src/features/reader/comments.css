@@ -12,6 +12,45 @@
 .sc-comments h3 { font-size: 18px; line-height: 26px; }
 .sc-comment-item { color: inherit; background: transparent; }
 .sc-comments, .sc-comment-item { scroll-margin-block: 96px; }
+.sc-author-feedback-inline { border-inline-start: 2px solid var(--sc-border); padding-inline-start: 12px; scroll-margin-block-start: 96px; }
+.sc-private-chat-name { min-width: 0; overflow-wrap: anywhere; }
+.sc-private-chat-message { display: grid; gap: 5px; padding: 6px 0; overflow-wrap: anywhere; font-size: 14px; line-height: 1.5; }
+.sc-private-chat-message.is-focused { outline: 2px solid var(--sc-focus-ring); outline-offset: 1px; border-radius: 6px; padding-inline: 6px; }
+.sc-private-chat-message .chapter-prose p:last-child { margin-bottom: 0 !important; }
+.sc-private-chat-action { min-width: 28px; min-height: 28px; padding-inline: 4px; }
+.sc-private-chat-action .material-symbols-outlined { font-size: 16px; }
+.sc-private-chat-back { flex: none; align-self: flex-start; margin: 8px 12px 0; }
+.sc-private-chat-compose .sc-comment-rich-input { min-height: 62px; max-height: 136px; border-radius: 10px; }
+.sc-private-chat-actions { margin-inline-start: auto; }
+.sc-private-chat-send { min-width: 40px; min-height: 36px; }
+.sc-private-chat-send .material-symbols-outlined { font-size: 18px; }
+.sc-comment-rich-input [data-comment-mention] { color: var(--sc-primary-text); font-weight: 600; }
+.sc-comment-mention-menu {
+  z-index: 215;
+  width: min(270px, calc(100vw - 16px));
+  max-height: min(240px, 45dvh);
+  overflow: auto;
+  padding: 4px;
+  border: 1px solid var(--sc-border);
+  border-radius: 10px;
+  color: var(--sc-text);
+  background: var(--sc-surface-elevated);
+  box-shadow: 0 6px 20px rgb(var(--sc-text-rgb) / .14);
+}
+.sc-comment-mention-menu [role="option"] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.sc-comment-mention-menu [aria-selected="true"] { background: var(--sc-primary-soft); }
+.sc-comment-mention-menu small { display: block; color: var(--sc-text-muted); }
+.sc-comment-mention-menu p { margin: 6px 8px; font-size: 13px; color: var(--sc-text-muted); }
 .sc-comment-item.is-focused { outline: 2px solid var(--sc-primary); outline-offset: 2px; }
 .sc-comment-composer { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
 .sc-comment-editor-tools { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }

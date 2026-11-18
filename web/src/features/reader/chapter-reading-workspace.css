@@ -39,13 +39,42 @@
 .sc-reading-line-highlight { position: absolute; pointer-events: none; border-radius: 2px; background: color-mix(in srgb, var(--reader-accent) 7%, transparent); }
 @keyframes sc-reading-line-fade { 0%, 65% { opacity: 1; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .sc-reading-line-flash { animation: none; } }
+.sc-reading-passage-actions { position: fixed; z-index: 200; display: flex; align-items: stretch; gap: 6px; max-width: min(176px, calc(100vw - 16px)); }
+.sc-reading-passage-actions[data-placement="side"] { transform: translateY(-50%); }
+.sc-reading-private-action { flex: 0 0 44px; width: 44px; padding: 0; justify-content: center; }
+.sc-paragraph-discussion {
+  position: fixed;
+  z-index: 210;
+  box-sizing: border-box;
+  width: min(clamp(264px, calc((100vw - 840px) / 2 - 24px), 344px), calc(100vw - 24px));
+  max-height: min(400px, 76dvh);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--sc-border);
+  border-radius: 12px;
+  color: var(--sc-text);
+  background: var(--sc-surface-elevated);
+  box-shadow: 0 6px 24px rgb(var(--sc-text-rgb) / .14);
+  outline: none;
+}
+.sc-paragraph-discussion[data-docked="true"] { right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); }
+.sc-paragraph-discussion-header { display: flex; flex: none; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 8px 4px 14px; border-bottom: 1px solid var(--sc-border); }
+.sc-paragraph-discussion-header h2 { margin: 0; font: 600 16px/24px var(--sc-font); }
+.sc-paragraph-discussion-body, .sc-paragraph-chat { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.sc-paragraph-chat-history { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.sc-paragraph-chat-history > :not(:empty) { padding: 8px 12px; }
+.sc-paragraph-chat-footer { flex: none; max-height: min(210px, 38dvh); overflow-y: auto; padding: 10px 14px; border-top: 1px solid var(--sc-border); }
+.sc-reader-manuscript [data-discussion-open] { background: color-mix(in srgb, var(--reader-accent) 11%, transparent); border-radius: 4px; }
+@media (max-width: 767px) {
+  .sc-paragraph-discussion { width: calc(100vw - 24px); max-height: min(400px, 62dvh); }
+}
+.chapter-prose [data-private-count]::after { content: attr(data-private-count) ' trao đổi'; display: inline-block; margin-left: 8px; padding: 0 6px; border: 1px solid var(--sc-border); border-radius: 6px; color: var(--sc-primary-text); background: var(--sc-surface-elevated); font: 500 12px/22px var(--sc-font); vertical-align: middle; }
 .sc-author-theme .sc-reading-bookmark-action,
-.sc-reading-bookmark-action { position: fixed; z-index: 200; display: inline-flex; align-items: center; justify-content: center; width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--reader-accent); box-shadow: none; cursor: pointer; transition: transform .14s ease, opacity .14s ease, color .14s ease; }
+.sc-reading-bookmark-action { display: inline-flex; align-items: center; justify-content: center; width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--reader-accent); box-shadow: none; cursor: pointer; transition: transform .14s ease, opacity .14s ease, color .14s ease; }
 .sc-reading-bookmark-action .material-symbols-outlined { font-size: 26px; font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24; filter: drop-shadow(0 1px 2px rgb(0 0 0 / .16)); }
 .sc-reading-bookmark-action:hover:not(:disabled) { background: transparent; border: 0; transform: scale(1.1); }
 .sc-reading-bookmark-action:disabled { cursor: wait; opacity: .55; }
-.sc-reading-bookmark-action[data-placement="side"] { transform: translateY(-50%); }
-.sc-reading-bookmark-action[data-placement="side"]:hover:not(:disabled) { transform: translateY(-50%) scale(1.1); }
 .sc-author-theme .sc-reading-bookmark-action[aria-pressed="true"],
 .sc-reading-bookmark-action[aria-pressed="true"] { background: transparent; border: 0; box-shadow: none; color: var(--reader-danger); }
 .sc-reader-bookmark-help { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

@@ -1,3 +1,5 @@
+import { ConnectionsScreen, ReaderProfileScreen, ThreadScreen, FeedbackScreen } from './src/screens/SocialScreens';
+import type { CommentTarget, AnchorInput } from './src/api/social-api';
 import {
   BeVietnamPro_400Regular,
   BeVietnamPro_500Medium,
@@ -38,7 +40,11 @@ type RootStackParamList = {
   Auth: undefined;
   NovelDetail: { novelId: string };
   Reader: { chapterId: string; novelId?: string };
-  Comments: { chapterId: string };
+  Comments: { target: CommentTarget; anchor?: AnchorInput };
+  Connections: undefined;
+  ReaderProfile: { userId: string };
+  Thread: { commentId: string };
+  Feedback: { box: 'sent' | 'received' };
 };
 
 type MainTabParamList = {
@@ -170,7 +176,7 @@ function StoryCraftAppShell({ fontsReady }: { fontsReady: boolean }) {
   const headerTitleFont = resolveStoryCraftFontFamily('600', fontsLoaded);
 
   return (
-    <NavigationContainer theme={navigationTheme}>
+    <NavigationContainer key={user?.userId ?? 'guest'} theme={navigationTheme}>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <Stack.Navigator
         screenOptions={{
@@ -187,7 +193,7 @@ function StoryCraftAppShell({ fontsReady }: { fontsReady: boolean }) {
         }}
       >
         <Stack.Screen name="MainTabs" options={{ headerShown: false }}>
-          {(props) => <MainTabs {...props} authenticated={Boolean(user)} onLogout={() => setUser(null)} />}
+          {(props) => <MainTabs {...props} user={user} authenticated={Boolean(user)} onLogout={() => setUser(null)} />}
         </Stack.Screen>
         <Stack.Screen name="Auth" options={{ title: 'Tài khoản StoryCraft' }}>
           {({ navigation }) => (
@@ -203,6 +209,7 @@ function StoryCraftAppShell({ fontsReady }: { fontsReady: boolean }) {
         <Stack.Screen name="NovelDetail" options={{ title: 'Chi tiết tác phẩm' }}>
           {({ route, navigation }) => (
             <NovelDetailScreen
+              onOpenComments={() => navigation.navigate('Comments', { target: { kind: 'novel', id: route.params.novelId } })}
               novelId={route.params.novelId}
               authenticated={Boolean(user)}
               onLoginRequired={() => navigation.navigate('Auth')}
@@ -219,7 +226,7 @@ function StoryCraftAppShell({ fontsReady }: { fontsReady: boolean }) {
               novelId={route.params.novelId}
               authenticated={Boolean(user)}
               onLoginRequired={() => navigation.navigate('Auth')}
-              onOpenComments={(chapterId) => navigation.navigate('Comments', { chapterId })}
+              onOpenComments={(chapterId, anchor) => navigation.navigate('Comments', { target: { kind: 'chapter', id: chapterId }, anchor })}
               onOpenWallet={() => navigation.navigate('MainTabs', { screen: 'Wallet' } as never)}
               onOpenChapter={(nextChapterId) =>
                 navigation.setParams({
@@ -232,12 +239,25 @@ function StoryCraftAppShell({ fontsReady }: { fontsReady: boolean }) {
         </Stack.Screen>
         <Stack.Screen name="Comments" options={{ title: 'Bình luận chương' }}>
           {({ route, navigation }) => (
-            <CommentsScreen
-              chapterId={route.params.chapterId}
-              authenticated={Boolean(user)}
+            <CommentsScreen key={route.key} target={route.params.target} anchor={route.params.anchor} user={user}
+              onThread={commentId => navigation.navigate('Thread', { commentId })}
+              onProfile={userId => navigation.navigate('ReaderProfile', { userId })}
               onLoginRequired={() => navigation.navigate('Auth')}
             />
           )}
+        </Stack.Screen>
+        <Stack.Screen name="Connections" options={{ title: 'Bạn bè' }}>
+          {({ navigation }) => user && <ConnectionsScreen user={user} onProfile={userId => navigation.navigate('ReaderProfile', { userId })} />}
+        </Stack.Screen>
+        <Stack.Screen name="ReaderProfile" options={{ title: 'Hồ sơ độc giả' }}>
+          {({ route, navigation }) => <ReaderProfileScreen key={route.params.userId} userId={route.params.userId} user={user} onProfile={userId => navigation.navigate('ReaderProfile', { userId })} />}
+        </Stack.Screen>
+        <Stack.Screen name="Thread" options={{ title: 'Trao đổi' }}>
+          {({ route, navigation }) => <ThreadScreen key={route.params.commentId} commentId={route.params.commentId} user={user} onProfile={userId => navigation.navigate('ReaderProfile', { userId })} onLoginRequired={() => navigation.navigate('Auth')} />}
+        </Stack.Screen>
+        <Stack.Screen name="Feedback" options={{ title: 'Góp ý' }}>
+          {({ route, navigation }) => user && <FeedbackScreen key={route.params.box} user={user} box={route.params.box}
+            onThread={commentId => navigation.navigate('Thread', { commentId })} onProfile={userId => navigation.navigate('ReaderProfile', { userId })} />}
         </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
@@ -245,10 +265,12 @@ function StoryCraftAppShell({ fontsReady }: { fontsReady: boolean }) {
 }
 
 function MainTabs({
+  user,
   authenticated,
   onLogout
 }: {
   authenticated: boolean;
+  user: CurrentUser | null;
   onLogout: () => void;
 }) {
   const { palette, fontsLoaded } = useStoryCraftTheme();
@@ -390,7 +412,7 @@ function MainTabs({
       >
         {({ navigation }) =>
           authenticated ? (
-            <NotificationsScreen onUnreadCountChange={setUnreadCount} />
+            <NotificationsScreen onUnreadCountChange={setUnreadCount} onOpenThread={commentId => navigation.navigate('Thread' as never, { commentId } as never)} />
           ) : (
             <AuthRequired onLogin={() => navigation.navigate('Auth' as never)} />
           )
@@ -405,7 +427,7 @@ function MainTabs({
       >
         {({ navigation }) =>
           authenticated ? (
-            <ProfileScreen onLogout={onLogout} />
+            <ProfileScreen user={user!} onConnections={() => navigation.navigate('Connections' as never)} onFeedback={box => navigation.navigate('Feedback' as never, { box } as never)} onLogout={onLogout} />
           ) : (
             <AuthRequired onLogin={() => navigation.navigate('Auth' as never)} />
           )

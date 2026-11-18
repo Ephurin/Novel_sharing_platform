@@ -65,7 +65,8 @@ const steps = [
   ['reader-postgres', 'backend', process.execPath, ['scripts/run-isolated-tests.mjs',
     'src/modules/reading/chapter-reads.postgres.test.ts', 'src/modules/reading/reader-discovery.postgres.test.ts', 'src/modules/reading/reading-lifecycle.postgres.test.ts', 'src/modules/reading/reader-workspace.postgres.test.ts',
     'src/modules/reading/reading-bookmark-entries.postgres.test.ts',
-    'src/modules/interactions/comments.integration.test.ts', 'src/modules/media/media.test.ts']],
+    'src/modules/interactions/comments.integration.test.ts', 'src/modules/interactions/private-comments.integration.test.ts',
+    'src/modules/users/connections.integration.test.ts', 'src/modules/media/media.test.ts']],
   ['reader-browsers', 'web', process.execPath, ['--test', '--test-concurrency=1', ...browserFiles.map(name => `tests/${name}`)]],
   ['reader-contrast', 'web', process.execPath, ['--test', 'tests/contrast.test.mjs']]
 ];

@@ -1,4 +1,5 @@
 import { assertActiveAccount } from '../../core/security/active-account.js';
+import { connectionCounts, relationship, requireActiveTarget } from './connections.service.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import type { UpdateProfileInput, UpdateSettingsInput } from './users.schemas.js';
@@ -9,7 +10,8 @@ import {
   updateSettings as updateSettingsRow
 } from './users.repository.js';
 
-export async function getPublicProfile(userId: string) {
+export async function getPublicProfile(userId: string, viewerId?: string) {
+  await requireActiveTarget(userId);
   const profile = await findProfileByUserId(userId);
 
   if (!profile) {
@@ -22,7 +24,9 @@ export async function getPublicProfile(userId: string) {
     displayName: profile.displayName,
     avatarUrl: profile.avatarUrl,
     bio: profile.bio,
-    role: profile.role
+    role: profile.role,
+    ...await connectionCounts(userId),
+    ...await relationship(userId, viewerId)
   };
 }
 

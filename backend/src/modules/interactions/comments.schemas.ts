@@ -14,6 +14,10 @@ export const commentIdParamSchema = z.object({
 
 const imageUrlSchema = z.string().regex(/^\/api\/v1\/media\/[a-f0-9-]{36}\.gif$/, 'Chọn GIF đã tải lên').nullable().optional();
 const commentBodySchema = z.object({
+  audience: z.enum(['PUBLIC','FRIENDS_ALL','FRIENDS_SELECTED','AUTHOR_PRIVATE']).optional(),
+  recipientUserIds: z.array(z.string().uuid()).max(500).optional(),
+  anchor: z.object({ contentVersion: z.string().length(64), paragraphId: z.string().length(64) }).strict().optional(),
+  mentions: z.array(z.object({ userId: z.string().uuid(), start: z.number().int().min(0), end: z.number().int().positive() }).strict()).max(30).optional(),
   content: z.string().trim().max(2000),
   isSpoiler: z.boolean().optional(),
   imageUrl: imageUrlSchema,
@@ -30,6 +34,8 @@ export const createCommentSchema = z.object({
 export const listCommentsSchema = z.object({
   params: chapterIdParamSchema.shape.params,
   query: z.object({
+    channel: z.enum(['PUBLIC','FRIENDS_ALL','FRIENDS_SELECTED','AUTHOR_PRIVATE']).optional(),
+    paragraphId: z.string().length(64).optional(),
     paragraphOffset: z.coerce.number().int().min(0).optional(),
     page: z.coerce.number().int().positive().default(1),
     limit: z.coerce.number().int().positive().max(100).default(20)

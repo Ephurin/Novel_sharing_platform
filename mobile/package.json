@@ -12,6 +12,8 @@
     "test": "node --test tests/contrast.test.mjs tests/home-screen.browser.test.mjs tests/mobile-api-contracts.browser.test.mjs"
   },
   "dependencies": {
+    "@expo/metro-runtime": "~6.1.2",
+    "@react-native-community/netinfo": "11.4.1",
     "@expo-google-fonts/be-vietnam-pro": "^0.4.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/bottom-tabs": "^6.6.1",
@@ -24,6 +26,8 @@
     "expo-status-bar": "~3.0.9",
     "promise": "^8.3.0",
     "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native-web": "^0.21.0",
     "react-native": "0.81.5",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",

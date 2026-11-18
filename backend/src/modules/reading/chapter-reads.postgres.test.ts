@@ -23,7 +23,9 @@ test('chapter reads record successful access, preserve skipped chapters and isol
       await pool.query(`insert into chapters (chapter_id, novel_id, chapter_number, title, status, is_vip, price_coins) values ($1, $2, $3, 'Chapter', $4, $5, $6)`, [id, novel, index + 1, index === 4 ? 'DRAFT' : 'PUBLISHED', index === 3, index === 3 ? 10 : 0]);
     }
     const auth = { userId: reader, role: 'READER' as const };
-    await getReaderChapter(ids[0], auth);
+    const emptyChapter = await getReaderChapter(ids[0], auth);
+    assert.equal(emptyChapter.content, null);
+    assert.deepEqual(emptyChapter.paragraphs, []);
     await getReaderChapter(ids[2], auth);
     await getReaderChapter(ids[0], auth);
     await assert.rejects(getReaderChapter(ids[3], auth), error => (error as { httpStatus: number }).httpStatus === 402);

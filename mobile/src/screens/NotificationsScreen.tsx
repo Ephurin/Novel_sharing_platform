@@ -33,8 +33,10 @@ const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
 };
 
 export function NotificationsScreen({
-  onUnreadCountChange
+  onUnreadCountChange,
+  onOpenThread
 }: {
+  onOpenThread?: (id: string) => void;
   onUnreadCountChange?: (count: number) => void;
 } = {}) {
   const { palette } = useStoryCraftTheme();
@@ -287,6 +289,7 @@ export function NotificationsScreen({
 
       {notifications.map((notification) => {
         const unread = notification.status === 'UNREAD';
+        const commentId = notification.payload?.commentId;
         const isMarking = Boolean(markingIds[notification.notificationId]);
         const detailText =
           notification.content?.trim() ||
@@ -306,6 +309,11 @@ export function NotificationsScreen({
             </View>
             <Text style={themed.cardTitle}>{notification.title}</Text>
             <Text style={themed.body}>{detailText}</Text>
+            {onOpenThread && typeof commentId === 'string' && <GhostButton label="Mở thông báo"
+              disabled={isMarking || markingAll} onPress={() => {
+                if (unread) void handleMarkOneRead(notification.notificationId);
+                onOpenThread(commentId);
+              }} />}
             {unread ? (
               <GhostButton
                 label="Đánh dấu đã đọc"

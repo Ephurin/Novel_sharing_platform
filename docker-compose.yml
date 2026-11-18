@@ -76,6 +76,7 @@ services:
       GIPHY_PUBLIC_API_KEY: ${GIPHY_PUBLIC_API_KEY:-}
       WEB_ORIGIN: http://localhost:8080
       DB_CONNECT_ON_START: "true"
+      PRIVATE_COMMENTS_ENABLED: ${PRIVATE_COMMENTS_ENABLED:-false}
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ephurin
       MONGODB_URI: mongodb://mongodb:27017/ephurin
       JWT_ACCESS_SECRET: docker-demo-access-secret-change-me

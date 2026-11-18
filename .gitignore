@@ -76,6 +76,7 @@ celerybeat-schedule
 *.local
 *.tsbuildinfo
 .expo/
+mobile/dist-social/
 
 # Sealed local evaluation state (never commit before blind review)
 .eval-private/
