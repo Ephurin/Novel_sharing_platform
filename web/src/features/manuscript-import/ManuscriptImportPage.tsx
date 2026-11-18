@@ -342,6 +342,7 @@ export function ManuscriptImportPage() {
       if (typeof content === 'string') {
         setIsReadingFile(false);
         setFileReadProgress(100);
+        setImportSummary(null);
         setRawText(content);
         setCurrentStep(2);
         showToast(`Đã tải lên "${file.name}" và phân tích ${content.length.toLocaleString('vi-VN')} ký tự!`);
@@ -586,6 +587,9 @@ export function ManuscriptImportPage() {
   const hasStep3Context = Boolean(importSummary || jobId || job || hasManuscriptData);
   const showStep1Focused =
     currentStep === 1 || (!hasManuscriptData && !jobId && !job && !importSummary);
+  const importedCount = importSummary?.completed.length ?? 0;
+  const isImportCompleteSuccess = Boolean(importSummary && !importSummary.message && importedCount > 0);
+  const isPartialImportFailure = Boolean(importSummary?.message && importedCount > 0);
 
   const handleStepSelect = (nextStep: number) => {
     const target = nextStep as 1 | 2 | 3;
@@ -645,6 +649,7 @@ export function ManuscriptImportPage() {
 
     setFileReadProgress(null);
     setImportProgress({ current: 0, total: 0 });
+    setImportSummary(null);
     setRawText(tempPasteText);
     setFileName('manuscript_pasted_content.txt');
     setFileSizeStr(`${Math.round(tempPasteText.length / 1024).toLocaleString('vi-VN')} KB`);
@@ -1181,7 +1186,7 @@ export function ManuscriptImportPage() {
               {
                 title: '3. Xác nhận & Story Brain',
                 description: enableStoryBrainAi ? 'Lưu bản nháp & phân tích AI' : 'Lưu chương ở trạng thái bản nháp',
-                completed: job?.status === 'completed' || (Boolean(importSummary && !importSummary.message) && !enableStoryBrainAi)
+                completed: job?.status === 'completed' || (isImportCompleteSuccess && !enableStoryBrainAi)
               }
             ]}
           />
@@ -1291,31 +1296,70 @@ export function ManuscriptImportPage() {
                ────────────────────────────────────────── */
             <div className="max-w-4xl mx-auto w-full flex flex-col gap-4">
               {storyBrainSection}
-              {!job && (
+              {(!job || Boolean(importSummary?.message)) && importSummary && (
                 <div className="bg-surface-container-lowest rounded-xl p-5 shadow-2xs border border-stone-200 flex flex-wrap items-center justify-between gap-3">
-                  <div className="space-y-1">
-                    <h2 className="text-card-title text-stone-900">Đã lưu bản nháp vào tác phẩm</h2>
-                    <p className="text-body text-stone-500">
-                      Bạn có thể mở trang quản lý tác phẩm để kiểm tra và xuất bản từng chương.
-                    </p>
+                  <div className="flex items-start gap-3 max-w-xl">
+                    <span
+                      className={`material-symbols-outlined text-[20px] shrink-0 mt-0.5 ${
+                        isImportCompleteSuccess
+                          ? 'text-emerald-700'
+                          : isPartialImportFailure
+                            ? 'text-amber-700'
+                            : 'text-rose-700'
+                      }`}
+                      aria-hidden="true"
+                    >
+                      {isImportCompleteSuccess ? 'check_circle' : isPartialImportFailure ? 'warning' : 'error'}
+                    </span>
+                    <div className="space-y-1">
+                      <h2 className="text-card-title text-stone-900">
+                        {isImportCompleteSuccess
+                          ? 'Đã lưu bản nháp vào tác phẩm'
+                          : isPartialImportFailure
+                            ? 'Nhập bản thảo mới hoàn tất một phần'
+                            : 'Nhập bản thảo chưa hoàn tất'}
+                      </h2>
+                      <p className="text-body text-stone-500">
+                        {isImportCompleteSuccess
+                          ? 'Bạn có thể mở trang quản lý tác phẩm để kiểm tra và xuất bản từng chương.'
+                          : isPartialImportFailure
+                            ? `Đã lưu ${importedCount.toLocaleString('vi-VN')}/${importSummary.total.toLocaleString('vi-VN')} chương trước khi gặp lỗi. Quay lại bước 2 để kiểm tra và thử lại các chương còn lại.`
+                            : importSummary.snapshotFailed
+                              ? 'Chương đầu tiên đã được tạo nhưng chưa hoàn tất snapshot. Hãy kiểm tra danh sách chương hoặc quay lại bước 2 để thử lại.'
+                              : 'Chưa có chương nào được lưu hoàn chỉnh. Quay lại bước 2 để kiểm tra lại danh sách chương và thử lại.'}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setRawText('');
-                        setParsedChapters([]);
-                        setSelectedChapterIds([]);
-                        setImportSummary(null);
-                        setFileName('');
-                        setFileSizeStr('');
-                        setCurrentStep(1);
-                      }}
-                      className="sc-button cursor-pointer"
+                    {isImportCompleteSuccess ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRawText('');
+                          setParsedChapters([]);
+                          setSelectedChapterIds([]);
+                          setImportSummary(null);
+                          setFileName('');
+                          setFileSizeStr('');
+                          setCurrentStep(1);
+                        }}
+                        className="sc-button cursor-pointer"
+                      >
+                        Nhập thêm bản thảo
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setCurrentStep(2)}
+                        className="sc-button sc-button-primary cursor-pointer"
+                      >
+                        Quay lại bước 2 để thử lại
+                      </button>
+                    )}
+                    <Link
+                      to={`/author/novels/${novelId}`}
+                      className={isImportCompleteSuccess ? 'sc-button sc-button-primary' : 'sc-button'}
                     >
-                      Nhập thêm bản thảo
-                    </button>
-                    <Link to={`/author/novels/${novelId}`} className="sc-button sc-button-primary">
                       Mở trang tác phẩm
                     </Link>
                   </div>

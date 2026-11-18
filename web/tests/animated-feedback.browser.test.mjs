@@ -240,11 +240,72 @@ test('animated feedback: tabs, toasts, saves, controls, skeletons and real progr
           await expect(page.locator('.sc-toast').filter({ hasText: 'Lỗi nhập chương' })).toBeVisible();
           await expect(page.getByRole('progressbar', { name: 'Đã nhập 1/2 chương' })).toHaveAttribute('aria-valuenow', '50');
           await expect(page.getByRole('navigation', { name: 'Các bước nhập bản thảo' }).locator('[aria-current="step"]')).toContainText('2. Phân tích');
+
+          await page.getByRole('button', { name: /3\. Xác nhận/ }).click();
+          await expect(page.getByRole('navigation', { name: 'Các bước nhập bản thảo' }).locator('[aria-current="step"]')).toContainText('3. Xác nhận');
+          await expect(page.getByRole('heading', { name: 'Đã lưu bản nháp vào tác phẩm' })).toHaveCount(0);
+          await expect(page.getByRole('heading', { name: 'Nhập bản thảo mới hoàn tất một phần' })).toBeVisible();
+          await page.getByRole('button', { name: 'Quay lại bước 2 để thử lại', exact: true }).click();
+          await expect(page.getByRole('navigation', { name: 'Các bước nhập bản thảo' }).locator('[aria-current="step"]')).toContainText('2. Phân tích');
+          await expect(page.getByRole('button', { name: /Xác nhận nhập 2 chương/ })).toBeVisible();
         } else {
           await expect(page.getByRole('region', { name: 'Kết quả nhập bản thảo' })).toContainText('2/2 chương hoàn tất');
           await expect(page.locator('.sc-toast').filter({ hasText: 'Đã nhập thành công 2 chương' })).toBeVisible();
           await expect(page.getByRole('navigation', { name: 'Các bước nhập bản thảo' }).locator('[aria-current="step"]')).toContainText('3. Xác nhận');
+          await expect(page.getByRole('heading', { name: 'Đã lưu bản nháp vào tác phẩm' })).toBeVisible();
         }
+      } finally { await context.close(); }
+    }
+
+    // Regression check for PR197-005: failing on the very first chapter (0 completed) while Step 3
+    // is pre-selected must never claim drafts were saved and must offer a path back to Step 2 to retry.
+    for (const theme of ['light', 'dark']) {
+      const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      await context.addInitScript(t => localStorage.setItem('storycraft-theme', t), theme);
+      try {
+        const page = await context.newPage();
+        let shouldFailFirstCreate = true;
+        let created = 0;
+        await page.route('**/api/v1/**', async route => {
+          const pathname = new URL(route.request().url()).pathname;
+          const method = route.request().method();
+          let data = {};
+          if (pathname.endsWith('/novels/novel-test/chapters')) {
+            if (method === 'POST' && shouldFailFirstCreate) {
+              return route.fulfill({ status: 500, json: { success: false, error: { message: 'Không thể tạo chương đầu tiên' } } });
+            }
+            data = method === 'POST' ? { chapterId: `retry-import-${++created}`, novelId: 'novel-test' } : [];
+          } else if (pathname.endsWith('/novels/novel-test')) data = { novelId: 'novel-test', title: 'Tác phẩm thử nghiệm', status: 'DRAFT' };
+          else if (pathname.endsWith('/revisions/snapshot')) data = { revisionId: `retry-rev-${created}`, contentHash: 'fixture-hash' };
+          else if (pathname.endsWith('/notifications') || pathname.endsWith('/review-queue')) data = [];
+          else if (pathname.includes('/story-brains/')) data = { counts: { entities: 0, events: 0, pending_proposals: 0, open_findings: 0 } };
+          return route.fulfill({ json: { success: true, data, meta: { totalItems: 0 } } });
+        });
+        await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/__feedback_test/import`);
+        await page.locator('input[type="file"]').setInputFiles({ name: 'fail-first.txt', mimeType: 'text/plain', buffer: Buffer.from('Chương 1: Khởi đầu\nNội dung chương một.\n\nChương 2: Tiếp theo\nNội dung chương hai.') });
+        await expect(page.getByRole('navigation', { name: 'Các bước nhập bản thảo' }).locator('[aria-current="step"]')).toContainText('2. Phân tích');
+        await page.getByRole('button', { name: 'Cấu hình nâng cao' }).click();
+        await page.getByRole('checkbox', { name: /Kích hoạt Story Brain AI/ }).uncheck();
+        await page.getByRole('button', { name: /3\. Xác nhận/ }).click();
+        await expect(page.getByRole('navigation', { name: 'Các bước nhập bản thảo' }).locator('[aria-current="step"]')).toContainText('3. Xác nhận');
+        await page.getByRole('button', { name: /Xác nhận nhập 2 chương/ }).click();
+
+        await expect(page.getByRole('region', { name: 'Kết quả nhập bản thảo' })).toContainText('0/2 chương hoàn tất');
+        await expect(page.getByRole('heading', { name: 'Đã lưu bản nháp vào tác phẩm' })).toHaveCount(0);
+        await expect(page.getByRole('heading', { name: 'Nhập bản thảo chưa hoàn tất' })).toBeVisible();
+        await expect(page.getByRole('button', { name: /3\. Xác nhận/ })).not.toContainText('✓');
+        await expect(page.getByRole('link', { name: 'Mở trang tác phẩm', exact: true })).toBeVisible();
+
+        shouldFailFirstCreate = false;
+        await page.getByRole('button', { name: 'Quay lại bước 2 để thử lại', exact: true }).click();
+        await expect(page.getByRole('navigation', { name: 'Các bước nhập bản thảo' }).locator('[aria-current="step"]')).toContainText('2. Phân tích');
+        const retryConfirm = page.getByRole('button', { name: /Xác nhận nhập 2 chương/ });
+        await expect(retryConfirm).toBeEnabled();
+        await retryConfirm.click();
+
+        await expect(page.getByRole('region', { name: 'Kết quả nhập bản thảo' })).toContainText('2/2 chương hoàn tất');
+        await expect(page.getByRole('heading', { name: 'Đã lưu bản nháp vào tác phẩm' })).toBeVisible();
+        await expect(page.getByRole('button', { name: /3\. Xác nhận/ })).toContainText('✓');
       } finally { await context.close(); }
     }
     console.log(`Feedback screenshots: ${output}`);
