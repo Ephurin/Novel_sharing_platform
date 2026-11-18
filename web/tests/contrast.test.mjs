@@ -52,9 +52,12 @@ function contrast(a, b) {
 const blend = (top, bottom, alpha) => top.map((value, index) => Math.round(value * alpha + bottom[index] * (1 - alpha)));
 
 const readerCss = readFileSync(new URL('../src/features/reader/chapter-reading-workspace.css', import.meta.url), 'utf8');
-for (const background of ['LIGHT', 'SEPIA', 'MINT', 'BLUE', 'ROSE', 'DARK', 'BLACK']) {
-  const tokens = readBlock(readerCss, `[data-reader-background="${background}"]`);
-  for (const foreground of ['--reader-ink', '--reader-muted', '--reader-accent']) {
+for (const [background, selector] of [
+  ['default', '.sc-reader-workspace'],
+  ...['LIGHT', 'SEPIA', 'MINT', 'BLUE', 'ROSE', 'DARK', 'BLACK'].map((bg) => [bg, `[data-reader-background="${bg}"]`])
+]) {
+  const tokens = readBlock(readerCss, selector);
+  for (const foreground of ['--reader-ink', '--reader-muted', '--reader-accent', '--reader-danger']) {
     test(`reader ${background}: ${foreground} reaches 4.5:1`, () => {
       const ratio = contrast(rgb(tokens, foreground), rgb(tokens, '--reader-page'));
       assert.ok(ratio >= 4.5, `${background} ${foreground} is ${ratio.toFixed(2)}:1`);

@@ -19,7 +19,7 @@ const savedBookmarks = () => paragraphs.slice(0, 51).map((excerpt, paragraphInde
   chapterTitle: 'Chương 1: Gió mới', chapterNumber: 1, updatedAt: '2026-11-17T00:00:00Z', coverImageUrl: null
 }));
 
-async function fixture(t, { role = 'READER', width = 1440, theme = 'light', contents = [paragraphs.join('\n\n')], items = [], pageTwo, legacyBookmark, initialSearch = '' } = {}) {
+async function fixture(t, { role = 'READER', width = 1440, theme = 'light', background = 'LIGHT', contents = [paragraphs.join('\n\n')], items = [], pageTwo, legacyBookmark, initialSearch = '' } = {}) {
   const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
   t.after(() => context.close());
   const page = await context.newPage(), errors = [], requests = [], writes = [];
@@ -39,7 +39,7 @@ async function fixture(t, { role = 'READER', width = 1440, theme = 'light', cont
     const url = new URL(route.request().url()), method = route.request().method();
     let data = [], meta = {};
     if (url.pathname.endsWith('/auth/me')) data = { userId: 'reader-1', username: 'reader', email: 'reader@example.invalid', role: 'READER', status: 'ACTIVE' };
-    else if (url.pathname.endsWith('/reading/preferences/me')) data = { fontSize: 18, lineHeight: 1.8, background: 'LIGHT' };
+    else if (url.pathname.endsWith('/reading/preferences/me')) data = { fontSize: 18, lineHeight: 1.8, background };
     else if (url.pathname.endsWith('/reading/novels/novel-1')) data = { novelId: 'novel-1', title: 'Truyện thử', authorId: 'author-1', chapters };
     else if (url.pathname.includes('/reading/chapters/')) data = chapters.find(item => url.pathname.endsWith(`/${item.chapterId}`));
     else if (url.pathname.endsWith('/reading/bookmark-entries/me') && method === 'GET') {
@@ -253,5 +253,32 @@ test('bookmark action is icon-only, dismisses on outside click, and leaves no ou
     await expect(first).toBeFocused();
     await expect(first).toHaveCSS('outline-style', 'none');
     await expect(first).toHaveCSS('box-shadow', 'none');
+  }
+});
+
+test('bookmark-remove icon maintains WCAG contrast across app theme and reader paper combinations', async t => {
+  for (const [theme, background] of [['dark', 'LIGHT'], ['dark', 'SEPIA'], ['dark', 'ROSE'], ['light', 'DARK'], ['light', 'BLACK']]) {
+    const { page } = await fixture(t, { theme, background });
+    await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+    await expect(page.locator('.sc-reader-workspace')).toHaveAttribute('data-reader-background', background);
+    await page.locator('.chapter-prose > p').first().click({ position: { x: 10, y: 10 } });
+    const action = page.locator('.sc-reading-bookmark-action');
+    await action.click();
+    await expect(action).toHaveAttribute('aria-pressed', 'true');
+    await expect(action).toHaveText('bookmark_remove');
+    await expect(action).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    const ratio = await page.evaluate(() => {
+      const parseRgb = value => value.match(/\d+/g).slice(0, 3).map(Number);
+      const lum = ([r, g, b]) => {
+        const c = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+        return 0.2126 * c(r) + 0.7152 * c(g) + 0.0722 * c(b);
+      };
+      const workspace = document.querySelector('.sc-reader-workspace');
+      const icon = document.querySelector('.sc-reading-bookmark-action .material-symbols-outlined');
+      const l1 = lum(parseRgb(getComputedStyle(icon).color));
+      const l2 = lum(parseRgb(getComputedStyle(workspace).backgroundColor));
+      return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+    });
+    assert.ok(ratio >= 4.5, `${theme}/${background} bookmark_remove contrast is ${ratio.toFixed(2)}:1`);
   }
 });
