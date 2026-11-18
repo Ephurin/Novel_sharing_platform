@@ -1,6 +1,6 @@
 # Chương 3 – Kiến trúc và Use Case
 
-> **Ghi chú kiểm tra:** Các sơ đồ được tách từ [Chương 3](../BAO_CAO_CHUONG_3.md) để xem Mermaid theo nhóm, giảm tải cho trình xem GitHub. Nguồn đối chiếu nghiệp vụ là mã nguồn nhánh `main`; vị trí lưu này chỉ là nhánh tài liệu.
+> Nguồn kiểm chứng: mã nguồn `main`. Xem sơ đồ chi tiết từng nhóm để tránh lỗi hiển thị khi tải quá nhiều sơ đồ trên cùng một trang.
 
 ## 3.1.2. Sơ đồ kiến trúc tổng thể
 
@@ -63,7 +63,7 @@ flowchart TB
 
 *Hình 3.1. Kiến trúc tổng thể của nền tảng Ephurin (tổng hợp từ [M1], [M2], [M3]).*
 
-## 3.2.2. Biểu đồ Use Case tổng quát
+### 3.2.2. Sơ đồ tổng quát
 
 ```mermaid
 flowchart LR
@@ -71,125 +71,30 @@ flowchart LR
     R["Reader"]
     A["Author"]
     AD["Admin"]
-    subgraph E["Hệ thống Ephurin"]
-        C1(["Tìm kiếm và xem truyện"])
-        C2(["Đọc và lưu tiến độ"])
-        C3(["Tương tác cộng đồng"])
-        C4(["Dùng ví Coin mô phỏng"])
-        C5(["Quản lý tác phẩm và chương"])
-        C6(["Sáng tác và dùng AI Copilot"])
-        C7(["Quản lý tài khoản"])
-        C8(["Kiểm duyệt nội dung"])
+    subgraph SYS["Hệ thống Ephurin"]
+        U1(["Khám phá truyện công khai"])
+        U2(["Đọc và quản lý thư viện"])
+        U3(["Tương tác cộng đồng"])
+        U4(["Sử dụng Coin mô phỏng"])
+        U5(["Quản lý tác phẩm và chương"])
+        U6(["Quản lý ngữ cảnh truyện"])
+        U7(["Sáng tác với AI Copilot"])
+        U8(["Quản trị và kiểm duyệt"])
     end
-    G --> C1
-    R --> C2
-    R --> C3
-    R --> C4
-    A --> C5
-    A --> C6
-    AD --> C7
-    AD --> C8
+    G --- U1
+    R --- U1
+    R --- U2
+    R --- U3
+    R --- U4
+    A --- U5
+    A --- U6
+    A --- U7
+    AD --- U8
 ```
 
-*Hình 3.2. Biểu đồ ca sử dụng tổng quát.*
+*Hình 3.2. Biểu đồ Use Case tổng quát Ephurin.*
 
-## 3.2.3. Use Case của độc giả
+Sơ đồ này định vị các nhóm chức năng, không cố chứa toàn bộ thao tác. Đăng nhập được mô tả là điều kiện tiên quyết của các ca sử dụng yêu cầu xác thực, không phải một mục tiêu mở rộng của mọi thao tác.
 
-```mermaid
-flowchart LR
-    R["Reader"]
-    subgraph SYS["Phân hệ độc giả"]
-      A(["Tìm kiếm và lọc truyện"])
-      B(["Đọc chương"])
-      C(["Lưu lịch sử đọc / dấu trang"])
-      D(["Quản lý thư viện"])
-      E(["Bình luận / thích / theo dõi"])
-      F(["Đánh giá và nhận thông báo"])
-      G(["Xem ví / mở khóa chương VIP"])
-    end
-    R --> A
-    R --> B
-    R --> C
-    R --> D
-    R --> E
-    R --> F
-    R --> G
-```
 
-*Hình 3.3. Ca sử dụng của độc giả.*
-
-## 3.2.4. Use Case của tác giả
-
-```mermaid
-flowchart LR
-    A["Author"]
-    subgraph SYS["Không gian sáng tác"]
-      U1(["Tạo / cập nhật tác phẩm"])
-      U2(["Tạo và chỉnh sửa chương"])
-      U3(["Lưu bản thảo / tạo revision"])
-      U4(["Sắp xếp và lên lịch chương"])
-      U5(["Gửi yêu cầu công bố"])
-      U6(["Quản lý nhân vật / timeline / tóm tắt"])
-      U7(["Xem thống kê và thu nhập mô phỏng"])
-    end
-    A --> U1
-    A --> U2
-    A --> U3
-    A --> U4
-    A --> U5
-    A --> U6
-    A --> U7
-```
-
-*Hình 3.4. Ca sử dụng của tác giả.*
-
-## 3.2.5. Use Case hỗ trợ sáng tác bằng AI
-
-```mermaid
-flowchart LR
-    A["Author"]
-    subgraph SYS["AI Writing / Story Brain"]
-      X1(["Khởi tạo Story Brain từ ý tưởng"])
-      X2(["Khởi tạo từ bản thảo có sẵn"])
-      X3(["Xem / rà soát thực thể và dữ kiện"])
-      X4(["Yêu cầu phân tích / tái phân tích"])
-      X5(["Sinh gợi ý hoặc bản thảo"])
-      X6(["Xem danh sách đề xuất"])
-      X7(["Chấp nhận / sửa / từ chối đề xuất"])
-      X8(["Xem trước ngữ cảnh và quản lý kế hoạch"])
-    end
-    A --> X1
-    A --> X2
-    A --> X3
-    A --> X4
-    A --> X5
-    A --> X6
-    A --> X7
-    A --> X8
-```
-
-*Hình 3.5. Ca sử dụng của tác giả đối với phân hệ AI.*
-
-## 3.2.6. Use Case của quản trị viên
-
-```mermaid
-flowchart LR
-    AD["Admin"]
-    subgraph SYS["Phân hệ quản trị"]
-      M1(["Quản lý người dùng / trạng thái tài khoản"])
-      M2(["Quản lý danh mục và truyện"])
-      M3(["Xem báo cáo vi phạm"])
-      M4(["Duyệt nội dung bị gắn cờ"])
-      M5(["Quản lý giao dịch / rút Coin mô phỏng"])
-      M6(["Xem bảng điều khiển vận hành"])
-    end
-    AD --> M1
-    AD --> M2
-    AD --> M3
-    AD --> M4
-    AD --> M5
-    AD --> M6
-```
-
-*Hình 3.6. Ca sử dụng của quản trị viên.*
-
+[Use Case độc giả](01a-usecase-doc-gia.md) · [Use Case tác giả](01b-usecase-tac-gia.md) · [Use Case AI](01c-usecase-ai.md) · [Use Case quản trị](01d-usecase-quan-tri.md)
