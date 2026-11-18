@@ -19,7 +19,7 @@ const savedBookmarks = () => paragraphs.slice(0, 51).map((excerpt, paragraphInde
   chapterTitle: 'Chương 1: Gió mới', chapterNumber: 1, updatedAt: '2026-11-17T00:00:00Z', coverImageUrl: null
 }));
 
-async function fixture(t, { role = 'READER', width = 1440, theme = 'light', contents = [paragraphs.join('\n\n')], items = [], pageTwo, legacyBookmark, initialSearch = '' } = {}) {
+async function fixture(t, { role = 'READER', width = 1440, theme = 'light', background = 'LIGHT', contents = [paragraphs.join('\n\n')], items = [], pageTwo, failSave, legacyBookmark, initialSearch = '' } = {}) {
   const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
   t.after(() => context.close());
   const page = await context.newPage(), errors = [], requests = [], writes = [];
@@ -39,7 +39,7 @@ async function fixture(t, { role = 'READER', width = 1440, theme = 'light', cont
     const url = new URL(route.request().url()), method = route.request().method();
     let data = [], meta = {};
     if (url.pathname.endsWith('/auth/me')) data = { userId: 'reader-1', username: 'reader', email: 'reader@example.invalid', role: 'READER', status: 'ACTIVE' };
-    else if (url.pathname.endsWith('/reading/preferences/me')) data = { fontSize: 18, lineHeight: 1.8, background: 'LIGHT' };
+    else if (url.pathname.endsWith('/reading/preferences/me')) data = { fontSize: 18, lineHeight: 1.8, background };
     else if (url.pathname.endsWith('/reading/novels/novel-1')) data = { novelId: 'novel-1', title: 'Truyện thử', authorId: 'author-1', chapters };
     else if (url.pathname.includes('/reading/chapters/')) data = chapters.find(item => url.pathname.endsWith(`/${item.chapterId}`));
     else if (url.pathname.endsWith('/reading/bookmark-entries/me') && method === 'GET') {
@@ -53,8 +53,19 @@ async function fixture(t, { role = 'READER', width = 1440, theme = 'light', cont
       writes.push({ method, id }); items = items.filter(item => item.bookmarkId !== id);
       return route.fulfill({ status: 204 });
     } else if (url.pathname.endsWith('/reading/bookmark-entries/me') && method === 'POST') {
-      const input = route.request().postDataJSON(); writes.push({ method, input }); data = { bookmarkId: 'new-bookmark' };
-      items.push({ ...input, ...data, updatedAt: new Date().toISOString() });
+      const input = route.request().postDataJSON(); writes.push({ method, input });
+      if (failSave?.()) return route.fulfill({ status: 500, json: { success: false, error: { message: 'Không thể khôi phục bookmark lúc này.' } } });
+      data = { bookmarkId: 'new-bookmark' };
+      const chapter = chapters.find(item => item.chapterId === input.chapterId);
+      items.push({
+        novelTitle: 'Truyện thử',
+        chapterTitle: chapter?.title ?? 'Chương 1: Gió mới',
+        chapterNumber: chapter?.chapterNumber ?? 1,
+        coverImageUrl: null,
+        ...input,
+        ...data,
+        updatedAt: new Date().toISOString()
+      });
     }
     await route.fulfill({ json: { success: true, data, meta } });
   });
@@ -100,7 +111,7 @@ test('a failed later bookmark page cannot offer an incorrect save and can be ret
   const drawer = page.getByRole('dialog', { name: 'Bookmark', exact: true });
   await expect(drawer.getByRole('alert')).toContainText('Không tải được trang bookmark tiếp theo.');
   fail = false;
-  await drawer.getByRole('button', { name: 'Retry', exact: true }).click();
+  await drawer.getByRole('button', { name: 'Thử lại', exact: true }).click();
   await expect(drawer.locator('.sc-reading-bookmark-entry')).toHaveCount(51);
   await drawer.getByRole('button', { name: 'Đóng hộp thoại', exact: true }).click();
   await page.locator('.chapter-prose > p').nth(50).click({ position: { x: 8, y: 8 } });
@@ -222,4 +233,114 @@ test('legacy separator bookmarks preserve their scroll position and focus a near
       assert.equal(await page.evaluate(() => document.querySelector('.chapter-prose > p').tabIndex), -1);
     }
   }
+});
+
+test('bookmark action is icon-only, dismisses on outside click, and leaves no outline box on Escape', async t => {
+  for (const [width, theme] of [[1440, 'light'], [390, 'dark']]) {
+    const { page } = await fixture(t, { width, theme });
+    const first = page.locator('.chapter-prose > p').first();
+    await first.click({ position: { x: 10, y: 10 } });
+    const action = page.locator('.sc-reading-bookmark-action');
+    await expect(action).toBeVisible();
+    await expect(action).toHaveAccessibleName('Bookmark');
+    await expect(action).toHaveText('bookmark_add');
+    await expect(action).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect(action).toHaveCSS('border-top-style', 'none');
+    await expect(action).toHaveCSS('box-shadow', 'none');
+    const box = await action.boundingBox();
+    assert.equal(Math.round(box.width), 44);
+    assert.equal(Math.round(box.height), 44);
+
+    // Clicking outside the story paragraphs dismisses the floating bookmark icon and line highlight
+    await page.locator('.sc-reader-chapter-heading').click({ position: { x: 8, y: 8 } });
+    await expect(action).toHaveCount(0);
+    await expect(page.locator('.sc-reading-line-highlight')).toHaveCount(0);
+
+    // Reopen and press Escape: dismisses without drawing a rectangular outline or box around the paragraph
+    await first.click({ position: { x: 10, y: 10 } });
+    await expect(action).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(action).toHaveCount(0);
+    await expect(first).toBeFocused();
+    await expect(first).toHaveCSS('outline-style', 'none');
+    await expect(first).toHaveCSS('box-shadow', 'none');
+  }
+});
+
+test('bookmark-remove icon maintains WCAG contrast across app theme and reader paper combinations', async t => {
+  for (const [theme, background] of [['dark', 'LIGHT'], ['dark', 'SEPIA'], ['dark', 'ROSE'], ['light', 'DARK'], ['light', 'BLACK']]) {
+    const { page } = await fixture(t, { theme, background });
+    await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+    await expect(page.locator('.sc-reader-workspace')).toHaveAttribute('data-reader-background', background);
+    await page.locator('.chapter-prose > p').first().click({ position: { x: 10, y: 10 } });
+    const action = page.locator('.sc-reading-bookmark-action');
+    await action.click();
+    await expect(action).toHaveAttribute('aria-pressed', 'true');
+    await expect(action).toHaveText('bookmark_remove');
+    await expect(action).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    const ratio = await page.evaluate(() => {
+      const parseRgb = value => value.match(/\d+/g).slice(0, 3).map(Number);
+      const lum = ([r, g, b]) => {
+        const c = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+        return 0.2126 * c(r) + 0.7152 * c(g) + 0.0722 * c(b);
+      };
+      const workspace = document.querySelector('.sc-reader-workspace');
+      const icon = document.querySelector('.sc-reading-bookmark-action .material-symbols-outlined');
+      const l1 = lum(parseRgb(getComputedStyle(icon).color));
+      const l2 = lum(parseRgb(getComputedStyle(workspace).backgroundColor));
+      return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+    });
+    assert.ok(ratio >= 4.5, `${theme}/${background} bookmark_remove contrast is ${ratio.toFixed(2)}:1`);
+  }
+});
+
+test('failed bookmark undo retains the retry affordance until restoration succeeds', async t => {
+  let shouldFailSave = true;
+  const initialItem = savedBookmarks()[0];
+  const { page, writes } = await fixture(t, {
+    items: [initialItem],
+    failSave: () => shouldFailSave
+  });
+  await page.goto(`${base}/reader/bookmarks?novelId=novel-1`);
+  const removeBtn = page.getByRole('button', { name: /^Xóa bookmark/ });
+  await expect(removeBtn).toBeVisible();
+  await removeBtn.click();
+
+  const undoBanner = page.locator('.sc-reading-bookmark-undo');
+  const undoBtn = page.getByRole('button', { name: 'Hoàn tác', exact: true });
+  await expect(undoBanner).toBeVisible();
+  await expect(undoBtn).toBeVisible();
+
+  await undoBtn.click();
+  await expect(page.locator('.sc-toast[data-tone="error"]')).toContainText('Không thể khôi phục bookmark lúc này.');
+  await expect(undoBanner).toBeVisible();
+  await expect(undoBtn).toBeEnabled();
+
+  shouldFailSave = false;
+  await undoBtn.click();
+  await expect(page.locator('.sc-reading-bookmark-entry')).toHaveCount(1);
+  await expect(undoBanner).toHaveCount(0);
+  assert.equal(writes.filter((w) => w.method === 'POST').length, 2);
+
+  // Guest mode storage write failure should also preserve Undo until retry succeeds
+  const guest = await fixture(t, { role: 'GUEST', items: [initialItem] });
+  await guest.page.goto(`${base}/public/bookmarks?novelId=novel-1`);
+  await guest.page.getByRole('button', { name: /^Xóa bookmark/ }).click();
+  const guestUndoBanner = guest.page.locator('.sc-reading-bookmark-undo');
+  const guestUndoBtn = guest.page.getByRole('button', { name: 'Hoàn tác', exact: true });
+  await expect(guestUndoBanner).toBeVisible();
+  await guest.page.evaluate(() => {
+    window.__origSetItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = () => { throw new Error('QuotaExceededError'); };
+  });
+  await guestUndoBtn.click();
+  await expect(guest.page.locator('.sc-toast[data-tone="error"]')).toContainText('Không lưu được bookmark');
+  await expect(guestUndoBanner).toBeVisible();
+  await expect(guestUndoBtn).toBeEnabled();
+  await guest.page.evaluate(() => {
+    Storage.prototype.setItem = window.__origSetItem;
+  });
+  await guestUndoBtn.click();
+  await expect(guest.page.locator('.sc-reading-bookmark-entry')).toHaveCount(1);
+  await expect(guestUndoBanner).toHaveCount(0);
 });

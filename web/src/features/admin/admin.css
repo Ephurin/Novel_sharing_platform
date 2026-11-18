@@ -293,7 +293,7 @@
 .admin-shell .mantine-Button-root[data-size='xs'],
 .admin-shell td .mantine-Button-root {
   height: 30px;
-  font-size: 14px;
+  font-size: 13px;
 }
 .admin-table-scroll {
   overflow-x: auto;
@@ -480,10 +480,12 @@
 .status-active,
 .status-published,
 .status-approved,
-.status-success {
+.status-success,
+.status-accepted {
   background: var(--sc-success-bg);
   color: var(--sc-success);
 }
+.status-open,
 .status-pending,
 .status-pending_moderation,
 .status-revision_required {
@@ -531,19 +533,39 @@
 .admin-confirm .mantine-Input-input {
   font-size: 14px;
 }
-.admin-shell .admin-danger[data-variant='light'] {
+.admin-shell .admin-danger[data-variant='light']:not([data-disabled]) {
   --button-color: var(--sc-danger);
   --button-bg: var(--sc-danger-bg);
-  --button-hover: var(--sc-danger-bg);
+  --button-hover: color-mix(in srgb, var(--sc-danger-bg) 90%, var(--sc-danger));
   color: var(--sc-danger);
   background: var(--sc-danger-bg);
 }
-.admin-confirm .admin-danger {
-  --button-bg: var(--sc-danger);
-  --button-hover: var(--sc-danger);
-  color: white;
+.admin-shell .admin-danger[data-variant='light']:not([data-disabled]):not([data-loading]):hover {
+  background: color-mix(in srgb, var(--sc-danger-bg) 90%, var(--sc-danger));
+  color: color-mix(in srgb, var(--sc-danger) 82%, #000);
 }
-:root[data-theme='dark'] .admin-confirm .admin-danger {
+:root[data-theme='dark'] .admin-shell .admin-danger[data-variant='light']:not([data-disabled]):not([data-loading]):hover {
+  background: color-mix(in srgb, var(--sc-danger-bg) 84%, var(--sc-danger));
+  color: color-mix(in srgb, var(--sc-danger) 88%, #fff);
+}
+:is(.admin-shell, .admin-confirm) .admin-danger:is(:not([data-variant]), [data-variant='filled']):not([data-disabled]) {
+  --button-color: #fff;
+  --button-bg: var(--sc-danger);
+  --button-hover: color-mix(in srgb, var(--sc-danger) 88%, #000);
+  background: var(--sc-danger);
+  color: #fff;
+}
+:is(.admin-shell, .admin-confirm) .admin-danger:is(:not([data-variant]), [data-variant='filled']):not([data-disabled]):not([data-loading]):hover {
+  background: color-mix(in srgb, var(--sc-danger) 88%, #000);
+  color: #fff;
+}
+:root[data-theme='dark'] :is(.admin-shell, .admin-confirm) .admin-danger:is(:not([data-variant]), [data-variant='filled']):not([data-disabled]) {
+  --button-color: var(--sc-on-primary);
+  --button-hover: color-mix(in srgb, var(--sc-danger) 88%, #fff);
+  color: var(--sc-on-primary);
+}
+:root[data-theme='dark'] :is(.admin-shell, .admin-confirm) .admin-danger:is(:not([data-variant]), [data-variant='filled']):not([data-disabled]):not([data-loading]):hover {
+  background: color-mix(in srgb, var(--sc-danger) 88%, #fff);
   color: var(--sc-on-primary);
 }
 .admin-grid-two {
@@ -721,12 +743,16 @@
     display: none;
   }
 }
-@media (max-width: 800px) {
+@media (max-width: 767px) {
   .admin-sidebar {
     transform: translateX(-100%);
   }
+  .admin-sidebar:not(.is-open) {
+    visibility: hidden;
+  }
   .admin-sidebar.is-open {
     transform: translateX(0);
+    visibility: visible;
   }
   .admin-topbar {
     left: 0;

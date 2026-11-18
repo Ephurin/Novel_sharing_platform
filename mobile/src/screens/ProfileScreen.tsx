@@ -1,9 +1,19 @@
 import { useEffect, useState } from 'react';
-import { Alert, Platform, Text } from 'react-native';
+import { Alert, Platform, Text, View } from 'react-native';
 import { getApiErrorMessage } from '../api/api-client';
 import { getMyProfile, updateMyProfile } from '../api/profile-api';
+import { AvatarBadge } from '../components/BookCover';
 import { Field } from '../components/Form';
-import { Card, ErrorState, GhostButton, LoadingState, PrimaryButton, Screen, Section, useScreenStyles } from '../components/Screen';
+import {
+  Card,
+  ErrorState,
+  GhostButton,
+  LoadingState,
+  PrimaryButton,
+  Screen,
+  Section,
+  useScreenStyles
+} from '../components/Screen';
 import { clearSession } from '../state/session';
 import { ThemeSegmentedPicker } from '../theme/ThemeProvider';
 
@@ -13,11 +23,19 @@ export function ProfileScreen({ onLogout }: { onLogout: () => void }) {
   const [avatarUrl, setAvatarUrl] = useState('');
   const [bio, setBio] = useState('');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [avatarFieldError, setAvatarFieldError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const load = async () => {
-    setLoading(true);
+  const load = async (isRefresh = false) => {
+    if (isRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
     try {
       const profile = await getMyProfile();
@@ -28,23 +46,31 @@ export function ProfileScreen({ onLogout }: { onLogout: () => void }) {
       setError(getApiErrorMessage(caughtError));
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    void load();
+    void load(false);
   }, []);
 
   const save = async () => {
+    if (saving) return;
     const trimmedName = displayName.trim();
     const trimmedAvatar = avatarUrl.trim();
     const trimmedBio = bio.trim();
 
+    setNotice(null);
+    setSaveError(null);
+
     if (trimmedAvatar && !/^https?:\/\//i.test(trimmedAvatar)) {
-      setNotice('Ảnh đại diện (URL) phải bắt đầu bằng http:// hoặc https://.');
+      const msg = 'Ảnh đại diện (URL) phải bắt đầu bằng http:// hoặc https://.';
+      setAvatarFieldError(msg);
       return;
     }
+    setAvatarFieldError(null);
 
+    setSaving(true);
     try {
       await updateMyProfile({
         ...(trimmedName ? { displayName: trimmedName } : {}),
@@ -53,7 +79,9 @@ export function ProfileScreen({ onLogout }: { onLogout: () => void }) {
       });
       setNotice('Đã lưu thông tin hồ sơ.');
     } catch (caughtError) {
-      setNotice(getApiErrorMessage(caughtError));
+      setSaveError(getApiErrorMessage(caughtError));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -81,41 +109,83 @@ export function ProfileScreen({ onLogout }: { onLogout: () => void }) {
   };
 
   if (loading) return <LoadingState label="Đang tải hồ sơ cá nhân..." />;
-  if (error) return <ErrorState message={error} onRetry={load} />;
+  if (error) return <ErrorState message={error} onRetry={() => void load(false)} />;
+
+  const previewName = displayName.trim() || 'Độc giả StoryCraft';
+  const previewAvatar = /^https?:\/\//i.test(avatarUrl.trim()) ? avatarUrl.trim() : null;
 
   return (
-    <Screen>
+    <Screen refreshing={refreshing} onRefresh={() => void load(true)}>
+      <Card>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          <AvatarBadge size="lg" uri={previewAvatar} name={previewName} />
+          <View style={{ flex: 1, gap: 4 }}>
+            <Text style={themed.cardTitle} numberOfLines={2}>
+              {previewName}
+            </Text>
+            <Text style={themed.muted} numberOfLines={2}>
+              {bio.trim() ? bio.trim() : 'Độc giả StoryCraft Văn Hoa'}
+            </Text>
+          </View>
+        </View>
+
+        <Field
+          label="Tên hiển thị"
+          value={displayName}
+          onChangeText={setDisplayName}
+          placeholder="Tên bút danh hoặc độc giả"
+          editable={!saving}
+        />
+        <Field
+          label="Ảnh đại diện (URL)"
+          value={avatarUrl}
+          onChangeText={(next) => {
+            setAvatarUrl(next);
+            if (avatarFieldError) setAvatarFieldError(null);
+          }}
+          placeholder="https://..."
+          autoCapitalize="none"
+          keyboardType="url"
+          editable={!saving}
+          error={avatarFieldError}
+        />
+        <Field
+          label="Giới thiệu bản thân"
+          value={bio}
+          onChangeText={setBio}
+          placeholder="Vài dòng giới thiệu..."
+          multiline
+          editable={!saving}
+        />
+        {notice ? (
+          <Text accessibilityLiveRegion="polite" style={themed.notice}>
+            {notice}
+          </Text>
+        ) : null}
+        {saveError ? (
+          <Text accessibilityLiveRegion="polite" style={themed.error}>
+            {saveError}
+          </Text>
+        ) : null}
+        <PrimaryButton
+          label={saving ? 'Đang lưu...' : 'Lưu hồ sơ'}
+          accessibilityLabel="Lưu hồ sơ"
+          loading={saving}
+          disabled={saving}
+          onPress={() => void save()}
+        />
+        <GhostButton
+          label="Đăng xuất"
+          danger
+          disabled={saving}
+          onPress={confirmLogout}
+        />
+      </Card>
+
       <Section title="Giao diện đọc truyện">
         <Card>
           <Text style={themed.muted}>Chọn chế độ màu hiển thị trên thiết bị này.</Text>
           <ThemeSegmentedPicker />
-        </Card>
-      </Section>
-
-      <Section title="Hồ sơ cá nhân">
-        <Card>
-          <Field label="Tên hiển thị" value={displayName} onChangeText={setDisplayName} placeholder="Tên bút danh hoặc độc giả" />
-          <Field
-            label="Ảnh đại diện (URL)"
-            value={avatarUrl}
-            onChangeText={setAvatarUrl}
-            placeholder="https://..."
-            autoCapitalize="none"
-          />
-          <Field
-            label="Giới thiệu bản thân"
-            value={bio}
-            onChangeText={setBio}
-            placeholder="Vài dòng giới thiệu..."
-            multiline
-          />
-          {notice ? (
-            <Text accessibilityLiveRegion="polite" style={themed.notice}>
-              {notice}
-            </Text>
-          ) : null}
-          <PrimaryButton label="Lưu hồ sơ" onPress={save} />
-          <GhostButton label="Đăng xuất" danger onPress={confirmLogout} />
         </Card>
       </Section>
     </Screen>

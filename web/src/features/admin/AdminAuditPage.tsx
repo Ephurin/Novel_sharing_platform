@@ -11,7 +11,8 @@ import {
   AdminPagination,
   AdminId,
   AdminError,
-  dateTime
+  dateTime,
+  labels
 } from './AdminShared';
 import { ErrorState, LoadingState } from '../../shared/components/PageStates';
 import { getAdminList } from './admin-api';
@@ -36,9 +37,9 @@ export function AuditRows({ items }: { items: AuditEntry[] }) {
                 {dateTime(item.created_at)}
                 <small className="admin-block">@{item.actor_username}</small>
               </td>
-              <td>{item.action}</td>
+              <td>{labels[item.action] || item.action}</td>
               <td>
-                {item.target_type}
+                <div>{labels[item.target_type] || item.target_type}</div>
                 <AdminId value={item.target_id} label="mã đối tượng" />
               </td>
               <td>
@@ -115,7 +116,7 @@ export function AdminAuditPage() {
             {jobs.data.map((j) => (
               <div className="admin-case" key={j.job_id}>
                 <strong>
-                  {j.kind} · {j.status === 'FAILED' ? 'Đã dừng do lỗi' : 'Đang chờ'}
+                  {labels[j.kind] || j.kind} · {j.status === 'FAILED' ? 'Đã dừng do lỗi' : 'Đang chờ'}
                 </strong>
                 <p>
                   {j.attempts} lần thử · {j.error || 'Chờ xử lý'}
@@ -171,7 +172,7 @@ export function AdminAuditPage() {
         <FilterPresets name={'AdminAuditPage'} fields={["q", "action"]} />
         <ActiveFilterChips items={[
           ...(q.trim() ? [{ id: 'q', label: `Tìm: ${q.trim()}`, onRemove: () => { setQ(''); setPage(1); } }] : []),
-          ...(action.trim() ? [{ id: 'action', label: `Thao tác: ${action.trim()}`, onRemove: () => { setAction(''); setPage(1); } }] : [])
+          ...(action.trim() ? [{ id: 'action', label: `Thao tác: ${labels[action.trim()] || action.trim()}`, onRemove: () => { setAction(''); setPage(1); } }] : [])
         ]} />
         <ResultsSurface identity={String(query.dataUpdatedAt)} busy={query.isFetching} retain={Boolean(q.trim() || action.trim())}>{query.isLoading && <LoadingState variant="table" label="Đang tải nhật ký..." />}
         {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}

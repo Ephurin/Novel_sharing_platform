@@ -3,8 +3,21 @@ import { Text, View } from 'react-native';
 import { getApiErrorMessage } from '../api/api-client';
 import type { Wallet, WalletTransaction } from '../api/types';
 import { completeMockDeposit, createDepositSession, getWallet, listWalletTransactions } from '../api/wallet-api';
-import { Badge, Card, EmptyState, ErrorState, GhostButton, LoadingState, PrimaryButton, Screen, Section, useScreenStyles } from '../components/Screen';
-import { useStoryCraftTheme } from '../theme/ThemeProvider';
+import { AppIcon } from '../components/Icons';
+import {
+  Badge,
+  Card,
+  EmptyState,
+  ErrorState,
+  GhostButton,
+  LoadingState,
+  PrimaryButton,
+  Screen,
+  Section,
+  useScreenStyles
+} from '../components/Screen';
+import { resolveStoryCraftFontFamily, useStoryCraftTheme } from '../theme/ThemeProvider';
+import { formatRelativeOrDate } from '../utils/format';
 
 const TX_TYPE_LABELS: Record<string, string> = {
   DEPOSIT: 'Nạp Xu mô phỏng',
@@ -29,17 +42,31 @@ function resolveTxStatusTone(status: string): 'success' | 'warning' | 'danger' |
   return 'default';
 }
 
+function isCreditTransaction(tx: WalletTransaction): boolean {
+  if (tx.direction === 'IN') return true;
+  if (tx.direction === 'OUT') return false;
+  if (typeof tx.balanceChangeCoins === 'number') return tx.balanceChangeCoins > 0;
+  return tx.type === 'DEPOSIT';
+}
+
 export function WalletScreen() {
-  const { palette } = useStoryCraftTheme();
+  const { palette, fontsLoaded } = useStoryCraftTheme();
   const themed = useScreenStyles();
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [depositing, setDepositing] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const load = async () => {
-    setLoading(true);
+  const load = async (isRefresh = false) => {
+    if (isRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
     try {
       const [walletData, transactionData] = await Promise.all([getWallet(), listWalletTransactions()]);
@@ -49,70 +76,130 @@ export function WalletScreen() {
       setError(getApiErrorMessage(caughtError));
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    void load();
+    void load(false);
   }, []);
 
   const deposit = async () => {
+    if (depositing) return;
+    setDepositing(true);
+    setNotice(null);
+    setActionError(null);
     try {
       const session = await createDepositSession('COIN_1000');
       await completeMockDeposit(session.depositSessionId);
       setNotice('Đã nạp mô phỏng +1.000 Xu thành công.');
-      await load();
+      const [walletData, transactionData] = await Promise.all([getWallet(), listWalletTransactions()]);
+      setWallet(walletData);
+      setTransactions(transactionData);
     } catch (caughtError) {
-      setNotice(getApiErrorMessage(caughtError));
+      setActionError(getApiErrorMessage(caughtError));
+    } finally {
+      setDepositing(false);
     }
   };
 
   if (loading) return <LoadingState label="Đang tải Ví Xu..." />;
-  if (error) return <ErrorState message={error} onRetry={load} />;
+  if (error) return <ErrorState message={error} onRetry={() => void load(false)} />;
 
   return (
-    <Screen>
-      <Section
-        title="Ví Xu StoryCraft"
-        subtitle="Ví thử nghiệm: nạp Xu mô phỏng, không thanh toán hoặc chuyển tiền thật."
-      >
-        <Card>
-          <Text style={themed.muted}>Số dư khả dụng</Text>
-          <Text style={{ color: palette.text, fontSize: 28, fontWeight: '700' }}>
-            {(wallet?.coinsBalance ?? 0).toLocaleString('vi-VN')}{' '}
-            <Text style={{ color: palette.primaryMuted, fontSize: 16 }}>Xu</Text>
+    <Screen refreshing={refreshing} onRefresh={() => void load(true)}>
+      <Card>
+        <Text style={themed.muted}>Số dư khả dụng</Text>
+        <Text
+          style={{
+            color: palette.text,
+            fontSize: 28,
+            lineHeight: 36,
+            fontWeight: '700',
+            fontFamily: resolveStoryCraftFontFamily('700', fontsLoaded)
+          }}
+        >
+          {(wallet?.coinsBalance ?? 0).toLocaleString('vi-VN')}{' '}
+          <Text style={{ color: palette.primaryMuted, fontSize: 16 }}>Xu</Text>
+        </Text>
+        {(wallet?.lockedCoins ?? 0) > 0 ? (
+          <Text style={themed.muted}>
+            Đang tạm khóa: {(wallet?.lockedCoins ?? 0).toLocaleString('vi-VN')} Xu
           </Text>
-          {(wallet?.lockedCoins ?? 0) > 0 ? (
-            <Text style={themed.muted}>
-              Đang tạm khóa: {(wallet?.lockedCoins ?? 0).toLocaleString('vi-VN')} Xu
-            </Text>
-          ) : null}
-          {notice ? (
-            <Text accessibilityLiveRegion="polite" style={themed.notice}>
-              {notice}
-            </Text>
-          ) : null}
-          <PrimaryButton label="Nạp thử nghiệm +1.000 Xu" onPress={deposit} />
-        </Card>
-      </Section>
+        ) : null}
+        <Text style={themed.muted}>
+          Ví thử nghiệm: nạp Xu mô phỏng, không thanh toán hoặc chuyển tiền thật.
+        </Text>
+        {notice ? (
+          <Text accessibilityLiveRegion="polite" style={themed.notice}>
+            {notice}
+          </Text>
+        ) : null}
+        {actionError ? (
+          <Text accessibilityLiveRegion="polite" style={themed.error}>
+            {actionError}
+          </Text>
+        ) : null}
+        <PrimaryButton
+          label="Nạp thử nghiệm +1.000 Xu"
+          accessibilityLabel="Nạp thử nghiệm +1.000 Xu"
+          loading={depositing}
+          disabled={depositing}
+          onPress={() => void deposit()}
+        />
+      </Card>
 
-      <Section title="Lịch sử giao dịch">
+      <Section
+        title="Lịch sử giao dịch"
+        rightAction={
+          <GhostButton
+            label="Làm mới giao dịch"
+            loading={refreshing}
+            disabled={refreshing || depositing}
+            icon={<AppIcon name="refresh" size={15} color={palette.primaryMuted} />}
+            onPress={() => void load(true)}
+          />
+        }
+      >
         {!transactions.length ? <EmptyState label="Chưa có giao dịch nào." /> : null}
-        {transactions.map((transaction) => (
-          <Card key={transaction.transactionId}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-              <Badge label={TX_TYPE_LABELS[transaction.type] ?? transaction.type} tone="primary" />
-              <Badge
-                label={TX_STATUS_LABELS[transaction.status] ?? transaction.status}
-                tone={resolveTxStatusTone(transaction.status)}
-              />
-            </View>
-            <Text style={themed.cardTitle}>
-              {transaction.amountCoins.toLocaleString('vi-VN')} Xu
-            </Text>
-          </Card>
-        ))}
-        <GhostButton label="Làm mới giao dịch" onPress={load} />
+        {transactions.map((transaction) => {
+          const isCredit = isCreditTransaction(transaction);
+          const sign = isCredit ? '+' : '-';
+          const amountAbs = Math.abs(transaction.amountCoins);
+          const typeLabel = TX_TYPE_LABELS[transaction.type] ?? transaction.type;
+          const formattedDate = formatRelativeOrDate(transaction.createdAt);
+
+          return (
+            <Card key={transaction.transactionId}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                <Badge label={typeLabel} tone="primary" />
+                <Badge
+                  label={TX_STATUS_LABELS[transaction.status] ?? transaction.status}
+                  tone={resolveTxStatusTone(transaction.status)}
+                />
+              </View>
+
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
+                <Text
+                  style={[
+                    themed.cardTitle,
+                    { color: isCredit ? palette.success : palette.text }
+                  ]}
+                >
+                  {sign}
+                  {amountAbs.toLocaleString('vi-VN')} Xu
+                </Text>
+                {formattedDate ? <Text style={themed.muted}>{formattedDate}</Text> : null}
+              </View>
+
+              {transaction.description?.trim() ? (
+                <Text style={themed.muted} numberOfLines={2}>
+                  {transaction.description.trim()}
+                </Text>
+              ) : null}
+            </Card>
+          );
+        })}
       </Section>
     </Screen>
   );

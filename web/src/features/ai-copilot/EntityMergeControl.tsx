@@ -45,7 +45,14 @@ export function EntityMergeControl({ novelId, version, entities, disabled = fals
       Gộp hai tên trùng
     </Button>
     {notice && <Alert color="teal" withCloseButton onClose={() => setNotice('')}>{notice}</Alert>}
-    <Modal opened={opened} onClose={() => { if (!merge.isPending) setOpened(false); }} title="Gộp hai tên trùng" centered>
+    <Modal
+      opened={opened}
+      onClose={() => { if (!merge.isPending) setOpened(false); }}
+      title="Gộp hai tên trùng"
+      centered
+      classNames={{ content: 'sc-author-theme' }}
+      styles={{ content: { minHeight: 'auto', background: 'var(--sc-surface-elevated)' } }}
+    >
       <Stack>
         <Text size="sm">Chỉ gộp khi bạn xác nhận hai hồ sơ là cùng một nhân vật, địa danh hoặc vật. Mục giữ lại sẽ có tên chính thức bạn chọn.</Text>
         <Select searchable label="Tên cần gộp (sẽ thành tên gọi khác)" data={options.filter(o => o.value !== target && sameType(o, to))}

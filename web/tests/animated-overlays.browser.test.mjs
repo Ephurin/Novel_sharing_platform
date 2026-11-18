@@ -181,6 +181,18 @@ test('animated menus and dialogs preserve keyboard, routing, pending guards and 
           await expect(dialog.getByLabel('Lý do xử lý')).toHaveValue('Lý do kiểm tra');
           await page.mouse.click(4, 4);
           await expect(dialog).toHaveCount(0);
+          await page.evaluate(() => {
+            const observer = new MutationObserver(() => {
+              if (document.querySelector('[role="dialog"]')) {
+                observer.disconnect();
+                setTimeout(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })), 0);
+              }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+          });
+          await opener.click();
+          await expect(dialog).toHaveCount(0);
+          await expect(opener).toBeFocused();
           // The shared appearance menu changes and persists the theme.
           await page.getByRole('button', { name: 'Giao diện', exact: true }).click();
           await page.getByRole('menuitem', { name: theme === 'light' ? 'Tối' : 'Sáng', exact: true }).click();

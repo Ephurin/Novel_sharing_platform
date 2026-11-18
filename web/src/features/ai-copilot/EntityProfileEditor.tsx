@@ -6,6 +6,7 @@ import { getEntityProfile, updateEntityProfile, type EntityProfile, type EntityP
 import { PROFILE_FIELDS, buildProfilePatch, canonicalChanged, codePointCount, emptyProfileDraft, profileDraft, type ProfileDraft } from './entity-profile-form';
 import { CopyTextButton } from '../../shared/components/ActionFeedback';
 import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
+import { entityOptionLabel, entityTypeLabel } from './event-labels';
 
 type Props = { novelId: string; entities: MemoryEntity[]; active: boolean; onSaved: () => Promise<unknown> };
 const LABELS = { description: 'Mô tả', appearance: 'Ngoại hình', personality: 'Tính cách', background: 'Bối cảnh xuất thân' };
@@ -30,7 +31,7 @@ function ProfileSelection({ novelId, entities, onSaved }: Props) {
     <Text fw={600}>Hồ sơ entity đã xác nhận</Text>
     <Text size="xs" c="dimmed">Đổi entity, truyện hoặc phiên tài khoản sẽ xóa bản nhập riêng tư chưa lưu.</Text>
     <Select label="Chọn entity theo UUID" placeholder="Chọn hồ sơ trong Canon" searchable clearable
-      data={entities.map(e => ({ value: e.entity_id, label: `${e.name} · ${e.entity_type} · ${e.entity_id}` }))}
+      data={entities.map(e => ({ value: e.entity_id, label: entityOptionLabel(e, entities) }))}
       value={entity?.entity_id ?? null} onChange={setSelected} />
     {!entities.length && <Text size="sm" c="dimmed">Chưa có entity đã duyệt để chỉnh hồ sơ.</Text>}
     {entity && <PrivateProfileForm key={entity.entity_id} novelId={novelId} entity={entity} onSaved={onSaved} />}
@@ -135,8 +136,8 @@ function PrivateProfileForm({ novelId, entity, onSaved }: { novelId: string; ent
   }
 
   return <Stack gap="sm" data-testid="entity-profile-editor">
-    <Group justify="space-between" align="center">
-      <Group gap="xs"><Text fw={600}>{entity.name} · {entity.entity_type}</Text>{base && <Badge>Profile v{base.version} · Brain v{base.brain_version}</Badge>}</Group>
+    <Group justify="space-between" align="center" wrap="wrap">
+      <Group gap="xs"><Text fw={600}>{entity.name} · {entityTypeLabel(entity.entity_type)}</Text>{base && <Badge>Profile v{base.version} · Brain v{base.brain_version}</Badge>}</Group>
       <CopyTextButton value={entity.entity_id} label="Sao chép UUID" />
     </Group>
     <AnimatedDisclosure summary="Xem mã định danh UUID">

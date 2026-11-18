@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Button, Select, Alert } from '@mantine/core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '../auth/useAuthStore';
 import {
   adminGet,
   adminSend,
@@ -19,7 +20,7 @@ import {
   labels
 } from './AdminShared';
 import { AuditRows } from './AdminAuditPage';
-import { LoadingState, ErrorState } from '../../shared/components/PageStates';
+import { EmptyState, LoadingState, ErrorState } from '../../shared/components/PageStates';
 
 type UserDetail = {
   user: {
@@ -51,9 +52,11 @@ type UserDetail = {
   }>;
   history: AuditEntry[];
 };
+
 export function AdminUserDetailPage() {
   const { userId = '' } = useParams();
   const cache = useQueryClient();
+  const currentUser = useAuthStore((s) => s.user);
   const access = useAdminAccess();
   const [action, setAction] = useState('');
   const [reason, setReason] = useState('');
@@ -84,8 +87,9 @@ export function AdminUserDetailPage() {
   });
   if (query.isLoading) return <LoadingState label="Đang tải hồ sơ..." />;
   if (query.isError) return <ErrorState error={query.error} onRetry={() => void query.refetch()} />;
-  if (!query.data) return null;
+  if (!query.data) return <EmptyState description="Không tìm thấy hồ sơ người dùng." />;
   const { user, novels, sanctions, history } = query.data;
+  const isSelfOrDeleted = user.user_id === currentUser?.userId || user.status === 'DELETED';
   const open = (a: string) => {
     setReason('');
     mutation.reset();
@@ -116,8 +120,8 @@ export function AdminUserDetailPage() {
           <dl className="admin-definition">
             <dt>Vai trò</dt>
             <dd>
-              {user.role}
-              {user.admin_scope && ` · ${scopeLabels[user.admin_scope]}`}
+              {labels[user.role] || user.role}
+              {user.admin_scope && ` · ${scopeLabels[user.admin_scope] || user.admin_scope}`}
             </dd>
             <dt>Ngày tạo</dt>
             <dd>{dateTime(user.created_at)}</dd>
@@ -127,18 +131,29 @@ export function AdminUserDetailPage() {
           {user.bio && <p className="admin-prose">{user.bio}</p>}
           <AdminId value={user.user_id} label="mã người dùng" />
           <div className="admin-actions">
-            <Button variant="default" onClick={() => open('warn')}>
+            <Button
+              variant="default"
+              disabled={isSelfOrDeleted}
+              onClick={() => open('warn')}
+            >
               Cảnh báo
             </Button>
             <Button
+              disabled={isSelfOrDeleted}
               variant="light"
+              color={user.status === 'LOCKED' ? undefined : 'red'}
+              className={user.status === 'LOCKED' ? undefined : 'admin-danger'}
               onClick={() => open(user.status === 'LOCKED' ? 'unlock' : 'lock')}
             >
               {user.status === 'LOCKED' ? 'Mở khóa' : 'Khóa tài khoản'}
             </Button>
             {access.data?.permissions.includes('access') && (
-              <Button variant="default" onClick={() => open('access')}>
-                Vai trò & quyền
+              <Button
+                variant="default"
+                disabled={isSelfOrDeleted}
+                onClick={() => open('access')}
+              >
+                Vai trò &amp; quyền
               </Button>
             )}
           </div>
@@ -173,7 +188,7 @@ export function AdminUserDetailPage() {
               <strong>{n.title}</strong>
             )}
             <span>
-              <Status value={n.status} /> · {n.chapters_count} chương
+              <Status value={n.status} /> · {n.chapters_count.toLocaleString('vi-VN')} chương
               {n.deleted_at ? ' · Đã ẩn' : ''}
             </span>
           </div>
@@ -189,6 +204,7 @@ export function AdminUserDetailPage() {
       </AdminPanel>
       <AdminConfirm
         opened={!!action}
+        destructive={action === 'lock'}
         title={action === 'access' ? 'Thay đổi vai trò & quyền' : 'Xác nhận xử lý tài khoản'}
         confirmLabel="Lưu thay đổi"
         reason={reason}
@@ -203,7 +219,7 @@ export function AdminUserDetailPage() {
           <>
             <Select
               label="Vai trò"
-              data={['READER', 'AUTHOR', 'ADMIN']}
+              data={['READER', 'AUTHOR', 'ADMIN'].map((v) => ({ value: v, label: labels[v] || v }))}
               value={role}
               onChange={(v) => setRole(v || 'READER')}
             />

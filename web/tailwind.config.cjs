@@ -14,6 +14,11 @@ const config = {
     "system-ui",
     "sans-serif"
   ],
+  "mono": [
+    "\"Be Vietnam Pro\"",
+    "system-ui",
+    "sans-serif"
+  ],
   "headline-lg": [
     "\"Be Vietnam Pro\"",
     "system-ui",
@@ -60,7 +65,7 @@ const config = {
   ...Object.fromEntries([
     ['emerald', 'success'], ['green', 'success'], ['teal', 'success'],
     ['amber', 'warning'], ['yellow', 'warning'], ['red', 'danger'], ['rose', 'danger']
-  ].map(([name, token]) => [name, Object.fromEntries([50,100,200,300,400,500,600,700,800,900,950].map(shade => [shade, 'var(--sc-' + token + (shade < 300 ? '-bg' : '') + ')']))])),
+  ].map(([name, token]) => [name, Object.fromEntries([50,100,200,300,400,500,600,700,800,900,950].map(shade => [shade, 'rgb(var(--sc-' + token + (shade < 300 ? '-bg' : '') + '-rgb) / <alpha-value>)']))])),
   "primary": {
     "50": "rgb(var(--sc-primary-soft-rgb) / <alpha-value>)",
     "100": "rgb(var(--sc-primary-soft-rgb) / <alpha-value>)",
@@ -115,7 +120,7 @@ const config = {
   "cream": "rgb(var(--sc-bg-rgb) / <alpha-value>)",
   "stone": {
     "50": "rgb(var(--sc-subtle-rgb) / <alpha-value>)",
-    "100": "rgb(var(--sc-bg-rgb) / <alpha-value>)",
+    "100": "rgb(var(--sc-neutral-bg-rgb) / <alpha-value>)",
     "200": "rgb(var(--sc-border-rgb) / <alpha-value>)",
     "300": "rgb(var(--sc-border-rgb) / <alpha-value>)",
     "400": "rgb(var(--sc-muted-rgb) / <alpha-value>)",

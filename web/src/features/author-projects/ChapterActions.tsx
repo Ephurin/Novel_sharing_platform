@@ -43,7 +43,7 @@ export function ChapterActions({ chapter }: { chapter: Chapter }) {
   return (
     <>
       <Menu withinPortal position="bottom-end">
-        <Menu.Target><ActionIcon variant="subtle" aria-label={`Thao tác chương ${chapter.chapterNumber}`}>⋮</ActionIcon></Menu.Target>
+        <Menu.Target><ActionIcon variant="subtle" aria-label={`Thao tác chương ${chapter.chapterNumber}`}><span className="material-symbols-outlined" aria-hidden="true">more_vert</span></ActionIcon></Menu.Target>
         <Menu.Dropdown>
           {chapter.status === 'ARCHIVED' ? (
             <>
@@ -181,8 +181,8 @@ export function ChapterOrder({ novelId, chapters, onClose }: { novelId: string; 
                 <span className="material-symbols-outlined" aria-hidden="true">drag_indicator</span>
               </ActionIcon>
               <Text className="sc-chapter-order-title" title={item.title}>{index + 1}. {item.title}</Text>
-              <ActionIcon variant="default" disabled={index === 0 || save.isPending || Boolean(draggedId)} aria-label={`Đưa lên: ${item.title}`} onClick={() => moveTo(index, index - 1)}>↑</ActionIcon>
-              <ActionIcon variant="default" disabled={index === items.length - 1 || save.isPending || Boolean(draggedId)} aria-label={`Đưa xuống: ${item.title}`} onClick={() => moveTo(index, index + 1)}>↓</ActionIcon>
+              <ActionIcon variant="default" disabled={index === 0 || save.isPending || Boolean(draggedId)} aria-label={`Đưa lên: ${item.title}`} onClick={() => moveTo(index, index - 1)}><span className="material-symbols-outlined" aria-hidden="true">arrow_upward</span></ActionIcon>
+              <ActionIcon variant="default" disabled={index === items.length - 1 || save.isPending || Boolean(draggedId)} aria-label={`Đưa xuống: ${item.title}`} onClick={() => moveTo(index, index + 1)}><span className="material-symbols-outlined" aria-hidden="true">arrow_downward</span></ActionIcon>
             </motion.div>
           ))}
         </div>

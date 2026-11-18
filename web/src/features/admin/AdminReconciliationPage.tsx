@@ -13,7 +13,7 @@ import {
   dateTime,
   number
 } from './AdminShared';
-import { LoadingState, ErrorState } from '../../shared/components/PageStates';
+import { EmptyState, LoadingState, ErrorState } from '../../shared/components/PageStates';
 
 type State = {
   status: string;
@@ -78,21 +78,21 @@ export function AdminReconciliationPage() {
   });
   if (query.isLoading) return <LoadingState label="Đang tải đối soát..." />;
   if (query.isError) return <ErrorState error={query.error} onRetry={() => void query.refetch()} />;
-  if (!query.data) return null;
+  if (!query.data) return <EmptyState description="Không tìm thấy dữ liệu đối soát." />;
   const { request, state, history } = query.data;
   return (
     <>
       <Link className="admin-link" to="/admin/withdraws">
-        ← Yêu cầu rút tiền
+        ← Yêu cầu rút Xu
       </Link>
       <AdminHeader
         title="Đối soát thanh toán"
-        description={`@${request.username} · ${number(Number(request.amount_coins))} coin`}
+        description={`@${request.username} · ${number(Number(request.amount_coins))} Xu`}
         refresh={() => void query.refetch()}
       />
       <Alert mb="md">
         Đây là ghi nhận đối soát thủ công. Thao tác không gọi ngân hàng và không thay đổi số dư
-        coin.
+        Xu.
       </Alert>
       {mutation.isSuccess && (
         <Alert color="green" mb="md" role="status">

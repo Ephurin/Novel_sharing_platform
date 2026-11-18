@@ -1,4 +1,4 @@
-import { Checkbox, Switch, createTheme, type CSSVariablesResolver } from '@mantine/core';
+import { Autocomplete, Checkbox, MultiSelect, Select, Switch, TagsInput, createTheme, type CSSVariablesResolver } from '@mantine/core';
 import { AnimatedCheckIcon } from '../shared/components/AnimatedCheckIcon';
 
 export const theme = createTheme({
@@ -7,7 +7,11 @@ export const theme = createTheme({
   defaultRadius: 'md',
   components: {
     Checkbox: Checkbox.extend({ defaultProps: { icon: AnimatedCheckIcon, iconColor: 'var(--sc-on-primary)' } }),
-    Switch: Switch.extend({ classNames: { root: 'sc-animated-switch' } })
+    Switch: Switch.extend({ classNames: { root: 'sc-animated-switch' } }),
+    Select: Select.extend({ defaultProps: { comboboxProps: { withinPortal: false } } }),
+    MultiSelect: MultiSelect.extend({ defaultProps: { comboboxProps: { withinPortal: false } } }),
+    TagsInput: TagsInput.extend({ defaultProps: { comboboxProps: { withinPortal: false } } }),
+    Autocomplete: Autocomplete.extend({ defaultProps: { comboboxProps: { withinPortal: false } } })
   },
   colors: {
     terracotta: ['#fff1ea', '#fce1d5', '#f6c8b5', '#eeac91', '#e69b7f', '#dd8567', '#c96f52', '#ad583c', '#9b4930', '#773623'],

@@ -14,9 +14,10 @@ body {
   color: var(--sc-text);
 }
 
-/* Reserve the scrollbar lane when searches or disclosures change page height. */
+/* Reserve the scrollbar lane when searches or disclosures change page height, and keep keyboard focus clear of sticky navbar. */
 html {
   scrollbar-gutter: stable;
+  scroll-padding-top: 68px;
 }
 
 @supports not (scrollbar-gutter: stable) {

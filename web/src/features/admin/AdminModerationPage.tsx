@@ -128,7 +128,12 @@ export function AdminModerationPage({ reports = false }: { reports?: boolean }) 
                     <td>
                       <AdminId value={review.reviewId} label="mã kiểm duyệt" />
                     </td>
-                    <td>{labels[review.targetType]}</td>
+                    <td>
+                      <div>{labels[review.targetType] || review.targetType}</div>
+                      {(review.targetTitle || review.summary || review.reason) && (
+                        <small>{review.targetTitle || review.summary || review.reason}</small>
+                      )}
+                    </td>
                     <td>
                       <AdminId value={review.targetId} label="mã đối tượng" />
                     </td>

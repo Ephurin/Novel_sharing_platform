@@ -44,10 +44,14 @@ for (const [mode, paletteName] of [
   const pairs = [
     ['body text on background', p.text, p.background],
     ['body text on surface', p.text, p.surface],
+    ['body text on surfaceElevated', p.text, p.surfaceElevated],
     ['muted text on background', p.textMuted, p.background],
     ['muted text on surface', p.textMuted, p.surface],
+    ['muted text on surfaceElevated', p.textMuted, p.surfaceElevated],
     ['muted placeholder on surfaceMuted', p.textMuted, p.surfaceMuted],
     ['muted text on neutral chip', p.textMuted, p.neutralBg],
+    ['focusRing on surface', p.focusRing, p.surface],
+    ['focusRing on background', p.focusRing, p.background],
     ['primary button label on primary fill', p.onPrimary, p.primary],
     ['primary button label on primary hover', p.onPrimary, p.primaryHover],
     ['primary accent text on surface', p.primaryMuted, p.surface],
@@ -58,7 +62,11 @@ for (const [mode, paletteName] of [
     ['danger error text on surface', p.danger, p.surface],
     ['reader LIGHT ink on page', p.lightText, p.lightBackground],
     ['reader SEPIA ink on page', p.sepiaText, p.sepiaBackground],
-    ['reader DARK ink on page', p.darkText, p.darkBackground]
+    ['reader MINT ink on page', p.mintText, p.mintBackground],
+    ['reader BLUE ink on page', p.blueText, p.blueBackground],
+    ['reader ROSE ink on page', p.roseText, p.roseBackground],
+    ['reader DARK ink on page', p.darkText, p.darkBackground],
+    ['reader BLACK ink on page', p.blackText, p.blackBackground]
   ];
 
   for (const [label, fg, bg] of pairs) {

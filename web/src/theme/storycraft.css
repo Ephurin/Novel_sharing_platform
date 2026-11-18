@@ -30,6 +30,13 @@
   --sc-text: rgb(var(--sc-text-rgb));
   --sc-text-muted: rgb(var(--sc-muted-rgb));
   --sc-border: rgb(var(--sc-border-rgb));
+  --sc-success-rgb: 33 120 95;
+  --sc-success-bg-rgb: 221 247 235;
+  --sc-warning-rgb: 148 96 26;
+  --sc-warning-bg-rgb: 255 241 218;
+  --sc-danger-rgb: 184 77 73;
+  --sc-danger-bg-rgb: 255 240 239;
+  --sc-neutral-bg-rgb: 241 240 237;
   --sc-success: #21785f;
   --sc-success-bg: #ddf7eb;
   --sc-warning: #94601a;
@@ -56,6 +63,13 @@
   --sc-border-rgb: 69 64 58;
   --sc-surface-elevated: #322e2a;
   --sc-control-border: #8c8379;
+  --sc-success-rgb: 137 217 182;
+  --sc-success-bg-rgb: 29 58 48;
+  --sc-warning-rgb: 242 195 126;
+  --sc-warning-bg-rgb: 66 52 34;
+  --sc-danger-rgb: 242 160 154;
+  --sc-danger-bg-rgb: 74 43 42;
+  --sc-neutral-bg-rgb: 57 54 49;
   --sc-success: #89d9b6;
   --sc-success-bg: #1d3a30;
   --sc-warning: #f2c37e;
@@ -83,7 +97,7 @@
 
 .sc-author-theme *, .sc-author-theme *::before, .sc-author-theme *::after { box-sizing: border-box; }
 .sc-author-theme :is(.font-serif, .font-headline-lg, .font-headline-md, .font-headline-sm, .font-body-reading) { font-family: var(--sc-font); }
-.sc-author-theme .font-mono { font-family: var(--sc-font); font-variant-numeric: tabular-nums; }
+:is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) .font-mono { font-family: var(--sc-font); font-variant-numeric: tabular-nums; }
 .sc-author-theme :is(h1, h2, h3, h4) { font-family: var(--sc-font); letter-spacing: -.02em; }
 .sc-author-theme h1, .text-page-title { font-size: 24px; font-weight: 700; line-height: 32px; }
 .sc-author-theme h2, .text-section-title { font-size: 18px; font-weight: 600; line-height: 26px; }
@@ -273,6 +287,9 @@
 .sc-button-primary:hover { background: var(--sc-primary-hover); border-color: var(--sc-primary-hover); color: var(--sc-on-primary); }
 .sc-icon-button { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; color: var(--sc-text-muted); border-radius: var(--sc-radius-control); }
 .sc-icon-button:hover { background: var(--sc-neutral-bg); color: var(--sc-text); }
+@media (pointer: coarse) {
+  .sc-icon-button { min-width: 44px; min-height: 44px; }
+}
 .sc-author-theme .sc-avatar { width: 36px; height: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 50%; border: 1px solid var(--sc-border); background: var(--sc-primary-soft); color: var(--sc-primary-text); font-size: 13px; }
 .sc-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .sc-shell-content { max-width: var(--sc-content-width); padding: 24px; margin: auto; }

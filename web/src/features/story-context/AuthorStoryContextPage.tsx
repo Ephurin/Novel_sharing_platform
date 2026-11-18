@@ -50,10 +50,10 @@ type StoryTab = 'characters' | 'relationships' | 'timeline' | 'summaries' | 'kno
 type RoleFilter = 'ALL' | 'PROTAGONIST' | 'SUPPORTING' | 'ANTAGONIST' | 'MINOR';
 
 const characterRoles: { value: CharacterRole; label: string; badgeClass: string }[] = [
-  { value: 'PROTAGONIST', label: 'Tuyến chính (Protagonist)', badgeClass: 'bg-primary-600 text-white' },
-  { value: 'ANTAGONIST', label: 'Đối đầu / Phản diện (Antagonist)', badgeClass: 'bg-red-50 text-red-700 border border-red-200' },
-  { value: 'SUPPORTING', label: 'Tuyến phụ (Supporting)', badgeClass: 'bg-primary-50 text-primary-700 border border-primary-200' },
-  { value: 'MINOR', label: 'Quần chúng / Then chốt (Minor)', badgeClass: 'bg-stone-100 text-stone-600 border border-stone-200' }
+  { value: 'PROTAGONIST', label: 'Tuyến chính', badgeClass: 'bg-primary-600 text-white' },
+  { value: 'ANTAGONIST', label: 'Đối đầu / Phản diện', badgeClass: 'bg-red-50 text-red-700 border border-red-200' },
+  { value: 'SUPPORTING', label: 'Tuyến phụ', badgeClass: 'bg-primary-50 text-primary-700 border border-primary-200' },
+  { value: 'MINOR', label: 'Quần chúng / Then chốt', badgeClass: 'bg-stone-100 text-stone-600 border border-stone-200' }
 ];
 
 export const ROLE_PRESET_TITLES: Record<CharacterRole, string[]> = {
@@ -587,7 +587,7 @@ export function AuthorStoryContextPage() {
                   <span className="material-symbols-outlined text-[17px]" aria-hidden="true">{tab.icon}</span>
                   <span>{tab.label}</span>
                   {tab.count !== null && (
-                    <span className={`px-1.5 py-0.2 rounded-full text-meta font-bold ${tab.activeBadge}`}>
+                    <span className={`px-1.5 py-0.5 rounded-full text-meta font-bold ${tab.activeBadge}`}>
                       {tab.count}
                     </span>
                   )}
@@ -606,7 +606,7 @@ export function AuthorStoryContextPage() {
           aria-labelledby={`${mainTabsGroupId}-tab-${activeTab}`}
         >
         {activeTab === 'knowledge' && <StoryBibleKnowledge memory={approvedMemoryQuery.data}
-          loading={approvedMemoryQuery.isLoading} failed={approvedMemoryQuery.isError}
+          loading={approvedMemoryQuery.isLoading} failed={approvedMemoryQuery.isError} error={approvedMemoryQuery.error}
           retry={() => void approvedMemoryQuery.refetch()} />}
         {activeTab === 'characters' && (
           <div className="mb-4"><EntityMergeControl novelId={novelId} version={approvedMemoryQuery.data?.brain_version ?? 0}
@@ -623,6 +623,7 @@ export function AuthorStoryContextPage() {
                   </span>
                   <input
                     type="text"
+                    aria-label="Tìm nhân vật"
                     value={characterSearch}
                     onChange={(e) => setCharacterSearch(e.target.value)}
                     placeholder="Tìm nhân vật, tính cách..."
@@ -638,6 +639,7 @@ export function AuthorStoryContextPage() {
                   }}
                   className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors shadow-2xs shrink-0"
                   title="Thêm nhân vật mới"
+                  aria-label="Thêm nhân vật mới"
                   type="button"
                 >
                   <span className="material-symbols-outlined text-[18px]">person_add</span>
@@ -659,6 +661,7 @@ export function AuthorStoryContextPage() {
                     return (
                       <button
                         key={rf.key}
+                        aria-pressed={active}
                         onClick={() => setRoleFilter(rf.key)}
                         type="button"
                         className={`relative z-10 px-2 py-0.5 rounded-full font-medium transition-colors ${
@@ -687,22 +690,22 @@ export function AuthorStoryContextPage() {
               <LayoutGroup id={characterListGroupId}>
                 <div className="flex flex-col gap-2 max-h-[750px] overflow-y-auto pr-0.5">
                 {isCreatingCharacter && (
-                  <div className="p-2.5 rounded-xl border border-dashed border-emerald-400 bg-emerald-50/70 shadow-2xs relative">
-                    <div className="absolute left-0 top-2.5 bottom-2.5 w-1 bg-emerald-600 rounded-r-full"></div>
+                  <div className="p-2.5 rounded-xl border border-dashed border-primary-300 bg-primary-50/70 shadow-2xs relative">
+                    <div className="absolute left-0 top-2.5 bottom-2.5 w-1 bg-primary-600 rounded-r-full"></div>
                     <div className="flex items-center gap-3 pl-1">
-                      <div className="w-11 h-12 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 border border-emerald-200">
+                      <div className="w-11 h-12 rounded-lg bg-primary-100 flex items-center justify-center text-primary-700 border border-primary-200">
                         <span className="material-symbols-outlined text-[20px]">person_add</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-1 mb-0.5">
-                          <span className="text-table font-bold text-emerald-950 truncate">
+                          <span className="text-table font-bold text-stone-900 truncate">
                             {characterForm.name || 'Nhân vật mới...'}
                           </span>
-                          <span className="text-meta px-1.5 py-0.2 rounded bg-emerald-200 text-emerald-900 font-bold uppercase">
+                          <span className="text-meta px-1.5 py-0.5 rounded bg-primary-100 text-primary-800 font-semibold">
                             Đang tạo
                           </span>
                         </div>
-                        <p className="text-meta text-emerald-700 truncate">
+                        <p className="text-meta text-stone-600 truncate">
                           {characterCustomTitle || 'Chưa thiết lập thân phận'}
                         </p>
                       </div>
@@ -713,14 +716,17 @@ export function AuthorStoryContextPage() {
                 {filteredCharacters.map((c: CharacterProfile) => {
                   const isSelected = !isCreatingCharacter && c.characterId === selectedCharacterId;
                   const { customTitle: cardCustomTitle } = parseCharacterDescription(c.description);
+                  const roleShortLabel = c.role === 'PROTAGONIST' ? 'Chính' : c.role === 'ANTAGONIST' ? 'Đối đầu' : c.role === 'SUPPORTING' ? 'Phụ' : 'Then chốt';
                   return (
-                    <div
+                    <button
+                      type="button"
                       key={c.characterId}
+                      aria-current={isSelected ? 'true' : undefined}
                       onClick={() => {
                         setIsCreatingCharacter(false);
                         setSelectedCharacterId(c.characterId);
                       }}
-                      className={`p-2.5 rounded-xl border transition-all cursor-pointer relative ${
+                      className={`w-full text-left font-normal p-2.5 rounded-xl border transition-all cursor-pointer relative ${
                         isSelected
                           ? 'bg-primary-50/70 border-primary-300 shadow-2xs'
                           : 'bg-surface-container-lowest border-stone-200/70 hover:bg-stone-50 hover:border-stone-300'
@@ -748,7 +754,7 @@ export function AuthorStoryContextPage() {
                               {c.name}
                             </span>
                             <span
-                              className={`text-meta px-1.5 py-0.2 rounded font-semibold max-w-[120px] truncate ${
+                              className={`text-meta px-1.5 py-0.5 rounded font-semibold max-w-[120px] truncate ${
                                 c.role === 'PROTAGONIST'
                                   ? 'bg-primary-100 text-primary-800'
                                   : c.role === 'ANTAGONIST'
@@ -757,14 +763,14 @@ export function AuthorStoryContextPage() {
                                   ? 'bg-amber-50 text-amber-800'
                                   : 'bg-stone-100 text-stone-600'
                               }`}
-                              title={cardCustomTitle || c.role}
+                              title={cardCustomTitle || roleShortLabel}
                             >
-                              {cardCustomTitle || (c.role === 'PROTAGONIST' ? 'Chính' : c.role === 'ANTAGONIST' ? 'Đối đầu' : c.role === 'SUPPORTING' ? 'Phụ' : 'Then chốt')}
+                              {cardCustomTitle || roleShortLabel}
                             </span>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
 
@@ -797,7 +803,7 @@ export function AuthorStoryContextPage() {
                         {characterForm.name || (isCreatingCharacter ? 'Tên nhân vật mới...' : 'Chưa đặt tên')}
                       </h2>
                       {isCreatingCharacter && (
-                        <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-meta font-bold uppercase tracking-wider">
+                        <span className="px-2 py-0.5 rounded-md bg-primary-100 text-primary-800 text-meta font-semibold">
                           Đang tạo mới
                         </span>
                       )}
@@ -811,11 +817,15 @@ export function AuthorStoryContextPage() {
                       <span className="px-2 py-0.5 rounded-full bg-primary-100 text-primary-800 font-semibold text-meta">
                         {characterRoles.find((r) => r.value === characterForm.role)?.label || characterForm.role}
                       </span>
-                      <span>•</span>
-                      <span className="inline-flex items-center gap-1 text-primary-600 font-medium">
-                        <span className="material-symbols-outlined text-body">check_circle</span>
-                        <span>Đã nạp AI Copilot</span>
-                      </span>
+                      {!isCreatingCharacter && selectedCharacterId && (
+                        <>
+                          <span>•</span>
+                          <span className="inline-flex items-center gap-1 text-primary-600 font-medium">
+                            <span className="material-symbols-outlined text-body">check_circle</span>
+                            <span>Đã nạp AI Copilot</span>
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -844,6 +854,7 @@ export function AuthorStoryContextPage() {
                       }}
                       className="w-8 h-8 flex items-center justify-center rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-600 transition-colors"
                       title="Sao chép ID nhân vật"
+                      aria-label="Sao chép ID nhân vật"
                       type="button"
                     >
                       <span className="material-symbols-outlined text-[16px]">content_copy</span>
@@ -872,10 +883,11 @@ export function AuthorStoryContextPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 bg-stone-50/70 p-4 rounded-xl border border-stone-200/70">
                   <div className="flex flex-col gap-1">
-                    <label className="text-form-label text-stone-700">
+                    <label htmlFor="char-name" className="text-form-label text-stone-700">
                       Tên nhân vật *
                     </label>
                     <input
+                      id="char-name"
                       type="text"
                       value={characterForm.name}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCharacterForm({ ...characterForm, name: e.target.value })}
@@ -884,10 +896,11 @@ export function AuthorStoryContextPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-form-label text-stone-700">
+                    <label htmlFor="char-role" className="text-form-label text-stone-700">
                       Vai trò trong cốt truyện *
                     </label>
                     <select
+                      id="char-role"
                       value={characterForm.role}
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCharacterForm({ ...characterForm, role: e.target.value as CharacterRole })}
                       className="p-2 text-meta rounded-lg bg-surface-container-lowest border border-stone-200 focus:outline-none focus:border-primary-500 font-medium text-stone-800"
@@ -903,7 +916,7 @@ export function AuthorStoryContextPage() {
                   {/* Thân phận / Danh xưng cụ thể trong truyện */}
                   <div className="col-span-1 md:col-span-2 flex flex-col gap-1.5 pt-1 border-t border-stone-200/60 mt-1">
                     <div className="flex items-center justify-between">
-                      <label className="text-form-label text-stone-700 flex items-center gap-1.5">
+                      <label htmlFor="char-custom-title" className="text-form-label text-stone-700 flex items-center gap-1.5">
                         <span className="material-symbols-outlined text-[15px] text-primary-600" aria-hidden="true">verified</span>
                         <span>Danh xưng / Thân phận cụ thể</span>
                       </label>
@@ -918,6 +931,7 @@ export function AuthorStoryContextPage() {
                       )}
                     </div>
                     <input
+                      id="char-custom-title"
                       type="text"
                       value={characterCustomTitle}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCharacterCustomTitle(e.target.value)}
@@ -932,6 +946,7 @@ export function AuthorStoryContextPage() {
                         <button
                           key={title}
                           type="button"
+                          aria-pressed={characterCustomTitle === title}
                           onClick={() => setCharacterCustomTitle(title)}
                           className={`px-2 py-0.5 rounded text-meta font-medium transition-colors border ${
                             characterCustomTitle === title
@@ -954,10 +969,11 @@ export function AuthorStoryContextPage() {
                   <span>2. Ngoại hình &amp; Đặc điểm nhận dạng</span>
                 </div>
                 <div className="bg-stone-50/70 p-4 rounded-xl border border-stone-200/70 flex flex-col gap-2">
-                  <label className="text-form-label text-stone-700">
+                  <label htmlFor="char-description" className="text-form-label text-stone-700">
                     Diện mạo, y phục, thói quen đặc trưng
                   </label>
                   <textarea
+                    id="char-description"
                     rows={4}
                     value={characterForm.description ?? ''}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCharacterForm({ ...characterForm, description: e.target.value })}
@@ -974,10 +990,11 @@ export function AuthorStoryContextPage() {
                   <span>3. Tính cách &amp; Nội tâm</span>
                 </div>
                 <div className="bg-stone-50/70 p-4 rounded-xl border border-stone-200/70 flex flex-col gap-2">
-                  <label className="text-form-label text-stone-700">
+                  <label htmlFor="char-personality" className="text-form-label text-stone-700">
                     Đặc tính bên ngoài &amp; mâu thuẫn nội tâm
                   </label>
                   <textarea
+                    id="char-personality"
                     rows={4}
                     value={characterForm.personality ?? ''}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCharacterForm({ ...characterForm, personality: e.target.value })}
@@ -999,10 +1016,11 @@ export function AuthorStoryContextPage() {
                   </span>
                 </div>
                 <div className="bg-primary-50/50 p-4 rounded-xl border border-primary-100 flex flex-col gap-2">
-                  <p className="text-meta text-stone-500">
+                  <label htmlFor="char-ai-notes" className="text-meta text-stone-500">
                     Hướng dẫn giọng thoại và hành vi cho AI khi viết.
-                  </p>
+                  </label>
                   <textarea
+                    id="char-ai-notes"
                     rows={4}
                     value={characterForm.notes ?? ''}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCharacterForm({ ...characterForm, notes: e.target.value })}
@@ -1047,11 +1065,7 @@ export function AuthorStoryContextPage() {
                 <button
                   onClick={() => characterMutation.mutate()}
                   disabled={characterMutation.isPending || !characterForm.name.trim()}
-                  className={`inline-flex items-center gap-2 px-6 py-2 rounded-lg text-white text-meta font-bold shadow-xs transition-all  disabled:opacity-50 ${
-                    isCreatingCharacter
-                      ? 'bg-emerald-600 hover:bg-emerald-700'
-                      : 'bg-primary-600 hover:bg-primary-700'
-                  }`}
+                  className="inline-flex items-center gap-2 px-6 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-on-primary text-meta font-bold shadow-xs transition-all disabled:opacity-50"
                   type="button"
                 >
                   <span className="material-symbols-outlined text-[17px]" aria-hidden="true">
@@ -1103,13 +1117,15 @@ export function AuthorStoryContextPage() {
                 {relationships.map((r: CharacterRelationship) => {
                   const isSelected = !isCreatingRelationship && r.relationshipId === selectedRelationshipId;
                   return (
-                    <div
+                    <button
+                      type="button"
                       key={r.relationshipId}
+                      aria-current={isSelected ? 'true' : undefined}
                       onClick={() => {
                         setIsCreatingRelationship(false);
                         setSelectedRelationshipId(r.relationshipId);
                       }}
-                      className={`p-3 rounded-xl border transition-all cursor-pointer relative ${
+                      className={`w-full text-left font-normal p-3 rounded-xl border transition-all cursor-pointer relative ${
                         isSelected
                           ? 'bg-primary-50/70 border-primary-300 shadow-2xs'
                           : 'bg-surface-container-lowest border-stone-200/70 hover:bg-stone-50 hover:border-stone-300'
@@ -1118,7 +1134,7 @@ export function AuthorStoryContextPage() {
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-bold text-meta text-stone-900 flex items-center gap-1.5">
                           <span>{r.sourceCharacterName}</span>
-                          <span className="text-primary-600">➔</span>
+                          <span className="material-symbols-outlined text-[15px] text-primary-600" aria-hidden="true">arrow_forward</span>
                           <span>{r.targetCharacterName}</span>
                         </span>
                         <span className="text-meta px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-semibold">
@@ -1128,7 +1144,7 @@ export function AuthorStoryContextPage() {
                       <p className="text-meta text-stone-500 line-clamp-2">
                         {r.description || 'Chưa có mô tả chi tiết quan hệ.'}
                       </p>
-                    </div>
+                    </button>
                   );
                 })}
 
@@ -1160,8 +1176,9 @@ export function AuthorStoryContextPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1">
-                  <label className="text-form-label text-stone-700">Nhân vật nguồn *</label>
+                  <label htmlFor="rel-source-char" className="text-form-label text-stone-700">Nhân vật nguồn *</label>
                   <select
+                    id="rel-source-char"
                     value={relationshipForm.sourceCharacterId}
                     onChange={(e) => setRelationshipForm({ ...relationshipForm, sourceCharacterId: e.target.value })}
                     className="p-2 text-meta rounded-lg border border-stone-200 bg-stone-50 text-stone-800 font-medium"
@@ -1169,15 +1186,16 @@ export function AuthorStoryContextPage() {
                     <option value="">-- Chọn nhân vật --</option>
                     {characters.map((c) => (
                       <option key={c.characterId} value={c.characterId}>
-                        {c.name} ({c.role})
+                        {c.name} ({characterRoles.find((r) => r.value === c.role)?.label || c.role})
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-form-label text-stone-700">Nhân vật đích *</label>
+                  <label htmlFor="rel-target-char" className="text-form-label text-stone-700">Nhân vật đích *</label>
                   <select
+                    id="rel-target-char"
                     value={relationshipForm.targetCharacterId}
                     onChange={(e) => setRelationshipForm({ ...relationshipForm, targetCharacterId: e.target.value })}
                     className="p-2 text-meta rounded-lg border border-stone-200 bg-stone-50 text-stone-800 font-medium"
@@ -1185,7 +1203,7 @@ export function AuthorStoryContextPage() {
                     <option value="">-- Chọn nhân vật --</option>
                     {characters.map((c) => (
                       <option key={c.characterId} value={c.characterId}>
-                        {c.name} ({c.role})
+                        {c.name} ({characterRoles.find((r) => r.value === c.role)?.label || c.role})
                       </option>
                     ))}
                   </select>
@@ -1193,8 +1211,9 @@ export function AuthorStoryContextPage() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-form-label text-stone-700">Loại quan hệ *</label>
+                <label htmlFor="rel-type" className="text-form-label text-stone-700">Loại quan hệ *</label>
                 <input
+                  id="rel-type"
                   type="text"
                   value={relationshipForm.relationshipType}
                   onChange={(e) => setRelationshipForm({ ...relationshipForm, relationshipType: e.target.value })}
@@ -1204,8 +1223,9 @@ export function AuthorStoryContextPage() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-form-label text-stone-700">Mô tả chi tiết &amp; mâu thuẫn</label>
+                <label htmlFor="rel-description" className="text-form-label text-stone-700">Mô tả chi tiết &amp; mâu thuẫn</label>
                 <textarea
+                  id="rel-description"
                   rows={4}
                   value={relationshipForm.description ?? ''}
                   onChange={(e) => setRelationshipForm({ ...relationshipForm, description: e.target.value })}
@@ -1268,13 +1288,15 @@ export function AuthorStoryContextPage() {
                   .map((ev: StoryTimelineEvent) => {
                     const isSelected = !isCreatingTimeline && ev.eventId === selectedEventId;
                     return (
-                      <div
+                      <button
+                        type="button"
                         key={ev.eventId}
+                        aria-current={isSelected ? 'true' : undefined}
                         onClick={() => {
                           setIsCreatingTimeline(false);
                           setSelectedEventId(ev.eventId);
                         }}
-                        className={`p-3 rounded-xl border transition-all cursor-pointer relative ${
+                        className={`w-full text-left font-normal p-3 rounded-xl border transition-all cursor-pointer relative ${
                           isSelected
                             ? 'bg-primary-50/70 border-primary-300 shadow-2xs'
                             : 'bg-surface-container-lowest border-stone-200/70 hover:bg-stone-50 hover:border-stone-300'
@@ -1285,13 +1307,13 @@ export function AuthorStoryContextPage() {
                             #{ev.eventOrder}: {ev.title}
                           </span>
                           {ev.chapterNumber && (
-                            <span className="text-meta px-1.5 py-0.2 rounded bg-stone-100 text-stone-600">
+                            <span className="text-meta px-1.5 py-0.5 rounded bg-stone-100 text-stone-600">
                               Chương {ev.chapterNumber}
                             </span>
                           )}
                         </div>
                         <p className="text-meta text-stone-500 line-clamp-2">{ev.summary}</p>
-                      </div>
+                      </button>
                     );
                   })}
 
@@ -1323,8 +1345,9 @@ export function AuthorStoryContextPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="flex flex-col gap-1 md:col-span-2">
-                  <label className="text-form-label text-stone-700">Tên sự kiện *</label>
+                  <label htmlFor="timeline-title" className="text-form-label text-stone-700">Tên sự kiện *</label>
                   <input
+                    id="timeline-title"
                     type="text"
                     value={timelineForm.title}
                     onChange={(e) => setTimelineForm({ ...timelineForm, title: e.target.value })}
@@ -1333,8 +1356,9 @@ export function AuthorStoryContextPage() {
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-form-label text-stone-700">Thứ tự diễn tiến *</label>
+                  <label htmlFor="timeline-order" className="text-form-label text-stone-700">Thứ tự diễn tiến *</label>
                   <input
+                    id="timeline-order"
                     type="number"
                     value={timelineForm.eventOrder}
                     onChange={(e) => setTimelineForm({ ...timelineForm, eventOrder: parseInt(e.target.value, 10) || 1 })}
@@ -1344,8 +1368,9 @@ export function AuthorStoryContextPage() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-form-label text-stone-700">Chương truyện tương ứng (tùy chọn)</label>
+                <label htmlFor="timeline-chapter" className="text-form-label text-stone-700">Chương truyện tương ứng (tùy chọn)</label>
                 <select
+                  id="timeline-chapter"
                   value={timelineForm.chapterId ?? ''}
                   onChange={(e) => setTimelineForm({ ...timelineForm, chapterId: e.target.value || null })}
                   className="p-2 text-meta rounded-lg border border-stone-200 bg-stone-50 text-stone-800"
@@ -1360,8 +1385,9 @@ export function AuthorStoryContextPage() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-form-label text-stone-700">Tóm tắt diễn biến *</label>
+                <label htmlFor="timeline-summary" className="text-form-label text-stone-700">Tóm tắt diễn biến *</label>
                 <textarea
+                  id="timeline-summary"
                   rows={5}
                   value={timelineForm.summary}
                   onChange={(e) => setTimelineForm({ ...timelineForm, summary: e.target.value })}
@@ -1413,13 +1439,15 @@ export function AuthorStoryContextPage() {
                 {plotSummaries.map((s: PlotSummary) => {
                   const isSelected = !isCreatingSummary && s.summaryId === selectedSummaryId;
                   return (
-                    <div
+                    <button
+                      type="button"
                       key={s.summaryId}
+                      aria-current={isSelected ? 'true' : undefined}
                       onClick={() => {
                         setIsCreatingSummary(false);
                         setSelectedSummaryId(s.summaryId);
                       }}
-                      className={`p-3 rounded-xl border transition-all cursor-pointer relative ${
+                      className={`w-full text-left font-normal p-3 rounded-xl border transition-all cursor-pointer relative ${
                         isSelected
                           ? 'bg-primary-50/70 border-primary-300 shadow-2xs'
                           : 'bg-surface-container-lowest border-stone-200/70 hover:bg-stone-50 hover:border-stone-300'
@@ -1434,11 +1462,11 @@ export function AuthorStoryContextPage() {
                             : `Chương ${s.chapterNumber}`}
                         </span>
                         <span className="text-meta px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 font-semibold border border-primary-100">
-                          {s.scope}
+                          {s.scope === 'NOVEL' ? 'Toàn truyện' : s.scope === 'ARC' ? 'Hồi / Arc' : 'Chương'}
                         </span>
                       </div>
                       <p className="text-meta text-stone-500 line-clamp-2">{s.summary}</p>
-                    </div>
+                    </button>
                   );
                 })}
 
@@ -1469,8 +1497,9 @@ export function AuthorStoryContextPage() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-form-label text-stone-700">Phạm vi tóm tắt *</label>
+                <label htmlFor="summary-scope" className="text-form-label text-stone-700">Phạm vi tóm tắt *</label>
                 <select
+                  id="summary-scope"
                   value={summaryForm.scope}
                   onChange={(e) => setSummaryForm({ ...summaryForm, scope: e.target.value as PlotSummaryScope })}
                   className="p-2 text-meta rounded-lg border border-stone-200 bg-stone-50 text-stone-800 font-medium"
@@ -1484,8 +1513,9 @@ export function AuthorStoryContextPage() {
               {summaryForm.scope === 'ARC' && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="flex flex-col gap-1 md:col-span-3">
-                    <label className="text-form-label text-stone-700">Tên Hồi / Quyển *</label>
+                    <label htmlFor="summary-arc-name" className="text-form-label text-stone-700">Tên Hồi / Quyển *</label>
                     <input
+                      id="summary-arc-name"
                       type="text"
                       value={summaryForm.arcName ?? ''}
                       onChange={(e) => setSummaryForm({ ...summaryForm, arcName: e.target.value })}
@@ -1494,8 +1524,9 @@ export function AuthorStoryContextPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-form-label text-stone-700">Từ chương số</label>
+                    <label htmlFor="summary-start-chapter" className="text-form-label text-stone-700">Từ chương số</label>
                     <input
+                      id="summary-start-chapter"
                       type="number"
                       value={summaryForm.startChapterNumber ?? ''}
                       onChange={(e) =>
@@ -1505,8 +1536,9 @@ export function AuthorStoryContextPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-form-label text-stone-700">Đến chương số</label>
+                    <label htmlFor="summary-end-chapter" className="text-form-label text-stone-700">Đến chương số</label>
                     <input
+                      id="summary-end-chapter"
                       type="number"
                       value={summaryForm.endChapterNumber ?? ''}
                       onChange={(e) =>
@@ -1520,8 +1552,9 @@ export function AuthorStoryContextPage() {
 
               {summaryForm.scope === 'CHAPTER' && (
                 <div className="flex flex-col gap-1">
-                  <label className="text-form-label text-stone-700">Chọn chương *</label>
+                  <label htmlFor="summary-chapter" className="text-form-label text-stone-700">Chọn chương *</label>
                   <select
+                    id="summary-chapter"
                     value={summaryForm.chapterId ?? ''}
                     onChange={(e) => setSummaryForm({ ...summaryForm, chapterId: e.target.value || null })}
                     className="p-2 text-meta rounded-lg border border-stone-200 bg-stone-50 text-stone-800"
@@ -1537,8 +1570,9 @@ export function AuthorStoryContextPage() {
               )}
 
               <div className="flex flex-col gap-1">
-                <label className="text-form-label text-stone-700">Nội dung tóm tắt *</label>
+                <label htmlFor="summary-content" className="text-form-label text-stone-700">Nội dung tóm tắt *</label>
                 <textarea
+                  id="summary-content"
                   rows={6}
                   value={summaryForm.summary}
                   onChange={(e) => setSummaryForm({ ...summaryForm, summary: e.target.value })}
@@ -1592,7 +1626,7 @@ export function AuthorStoryContextPage() {
               else if (target.kind === 'timeline') deleteTimelineMutation.mutate(target.id);
               else deleteSummaryMutation.mutate(target.id);
             }}
-            className="px-4 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-meta font-semibold transition-colors"
+            className="px-4 py-1.5 rounded-lg bg-rose-600 hover:opacity-90 text-white text-meta font-semibold transition-opacity"
           >
             Xóa
           </button>

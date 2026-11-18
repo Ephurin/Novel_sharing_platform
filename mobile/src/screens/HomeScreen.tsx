@@ -1,11 +1,34 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  RefreshControl,
+  Text,
+  View
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { getApiErrorMessage } from '../api/api-client';
 import { listHistory, searchPublishedNovels } from '../api/reader-api';
 import type { ReaderNovel, ReadingHistoryItem } from '../api/types';
+import { BookCover } from '../components/BookCover';
 import { Field } from '../components/Form';
-import { Badge, Card, EmptyState, ErrorState, GhostButton, LoadingState, PrimaryButton, Screen, Section, useScreenStyles } from '../components/Screen';
+import { AppIcon } from '../components/Icons';
+import {
+  Badge,
+  Card,
+  EmptyState,
+  ErrorState,
+  GhostButton,
+  LoadingState,
+  PrimaryButton,
+  Section,
+  useScreenStyles
+} from '../components/Screen';
 import { useStoryCraftTheme } from '../theme/ThemeProvider';
+import { formatChapterLabel } from '../utils/format';
 
 const SEARCH_DEBOUNCE_MS = 250;
 
@@ -16,7 +39,7 @@ export function HomeScreen({
 }: {
   authenticated: boolean;
   onOpenNovel: (novelId: string) => void;
-  onOpenChapter: (chapterId: string) => void;
+  onOpenChapter: (chapterId: string, novelId?: string) => void;
 }) {
   const { palette } = useStoryCraftTheme();
   const themed = useScreenStyles();
@@ -25,6 +48,7 @@ export function HomeScreen({
   const [history, setHistory] = useState<ReadingHistoryItem[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [refreshNonce, setRefreshNonce] = useState(0);
 
@@ -60,7 +84,9 @@ export function HomeScreen({
         const [novelItems, historyItems] = await Promise.all([
           searchPublishedNovels({ q: trimmedQuery || undefined }, controller?.signal),
           shouldFetchHistory
-            ? (authenticated ? listHistory(controller?.signal).catch(() => []) : Promise.resolve([]))
+            ? authenticated
+              ? listHistory(controller?.signal).catch(() => [])
+              : Promise.resolve([])
             : Promise.resolve(null)
         ]);
 
@@ -78,6 +104,7 @@ export function HomeScreen({
         if (isCurrent()) {
           hasSettledOnceRef.current = true;
           setLoading(false);
+          setRefreshing(false);
           setInitialLoading(false);
         }
       }
@@ -119,6 +146,7 @@ export function HomeScreen({
 
   const refresh = () => {
     setLoading(true);
+    setRefreshing(true);
     setError(null);
     setRefreshNonce((prev) => prev + 1);
   };
@@ -126,40 +154,60 @@ export function HomeScreen({
   if (initialLoading) return <LoadingState label="Đang tải kho truyện..." />;
 
   const inlineLoadingLabel = trimmedQuery ? 'Đang tìm kiếm tác phẩm...' : 'Đang cập nhật danh sách...';
+  const latestHistory = authenticated ? history[0] : undefined;
 
-  return (
-    <Screen>
-      <Section title="Kho truyện">
+  const listHeader = (
+    <View style={{ gap: 16, paddingBottom: 8 }}>
+      <Section>
         <Field
           label="Tìm kiếm tác phẩm"
           value={query}
           onChangeText={handleQueryChange}
           placeholder="Tên truyện, lời giới thiệu..."
+          returnKeyType="search"
         />
-        <GhostButton label="Làm mới danh sách" onPress={refresh} />
+        <GhostButton
+          label="Làm mới danh sách"
+          icon={<AppIcon name="refresh" size={16} color={palette.primaryMuted} />}
+          onPress={refresh}
+        />
         {error ? <ErrorState message={error} onRetry={refresh} /> : null}
       </Section>
 
-      {authenticated && history[0] ? (
+      {latestHistory ? (
         <Section title="Đọc tiếp">
           <Card>
-            <Text style={themed.cardTitle}>{history[0].novel.title}</Text>
-            <Text style={themed.muted}>
-              Chương {history[0].chapter.chapterNumber}: {history[0].chapter.title}
-            </Text>
+            <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+              <BookCover
+                size="sm"
+                uri={latestHistory.novel.coverImageUrl}
+                title={latestHistory.novel.title}
+              />
+              <View style={{ flex: 1, gap: 4 }}>
+                <Text style={themed.cardTitle} numberOfLines={2}>
+                  {latestHistory.novel.title}
+                </Text>
+                <Text style={themed.muted} numberOfLines={2}>
+                  {formatChapterLabel(latestHistory.chapter.chapterNumber, latestHistory.chapter.title)}
+                </Text>
+              </View>
+            </View>
             <PrimaryButton
               label="Tiếp tục đọc"
-              onPress={() => onOpenChapter(history[0].chapterId)}
+              onPress={() => onOpenChapter(latestHistory.chapterId, latestHistory.novelId)}
             />
           </Card>
         </Section>
       ) : null}
 
-      <Section title="Tác phẩm mới cập nhật">
+      <View style={{ gap: 6 }}>
+        <Text accessibilityRole="header" style={themed.sectionTitle}>
+          Tác phẩm mới cập nhật
+        </Text>
         {loading ? (
           <View
             accessibilityRole="progressbar"
-            style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 4 }}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 2 }}
           >
             <ActivityIndicator size="small" color={palette.primaryMuted} />
             <Text accessibilityLiveRegion="polite" style={themed.muted}>
@@ -167,12 +215,46 @@ export function HomeScreen({
             </Text>
           </View>
         ) : null}
-        {!loading && !novels.length ? <EmptyState label="Chưa tìm thấy tác phẩm phù hợp." /> : null}
-        {novels.map((novel) => (
-          <NovelCard key={novel.novelId} novel={novel} onPress={() => onOpenNovel(novel.novelId)} />
-        ))}
-      </Section>
-    </Screen>
+      </View>
+    </View>
+  );
+
+  return (
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={themed.safeArea}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={themed.safeArea}
+      >
+        <FlatList
+          data={novels}
+          keyExtractor={(item) => item.novelId}
+          renderItem={({ item }) => (
+            <NovelCard novel={item} onPress={() => onOpenNovel(item.novelId)} />
+          )}
+          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          ListHeaderComponent={listHeader}
+          ListEmptyComponent={
+            !loading ? <EmptyState label="Chưa tìm thấy tác phẩm phù hợp." /> : null
+          }
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            paddingTop: 14,
+            paddingBottom: 28,
+            backgroundColor: palette.background
+          }}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={refresh}
+              tintColor={palette.primaryMuted}
+              colors={[palette.primary]}
+            />
+          }
+        />
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -188,25 +270,26 @@ export function NovelCard({ novel, onPress }: { novel: ReaderNovel; onPress: () 
       style={({ pressed }) => ({ opacity: pressed ? 0.88 : 1 })}
     >
       <Card>
-        <View style={{ gap: 4 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-            <Text style={[themed.muted, { flex: 1 }]} numberOfLines={1}>
-              {novel.authorName ? novel.authorName : 'Tác giả StoryCraft'}
+        <View style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
+          <BookCover size="md" uri={novel.coverImageUrl} title={novel.title} />
+          <View style={{ flex: 1, gap: 6, minHeight: 102, justifyContent: 'space-between' }}>
+            <View style={{ gap: 4 }}>
+              <Text style={[themed.cardTitle, { color: palette.text }]} numberOfLines={2}>
+                {novel.title}
+              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                {novel.genre ? <Badge label={novel.genre} tone="primary" /> : null}
+                <Text style={themed.muted} numberOfLines={1}>
+                  {novel.authorName ? novel.authorName : 'Tác giả StoryCraft'}
+                </Text>
+              </View>
+            </View>
+            <Text style={themed.muted}>
+              {(novel.chaptersCount ?? 0).toLocaleString('vi-VN')} chương ·{' '}
+              {(novel.viewsCount ?? 0).toLocaleString('vi-VN')} lượt đọc
             </Text>
-            {novel.genre ? <Badge label={novel.genre} tone="primary" /> : null}
           </View>
-          <Text style={[themed.cardTitle, { color: palette.text }]} numberOfLines={2}>
-            {novel.title}
-          </Text>
         </View>
-        {novel.synopsis ? (
-          <Text style={themed.muted} numberOfLines={2}>
-            {novel.synopsis}
-          </Text>
-        ) : null}
-        <Text style={themed.muted}>
-          {(novel.chaptersCount ?? 0).toLocaleString('vi-VN')} chương · {(novel.viewsCount ?? 0).toLocaleString('vi-VN')} lượt đọc · {(novel.likesCount ?? 0).toLocaleString('vi-VN')} thích
-        </Text>
       </Card>
     </Pressable>
   );

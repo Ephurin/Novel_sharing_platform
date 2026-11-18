@@ -16,12 +16,15 @@ export type ReaderNovel = {
   synopsis?: string;
   coverImageUrl?: string | null;
   genre?: string | null;
+  genres?: string[];
   tags?: string[];
   status?: string;
   serialStatus?: string;
   likesCount?: number;
   viewsCount?: number;
   chaptersCount?: number;
+  ratingAverage?: number | null;
+  ratingsCount?: number;
   updatedAt?: string;
 };
 
@@ -71,6 +74,10 @@ export type ReaderComment = {
   commentId: string;
   chapterId: string;
   userId: string;
+  displayName?: string | null;
+  username?: string | null;
+  avatarUrl?: string | null;
+  isAuthor?: boolean;
   paragraphOffset: number | null;
   content: string;
   status: string;

@@ -1,13 +1,14 @@
+import { ErrorState, LoadingState } from '../../shared/components/PageStates';
 import type { ApprovedMemory } from '../ai-copilot/author-memory-api';
 
 const types: Record<string, string> = { LOC: 'Địa danh', ORG: 'Tổ chức', ITEM: 'Vật phẩm', SKILL: 'Kỹ năng' };
 const textValue = (value: unknown) => typeof value === 'string' ? value : JSON.stringify(value);
 
-export function StoryBibleKnowledge({ memory, loading, failed, retry }: {
-  memory?: ApprovedMemory; loading: boolean; failed: boolean; retry: () => void;
+export function StoryBibleKnowledge({ memory, loading, failed, error, retry }: {
+  memory?: ApprovedMemory; loading: boolean; failed: boolean; error?: unknown; retry: () => void;
 }) {
-  if (loading) return <p role="status">Đang tải dữ kiện đã duyệt…</p>;
-  if (failed) return <p role="alert">Chưa tải được dữ kiện từ Story Brain. <button type="button" onClick={retry}>Thử lại</button></p>;
+  if (loading) return <LoadingState label="Đang tải dữ kiện đã duyệt…" variant="cards" />;
+  if (failed) return <ErrorState title="Chưa tải được dữ kiện từ Story Brain" error={error ?? new Error('Không thể tải dữ kiện đã duyệt.')} onRetry={retry} />;
   const entities = memory?.entities.filter(e => !['PER', 'CHARACTER', 'PERSON'].includes(e.entity_type.toUpperCase())) ?? [];
   const facts = memory?.facts ?? [];
   return <section className="space-y-5" aria-label="Địa danh và dữ kiện đã duyệt">

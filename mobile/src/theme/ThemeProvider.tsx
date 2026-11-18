@@ -1,38 +1,81 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
-import { Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { darkColors, lightColors, type StoryCraftPalette } from './colors';
 
 export type ThemeMode = 'system' | 'light' | 'dark';
+export type StoryCraftFontWeight = '400' | '500' | '600' | '700';
 
 type ThemeContextValue = {
   mode: ThemeMode;
   scheme: 'light' | 'dark';
   palette: StoryCraftPalette;
+  hydrated: boolean;
+  fontsLoaded: boolean;
   setMode: (next: ThemeMode) => void;
 };
 
 const THEME_STORAGE_KEY = 'storycraft_mobile_theme';
 
+export function resolveStoryCraftFontFamily(
+  weight: StoryCraftFontWeight,
+  fontsLoaded: boolean,
+  os: string = Platform.OS
+): string | undefined {
+  if (os === 'web') {
+    return '"Be Vietnam Pro", system-ui, -apple-system, sans-serif';
+  }
+  if (!fontsLoaded) {
+    return undefined;
+  }
+  switch (weight) {
+    case '700':
+      return 'BeVietnamPro_700Bold';
+    case '600':
+      return 'BeVietnamPro_600SemiBold';
+    case '500':
+      return 'BeVietnamPro_500Medium';
+    case '400':
+    default:
+      return 'BeVietnamPro_400Regular';
+  }
+}
+
 const ThemeContext = createContext<ThemeContextValue>({
   mode: 'system',
   scheme: 'light',
   palette: lightColors,
+  hydrated: true,
+  fontsLoaded: false,
   setMode: () => {}
 });
 
-export function StoryCraftThemeProvider({ children }: PropsWithChildren) {
+export function StoryCraftThemeProvider({
+  children,
+  fontsLoaded = false
+}: PropsWithChildren<{ fontsLoaded?: boolean }>) {
   const systemScheme = useColorScheme();
   const [mode, setModeState] = useState<ThemeMode>('system');
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    let active = true;
     AsyncStorage.getItem(THEME_STORAGE_KEY)
       .then((saved) => {
-        if (saved === 'light' || saved === 'dark' || saved === 'system') {
+        if (active && (saved === 'light' || saved === 'dark' || saved === 'system')) {
           setModeState(saved);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        if (active) {
+          setHydrated(true);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const setMode = useCallback((next: ThemeMode) => {
@@ -46,8 +89,8 @@ export function StoryCraftThemeProvider({ children }: PropsWithChildren) {
   const palette = scheme === 'dark' ? darkColors : lightColors;
 
   const value = useMemo<ThemeContextValue>(
-    () => ({ mode, scheme, palette, setMode }),
-    [mode, scheme, palette, setMode]
+    () => ({ mode, scheme, palette, hydrated, fontsLoaded, setMode }),
+    [mode, scheme, palette, hydrated, fontsLoaded, setMode]
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
@@ -64,7 +107,7 @@ const MODE_OPTIONS: Array<{ value: ThemeMode; label: string }> = [
 ];
 
 export function ThemeSegmentedPicker() {
-  const { mode, palette, setMode } = useStoryCraftTheme();
+  const { mode, palette, fontsLoaded, setMode } = useStoryCraftTheme();
 
   return (
     <View
@@ -88,7 +131,7 @@ export function ThemeSegmentedPicker() {
               pickerStyles.segment,
               active
                 ? {
-                    backgroundColor: palette.surface,
+                    backgroundColor: palette.surfaceElevated,
                     borderColor: palette.border
                   }
                 : null,
@@ -98,7 +141,10 @@ export function ThemeSegmentedPicker() {
             <Text
               style={[
                 pickerStyles.label,
-                { color: active ? palette.primaryMuted : palette.textMuted },
+                {
+                  color: active ? palette.primaryMuted : palette.textMuted,
+                  fontFamily: resolveStoryCraftFontFamily(active ? '600' : '500', fontsLoaded)
+                },
                 active ? pickerStyles.labelActive : null
               ]}
             >
@@ -122,6 +168,7 @@ const pickerStyles = StyleSheet.create({
   segment: {
     flex: 1,
     minHeight: 44,
+    minWidth: 44,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 8,
@@ -131,9 +178,10 @@ const pickerStyles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
-    fontWeight: '600'
+    lineHeight: 20,
+    fontWeight: '500'
   },
   labelActive: {
-    fontWeight: '700'
+    fontWeight: '600'
   }
 });

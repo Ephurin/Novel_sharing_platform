@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Alert, Button, PasswordInput, TextInput, Textarea } from '@mantine/core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AuthorTheme } from '../../shared/components/AuthorTheme';
+import { AuthorNavbar, AuthorTheme } from '../../shared/components/AuthorTheme';
 import { FeedbackReveal } from '../../shared/components/ActionFeedback';
 import { ThemeControl } from '../../shared/components/ThemeControl';
 import { apiClient } from '../../shared/api/api-client';
+import { useAuthStore } from '../auth/useAuthStore';
 import {
   AdminHeader,
   AdminPanel,
@@ -32,6 +33,7 @@ type Decision = {
   message?: string;
   resolution?: string;
 };
+
 async function accountApi<T>(path: string, token: string, body?: unknown): Promise<T> {
   const response = await fetch(`${apiClient.defaults.baseURL}/account${path}`, {
     method: body ? 'POST' : 'GET',
@@ -45,7 +47,9 @@ async function accountApi<T>(path: string, token: string, body?: unknown): Promi
   if (!response.ok) throw new Error(result.error?.message || 'Không thể thực hiện yêu cầu.');
   return result.data;
 }
+
 export function AccountAppealsPage() {
+  const user = useAuthStore((s) => s.user);
   const [token, setToken] = useState(
     () =>
       sessionStorage.getItem('storycraft_appeal_token') ||
@@ -57,12 +61,14 @@ export function AccountAppealsPage() {
   const [selected, setSelected] = useState<Decision | null>(null);
   const [message, setMessage] = useState('');
   const cache = useQueryClient();
+
   const query = useQuery({
     queryKey: ['account-decisions', token],
     queryFn: () => accountApi<Decision[]>('/decisions', token),
     enabled: !!token,
     retry: false
   });
+
   const login = useMutation({
     mutationFn: () =>
       accountApi<{ token: string }>('/appeal-session', '', { identifier, password }),
@@ -72,6 +78,7 @@ export function AccountAppealsPage() {
       setPassword('');
     }
   });
+
   const appeal = useMutation({
     mutationFn: () => accountApi('/appeals', token, { auditId: selected!.audit_id, message }),
     onSuccess: async () => {
@@ -79,27 +86,40 @@ export function AccountAppealsPage() {
       await cache.invalidateQueries({ queryKey: ['account-decisions'] });
     }
   });
+
+  const messageError =
+    message.length > 0 && message.trim().length < 10
+      ? 'Vui lòng nhập ít nhất 10 ký tự.'
+      : undefined;
+
   return (
     <AuthorTheme>
+      {user && <AuthorNavbar />}
       <div className="admin-shell admin-appeal-portal">
-        <div className="admin-actions">
-          <Button component={Link} to="/" variant="subtle">
-            ← StoryCraft
-          </Button>
-          <ThemeControl />
-          {token && (
-            <Button
-              variant="default"
-              onClick={() => {
-                sessionStorage.removeItem('storycraft_appeal_token');
-                setToken('');
-                cache.removeQueries({ queryKey: ['account-decisions'] });
-              }}
-            >
-              Đổi tài khoản
-            </Button>
-          )}
-        </div>
+        {(!user || token) && (
+          <div className="admin-actions" style={{ marginBottom: 16 }}>
+            {!user && (
+              <>
+                <Button component={Link} to="/" variant="subtle">
+                  ← StoryCraft
+                </Button>
+                <ThemeControl />
+              </>
+            )}
+            {token && (
+              <Button
+                variant="default"
+                onClick={() => {
+                  sessionStorage.removeItem('storycraft_appeal_token');
+                  setToken('');
+                  cache.removeQueries({ queryKey: ['account-decisions'] });
+                }}
+              >
+                Đổi tài khoản
+              </Button>
+            )}
+          </div>
+        )}
         <AdminHeader
           title="Quyết định & khiếu nại"
           description="Xem lý do xử lý và gửi đề nghị xem xét lại. Tài khoản bị khóa vẫn có thể truy cập trang này."
@@ -150,41 +170,44 @@ export function AccountAppealsPage() {
             )}
             {query.data?.map((item) => (
               <FeedbackReveal key={item.audit_id}>
-              <AdminPanel>
-                <div className="admin-page-header">
-                  <h2>
-                    {labels[item.action] || item.action} ·{' '}
-                    {labels[item.target_type] || item.target_type}
-                  </h2>
-                  <span>{item.active ? 'Còn hiệu lực' : 'Đã thu hồi'}</span>
-                </div>
-                <p className="admin-muted">{dateTime(item.created_at)}</p>
-                <p className="admin-prose">{item.reason}</p>
-                <AdminId value={item.target_id} label="mã đối tượng" />
-                {item.appeal_id ? (
-                  <>
-                    <p>
-                      Khiếu nại: <Status value={item.appeal_status || 'OPEN'} />
-                    </p>
-                    <p className="admin-prose">{item.message}</p>
-                    {item.resolution && <p>Kết quả: {item.resolution}</p>}
-                  </>
-                ) : (
-                  item.active && (
-                    <Button
-                      mt="md"
-                      variant="default"
-                      onClick={() => {
-                        appeal.reset();
-                        setMessage('');
-                        setSelected(item);
-                      }}
-                    >
-                      Gửi khiếu nại
-                    </Button>
-                  )
-                )}
-              </AdminPanel>
+                <AdminPanel>
+                  <div className="admin-page-header">
+                    <h2>
+                      {labels[item.action] || item.action} ·{' '}
+                      {labels[item.target_type] || item.target_type}
+                    </h2>
+                    <Status
+                      value={item.active ? (item.action === 'WARN' ? 'PENDING' : 'LOCKED') : 'ACTIVE'}
+                      label={item.active ? 'Còn hiệu lực' : 'Đã thu hồi'}
+                    />
+                  </div>
+                  <p className="admin-muted">{dateTime(item.created_at)}</p>
+                  <p className="admin-prose">{item.reason}</p>
+                  <AdminId value={item.target_id} label="mã đối tượng" />
+                  {item.appeal_id ? (
+                    <>
+                      <p>
+                        Khiếu nại: <Status value={item.appeal_status || 'OPEN'} />
+                      </p>
+                      <p className="admin-prose">{item.message}</p>
+                      {item.resolution && <p>Kết quả: {item.resolution}</p>}
+                    </>
+                  ) : (
+                    item.active && (
+                      <Button
+                        mt="md"
+                        variant="default"
+                        onClick={() => {
+                          appeal.reset();
+                          setMessage('');
+                          setSelected(item);
+                        }}
+                      >
+                        Gửi khiếu nại
+                      </Button>
+                    )
+                  )}
+                </AdminPanel>
               </FeedbackReveal>
             ))}
           </>
@@ -205,15 +228,13 @@ export function AccountAppealsPage() {
           <Textarea
             label="Nội dung khiếu nại"
             description="Tối thiểu 10 ký tự. Trình bày lý do và bằng chứng liên quan."
+            error={messageError}
             minRows={5}
             minLength={10}
             maxLength={4000}
             value={message}
             onChange={(e) => setMessage(e.currentTarget.value)}
           />
-          {message.length > 0 && message.trim().length < 10 && (
-            <p role="status">Vui lòng nhập ít nhất 10 ký tự.</p>
-          )}
         </AdminConfirm>
       </div>
     </AuthorTheme>
