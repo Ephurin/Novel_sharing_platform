@@ -5,6 +5,9 @@
 > **Vị trí lưu tài liệu:** nhánh `backup-remote-mixed`; nhánh lưu trữ **không** được sử dụng làm căn cứ kết luận về các tính năng đã triển khai.  
 > **Quy ước:** Sơ đồ được viết bằng Mermaid để có thể xem ngay trên GitHub hoặc xuất SVG/PNG. Các biểu đồ lớp và ERD thể hiện **mô hình phân tích đã giản lược**, không sao chép tất cả trường dữ liệu. Phân hệ AI chỉ được mô tả theo những thành phần/API kiểm tra được trong `main`. Những liên kết chức năng thể hiện quan hệ nghiệp vụ, không mặc nhiên là khóa ngoại vật lý.
 
+
+> **Xem sơ đồ riêng khi GitHub báo “Unable to render rich display”:** [Kiến trúc và Use Case](./chuong-3-so-do/01-kien-truc-use-case.md) · [Biểu đồ lớp](./chuong-3-so-do/02-bieu-do-lop.md) · [Sơ đồ ERD](./chuong-3-so-do/03-erd.md) · [Biểu đồ tuần tự](./chuong-3-so-do/04-bieu-do-tuan-tu.md) · [Hoạt động, trạng thái và triển khai](./chuong-3-so-do/05-hoat-dong-trang-thai-trien-khai.md). Các sơ đồ trong file chính vẫn giữ nguyên dạng mã Mermaid và đã được chuẩn hóa. 
+
 ## 3.1. Kiến trúc tổng thể hệ thống
 
 ### 3.1.1. Phạm vi phân tích và nguyên tắc thiết kế
@@ -42,13 +45,13 @@ flowchart TB
     subgraph AI["Dịch vụ AI Python / FastAPI"]
         NARR["Narrative / Story Brain"]
         GENERATE["Writing / Analysis / Context"]
-        PROVIDER["LLM và Embedding Provider"]
     end
     subgraph Storage["Tầng dữ liệu"]
         PG[("PostgreSQL")]
         MONGO[("MongoDB")]
         NVEC[("PostgreSQL narrative + pgvector")]
     end
+    PROVIDER["LLM và Embedding Provider ngoài hệ thống"]
     Guest --> WEB
     Reader --> MOBILE
     Reader --> WEB
@@ -106,24 +109,28 @@ Mã nguồn backend chia thành các nhóm module: `auth`, `users`, `novels`, `r
 
 ```mermaid
 flowchart LR
-    G["Guest"] --> C1(["Tìm kiếm và xem truyện"])
-    R["Reader"] --> C2(["Đọc và lưu tiến độ"])
-    R --> C3(["Tương tác cộng đồng"])
-    R --> C4(["Dùng ví Coin mô phỏng"])
-    A["Author"] --> C5(["Quản lý tác phẩm và chương"])
-    A --> C6(["Sáng tác và dùng AI Copilot"])
-    AD["Admin"] --> C7(["Quản lý tài khoản"])
-    AD --> C8(["Kiểm duyệt nội dung"])
+    G["Guest"]
+    R["Reader"]
+    A["Author"]
+    AD["Admin"]
     subgraph E["Hệ thống Ephurin"]
-      C1
-      C2
-      C3
-      C4
-      C5
-      C6
-      C7
-      C8
+        C1(["Tìm kiếm và xem truyện"])
+        C2(["Đọc và lưu tiến độ"])
+        C3(["Tương tác cộng đồng"])
+        C4(["Dùng ví Coin mô phỏng"])
+        C5(["Quản lý tác phẩm và chương"])
+        C6(["Sáng tác và dùng AI Copilot"])
+        C7(["Quản lý tài khoản"])
+        C8(["Kiểm duyệt nội dung"])
     end
+    G --> C1
+    R --> C2
+    R --> C3
+    R --> C4
+    A --> C5
+    A --> C6
+    AD --> C7
+    AD --> C8
 ```
 
 *Hình 3.2. Biểu đồ ca sử dụng tổng quát.*
@@ -516,7 +523,7 @@ erDiagram
       varchar status
     }
     USER_PROFILES {
-      uuid user_id PK,FK
+      uuid user_id PK, FK
       varchar display_name
       text avatar_url
     }
@@ -788,7 +795,9 @@ sequenceDiagram
     API->>S: updateChapter()
     S->>PG: Kiểm tra truyện và quyền sở hữu
     S->>MO: Ghi draft và phiên bản
-    MO-->>UI: Kết quả qua API
+    MO-->>S: Phiên bản bản thảo đã lưu
+    S-->>API: Kết quả cập nhật chương
+    API-->>UI: Xác nhận lưu bản thảo
     A->>UI: Gửi công bố
     UI->>API: POST submit-publish
     API->>S: submitChapterPublish()
