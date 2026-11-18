@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useDebouncedValue } from '@mantine/hooks';
 import { Popover } from '@animate-ui/react/primitives/radix-ui/popover';
@@ -9,6 +9,7 @@ export function HomeSearch({ catalogPath }: { catalogPath: string }) {
   const navigate = useNavigate();
   const client = useQueryClient();
   const listId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState('');
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
@@ -33,10 +34,10 @@ export function HomeSearch({ catalogPath }: { catalogPath: string }) {
     <form className="sc-home-search-form" role="search" onSubmit={event => {
       event.preventDefault(); setOpen(false); navigate(allPath);
     }}>
-      <label className="text-form-label" htmlFor={`${listId}-input`}>Tìm truyện</label>
+      <label className="sc-home-sr-only" htmlFor={`${listId}-input`}>Tìm truyện trên trang chủ</label>
       <Popover.Anchor asChild><div className="sc-home-search">
         <span className="material-symbols-outlined" aria-hidden="true">search</span>
-        <input id={`${listId}-input`} role="combobox" aria-label="Tìm truyện trên trang chủ" aria-autocomplete="list"
+        <input ref={inputRef} id={`${listId}-input`} role="combobox" aria-autocomplete="list"
           aria-expanded={expanded} aria-controls={expanded ? listId : undefined}
           aria-activedescendant={expanded && selected >= 0 ? `${listId}-${selected}` : undefined}
           autoComplete="off" placeholder="Bạn muốn đọc truyện gì?" value={value}
@@ -55,7 +56,10 @@ export function HomeSearch({ catalogPath }: { catalogPath: string }) {
               event.preventDefault(); setOpen(false); navigate(`${catalogPath}/novels/${items[selected].novelId}`);
             }
           }} />
-        <button type="submit" aria-label="Tìm truyện"><span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span></button>
+        {value.length > 0 && <button type="button" className="sc-home-search-clear" aria-label="Xóa từ khóa tìm kiếm" onClick={() => {
+          setValue(''); setActive(-1); setOpen(false); inputRef.current?.focus();
+        }}><span className="material-symbols-outlined" aria-hidden="true">close</span></button>}
+        <button type="submit" className="sc-home-search-submit" aria-label="Tìm truyện"><span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span></button>
       </div></Popover.Anchor>
     </form>
     <Popover.Portal><Popover.Content className="sc-home-search-results" role="presentation" align="end" sideOffset={8} collisionPadding={16}

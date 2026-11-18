@@ -100,7 +100,7 @@ test('a failed later bookmark page cannot offer an incorrect save and can be ret
   const drawer = page.getByRole('dialog', { name: 'Bookmark', exact: true });
   await expect(drawer.getByRole('alert')).toContainText('Không tải được trang bookmark tiếp theo.');
   fail = false;
-  await drawer.getByRole('button', { name: 'Retry', exact: true }).click();
+  await drawer.getByRole('button', { name: 'Thử lại', exact: true }).click();
   await expect(drawer.locator('.sc-reading-bookmark-entry')).toHaveCount(51);
   await drawer.getByRole('button', { name: 'Đóng hộp thoại', exact: true }).click();
   await page.locator('.chapter-prose > p').nth(50).click({ position: { x: 8, y: 8 } });

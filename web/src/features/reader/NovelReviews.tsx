@@ -32,26 +32,22 @@ export function NovelReviews({ novelId, compact = false }: { novelId: string; co
   return <Stack gap="lg">
     {!compact && reviews.data && <section className="sc-review-summary" aria-label="Tổng quan đánh giá">
       <div className="sc-review-summary-score">
-        <strong>{formatted}</strong>
-        <div className="sc-review-scale" aria-hidden="true">
-          {Array.from({ length: 10 }, (_, index) => <span key={index} className={available && index < Math.round(average) ? 'is-filled' : ''} />)}
-        </div>
-        <Text size="sm" c="dimmed">{reviews.data.totalItems.toLocaleString('vi-VN')} nhận xét có điểm</Text>
+        <strong>{available ? `${formatted}/10` : formatted}</strong>
+        <Text size="sm" c="dimmed" mt={4}>{reviews.data.totalItems.toLocaleString('vi-VN')} nhận xét có điểm</Text>
       </div>
       <div className="sc-review-summary-meter">
         <Text size="sm" mb="xs">Điểm trung bình của nhận xét có nội dung</Text>
         {available ? <progress className="sc-review-progress" max={10} value={average} aria-label="Điểm trung bình của nhận xét có nội dung trên thang 10" /> : <Text c="dimmed" size="sm">Chưa có điểm trung bình.</Text>}
-        {available && <Text size="sm" c="dimmed" mt="xs">{formatted}/10</Text>}
       </div>
     </section>}
     <section aria-labelledby="reader-reviews-heading" aria-busy={reviews.isFetching}>
       <Group justify="space-between" mb="md" className="sc-reviews-list-heading">
-        <h2 id="reader-reviews-heading" className="text-section">{compact ? 'Đánh giá mới' : 'Nhận xét của độc giả'}</h2>
-        <Select aria-label="Sắp xếp đánh giá" data={sortOptions} value={sort} allowDeselect={false}
+        <h2 id="reader-reviews-heading" className="text-section-title">{compact ? 'Đánh giá mới' : 'Nhận xét của độc giả'}</h2>
+        <Select aria-label="Sắp xếp đánh giá" data={sortOptions} value={sort} allowDeselect={false} comboboxProps={{ withinPortal: false }}
           onChange={value => { if (value) { setSort(value as ReviewSort); setPage(1); } }} w={170} />
       </Group>
       {reviews.isPending && <div role="status"><LoadingState label="Đang tải đánh giá…" /></div>}
-      {reviews.isError && <ErrorState title="Không tải được đánh giá" error={reviews.error} onRetry={() => void reviews.refetch()} />}
+      {reviews.isError && <ErrorState title="Không tải được đánh giá" retryLabel="Thử lại" error={reviews.error} onRetry={() => void reviews.refetch()} />}
       {reviews.data?.totalItems === 0 && <EmptyState title="Chưa có đánh giá" description="Nhận xét của độc giả sẽ xuất hiện tại đây." />}
       {reviews.data && <ResultsSurface identity={`${novelId}-${sort}-${page}`} busy={reviews.isFetching}><Stack gap="md">
         {reviews.data.items.map(item => <article key={item.userId} className="sc-reader-review" aria-label={`Đánh giá của ${item.displayName}`}>
@@ -66,7 +62,7 @@ export function NovelReviews({ novelId, compact = false }: { novelId: string; co
           <Text className="sc-reader-review-content">{item.review}</Text>
         </article>)}
         {reviews.data.totalPages > 1 && <Group justify="center" mt="sm">
-          <Pagination total={reviews.data.totalPages} value={page} onChange={setPage} size="sm" siblings={0} boundaries={1}
+          <Pagination total={reviews.data.totalPages} value={page} onChange={setPage} siblings={0} boundaries={1}
             getItemProps={item => ({ 'aria-label': `Trang ${item}` })} />
         </Group>}
       </Stack></ResultsSurface>}
