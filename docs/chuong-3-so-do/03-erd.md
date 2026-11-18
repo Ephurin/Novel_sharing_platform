@@ -80,7 +80,7 @@ erDiagram
     NOVELS ||--o{ PLOT_SUMMARIES : summarizes
 ```
 
-*Hình 3.10. ERD nhóm tài khoản, truyện, chương và ngữ cảnh do tác giả quản lý.*
+*Hình 3.15. ERD nhóm tài khoản, truyện, chương và ngữ cảnh do tác giả quản lý.*
 
 ## 3.4.3. ERD đọc truyện, tương tác và ví Coin
 
@@ -150,7 +150,7 @@ erDiagram
     TRANSACTIONS ||--o| CHAPTER_UNLOCKS : evidences
 ```
 
-*Hình 3.11. ERD nhóm đọc truyện, theo dõi, đánh giá và ví Coin.*
+*Hình 3.16. ERD nhóm đọc truyện, theo dõi, đánh giá và ví Coin.*
 
 ## 3.4.4. ERD dữ liệu Narrative Memory
 
@@ -215,5 +215,5 @@ erDiagram
     MEMORY_CHUNKS ||--o{ MEMORY_EMBEDDINGS : vectorizes
 ```
 
-*Hình 3.12. ERD tổng quan của schema Narrative Memory.*
+*Hình 3.17. ERD tổng quan của schema Narrative Memory.*
 
