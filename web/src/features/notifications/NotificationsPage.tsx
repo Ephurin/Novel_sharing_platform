@@ -40,7 +40,7 @@ export function NotificationsPage() {
   });
   const markAll = useMutation({
     mutationFn: () => markAllNotificationsRead(query.data?.data ?? []),
-    onSuccess: () => cache.invalidateQueries({ queryKey: ['notifications'] })
+    onSettled: () => cache.invalidateQueries({ queryKey: ['notifications'] })
   });
 
   const hasUnread =

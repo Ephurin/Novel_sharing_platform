@@ -5,14 +5,14 @@ import {
   BeVietnamPro_700Bold,
   useFonts
 } from '@expo-google-fonts/be-vietnam-pro';
-import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, NavigationContainer, useFocusEffect } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { listNotifications } from './src/api/notification-api';
+import { getUnreadNotificationCount } from './src/api/notification-api';
 import type { CurrentUser } from './src/api/types';
 import { AppIcon } from './src/components/Icons';
 import { Card, PrimaryButton, Screen, useScreenStyles } from './src/components/Screen';
@@ -255,31 +255,46 @@ function MainTabs({
   const insets = useSafeAreaInsets();
   const bottomPad = Math.max(insets.bottom, 6);
   const [unreadCount, setUnreadCount] = useState(0);
+  const unreadRequestSeqRef = useRef(0);
+  const authenticatedRef = useRef(authenticated);
+  authenticatedRef.current = authenticated;
 
-  useEffect(() => {
-    if (!authenticated) {
+  const refreshUnreadCount = useCallback(async () => {
+    const seq = ++unreadRequestSeqRef.current;
+    if (!authenticatedRef.current) {
       setUnreadCount(0);
       return;
     }
-    let active = true;
-    listNotifications()
-      .then((items) => {
-        if (active) {
-          setUnreadCount(items.filter((item) => item.status === 'UNREAD').length);
-        }
-      })
-      .catch(() => {});
+    try {
+      const totalUnread = await getUnreadNotificationCount();
+      if (authenticatedRef.current && seq === unreadRequestSeqRef.current) {
+        setUnreadCount(totalUnread);
+      }
+    } catch {
+      // Preserve existing badge count on transient errors.
+    }
+  }, []);
 
-    return () => {
-      active = false;
-    };
-  }, [authenticated]);
+  useEffect(() => {
+    void refreshUnreadCount();
+  }, [authenticated, refreshUnreadCount]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void refreshUnreadCount();
+    }, [refreshUnreadCount])
+  );
 
   const tabFont = resolveStoryCraftFontFamily('600', fontsLoaded);
   const headerFont = resolveStoryCraftFontFamily('600', fontsLoaded);
 
   return (
     <Tabs.Navigator
+      screenListeners={{
+        focus: () => {
+          void refreshUnreadCount();
+        }
+      }}
       screenOptions={{
         headerStyle: { backgroundColor: palette.surface },
         headerTintColor: palette.text,

@@ -19,9 +19,13 @@ export function ReadingBookmarksList({ novelId, base = '/reader', onOpen }: { no
     {showUndo && <div className="sc-reading-bookmark-undo" role="status">
       <span>Đã xóa bookmark khỏi {undoEntry.novelTitle}.</span>
       <button type="button" className="sc-button sc-button-soft" disabled={bookmarks.saving} onClick={() => {
-        const { bookmarkId: _id, updatedAt: _at, ...draft } = undoEntry;
-        setUndoEntry(null);
-        bookmarks.save(draft);
+        const target = undoEntry;
+        const { bookmarkId: _id, updatedAt: _at, ...draft } = target;
+        void bookmarks.save(draft).then((restored) => {
+          if (restored) {
+            setUndoEntry((prev) => (prev?.bookmarkId === target.bookmarkId ? null : prev));
+          }
+        });
       }}>Hoàn tác</button>
     </div>}
     {!bookmarks.pending && !bookmarks.error && !bookmarks.items.length && <EmptyState title="Chưa có bookmark" description="Bấm vào một dòng khi đọc để lưu bookmark." />}
@@ -42,7 +46,11 @@ export function ReadingBookmarksList({ novelId, base = '/reader', onOpen }: { no
           </Link>
           <ActionIcon variant="light" color="red" size={36} className="sc-reading-bookmark-remove" disabled={bookmarks.saving}
             title="Xóa bookmark" aria-label={`Xóa bookmark ${item.chapterNumber ? `chương ${item.chapterNumber}, ` : ''}${item.excerpt || `đoạn ${item.paragraphIndex + 1}`}`}
-            onClick={() => { setUndoEntry(item); bookmarks.remove(item.bookmarkId); }}><span className="material-symbols-outlined" aria-hidden="true">close</span></ActionIcon>
+            onClick={() => {
+              void bookmarks.remove(item.bookmarkId).then((removed) => {
+                if (removed) setUndoEntry(item);
+              });
+            }}><span className="material-symbols-outlined" aria-hidden="true">close</span></ActionIcon>
         </div>; })}</Stack></Accordion.Panel>
       </Accordion.Item>)}
     </Accordion>}

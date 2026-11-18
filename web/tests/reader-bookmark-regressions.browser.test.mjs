@@ -19,7 +19,7 @@ const savedBookmarks = () => paragraphs.slice(0, 51).map((excerpt, paragraphInde
   chapterTitle: 'Chương 1: Gió mới', chapterNumber: 1, updatedAt: '2026-11-17T00:00:00Z', coverImageUrl: null
 }));
 
-async function fixture(t, { role = 'READER', width = 1440, theme = 'light', background = 'LIGHT', contents = [paragraphs.join('\n\n')], items = [], pageTwo, legacyBookmark, initialSearch = '' } = {}) {
+async function fixture(t, { role = 'READER', width = 1440, theme = 'light', background = 'LIGHT', contents = [paragraphs.join('\n\n')], items = [], pageTwo, failSave, legacyBookmark, initialSearch = '' } = {}) {
   const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
   t.after(() => context.close());
   const page = await context.newPage(), errors = [], requests = [], writes = [];
@@ -53,8 +53,19 @@ async function fixture(t, { role = 'READER', width = 1440, theme = 'light', back
       writes.push({ method, id }); items = items.filter(item => item.bookmarkId !== id);
       return route.fulfill({ status: 204 });
     } else if (url.pathname.endsWith('/reading/bookmark-entries/me') && method === 'POST') {
-      const input = route.request().postDataJSON(); writes.push({ method, input }); data = { bookmarkId: 'new-bookmark' };
-      items.push({ ...input, ...data, updatedAt: new Date().toISOString() });
+      const input = route.request().postDataJSON(); writes.push({ method, input });
+      if (failSave?.()) return route.fulfill({ status: 500, json: { success: false, error: { message: 'Không thể khôi phục bookmark lúc này.' } } });
+      data = { bookmarkId: 'new-bookmark' };
+      const chapter = chapters.find(item => item.chapterId === input.chapterId);
+      items.push({
+        novelTitle: 'Truyện thử',
+        chapterTitle: chapter?.title ?? 'Chương 1: Gió mới',
+        chapterNumber: chapter?.chapterNumber ?? 1,
+        coverImageUrl: null,
+        ...input,
+        ...data,
+        updatedAt: new Date().toISOString()
+      });
     }
     await route.fulfill({ json: { success: true, data, meta } });
   });
@@ -281,4 +292,55 @@ test('bookmark-remove icon maintains WCAG contrast across app theme and reader p
     });
     assert.ok(ratio >= 4.5, `${theme}/${background} bookmark_remove contrast is ${ratio.toFixed(2)}:1`);
   }
+});
+
+test('failed bookmark undo retains the retry affordance until restoration succeeds', async t => {
+  let shouldFailSave = true;
+  const initialItem = savedBookmarks()[0];
+  const { page, writes } = await fixture(t, {
+    items: [initialItem],
+    failSave: () => shouldFailSave
+  });
+  await page.goto(`${base}/reader/bookmarks?novelId=novel-1`);
+  const removeBtn = page.getByRole('button', { name: /^Xóa bookmark/ });
+  await expect(removeBtn).toBeVisible();
+  await removeBtn.click();
+
+  const undoBanner = page.locator('.sc-reading-bookmark-undo');
+  const undoBtn = page.getByRole('button', { name: 'Hoàn tác', exact: true });
+  await expect(undoBanner).toBeVisible();
+  await expect(undoBtn).toBeVisible();
+
+  await undoBtn.click();
+  await expect(page.locator('.sc-toast[data-tone="error"]')).toContainText('Không thể khôi phục bookmark lúc này.');
+  await expect(undoBanner).toBeVisible();
+  await expect(undoBtn).toBeEnabled();
+
+  shouldFailSave = false;
+  await undoBtn.click();
+  await expect(page.locator('.sc-reading-bookmark-entry')).toHaveCount(1);
+  await expect(undoBanner).toHaveCount(0);
+  assert.equal(writes.filter((w) => w.method === 'POST').length, 2);
+
+  // Guest mode storage write failure should also preserve Undo until retry succeeds
+  const guest = await fixture(t, { role: 'GUEST', items: [initialItem] });
+  await guest.page.goto(`${base}/public/bookmarks?novelId=novel-1`);
+  await guest.page.getByRole('button', { name: /^Xóa bookmark/ }).click();
+  const guestUndoBanner = guest.page.locator('.sc-reading-bookmark-undo');
+  const guestUndoBtn = guest.page.getByRole('button', { name: 'Hoàn tác', exact: true });
+  await expect(guestUndoBanner).toBeVisible();
+  await guest.page.evaluate(() => {
+    window.__origSetItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = () => { throw new Error('QuotaExceededError'); };
+  });
+  await guestUndoBtn.click();
+  await expect(guest.page.locator('.sc-toast[data-tone="error"]')).toContainText('Không lưu được bookmark');
+  await expect(guestUndoBanner).toBeVisible();
+  await expect(guestUndoBtn).toBeEnabled();
+  await guest.page.evaluate(() => {
+    Storage.prototype.setItem = window.__origSetItem;
+  });
+  await guestUndoBtn.click();
+  await expect(guest.page.locator('.sc-reading-bookmark-entry')).toHaveCount(1);
+  await expect(guestUndoBanner).toHaveCount(0);
 });

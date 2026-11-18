@@ -250,14 +250,30 @@ async function buildBundle() {
     import { WalletScreen } from './src/screens/WalletScreen';
     import { ProfileScreen } from './src/screens/ProfileScreen';
     import { NotificationsScreen } from './src/screens/NotificationsScreen';
+    import {
+      fetchUnreadNotificationCount,
+      getUnreadNotificationCount,
+      listNotificationsPage,
+      markAllNotificationsRead
+    } from './src/api/notification-api';
     import { lightColors } from './src/theme/colors';
 
-    window.__helpers = { resolveMobileReaderFontFamily, resolveReaderPaperTone, lightPalette: lightColors, ApiClientError };
+    window.__helpers = {
+      resolveMobileReaderFontFamily,
+      resolveReaderPaperTone,
+      lightPalette: lightColors,
+      ApiClientError,
+      fetchUnreadNotificationCount,
+      getUnreadNotificationCount,
+      listNotificationsPage,
+      markAllNotificationsRead
+    };
     window.__capturedRequests = [];
     window.__mockHandlers = {};
     window.__walletOpenedCount = 0;
     window.__openedNovels = [];
     window.__openedChapters = [];
+    window.__unreadCountHistory = [];
 
     apiClient.defaults.adapter = async (config) => {
       const method = (config.method || 'get').toUpperCase();
@@ -280,9 +296,13 @@ async function buildBundle() {
       if (!handler) {
         throw new Error('Unhandled mock request: ' + key);
       }
-      const data = await handler(parsedBody, config, record);
+      const result = await handler(parsedBody, config, record);
+      const isEnvelope =
+        result && typeof result === 'object' && !Array.isArray(result) && result.__envelope === true;
+      const data = isEnvelope ? result.data : result;
+      const meta = isEnvelope ? (result.meta ?? {}) : {};
       return {
-        data: { success: true, data, error: null, meta: {} },
+        data: { success: true, data, error: null, meta },
         status: 200,
         statusText: 'OK',
         headers: {},
@@ -364,7 +384,15 @@ async function buildBundle() {
       mountElement(React.createElement(CommentsScreen, { chapterId, authenticated: true, onLoginRequired: () => {} }));
     window.__mountWallet = () => mountElement(React.createElement(WalletScreen));
     window.__mountProfile = () => mountElement(React.createElement(ProfileScreen, { onLogout: () => {} }));
-    window.__mountNotifications = () => mountElement(React.createElement(NotificationsScreen));
+    window.__mountNotifications = (props = {}) =>
+      mountElement(
+        React.createElement(NotificationsScreen, {
+          onUnreadCountChange: (count) => {
+            window.__unreadCountHistory.push(count);
+          },
+          ...props
+        })
+      );
   `;
 
   const result = await esbuild.build({
@@ -653,9 +681,123 @@ test('Mobile Reader, Wallet, Profile, and Notifications screens satisfy backend 
     await page.getByRole('button', { name: 'Đánh dấu đã đọc' }).first().click();
     await expect(page.getByText('Đã đọc', { exact: true })).toBeVisible();
     const getNotifCount = await page.evaluate(
-      () => window.__capturedRequests.filter((r) => r.method === 'GET' && r.url === '/notifications').length
+      () => window.__capturedRequests.filter((r) => r.method === 'GET' && r.url === '/notifications' && !r.params?.status).length
     );
     assert.equal(getNotifCount, 1, 'Marking notification read must update in-place without refetching/unmounting list');
+
+    // 4b. Verify mobile notification count & mark-all across 31+ items (top 30 READ, #31..65 UNREAD, 99+ cap, partial failure reconciliation)
+    await page.evaluate(() => {
+      window.__capturedRequests = [];
+      window.__unreadCountHistory = [];
+      const store = [
+        ...Array.from({ length: 30 }, (_, index) => ({
+          notificationId: `m-read-${index + 1}`,
+          type: 'NOVEL_CHAPTER_PUBLISHED',
+          title: `Thông báo đã đọc #${index + 1}`,
+          content: `Nội dung cũ #${index + 1}`,
+          status: 'READ',
+          createdAt: new Date(Date.UTC(2026, 10, 18, 12, 0, index)).toISOString(),
+          readAt: '2026-11-18T12:00:00.000Z'
+        })),
+        ...Array.from({ length: 35 }, (_, index) => ({
+          notificationId: `m-unread-${index + 1}`,
+          type: 'COMMENT_REPLY',
+          title: `Thông báo chưa đọc #${index + 1}`,
+          content: `Bình luận mới #${index + 1}`,
+          status: 'UNREAD',
+          createdAt: new Date(Date.UTC(2026, 10, 17, 12, 0, index)).toISOString(),
+          readAt: null
+        }))
+      ];
+      const failingPatchIds = new Set(['m-unread-1', 'm-unread-35']);
+      window.__failingPatchIds = failingPatchIds;
+      window.__notifStore = store;
+
+      window.__mockHandlers = {
+        'GET /notifications': (_body, config) => {
+          const status = config.params?.status;
+          const pageNum = Number(config.params?.page ?? 1);
+          const limit = Number(config.params?.limit ?? 30);
+          const filtered = status ? store.filter((item) => item.status === status) : store;
+          const items = filtered.slice((pageNum - 1) * limit, pageNum * limit);
+          return {
+            __envelope: true,
+            data: items,
+            meta: {
+              page: pageNum,
+              limit,
+              totalItems: filtered.length,
+              totalPages: Math.max(1, Math.ceil(filtered.length / limit))
+            }
+          };
+        }
+      };
+      for (const item of store) {
+        window.__mockHandlers[`PATCH /notifications/${item.notificationId}/read`] = () => {
+          if (failingPatchIds.has(item.notificationId)) {
+            throw new window.__helpers.ApiClientError({
+              status: 500,
+              code: 'INTERNAL_ERROR',
+              message: `Không thể cập nhật ${item.notificationId}`
+            });
+          }
+          item.status = 'READ';
+          item.readAt = '2026-11-18T14:00:00.000Z';
+          return { ...item };
+        };
+      }
+      window.__mountNotifications();
+    });
+
+    await expect(page.getByText('35 thông báo chưa đọc')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Đánh dấu tất cả đã đọc' })).toBeVisible();
+    assert.equal(await page.evaluate(() => window.__unreadCountHistory.at(-1)), 35);
+
+    // Load page 2 so m-unread-1..5 appear on screen, then trigger Mark All Read with 2 failing PATCHes
+    await page.getByRole('button', { name: 'Xem thêm thông báo' }).click();
+    await expect(page.getByText('Thông báo chưa đọc #1', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Đánh dấu tất cả đã đọc' }).click();
+
+    // 33 succeeded items update to 'Đã đọc', badge & header reconcile to 2, and error banner displays
+    await expect(page.getByText('2 thông báo chưa đọc', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Đánh dấu đã đọc', exact: true })).toHaveCount(1);
+    assert.equal(await page.evaluate(() => window.__unreadCountHistory.at(-1)), 2);
+    await expect(page.getByText(/không thể cập nhật 2\/35 thông báo/i)).toBeVisible();
+    const remainingUnread = await page.evaluate(
+      () => window.__notifStore.filter((item) => item.status === 'UNREAD').map((item) => item.notificationId)
+    );
+    assert.deepEqual(remainingUnread, ['m-unread-1', 'm-unread-35']);
+
+    // Retry Mark All Read after transient error clears -> patches only the 2 remaining items and brings unread count to 0
+    await page.evaluate(() => {
+      window.__capturedRequests = [];
+      window.__failingPatchIds.clear();
+    });
+    await page.getByRole('button', { name: 'Đánh dấu tất cả đã đọc' }).click();
+    await expect(page.getByText('2 thông báo chưa đọc')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Đánh dấu tất cả đã đọc' })).toHaveCount(0);
+    assert.equal(await page.evaluate(() => window.__unreadCountHistory.at(-1)), 0);
+    const retryPatches = await page.evaluate(() =>
+      window.__capturedRequests.filter((r) => r.method === 'PATCH').map((r) => r.url).sort()
+    );
+    assert.deepEqual(retryPatches, ['/notifications/m-unread-1/read', '/notifications/m-unread-35/read']);
+
+    // Verify getUnreadNotificationCount reads meta.totalItems directly (supports 99+ tab badge threshold)
+    const highUnreadCount = await page.evaluate(async () => {
+      window.__mockHandlers['GET /notifications'] = (_body, config) => {
+        if (config.params?.status === 'UNREAD' && config.params?.limit === 1) {
+          return {
+            __envelope: true,
+            data: [{ notificationId: 'm-105', type: 'SYSTEM', title: 'Tin #105', status: 'UNREAD', createdAt: '2026-11-18T00:00:00.000Z' }],
+            meta: { page: 1, limit: 1, totalItems: 105, totalPages: 105 }
+          };
+        }
+        return { __envelope: true, data: [], meta: { page: 1, limit: 30, totalItems: 105, totalPages: 4 } };
+      };
+      return window.__helpers.getUnreadNotificationCount();
+    });
+    assert.equal(highUnreadCount, 105);
+    assert.equal(highUnreadCount > 99 ? '99+' : highUnreadCount, '99+');
 
     // 5. Verify NovelDetailScreen chapter normalization ("Chương X: Chương X"), sort toggle, and single primary CTA
     await page.evaluate((novelId) => {

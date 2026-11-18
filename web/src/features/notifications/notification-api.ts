@@ -1,4 +1,4 @@
-import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
+import { apiClient, getApiErrorMessage, type ApiEnvelope } from '../../shared/api/api-client';
 
 export type AppNotification = {
   notificationId: string;
@@ -71,7 +71,14 @@ export async function listNotifications(status?: 'UNREAD' | 'READ', page = 1) {
   const response = await apiClient.get<ApiEnvelope<AppNotification[]>>('/notifications', {
     params: { status, page, limit: 20 }
   });
-  return { ...response.data, meta: { ...response.data.meta, totalPages: Number(response.data.meta.totalPages ?? 0) } };
+  return {
+    ...response.data,
+    meta: {
+      ...response.data.meta,
+      totalItems: Number(response.data.meta.totalItems ?? response.data.data.length),
+      totalPages: Number(response.data.meta.totalPages ?? 0)
+    }
+  };
 }
 
 export async function markNotificationRead(notificationId: string) {
@@ -79,22 +86,97 @@ export async function markNotificationRead(notificationId: string) {
   return response.data.data;
 }
 
+async function runWithConcurrency<T, R>(
+  items: readonly T[],
+  limit: number,
+  worker: (item: T) => Promise<R>
+): Promise<PromiseSettledResult<R>[]> {
+  if (items.length === 0) return [];
+  const results = new Array<PromiseSettledResult<R>>(items.length);
+  let cursor = 0;
+  const workers = Math.min(limit, items.length);
+  await Promise.all(
+    Array.from({ length: workers }, async () => {
+      while (true) {
+        const index = cursor++;
+        if (index >= items.length) return;
+        try {
+          results[index] = { status: 'fulfilled', value: await worker(items[index]) };
+        } catch (reason) {
+          results[index] = { status: 'rejected', reason };
+        }
+      }
+    })
+  );
+  return results;
+}
+
+function resolveNotificationTotalPages(meta: { totalPages?: number; totalItems?: number }, limit: number) {
+  const totalPages = Number(meta.totalPages ?? 0);
+  if (Number.isFinite(totalPages) && totalPages > 0) return totalPages;
+  const totalItems = Number(meta.totalItems ?? 0);
+  if (Number.isFinite(totalItems) && totalItems > 0 && limit > 0) {
+    return Math.ceil(totalItems / limit);
+  }
+  return 0;
+}
+
 export async function markAllNotificationsRead(currentItems: AppNotification[] = []) {
+  const PAGE_LIMIT = 20;
   const unreadIds = new Set<string>(
     currentItems.filter((item) => item.status === 'UNREAD').map((item) => item.notificationId)
   );
-  let page = 1;
-  while (page <= 5) {
-    const response = await listNotifications('UNREAD', page);
-    for (const item of response.data) {
-      if (item.status === 'UNREAD') unreadIds.add(item.notificationId);
-    }
-    if (!response.meta.totalPages || page >= response.meta.totalPages || response.data.length === 0) {
-      break;
-    }
-    page += 1;
+  const firstPage = await listNotifications('UNREAD', 1);
+  for (const item of firstPage.data) {
+    if (item.status === 'UNREAD') unreadIds.add(item.notificationId);
   }
-  await Promise.all([...unreadIds].map((id) => markNotificationRead(id)));
+
+  let knownTotalPages = resolveNotificationTotalPages(firstPage.meta, PAGE_LIMIT);
+  if (knownTotalPages > 1) {
+    let nextPage = 2;
+    while (nextPage <= knownTotalPages) {
+      const pageBatch: number[] = [];
+      for (let i = 0; i < 4 && nextPage <= knownTotalPages; i += 1, nextPage += 1) {
+        pageBatch.push(nextPage);
+      }
+      const pages = await Promise.all(pageBatch.map((pageNum) => listNotifications('UNREAD', pageNum)));
+      let sawEmpty = false;
+      for (const pageResult of pages) {
+        const nextTotal = resolveNotificationTotalPages(pageResult.meta, PAGE_LIMIT);
+        if (nextTotal > knownTotalPages) knownTotalPages = nextTotal;
+        if (pageResult.data.length === 0) sawEmpty = true;
+        for (const item of pageResult.data) {
+          if (item.status === 'UNREAD') unreadIds.add(item.notificationId);
+        }
+      }
+      if (sawEmpty) break;
+    }
+  } else if (knownTotalPages === 0 && firstPage.data.length >= PAGE_LIMIT) {
+    let page = 2;
+    while (true) {
+      const pageResult = await listNotifications('UNREAD', page);
+      let addedOnPage = false;
+      for (const item of pageResult.data) {
+        if (item.status === 'UNREAD' && !unreadIds.has(item.notificationId)) {
+          unreadIds.add(item.notificationId);
+          addedOnPage = true;
+        }
+      }
+      if (!addedOnPage || pageResult.data.length < PAGE_LIMIT) break;
+      page += 1;
+    }
+  }
+
+  const targetIds = [...unreadIds];
+  if (targetIds.length === 0) return;
+  const settled = await runWithConcurrency(targetIds, 6, (id) => markNotificationRead(id));
+  const failed = settled.filter((result): result is PromiseRejectedResult => result.status === 'rejected');
+  if (failed.length > 0) {
+    const firstMessage = getApiErrorMessage(failed[0].reason);
+    throw new Error(
+      `Không thể đánh dấu đã đọc ${failed.length}/${targetIds.length} thông báo${firstMessage ? `: ${firstMessage}` : '.'}`
+    );
+  }
 }
 
 export async function registerWebPushToken(deviceToken: string) {
@@ -113,5 +195,10 @@ export async function getUnreadNotificationCount() {
   const response = await apiClient.get<ApiEnvelope<AppNotification[]>>('/notifications', {
     params: { status: 'UNREAD', page: 1, limit: 1 }
   });
-  return Number(response.data.meta.totalItems);
+  const totalItems = response.data.meta?.totalItems;
+  if (typeof totalItems === 'number' && Number.isFinite(totalItems)) return totalItems;
+  if (typeof totalItems === 'string' && totalItems.trim() !== '' && Number.isFinite(Number(totalItems))) {
+    return Number(totalItems);
+  }
+  return (response.data.data ?? []).filter((item) => item.status === 'UNREAD').length;
 }
