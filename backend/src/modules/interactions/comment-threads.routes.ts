@@ -2,9 +2,9 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { optionalAuth, requireAuth } from '../../core/security/auth.middleware.js';
 import { successResponse } from '../../core/response/response.js';
-import { authorizeComment, privateComment, privateCollection, unavailable } from './comment-privacy.js';
+import { authorizeComment, privateComment, unavailable } from './comment-privacy.js';
 import { findCommentById } from './comments.repository.js';
-import { listPrivate, privateReplies, presentPrivate } from './private-comments.service.js';
+import { listPrivate, presentPrivate } from './private-comments.service.js';
 import { listCommentReplies, present } from './comments.service.js';
 import { findNovelById } from '../novels/novels.repository.js';
 
@@ -33,16 +33,9 @@ commentThreadsRoutes.get('/comments/:commentId/thread',optionalAuth,async(req,re
     const root=await authorizeComment(comment,req.auth);
     const novel=await findNovelById(root.novelId);
     if(!novel||novel.status!=='PUBLISHED')return unavailable();
-    let page=input.page;
-    if(comment!.parentCommentId){
-      const earlier=await privateCollection().countDocuments({parentCommentId:root.commentId,deletedAt:null,
-        $and:[{$or:[{status:'APPROVED'},...(req.auth?[{userId:req.auth.userId,status:{$in:['PENDING_MODERATION','REJECTED'] as const}}]:[])]},
-          {$or:[{createdAt:{$lt:comment!.createdAt}},{createdAt:comment!.createdAt,commentId:{$lt:id}}]}]});
-      page=Math.floor(earlier/input.limit)+1;
-    }
+    const replies=await listCommentReplies(root.commentId,input,req.auth,comment?.parentCommentId?comment:undefined);
     const privateThread=privateComment(root);
     const rootResult=privateThread?await presentPrivate([root],1,{page:1,limit:1},req.auth!):await present({items:[root],totalItems:1},{page:1,limit:1},req.auth,novel);
-    const replies=privateThread?await privateReplies(root.commentId,{...input,page},req.auth):await listCommentReplies(root.commentId,{...input,page},req.auth);
     res.json(successResponse({root:rootResult.data[0],replies:replies.data,focusCommentId:id,rootCommentId:root.commentId},replies.meta));
   }catch(error){next(error);}
 });

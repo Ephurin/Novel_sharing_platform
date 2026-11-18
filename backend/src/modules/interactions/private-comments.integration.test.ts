@@ -10,9 +10,13 @@ import { createApp } from '../../app.js';
 import { chapterParagraphs,makeAnchor,resolveAnchor } from '../reading/paragraph-anchors.js';
 import { deliverDomainNotifications } from './domain-notifications.js';
 
-test('private comment HTTP access matrix, snapshots, VIP, anchors, moderation and notification fan-out',async t=>{
+const expected = process.env.EPHURIN_EXPECTED_TEST_DB ?? '';
+const isolated = expected.startsWith('ephurin_test_') && process.env.EPHURIN_ALLOW_TEST_DB_MUTATIONS === '1' &&
+  new URL(process.env.DATABASE_URL ?? 'postgres://localhost/disabled').pathname === `/${expected}`;
+
+test('private comment HTTP access matrix, snapshots, VIP, anchors, moderation and notification fan-out', { skip: !isolated }, async t=>{
   const pool=getPostgresPool(),mongo=getMongoDatabase();
-  await validateTestDatabaseIsolation(pool,mongo);
+  await validateTestDatabaseIsolation(pool,mongo,{expectedDbName:expected});
   const originalFlag=env.PRIVATE_COMMENTS_ENABLED; env.PRIVATE_COMMENTS_ENABLED=true;
   const [a,b,c,outsider,author,admin]=Array.from({length:6},()=>randomUUID());
   const content='Opening paragraph.\n\nMiddle paragraph.\n\nClosing paragraph.';
@@ -124,6 +128,26 @@ test('private comment HTTP access matrix, snapshots, VIP, anchors, moderation an
       assert.equal(await mongo.collection('notifications').countDocuments({userId:author,'payload.commentId':result.body.data.commentId}),1);
       await req(`/comments/${result.body.data.commentId}`,'PATCH',{content:text,mentions},a);
       await deliverDomainNotifications();assert.equal(await mongo.collection('notifications').countDocuments({userId:b,'payload.commentId':result.body.data.commentId}),1);
+    });
+    await t.test('public reply focus uses the visible list order, including a viewer’s own media', async () => {
+      const [parentId, imageId, gifId, textId] = Array.from({ length: 4 }, () => randomUUID());
+      await mongo.collection('comments').insertMany([
+        { commentId: parentId, userId: a, parentCommentId: null },
+        { commentId: imageId, userId: a, parentCommentId: parentId, imageUrl: '/api/v1/media/legacy.png' },
+        { commentId: gifId, userId: b, parentCommentId: parentId, gifId: 'unapproved-gif' },
+        { commentId: textId, userId: c, parentCommentId: parentId }
+      ].map((item, index) => ({
+        novelId: novel, chapterId: chapter, audience: 'PUBLIC', status: 'APPROVED', content: 'Public reply fixture',
+        deletedAt: null, createdAt: new Date(index * 1000), updatedAt: new Date(index * 1000), ...item
+      })));
+      for (const [viewer, page] of [[undefined, 1], [a, 2], [b, 2]] as const) {
+        const focused = await req(`/comments/${textId}/thread?limit=1`, 'GET', undefined, viewer);
+        const listed = await req(`/comments/${parentId}/replies?limit=1&page=${page}`, 'GET', undefined, viewer);
+        assert.equal(focused.status, 200);
+        assert.equal(focused.body.meta.page, page);
+        assert.deepEqual(focused.body.data.replies.map((item: { commentId: string }) => item.commentId), [textId]);
+        assert.deepEqual(focused.body.data.replies, listed.body.data);
+      }
     });
     await t.test('pending recipients, audited moderation, stale edits and unchanged snapshot',async()=>{
       await pool.query("insert into content_filter_rules(name,pattern,category,severity) values('Private test','review_private_word','TEST','HIGH')");

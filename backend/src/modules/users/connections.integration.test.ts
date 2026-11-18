@@ -9,9 +9,13 @@ import { env } from '../../core/config/env.js';
 import { createApp } from '../../app.js';
 import { notifyFollowersOfPublishedChapter } from '../interactions/new-chapter-notifications.js';
 
-test('account follow HTTP contract, mutual, privacy, pagination and legacy compatibility', async () => {
+const expected = process.env.EPHURIN_EXPECTED_TEST_DB ?? '';
+const isolated = expected.startsWith('ephurin_test_') && process.env.EPHURIN_ALLOW_TEST_DB_MUTATIONS === '1' &&
+  new URL(process.env.DATABASE_URL ?? 'postgres://localhost/disabled').pathname === `/${expected}`;
+
+test('account follow HTTP contract, mutual, privacy, pagination and legacy compatibility', { skip: !isolated }, async () => {
   const pool = getPostgresPool();
-  await validateTestDatabaseIsolation(pool, getMongoDatabase());
+  await validateTestDatabaseIsolation(pool, getMongoDatabase(), { expectedDbName: expected });
   const ids = Array.from({ length: 5 }, () => randomUUID());
   const [a,b,author,locked,deleted] = ids;
   const prefix = 'social_' + randomUUID().replaceAll('-', '');

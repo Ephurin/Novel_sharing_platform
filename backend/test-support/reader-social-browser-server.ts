@@ -56,6 +56,9 @@ process.on('message', async (message: { id: number; action: string; chapterId?: 
   } else if (message.action === 'detach') {
     await pool.query("update chapters set content='Revised paragraph.' where chapter_id=$1", [chapterId]);
     process.send?.({id:message.id,ok:true});
+  } else if (message.action === 'prepend') {
+    await pool.query('update chapters set content=$2::text || content where chapter_id=$1', [chapterId, 'New paragraph.\n\n']);
+    process.send?.({id:message.id,ok:true});
   } else if (message.action === 'close') {
     server.closeAllConnections();
     await new Promise<void>(resolve => server.close(() => resolve()));

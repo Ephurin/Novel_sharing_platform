@@ -154,9 +154,9 @@ export async function createCommentReply(auth: AuthContext, parentId: string, in
   return { commentId: reply.commentId, parentCommentId: parent.commentId, status: moderated?.status ?? 'PENDING_MODERATION' };
 }
 
-export async function listCommentReplies(parentId: string, input: ListCommentsInput, auth?: AuthContext) {
+export async function listCommentReplies(parentId: string, input: ListCommentsInput, auth?: AuthContext, focus?: CommentDocument) {
   const parent = await findCommentById(parentId);
-  if (parent && privateComment(parent)) return privateReplies(parentId,input,auth);
+  if (parent && privateComment(parent)) return privateReplies(parentId,input,auth,focus);
   if (!parent || parent.parentCommentId) throw new AppError(404, 'CONTENT_001', 'Comment not found');
   const viewer = auth ? await findAuthUserById(auth.userId) : null;
   const viewerAuth = viewer?.status === 'ACTIVE' && viewer.role === auth?.role ? auth : undefined;
@@ -165,8 +165,11 @@ export async function listCommentReplies(parentId: string, input: ListCommentsIn
   if (!manager) await publishedTarget(parent.chapterId ?? parent.novelId, parent.chapterId ? 'chapter' : 'novel');
   if (!novel) throw new AppError(404, 'CONTENT_001', 'Content not found');
   if (!isCommentPublic(parent) && parent.userId !== viewerAuth?.userId) throw new AppError(404, 'CONTENT_001', 'Comment not found');
-  const result = await listApprovedComments({ novelId: parent.novelId, chapterId: parent.chapterId, parentCommentId: parentId, viewerId: viewerAuth?.userId, page: input.page, limit: input.limit });
-  return present(result, input, viewerAuth, novel);
+  const filter = { novelId: parent.novelId, chapterId: parent.chapterId, parentCommentId: parentId, viewerId: viewerAuth?.userId, page: input.page, limit: input.limit };
+  if (focus) filter.page = await commentPage(focus, filter);
+  const result = await listApprovedComments(filter);
+  if (focus && !result.items.some(item => item.commentId === focus.commentId)) throw new AppError(404, 'CONTENT_001', 'Comment not found');
+  return present(result, filter, viewerAuth, novel);
 }
 
 export async function locateComment(commentId: string, input: CommentLocationInput, auth?: AuthContext) {

@@ -10,7 +10,10 @@ import { useFocusedResource } from '../state/useFocusedResource';
 export function CommentsScreen({ target, anchor, user, onLoginRequired, onThread, onProfile }: { target: CommentTarget; anchor?: AnchorInput; user: CurrentUser | null; onLoginRequired: () => void; onThread: (id: string) => void; onProfile: (id: string) => void }) {
   const styles = useScreenStyles();
   const [channel, setChannel] = useState<Audience>(anchor && user ? 'FRIENDS_ALL' : 'PUBLIC'); const [page, setPage] = useState(1); const [recipients, setRecipients] = useState<Person[]>([]);
-  const comments = useFocusedResource(`${user?.userId}:${target.kind}:${target.id}:${channel}:${page}`, () => listSocialComments(target, channel, page));
+  const comments = useFocusedResource(
+    `${user?.userId}:${target.kind}:${target.id}:${channel}:${page}:${anchor?.contentVersion}:${anchor?.paragraphId}`,
+    () => listSocialComments(target, channel, page, anchor?.paragraphId)
+  );
   const scopes: [Audience, string][] = [['PUBLIC', 'Công khai'], ['AUTHOR_PRIVATE', 'Chỉ tác giả'], ['FRIENDS_ALL', 'Tất cả bạn bè hiện tại'], ['FRIENDS_SELECTED', 'Chọn bạn bè']];
   return <Screen><Section title="Bình luận"><View style={{ gap: 8 }}>{scopes.filter(([value]) => value === 'PUBLIC' || (user && (value === 'AUTHOR_PRIVATE' || target.kind === 'chapter'))).map(([value, label]) => <GhostButton key={value} label={(channel === value ? '✓ ' : '') + label} onPress={() => { setChannel(value); setPage(1); }} />)}</View>
     {channel === 'FRIENDS_SELECTED' && <><PeoplePicker selected={recipients.map(p => p.userId)} onSelect={person => setRecipients(current => current.some(p => p.userId === person.userId) ? current.filter(p => p.userId !== person.userId) : [...current, person])} />{recipients.map(person => <GhostButton key={person.userId} label={`Bỏ ${person.displayName} (@${person.username})`} onPress={() => setRecipients(recipients.filter(p => p.userId !== person.userId))} />)}</>}

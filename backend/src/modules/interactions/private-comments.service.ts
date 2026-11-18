@@ -80,11 +80,17 @@ export async function listPrivate(auth: AuthContext | undefined, input: ListComm
   const [items,total] = await Promise.all([col.find(query).sort({createdAt:-1,commentId:1}).skip((input.page-1)*input.limit).limit(input.limit).toArray(),col.countDocuments(query)]);
   return presentPrivate(items,total,input,auth);
 }
-export async function privateReplies(rootId:string,input:{page:number;limit:number},auth?:AuthContext) {
+export async function privateReplies(rootId:string,input:{page:number;limit:number},auth?:AuthContext,focus?:CommentDocument) {
   const root=await findCommentById(rootId); await authorizeComment(root,auth);
   if (!auth || !root || root.parentCommentId) return unavailable();
   const filter: Filter<CommentDocument>={parentCommentId:rootId,deletedAt:null,$or:[{status:'APPROVED'},{userId:auth.userId,status:{$in:['PENDING_MODERATION','REJECTED']}}]};
   const col=privateCollection();
-  const [items,total]=await Promise.all([col.find(filter).sort({createdAt:1,commentId:1}).skip((input.page-1)*input.limit).limit(input.limit).toArray(),col.countDocuments(filter)]);
-  return presentPrivate(items,total,input,auth);
+  const earlier = focus ? await col.countDocuments({ $and: [filter, { $or: [
+    { createdAt: { $lt: focus.createdAt } },
+    { createdAt: focus.createdAt, commentId: { $lt: focus.commentId } }
+  ] }] }) : null;
+  const page = earlier === null ? input.page : Math.floor(earlier / input.limit) + 1;
+  const [items,total]=await Promise.all([col.find(filter).sort({createdAt:1,commentId:1}).skip((page-1)*input.limit).limit(input.limit).toArray(),col.countDocuments(filter)]);
+  if (focus && !items.some(item => item.commentId === focus.commentId)) return unavailable();
+  return presentPrivate(items,total,{ ...input, page },auth);
 }

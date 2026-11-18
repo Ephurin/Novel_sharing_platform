@@ -9,6 +9,10 @@ test('paragraph anchors preserve source indices and detach ambiguous or changed 
   const anchor=makeAnchor(content,{contentVersion:source.contentVersion,paragraphId:source.paragraphs[1].paragraphId});
   assert.equal(resolveAnchor('Inserted\n\n'+content,anchor).detached,false);
   assert.equal(resolveAnchor(content.replace('Second','Rewritten'),anchor).detached,true);
+  assert.deepEqual(chapterParagraphs(null), chapterParagraphs(''));
+  assert.deepEqual(chapterParagraphs(null).paragraphs, []);
+  assert.equal(resolveAnchor(null,anchor).detached,true);
+  assert.throws(()=>makeAnchor(null,anchor), { code: 'COMMENT_ANCHOR_STALE' });
   assert.throws(()=>makeAnchor(content,{contentVersion:'0'.repeat(64),paragraphId:source.paragraphs[0].paragraphId}));
   const repeated='Same\n\nSame';
   const duplicates=chapterParagraphs(repeated);

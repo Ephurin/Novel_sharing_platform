@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 import { Field } from './Form';
 import { GhostButton, PrimaryButton, useScreenStyles } from './Screen';
@@ -23,17 +23,25 @@ export function SocialComposer({ privateMode = false, onSubmit, label = 'Nội d
   const styles = useScreenStyles();
   const [draft, setDraft] = useState<CommentInput>({ content: '', mentions: [] }); const [tagging, setTagging] = useState(false);
   const [busy, setBusy] = useState(false); const [notice, setNotice] = useState('');
-  return <View style={{ gap: 10 }}><Field label={label} value={draft.content} multiline onChangeText={content => setDraft(previous => ({ ...previous, content: content.slice(0, 2000), mentions: previous.mentions?.filter(m => content.slice(0, m.end) === previous.content.slice(0, m.end)) }))} />
-    {!privateMode && <GhostButton label="@ Nhắc đến bạn bè" onPress={() => setTagging(!tagging)} />}
-    {tagging && !privateMode && <PeoplePicker onSelect={person => {
+  const submitting = useRef(false);
+  return <View style={{ gap: 10 }}><Field label={label} value={draft.content} multiline editable={!busy} onChangeText={content => {
+    if (!submitting.current) setDraft(previous => ({ ...previous, content: content.slice(0, 2000), mentions: previous.mentions?.filter(m => content.slice(0, m.end) === previous.content.slice(0, m.end)) }));
+  }} />
+    {!privateMode && <GhostButton label="@ Nhắc đến bạn bè" disabled={busy} onPress={() => setTagging(!tagging)} />}
+    {tagging && !privateMode && !busy && <PeoplePicker onSelect={person => {
+      if (submitting.current) return;
       const prefix = draft.content ? draft.content.trimEnd() + ' ' : ''; const token = '@' + person.username;
       if (prefix.length + token.length > 2000) return;
       setDraft({ ...draft, content: prefix + token + ' ', mentions: [...(draft.mentions ?? []), { userId: person.userId, start: prefix.length, end: prefix.length + token.length }] }); setTagging(false);
     }} />}
-    <GhostButton label={draft.isSpoiler ? '✓ Có spoiler' : 'Đánh dấu spoiler'} onPress={() => setDraft({ ...draft, isSpoiler: !draft.isSpoiler })} />
+    <GhostButton label={draft.isSpoiler ? '✓ Có spoiler' : 'Đánh dấu spoiler'} disabled={busy} onPress={() => {
+      if (!submitting.current) setDraft({ ...draft, isSpoiler: !draft.isSpoiler });
+    }} />
     <PrimaryButton label={busy ? 'Đang gửi…' : 'Gửi'} disabled={busy || !draft.content.trim()} onPress={async () => {
-      setBusy(true); setNotice(''); const offset = draft.content.length - draft.content.trimStart().length;
+      if (submitting.current) return;
+      submitting.current = true;
+      setBusy(true); setTagging(false); setNotice(''); const offset = draft.content.length - draft.content.trimStart().length;
       try { await onSubmit({ content: draft.content.trim(), isSpoiler: draft.isSpoiler, ...(!privateMode ? { mentions: draft.mentions?.map(m => ({ ...m, start: m.start - offset, end: m.end - offset })) } : {}) }); setDraft({ content: '', mentions: [] }); setNotice('Đã gửi. Nội dung có thể đang chờ duyệt.'); }
-      catch (error) { setNotice(getApiErrorMessage(error)); } finally { setBusy(false); }
-    }} />{onCancel && <GhostButton label="Hủy" onPress={onCancel} />}{notice ? <Text accessibilityLiveRegion="polite" style={styles.muted}>{notice}</Text> : null}</View>;
+      catch (error) { setNotice(getApiErrorMessage(error)); } finally { submitting.current = false; setBusy(false); }
+    }} />{onCancel && <GhostButton label="Hủy" disabled={busy} onPress={onCancel} />}{notice ? <Text accessibilityLiveRegion="polite" style={styles.muted}>{notice}</Text> : null}</View>;
 }

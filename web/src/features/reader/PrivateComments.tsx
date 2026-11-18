@@ -106,7 +106,7 @@ function ChatIdentity({ name, avatar }: { name: string; avatar?: string | null }
 
 function PrivateComposer({ target, anchor, author = false, replyTo, onSent, onCancel }: {
   target: CommentTarget; anchor?: { contentVersion: string; paragraphId: string }; author?: boolean;
-  replyTo?: string; onSent?: () => void; onCancel?: () => void;
+  replyTo?: { message: ReaderComment; audience: string }; onSent?: () => void; onCancel?: () => void;
 }) {
   const user = useAuthStore(s => s.user);
   const account = user?.userId;
@@ -126,7 +126,7 @@ function PrivateComposer({ target, anchor, author = false, replyTo, onSent, onCa
       if (!account || useAuthStore.getState().user?.userId !== account || (!replyTo && !author && !anchor)) {
         throw new Error('Kiểm tra người nhận và đoạn trước khi gửi.');
       }
-      if (replyTo) { await replyToComment(replyTo, { content }); return; }
+      if (replyTo) { await replyToComment(replyTo.message.commentId, { content }); return; }
       const url = `/${target.kind === 'chapter' ? 'chapters' : 'novels'}/${target.id}/comments`;
       await apiClient.post(url, {
         content, audience: author ? 'AUTHOR_PRIVATE' : recipients.length ? 'FRIENDS_SELECTED' : 'FRIENDS_ALL',
@@ -158,6 +158,9 @@ function PrivateComposer({ target, anchor, author = false, replyTo, onSent, onCa
     event.preventDefault();
     if (!disabled) create.mutate({ content: draft.content.trim(), recipients });
   }}>
+    {replyTo && <Text size="xs" c="dimmed">
+      Trả lời {replyTo.message.displayName} · {replyTo.audience === 'FRIENDS_SELECTED' ? 'Chỉ bạn bè được chọn' : 'Nhóm bạn bè của tin nhắn gốc'}
+    </Text>}
     <CommentMentionInput editor={editor} trigger={formatting?.mention} enabled={chooseAudience && !create.isPending}
       mentionCount={mentions.length} recipientPicker={chooseAudience} />
     {limitReached && <Text size="xs" role="alert">Tối đa 2.000 ký tự.</Text>}
@@ -177,7 +180,9 @@ function PrivateComposer({ target, anchor, author = false, replyTo, onSent, onCa
   </Stack>;
 }
 
-function ChatMessage({ message, focused = false, spoiler = false }: { message: ReaderComment; focused?: boolean; spoiler?: boolean }) {
+function ChatMessage({ message, focused = false, spoiler = false, onReply }: {
+  message: ReaderComment; focused?: boolean; spoiler?: boolean; onReply?: () => void;
+}) {
   const [revealed, setRevealed] = useState(false);
   const item = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -189,7 +194,13 @@ function ChatMessage({ message, focused = false, spoiler = false }: { message: R
     return () => cancelAnimationFrame(frame);
   }, [focused]);
   return <article ref={item} className={`sc-private-chat-message${focused ? ' is-focused' : ''}`} tabIndex={focused ? -1 : undefined}>
-    <ChatIdentity name={message.displayName} avatar={message.avatarUrl} />
+    <Group justify="space-between" gap={8} wrap="nowrap">
+      <ChatIdentity name={message.displayName} avatar={message.avatarUrl} />
+      {onReply && <Button type="button" variant="subtle" size="compact-xs" className="sc-private-chat-reply"
+        aria-label={`Trả lời ${message.displayName}`} title={`Trả lời ${message.displayName}`} onClick={onReply}>
+        <CommentIcon name="reply" />
+      </Button>}
+    </Group>
     {message.status !== 'APPROVED' && <Text size="xs" c="dimmed">
       {message.status === 'REJECTED' ? 'Không được duyệt' : 'Đang chờ duyệt'}
     </Text>}
@@ -215,6 +226,8 @@ export function ParagraphDiscussion({ chapter, paragraphId, focus, discussions, 
   chapter: ReaderChapter; paragraphId?: string; focus?: PrivateFocus; discussions: ReturnType<typeof useChapterDiscussions>; onCancel: () => void;
 }) {
   const account = useAuthStore(s => s.user?.userId);
+  const active = useAuthStore(s => s.user?.status === 'ACTIVE');
+  const [replyId, setReplyId] = useState<string>();
   const [showDetached, setShowDetached] = useState(false);
   const history = useRef<HTMLDivElement>(null);
   const stickToBottom = useRef(true);
@@ -236,13 +249,17 @@ export function ParagraphDiscussion({ chapter, paragraphId, focus, discussions, 
     const result = replies[index];
     if (result.isError) return [];
     return [
-      { message: root as ReaderComment, spoiler: false, detachedQuote: root.anchor?.detached ? root.anchor.quote : undefined },
-      ...(result.data ?? []).map(message => ({ message, spoiler: Boolean(root.isSpoiler), detachedQuote: undefined }))
+      { message: root as ReaderComment, root, spoiler: false, detachedQuote: root.anchor?.detached ? root.anchor.quote : undefined },
+      ...(result.data ?? []).map(message => ({ message, root, spoiler: Boolean(root.isSpoiler), detachedQuote: undefined }))
     ];
   }).sort((a, b) => a.message.createdAt.localeCompare(b.message.createdAt) || a.message.commentId.localeCompare(b.message.commentId));
   const latest = messages.at(-1)?.message.commentId;
   const focusId = !followLatest && !focus?.isError ? focus?.focusId : undefined;
   const target: CommentTarget = { kind: 'chapter', id: chapter.chapterId };
+  const selected = messages.find(({ message, root }) => message.commentId === replyId && message.canReply && root.canReply);
+  const replyTo = selected ? { message: selected.message, audience: selected.root.audience }
+    : !replyId && focusedRoot?.canReply ? { message: focusedRoot, audience: focusedRoot.audience } : undefined;
+  const canStart = !replyId && !focus && paragraphId && chapter.contentVersion;
   useEffect(() => {
     if (!focusId && stickToBottom.current && history.current) history.current.scrollTop = history.current.scrollHeight;
   }, [latest, messages.length, focusId]);
@@ -259,25 +276,30 @@ export function ParagraphDiscussion({ chapter, paragraphId, focus, discussions, 
         {paragraphId && discussions.isError && <ErrorState title="Không tải được trao đổi" error={discussions.error} onRetry={() => void discussions.refetch()} />}
         {replies.some((result, index) => visibleRoots[index].repliesCount > 0 && result.isPending) &&
           <Text size="xs" c="dimmed" role="status">Đang tải tin nhắn…</Text>}
-        {messages.map(({ message, spoiler, detachedQuote }) => <Stack key={message.commentId} gap={4}>
+        {messages.map(({ message, root, spoiler, detachedQuote }) => <Stack key={message.commentId} gap={4}>
           {detachedQuote && <Text size="sm" c="dimmed">Đoạn gốc đã thay đổi: {detachedQuote}</Text>}
-          <ChatMessage message={message} spoiler={spoiler} focused={focusId === message.commentId} />
+          <ChatMessage message={message} spoiler={spoiler} focused={focusId === message.commentId}
+            onReply={active && !showDetached && !focus?.isError && root.canReply && message.canReply ? () => setReplyId(message.commentId) : undefined} />
         </Stack>)}
         {paragraphId && Boolean(data?.detached.length) && <Button variant="subtle" size="compact-sm" aria-pressed={showDetached}
-          onClick={() => { stickToBottom.current = true; setShowDetached(value => !value); }}>
+          onClick={() => { stickToBottom.current = true; setReplyId(undefined); setShowDetached(value => !value); }}>
           {showDetached ? 'Về đoạn đang chọn' : 'Xem trao đổi ở đoạn đã thay đổi'}
         </Button>}
       </Stack>
     </div>
-    {!showDetached && !focus?.isError && (focusedRoot?.canReply || (!focus && paragraphId && chapter.contentVersion)) &&
+    {!showDetached && !focus?.isError && (replyTo || canStart || replyId) &&
       <div className="sc-paragraph-chat-footer">
-        <PrivateComposer target={target} replyTo={focusedRoot?.commentId} onCancel={onCancel}
+        {replyId && !replyTo ? <Group justify="space-between" gap={8}>
+          <Text size="xs" role="status">Tin nhắn này không còn khả dụng.</Text>
+          <Button type="button" size="compact-sm" variant="subtle" onClick={() => setReplyId(undefined)}>Hủy</Button>
+        </Group> : <PrivateComposer key={replyTo?.message.commentId ?? 'new'} target={target} replyTo={replyTo}
+          onCancel={replyId ? () => setReplyId(undefined) : onCancel}
           anchor={paragraphId && chapter.contentVersion ? { contentVersion: chapter.contentVersion, paragraphId } : undefined}
           onSent={() => {
             stickToBottom.current = true;
             setFollowLatest(true);
             if (history.current) history.current.scrollTop = history.current.scrollHeight;
-          }} />
+          }} />}
       </div>}
   </div>;
 }

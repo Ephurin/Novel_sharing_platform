@@ -128,6 +128,24 @@ test('reader social uses real APIs: follow, mention, private replies, anchors an
     await connect(recipient);
     await recipient.addInitScript(token => { localStorage.setItem('ephurin_access_token', token); localStorage.setItem('storycraft-theme', 'dark'); }, b.token);
     const mobile = await recipient.newPage(); mobile.on('pageerror', e => errors.push(e.message));
+    await mobile.goto(base + `/reader/chapters/${chapterId}`);
+    const marker = mobile.locator('[data-private-count="2"]').filter({ hasText: 'Middle paragraph.' });
+    await marker.press('Enter');
+    await mobile.getByRole('button', { name: 'Trao đổi riêng', exact: true }).click();
+    const recipientPanel = mobile.getByRole('dialog', { name: 'Trao đổi với bạn bè' });
+    await recipientPanel.locator('article').filter({ hasText: 'Selected friend only. @social2' })
+      .getByRole('button', { name: 'Trả lời Social 1', exact: true }).click();
+    await expect(recipientPanel.getByText('Trả lời Social 1 · Chỉ bạn bè được chọn')).toBeVisible();
+    await recipientPanel.getByRole('textbox', { name: 'Trả lời bình luận', exact: true }).fill('Selected reply from paragraph.');
+    const submitted = mobile.waitForResponse(response => response.request().method() === 'POST' &&
+      new URL(response.url()).pathname === `/api/v1/comments/${selected.data[0].commentId}/replies`);
+    await recipientPanel.getByRole('button', { name: 'Gửi trả lời', exact: true }).click();
+    assert.equal((await submitted).status(), 201);
+    await expect(recipientPanel.locator('article').getByText('Selected reply from paragraph.', { exact: true })).toBeVisible();
+    await fixture.command('approve');
+    const selectedReplies = await request(a, `/comments/${selected.data[0].commentId}/replies`);
+    assert.deepEqual(selectedReplies.data.map(reply => [reply.content, reply.audience]), [['Selected reply from paragraph.', 'FRIENDS_SELECTED']]);
+    assert.equal((await request(b, `/chapters/${chapterId}/comments?channel=FRIENDS_ALL`)).data.length, 1);
     await fixture.command('notify');
     const notifications = await request(a, '/notifications?limit=20');
     const deepLink = notifications.data.find(item => item.payload.commentId === reply.data.commentId)?.payload.href;

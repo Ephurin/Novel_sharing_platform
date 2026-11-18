@@ -15,7 +15,21 @@ export const listPeople = (type: string, q: string, page = 1) => listPage<Person
 export async function getPerson(id: string) { return (await apiClient.get<ApiEnvelope<Person>>(`/users/${encodeURIComponent(id)}/profile`)).data.data; }
 export async function changeFollow(id: string, following: boolean) { if (following) await apiClient.delete(`/users/${id}/follow`); else await apiClient.post(`/users/${id}/follow`); }
 const targetUrl = (target: CommentTarget) => `/${target.kind === 'chapter' ? 'chapters' : 'novels'}/${target.id}/comments`;
-export const listSocialComments = (target: CommentTarget, channel: Audience, page: number) => listPage<ReaderComment>(targetUrl(target), { channel, page, limit: 10 });
+export async function listSocialComments(target: CommentTarget, channel: Audience, page: number, paragraphId?: string): Promise<Page<ReaderComment>> {
+  const url = targetUrl(target);
+  const limit = 10;
+  if (!paragraphId || channel === 'PUBLIC') return listPage<ReaderComment>(url, { channel, page, limit });
+
+  const matching: ReaderComment[] = [];
+  let pages = 1;
+  for (let sourcePage = 1; sourcePage <= pages; sourcePage++) {
+    const result = await listPage<ReaderComment>(url, { channel, page: sourcePage, limit: 100 });
+    pages = result.pages;
+    matching.push(...result.items.filter(comment => !comment.anchor?.detached && comment.anchor?.currentParagraphId === paragraphId));
+  }
+  const start = (page - 1) * limit;
+  return { items: matching.slice(start, start + limit), total: matching.length, page, pages: Math.max(1, Math.ceil(matching.length / limit)) };
+}
 export async function postComment(target: CommentTarget, input: CommentInput) { return (await apiClient.post<ApiEnvelope<{ commentId: string; status: string }>>(targetUrl(target), input)).data.data; }
 export async function postReply(id: string, input: CommentInput) { return (await apiClient.post<ApiEnvelope<{ commentId: string; status: string }>>(`/comments/${id}/replies`, input)).data.data; }
 export async function getThread(id: string, page = 1) {

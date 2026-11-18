@@ -26,24 +26,56 @@ test('Expo mobile app uses real social APIs and discards private content on back
   const output = await readerEvidence('mobile-social-real-'); let page;
   try {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
-    await context.route('**/api/v1/**', async route => { const url = new URL(route.request().url()); const response = await route.fetch({ url: api + url.pathname.split('/api/v1')[1] + url.search }); await route.fulfill({ response }); });
+    let delayPost = false;
+    let releasePost;
+    const postGate = new Promise(resolve => { releasePost = resolve; });
+    await context.route('**/api/v1/**', async route => {
+      const url = new URL(route.request().url());
+      const relative = url.pathname.split('/api/v1')[1];
+      if (delayPost && route.request().method() === 'POST' && relative === `/chapters/${chapterId}/comments`) await postGate;
+      const response = await route.fetch({ url: api + relative + url.search });
+      await route.fulfill({ response });
+    });
     page = await context.newPage(); page.on('dialog', dialog => dialog.accept()); page.setDefaultTimeout(10000); const errors = []; page.on('pageerror', error => errors.push(error.message));
     await page.addInitScript(token => { if (!localStorage.getItem('mobile-test-initialized')) { localStorage.setItem('ephurin_mobile_access_token', token); localStorage.setItem('mobile-test-initialized', '1'); } }, a.token);
     await page.goto(base); await expect(page.getByText('Social browser', { exact: true })).toBeVisible();
     await page.getByText('Hồ sơ', { exact: true }).last().click(); await page.getByRole('button', { name: 'Bạn bè', exact: true }).click();
     await page.getByLabel('Tìm độc giả', { exact: true }).fill('social2'); await page.getByRole('button', { name: 'Theo dõi', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Bỏ theo dõi', exact: true })).toBeVisible(); await request(b, `/users/${a.userId}/follow`, 'POST');
+    const oldChapter = (await request(a, `/reading/chapters/${chapterId}`)).data;
+    for (const [index, content] of [[1, 'Reattached middle discussion.'], [2, 'Closing paragraph discussion.']]) {
+      await request(a, `/chapters/${chapterId}/comments`, 'POST', {
+        content, audience: 'FRIENDS_ALL',
+        anchor: { contentVersion: oldChapter.contentVersion, paragraphId: oldChapter.paragraphs[index].paragraphId }
+      });
+    }
+    await fixture.command('approve');
+    await fixture.command('prepend');
+    const newChapter = (await request(a, `/reading/chapters/${chapterId}`)).data;
+    assert.notEqual(newChapter.paragraphs[2].paragraphId, oldChapter.paragraphs[1].paragraphId);
     await page.reload(); await page.getByText('Social browser', { exact: true }).last().click(); await page.getByRole('button', { name: /^Đọc (ngay|tiếp)/ }).click();
     const paragraph = page.getByText('Middle paragraph.', { exact: true }); await paragraph.scrollIntoViewIfNeeded();
     const box = await paragraph.boundingBox(); await page.mouse.move(box.x + 20, box.y + 12); await page.mouse.down(); await new Promise(resolve => setTimeout(resolve, 650)); await page.mouse.up();
     await expect(page.getByRole('button', { name: '✓ Tất cả bạn bè hiện tại' })).toBeVisible();
+    await expect(page.getByText('Reattached middle discussion.', { exact: true })).toBeVisible();
+    await expect(page.getByText('Closing paragraph discussion.', { exact: true })).toHaveCount(0);
     await page.getByLabel('Nội dung', { exact: true }).fill('Mobile friends secret.'); await page.getByRole('button', { name: 'Gửi', exact: true }).click();
     await expect(page.getByLabel('Nội dung', { exact: true })).toHaveValue('');
     await expect(page.getByText('Mobile friends secret.', { exact: true })).toBeVisible(); await fixture.command('approve');
-    const root = (await request(a, `/chapters/${chapterId}/comments?channel=FRIENDS_ALL`)).data[0].commentId;
+    const root = (await request(a, `/chapters/${chapterId}/comments?channel=FRIENDS_ALL`)).data
+      .find(comment => comment.content === 'Mobile friends secret.').commentId;
     await page.getByRole('button', { name: '✓ Tất cả bạn bè hiện tại' }).click();
     await page.getByRole('button', { name: 'Công khai', exact: true }).click(); await page.getByRole('button', { name: '@ Nhắc đến bạn bè', exact: true }).click();
-    await page.getByRole('button', { name: 'Social 2 (@social2)', exact: true }).click(); await page.getByRole('button', { name: 'Gửi', exact: true }).click();
+    await page.getByRole('button', { name: 'Social 2 (@social2)', exact: true }).click();
+    delayPost = true;
+    await page.getByRole('button', { name: 'Gửi', exact: true }).click();
+    try {
+      await expect(page.getByRole('button', { name: 'Đang gửi…', exact: true })).toBeDisabled();
+      await expect(page.getByLabel('Nội dung', { exact: true })).not.toBeEditable();
+      await expect(page.getByLabel('Nội dung', { exact: true })).toHaveValue('@social2 ');
+      await expect(page.getByRole('button', { name: '@ Nhắc đến bạn bè', exact: true })).toBeDisabled();
+      await expect(page.getByRole('button', { name: 'Đánh dấu spoiler', exact: true })).toBeDisabled();
+    } finally { delayPost = false; releasePost(); }
     await expect(page.getByLabel('Nội dung', { exact: true })).toHaveValue('');
     await expect(page.getByText('@social2', { exact: true })).toBeVisible(); await fixture.command('approve');
     assert.equal((await request(a, `/chapters/${chapterId}/comments`)).data[0].mentions[0].userId, b.userId);
@@ -73,7 +105,7 @@ test('Expo mobile app uses real social APIs and discards private content on back
     await page.getByText('Social browser', { exact: true }).last().click(); await page.getByRole('button', { name: /^Đọc (ngay|tiếp)/ }).click(); await page.getByRole('button', { name: 'Xem bình luận chương' }).click();
     await page.getByRole('button', { name: 'Tất cả bạn bè hiện tại', exact: true }).click();
     await expect(page.getByText('Mobile friends secret.', { exact: true })).toBeVisible();
-    await page.getByRole('button', { name: /Mở trao đổi/ }).click();
+    await page.getByRole('button', { name: 'Mở trao đổi · 8 trả lời', exact: true }).click();
     await page.evaluate(() => { Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' }); document.dispatchEvent(new Event('visibilitychange')); });
     await expect(page.getByText('Mobile friends secret.', { exact: true })).toHaveCount(0);
     await request(b, `/users/${a.userId}/follow`, 'DELETE');
