@@ -13,6 +13,8 @@ export type CommentDocument = {
   novelId: string;
   userId: string;
   parentCommentId?: string | null;
+  replyToCommentId?: string | null;
+  replyToUserId?: string | null;
   paragraphOffset: number | null;
   content: string;
   isSpoiler?: boolean;
@@ -61,6 +63,8 @@ export async function createComment(input: {
   novelId: string;
   userId: string;
   parentCommentId?: string | null;
+  replyToCommentId?: string | null;
+  replyToUserId?: string | null;
   paragraphOffset?: number | null;
   content: string;
   isSpoiler?: boolean;
@@ -74,6 +78,8 @@ export async function createComment(input: {
     novelId: input.novelId,
     userId: input.userId,
     parentCommentId: input.parentCommentId ?? null,
+    replyToCommentId: input.replyToCommentId ?? null,
+    replyToUserId: input.replyToUserId ?? null,
     paragraphOffset: input.paragraphOffset ?? null,
     content: input.content,
     isSpoiler: input.isSpoiler ?? false,
@@ -113,7 +119,7 @@ export async function updateCommentModerationStatus(
   return findCommentById(commentId);
 }
 
-export async function listApprovedComments(input: {
+type CommentListInput = {
   chapterId: string | null;
   novelId: string;
   viewerId?: string;
@@ -123,7 +129,9 @@ export async function listApprovedComments(input: {
   paragraphOffset?: number;
   page: number;
   limit: number;
-}) {
+};
+
+function visibleCommentsFilter(input: CommentListInput) {
   const filter: Record<string, unknown> = {
     ...(input.allChapters ? {} : { chapterId: input.chapterId }),
     ...(input.visibleChapterIds ? { chapterId: { $in: [null, ...input.visibleChapterIds] } } : {}),
@@ -137,6 +145,20 @@ export async function listApprovedComments(input: {
     filter.paragraphOffset = input.paragraphOffset;
   }
 
+  return filter;
+}
+
+export async function commentPage(comment: CommentDocument, input: CommentListInput) {
+  const earlier = input.parentCommentId ? '$lt' : '$gt';
+  const count = await collection().countDocuments({ $and: [visibleCommentsFilter(input), { $or: [
+    { createdAt: { [earlier]: comment.createdAt } },
+    { createdAt: comment.createdAt, commentId: { $lt: comment.commentId } }
+  ] }] });
+  return Math.floor(count / input.limit) + 1;
+}
+
+export async function listApprovedComments(input: CommentListInput) {
+  const filter = visibleCommentsFilter(input);
   const skip = (input.page - 1) * input.limit;
   const [items, totalItems] = await Promise.all([
     collection().find(filter).sort({ createdAt: input.parentCommentId ? 1 : -1, commentId: 1 }).skip(skip).limit(input.limit).toArray(),

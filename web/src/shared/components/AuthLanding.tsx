@@ -49,7 +49,7 @@ export function AuthLanding() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    authMutation.mutate();
+    if (!authMutation.isPending) authMutation.mutate();
   };
 
   return (

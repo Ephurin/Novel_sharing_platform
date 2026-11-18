@@ -1191,6 +1191,28 @@ class InMemoryNarrativeRepository:
                              for e in brain.entities],
                 'aliases': [{'alias': a.alias, 'entity_id': a.entity_id} for a in brain.aliases]}
 
+    def discard_chapter_analysis(self, story_id: str, chapter_id: str, reason: str,
+                                 actor_id: str | None = None) -> dict:
+        """See the Postgres repository: close a removed chapter's open reviews and pending proposals."""
+        discarded, runs = [], set()
+        for (story, run_id), audit in list(self._entity_candidate_audits.items()):
+            owner = audit.get('chapter_id') or (audit.get('request') or {}).get('chapter_id')
+            if story != story_id or str(owner) != str(chapter_id):
+                continue
+            runs.add(run_id)
+            if audit.get('status') in ('waiting_entity_review', 'entities_reviewed'):
+                self._entity_candidate_audits[(story, run_id)] = {**audit, 'status': 'discarded', 'discard_reason': reason}
+                discarded.append(run_id)
+        brain = self.get_story_brain(story_id)
+        rejected, proposals = [], list(brain.proposals)
+        for index, proposal in enumerate(proposals):
+            if str(proposal.analysis_run_id) in runs and proposal.status == ProposalStatus.PENDING:
+                proposals[index] = replace(proposal, status=ProposalStatus.REJECTED, decision_reason=reason)
+                rejected.append(proposal.proposal_id)
+        if rejected:
+            self._brains[story_id] = replace(brain, proposals=tuple(proposals))
+        return {'discarded_runs': discarded, 'rejected_proposals': rejected}
+
     def save_entity_candidate_audit(self, story_id: str, run_id: str, audit: dict, *, expected_version: int | None = None) -> None:
         from copy import deepcopy
         if expected_version is not None and (self._entity_candidate_audits.get((story_id, run_id)) or {}).get('review_version', 0) != expected_version:

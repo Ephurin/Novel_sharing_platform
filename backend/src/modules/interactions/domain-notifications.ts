@@ -15,15 +15,18 @@ export async function deliverDomainNotifications() {
       const novel = await findNovelById(comment.novelId);
       if (novel?.status === 'PUBLISHED' && comment.status === 'APPROVED' && !comment.deletedAt) {
         const parent = comment.parentCommentId ? await comments.findOne({ commentId: comment.parentCommentId, ...approvedCommentFilter, deletedAt: null }) : null;
-        const recipient = comment.parentCommentId ? parent?.userId : novel.authorId;
-        const authorReply = Boolean(parent && comment.userId === novel.authorId);
+        const target = comment.replyToCommentId ? await comments.findOne({ commentId: comment.replyToCommentId, ...approvedCommentFilter, deletedAt: null }) : parent;
+        const validTarget = parent && target && (target.commentId === parent.commentId || target.parentCommentId === parent.commentId)
+          && target.novelId === comment.novelId && target.chapterId === comment.chapterId;
+        const recipient = comment.parentCommentId ? (validTarget ? target.userId : null) : novel.authorId;
+        const authorReply = Boolean(validTarget && comment.userId === novel.authorId);
         const replyBase = authorReply ? '/reader' : '/public';
         if (recipient && recipient !== comment.userId) await createNotification({
           eventKey: 'comment:' + comment.commentId, userId: recipient,
           type: parent ? (authorReply ? 'AUTHOR_REPLY' : 'COMMENT_REPLY') : 'READER_COMMENT',
           title: parent ? (authorReply ? 'Tác giả đã trả lời bình luận' : 'Có trả lời bình luận mới') : 'Có bình luận mới',
           content: novel.title,
-          payload: { href: parent ? (comment.chapterId ? replyBase + '/chapters/' + comment.chapterId : replyBase + '/novels/' + novel.novelId) : '/author/novels/' + novel.novelId + '/comments', commentId: comment.commentId }
+          payload: { href: parent ? (comment.chapterId ? replyBase + '/chapters/' + comment.chapterId : replyBase + '/novels/' + novel.novelId) + '?commentId=' + comment.commentId + '#reader-comments' : '/author/novels/' + novel.novelId + '/comments', commentId: comment.commentId }
         });
       }
       await comments.updateOne({ _id: comment._id }, { $set: { notificationPending: false } });

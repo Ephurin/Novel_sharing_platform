@@ -35,6 +35,7 @@ export type NovelRecord = {
     status: string;
     updatedAt: string;
   } | null;
+  publishedChaptersCount?: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -58,6 +59,7 @@ function mapNovel(row: QueryResultRow): NovelRecord {
     genreId: row.genre_id ?? null,
     genre: row.genre ?? null,
     ...(row.latest_chapter !== undefined ? { latestChapter: row.latest_chapter } : {}),
+    ...(row.published_chapters_count !== undefined ? { publishedChaptersCount: Number(row.published_chapters_count) } : {}),
     createdAt: row.created_at,
     updatedAt: row.updated_at
   };
@@ -161,7 +163,8 @@ export async function listNovelsByAuthor(authorId: string, input: ListNovelsInpu
 
   const dataResult = await getPostgresPool().query(
     `
-      select n.*, g.name as genre, ${genresProjection} as genres, recent.latest_chapter
+      select n.*, g.name as genre, ${genresProjection} as genres, recent.latest_chapter,
+        (select count(*) from chapters pc where pc.novel_id = n.novel_id and pc.deleted_at is null and pc.status = 'PUBLISHED') as published_chapters_count
       from novels n
       left join genres g on g.genre_id = n.genre_id
       left join lateral (

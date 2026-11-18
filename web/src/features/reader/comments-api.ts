@@ -2,6 +2,13 @@ import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
 import type { CommentInput, ReaderComment } from './reader-api';
 export type CommentTarget = { kind: 'chapter' | 'novel'; id: string };
 const url = (target: CommentTarget) => `/${target.kind === 'chapter' ? 'chapters' : 'novels'}/${target.id}/comments`;
+export type CommentLocation = { rootCommentId: string; page: number; replyPage: number };
+export async function locateComment(target: CommentTarget, commentId: string) {
+  const response = await apiClient.get<ApiEnvelope<CommentLocation>>(`/comments/${encodeURIComponent(commentId)}/location`, {
+    params: { kind: target.kind, targetId: target.id, limit: 10, replyLimit: 5 }
+  });
+  return response.data.data;
+}
 export async function listTargetComments(target: CommentTarget, page: number) {
   const response = await apiClient.get<ApiEnvelope<ReaderComment[]>>(url(target), { params: { page, limit: 10, scope: target.kind === 'novel' ? 'ALL' : undefined } });
   return { items: response.data.data, totalItems: Number(response.data.meta.totalItems), totalPages: Number(response.data.meta.totalPages) };

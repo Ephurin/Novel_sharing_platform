@@ -1,5 +1,5 @@
-import { createCommentReply, listAuthorComments, listCommentReplies, reactToComment } from './comments.service.js';
-import { createReplySchema, listRepliesSchema, authorCommentsSchema, commentReactionSchema } from './comments.schemas.js';
+import { createCommentReply, listAuthorComments, listCommentReplies, locateComment, reactToComment } from './comments.service.js';
+import { createReplySchema, listRepliesSchema, authorCommentsSchema, commentReactionSchema, commentLocationSchema } from './comments.schemas.js';
 import { successResponse } from '../../core/response/response.js';
 import { createNovelCommentSchema, listNovelCommentsSchema } from './comments.schemas.js';
 import { Router } from 'express';
@@ -19,6 +19,10 @@ import {
 } from './comments.schemas.js';
 
 export const commentsRoutes = Router();
+
+commentsRoutes.get('/comments/:commentId/location', optionalAuth, validateRequest(commentLocationSchema), async (request, response, next) => {
+  try { response.json(successResponse(await locateComment(String(request.params.commentId), request.query as never, request.auth))); } catch (error) { next(error); }
+});
 
 commentsRoutes.post('/chapters/:chapterId/comments', requireAuth, validateRequest(createCommentSchema), createCommentController);
 commentsRoutes.get('/chapters/:chapterId/comments', optionalAuth, validateRequest(listCommentsSchema), listCommentsController);

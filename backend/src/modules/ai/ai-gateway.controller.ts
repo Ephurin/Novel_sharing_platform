@@ -9,7 +9,7 @@ import { AppError } from '../../core/errors/app-error.js';
 import { findNovelById, type NovelRecord } from '../novels/novels.repository.js';
 import { findChapterById, type ChapterRecord } from '../novels/chapters.repository.js';
 import { assertCurrentProposalEvidence } from './proposal-evidence.service.js';
-import { listLatestChapterAnalysis } from '../novels/outbox.repository.js';
+import { listLatestChapterAnalysis, supersedeBackgroundAnalysis } from '../novels/outbox.repository.js';
 import { findRevisionById, findLatestRevisionByChapterId } from '../novels/chapter-revisions.repository.js';
 
 export async function entityProfileController(req: Request, res: Response, next: NextFunction) {
@@ -136,6 +136,7 @@ export async function reanalyseSavedChapterController(req: Request, res: Respons
         .update(JSON.stringify([req.auth!.userId, novelId, revision.revisionId, requestKey])).digest('hex')}`,
       body: { novel_id: novelId, chapter_id: revision.chapterId, content_hash: revision.contentHash,
         operation: 'author_reanalysis', options: { extract_state_transitions: true, extract_world_rules: true } } });
+    await supersedeBackgroundAnalysis(revision.revisionId);
     res.json(successResponse(data));
   } catch (error) { next(error); }
 }

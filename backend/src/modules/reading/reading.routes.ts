@@ -1,4 +1,7 @@
 import { Router } from 'express';
+import { successResponse } from '../../core/response/response.js';
+import { listReadingBookmarkEntries, removeReadingBookmarkEntry, saveReadingBookmarkEntry } from './reading.service.js';
+import { bookmarkEntriesSchema, bookmarkEntryIdSchema, bookmarkEntrySchema } from './reading.schemas.js';
 import { optionalAuth, requireAuth } from '../../core/security/auth.middleware.js';
 import { validateRequest } from '../../core/validation/validate.js';
 import {
@@ -30,6 +33,16 @@ import {
 } from './reading.schemas.js';
 
 export const readingRoutes = Router();
+
+readingRoutes.get('/bookmark-entries/me', requireAuth, validateRequest(bookmarkEntriesSchema), async (request, response, next) => {
+  try { const result = await listReadingBookmarkEntries(request.auth!, request.query as never); response.json(successResponse(result.data, result.meta)); } catch (error) { next(error); }
+});
+readingRoutes.post('/bookmark-entries/me', requireAuth, validateRequest(bookmarkEntrySchema), async (request, response, next) => {
+  try { response.status(201).json(successResponse(await saveReadingBookmarkEntry(request.auth!, request.body))); } catch (error) { next(error); }
+});
+readingRoutes.delete('/bookmark-entries/me/:bookmarkId', requireAuth, validateRequest(bookmarkEntryIdSchema), async (request, response, next) => {
+  try { await removeReadingBookmarkEntry(request.auth!, String(request.params.bookmarkId)); response.status(204).send(); } catch (error) { next(error); }
+});
 
 readingRoutes.get('/preferences/me', requireAuth, getPreferencesController);
 readingRoutes.put('/preferences/me', requireAuth, validateRequest(readingPreferencesSchema), savePreferencesController);

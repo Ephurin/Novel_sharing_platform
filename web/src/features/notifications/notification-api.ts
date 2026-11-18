@@ -11,6 +11,18 @@ export type AppNotification = {
   readAt: string | null;
 };
 
+export function notificationHref(item: AppNotification, reader = false) {
+  const href = item.payload.href;
+  if (typeof href !== 'string' || !(/^\/(author|reader|public)\//.test(href) || href === '/wallet')) return null;
+  if (!['COMMENT_REPLY', 'AUTHOR_REPLY'].includes(item.type) || typeof item.payload.commentId !== 'string') return href;
+  const target = new URL(href, 'https://storycraft.invalid');
+  if (!/^\/(reader|public)\/(novels|chapters)\//.test(target.pathname)) return href;
+  if (reader) target.pathname = target.pathname.replace(/^\/public\//, '/reader/');
+  target.searchParams.set('commentId', item.payload.commentId);
+  target.hash = 'reader-comments';
+  return target.pathname + target.search + target.hash;
+}
+
 export async function listNotifications(status?: 'UNREAD' | 'READ', page = 1) {
   const response = await apiClient.get<ApiEnvelope<AppNotification[]>>('/notifications', {
     params: { status, page, limit: 20 }

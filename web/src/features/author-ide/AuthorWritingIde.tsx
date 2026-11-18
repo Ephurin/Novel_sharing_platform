@@ -832,7 +832,7 @@ export function AuthorWritingIde() {
         }
         setAiSuggestion(draftText);
         setAiSuggestionTone(
-          updated.validation_status === 'passed' ? 'Đã kiểm định nhất quán • P1 Loop' : 'Hoàn thành'
+          updated.validation_status === 'passed' ? 'Đã kiểm tra với bộ nhớ truyện' : 'Hoàn thành'
         );
         setAiRecoveryMessage(null);
         // The author may have closed the panel while the draft was generating.
@@ -1632,7 +1632,7 @@ export function AuthorWritingIde() {
                 </div>
                 <div>
                   <h3 className="text-meta font-bold text-stone-900 leading-none">Trợ lý sáng tác AI • Ephurin</h3>
-                  <span className="text-meta text-stone-400">Context-Aware LLM & Story Bible</span>
+                  <span className="text-meta text-stone-400">Viết theo bộ nhớ truyện của bạn</span>
                 </div>
               </div>
               <button
@@ -1706,7 +1706,8 @@ export function AuthorWritingIde() {
 
             {/* AI Suggestion Display */}
             <div ref={aiResultsRef} className="sc-ai-results flex-1 min-h-0 overflow-y-auto p-3.5 space-y-3.5 text-meta select-text">
-              {isGeneratingAi && (
+              {/* UI walkthrough (UI-6): never show the loading line under a finished draft. */}
+              {isGeneratingAi && !aiSuggestion && (
                 <motion.div
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -1715,7 +1716,7 @@ export function AuthorWritingIde() {
                 >
                   <div className="flex items-center gap-2">
                     <span className="w-4 h-4 border-2 border-primary-600 border-t-transparent rounded-full animate-spin shrink-0"></span>
-                    <span className="text-meta font-semibold">AI đang suy nghĩ và tổng hợp Story Bible...</span>
+                    <span className="text-meta font-semibold">AI đang viết theo bộ nhớ truyện…</span>
                   </div>
                   <div className="flex flex-col gap-2" aria-hidden="true">
                     <span className="sc-skeleton-block h-3 w-full rounded" />

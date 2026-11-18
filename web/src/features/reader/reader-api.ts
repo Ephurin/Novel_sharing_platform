@@ -61,12 +61,35 @@ export type ReadingPreferences = {
 };
 
 export type ReadingBookmark = {
+  startOffset?: number;
+  endOffset?: number | null;
   novelId: string;
   chapterId: string;
   paragraphIndex: number;
   pageOffset: number;
   updatedAt: string;
 };
+
+export type ReadingBookmarkEntry = ReadingBookmark & {
+  bookmarkId: string; excerpt: string; novelTitle: string; coverImageUrl: string | null; chapterTitle: string; chapterNumber: number;
+};
+export type ReadingBookmarkDraft = Omit<ReadingBookmarkEntry, 'bookmarkId' | 'updatedAt'>;
+
+export function readingBookmarkHref(bookmark: ReadingBookmark, base = '/reader') {
+  return `${base}/chapters/${encodeURIComponent(bookmark.chapterId)}?bookmark=1&paragraph=${bookmark.paragraphIndex}&offset=${bookmark.pageOffset}` +
+    (bookmark.endOffset != null ? `&start=${bookmark.startOffset ?? 0}&end=${bookmark.endOffset}` : '');
+}
+export async function listReadingBookmarkEntries(novelId: string | undefined, page: number) {
+  const response = await apiClient.get<ApiEnvelope<ReadingBookmarkEntry[]>>('/reading/bookmark-entries/me', { params: { novelId, page, limit: 50 } });
+  return { items: response.data.data, totalPages: Number(response.data.meta.totalPages), totalItems: Number(response.data.meta.totalItems) };
+}
+export async function saveReadingBookmarkEntry(input: ReadingBookmarkDraft) {
+  const { novelId, chapterId, paragraphIndex, pageOffset, excerpt, startOffset, endOffset } = input;
+  return (await apiClient.post<ApiEnvelope<{ bookmarkId: string }>>('/reading/bookmark-entries/me', { novelId, chapterId, paragraphIndex, pageOffset, excerpt, startOffset, endOffset })).data.data;
+}
+export async function removeReadingBookmarkEntry(bookmarkId: string) {
+  await apiClient.delete(`/reading/bookmark-entries/me/${encodeURIComponent(bookmarkId)}`);
+}
 
 export type ReaderComment = {
   isSpoiler?: boolean;
@@ -76,6 +99,9 @@ export type ReaderComment = {
   dislikesCount?: number;
   myReaction?: 'LIKE' | 'DISLIKE' | null;
   parentCommentId: string | null;
+  replyToCommentId?: string | null;
+  replyToUserId?: string | null;
+  replyToDisplayName?: string | null;
   repliesCount: number;
   isAuthor: boolean;
   canDelete: boolean;
@@ -148,21 +174,6 @@ export async function getReadingPreferences() {
 export async function saveReadingPreferences(input: ReadingPreferences) {
   const response = await apiClient.put<ApiEnvelope<ReadingPreferences>>('/reading/preferences/me', input);
   return response.data.data;
-}
-
-export async function getReadingBookmark(novelId: string) {
-  const response = await apiClient.get<ApiEnvelope<ReadingBookmark | null>>(`/reading/bookmarks/me/${novelId}`);
-  return response.data.data;
-}
-
-export async function saveReadingBookmark(input: Omit<ReadingBookmark, 'updatedAt'>) {
-  const { novelId, chapterId, paragraphIndex, pageOffset } = input;
-  const response = await apiClient.put<ApiEnvelope<ReadingBookmark>>(`/reading/bookmarks/me/${novelId}`, { chapterId, paragraphIndex, pageOffset });
-  return response.data.data;
-}
-
-export async function removeReadingBookmark(novelId: string) {
-  await apiClient.delete(`/reading/bookmarks/me/${novelId}`);
 }
 
 export async function getReaderNovel(novelId: string, signal?: AbortSignal) {

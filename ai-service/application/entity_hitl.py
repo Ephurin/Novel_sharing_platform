@@ -39,6 +39,9 @@ def checkpoint(service, novel_id, run_id, tenant_id, *, check_guidance=True):
     audit = service._repository.get_entity_candidate_audit(novel_id, run_id)
     if not audit:
         raise KeyError(run_id)
+    if audit.get('status') == 'discarded':
+        # BB3: the chapter was deleted or archived; its analysis can no longer reach Canon.
+        raise OptimisticLockError('The chapter of this analysis was archived or deleted')
     request = audit['request']
     if request['tenant_id'] != tenant_id or request['novel_id'] != novel_id:
         raise PermissionError('Checkpoint scope mismatch')

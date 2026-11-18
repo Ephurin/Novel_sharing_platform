@@ -70,6 +70,17 @@ export const readingBookmarkSchema = z.object({
 });
 
 export type ReadingBookmarkInput = z.infer<typeof readingBookmarkSchema>['body'];
+export const bookmarkEntriesSchema = historyListSchema.extend({
+  query: historyListSchema.shape.query.extend({ novelId: z.string().uuid().optional() })
+});
+export const bookmarkEntrySchema = z.object({ body: readingBookmarkSchema.shape.body.extend({
+  novelId: z.string().uuid(), excerpt: z.string().trim().max(500).default(''),
+  startOffset: z.number().int().min(0).max(10000000).optional(),
+  endOffset: z.number().int().min(1).max(10000000).nullable().optional()
+}).refine(value => value.endOffset == null || value.endOffset > (value.startOffset ?? 0), { message: 'Vị trí dòng không hợp lệ', path: ['endOffset'] }) });
+export const bookmarkEntryIdSchema = z.object({ params: z.object({ bookmarkId: z.string().uuid() }) });
+export type BookmarkEntryInput = z.infer<typeof bookmarkEntrySchema>['body'];
+export type BookmarkEntriesInput = z.infer<typeof bookmarkEntriesSchema>['query'];
 
 export type ReadingPreferencesInput = z.infer<typeof readingPreferencesSchema>['body'];
 export type SearchNovelsInput = z.infer<typeof searchNovelsSchema>['query'];

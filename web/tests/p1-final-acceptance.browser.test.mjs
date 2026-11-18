@@ -69,8 +69,7 @@ test('Real production Author IDE: mandatory S09–S11 and cross-feature acceptan
       assert.equal(await f.editor().inputValue(), 'bản đang viết cần giữ lại.'); assert.deepEqual(await f.chapterState(x.first), server);
       await h.snapshot('G2-409-server-and-local-buffer', x.owned); await h.shot('s09-409-recovery');
       await page.getByRole('button', { name: 'Tải bản máy chủ', exact: true }).click();
-      const confirmServerReload = page.getByRole('button', { name: 'Xác nhận tải bản máy chủ', exact: true });
-      if (await confirmServerReload.isVisible()) await confirmServerReload.click();
+      await page.getByRole('button', { name: 'Xác nhận tải bản máy chủ', exact: true }).click();
       await until(async () => await f.editor().inputValue() === 'bản máy chủ từ phiên thứ hai.', 'Server draft did not reload after conflict recovery');
       const saved = f.patchResponse(x.first); await f.editor().fill('bản được lưu sau phục hồi.'); assert.equal((await saved).status(), 200);
       await f.changed(x.first, 'bản được lưu sau phục hồi.', server);

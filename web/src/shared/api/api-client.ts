@@ -91,7 +91,9 @@ export function getApiErrorMessage(error: unknown) {
     if (/PROVIDER_UNAVAILABLE|PROVIDER_TIMEOUT/.test(`${error.code} ${error.message}`)) {
       return 'Dịch vụ AI tạm thời không phản hồi. Hệ thống đã thử lại; vui lòng thử lại sau khoảng một phút.';
     }
-    // The AI service explains this one in Vietnamese (for example a repeated event).
+    // The AI service explains this one in Vietnamese (for example a repeated event). The range
+    // À–ỹ is written as escapes so the bundle stays ASCII: a test server that serves JS without
+    // charset=utf-8 decoded the raw letters wrongly and the regex failed to parse.
     if (error.code === 'INVALID_PROJECTION' && /[\u00C0-\u1EF9]/.test(error.message)) {
       return error.message;
     }

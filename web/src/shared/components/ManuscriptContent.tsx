@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
 import { parseAuthorNotes, type AuthorNote } from '../lib/author-notes';
 import { AuthorNoteReference } from './AuthorNoteReference';
 // Only editor-supported marks are interpreted. React escapes all other HTML.
@@ -19,11 +19,13 @@ function inline(text: string, notes: Map<string, AuthorNote>, depth = 0): ReactN
   }
   nodes.push(text.slice(start)); return nodes;
 }
-export function ManuscriptContent({ content }: { content: string }) {
+export function ManuscriptContent({ content, blockProps }: { content: string; blockProps?: (index: number, readableIndex: number) => HTMLAttributes<HTMLElement> }) {
   const { manuscript, notes, byId } = parseAuthorNotes(content.replace(/\r\n/g, '\n'));
+  let readableIndex = 0;
   return <div className="chapter-prose" style={{ color: 'inherit', fontSize: 'inherit', lineHeight: 'inherit', fontFamily: 'inherit', overflowWrap: 'anywhere' }}>{manuscript.split(/\n\s*\n/).map((block, index) => {
     if (/^\s*(?:---|\*\*\*)\s*$/.test(block)) return <hr key={index} />;
-    if (block.startsWith('> ')) return <blockquote key={index} style={{ borderLeft: '3px solid var(--sc-border)', paddingLeft: '1em', marginLeft: 0 }}>{inline(block.replace(/^> /gm, ''), byId)}</blockquote>;
-    return <p key={index} style={{ whiteSpace: 'pre-wrap', margin: '0 0 1em' }}>{inline(block, byId)}</p>;
+    const props = blockProps?.(index, readableIndex++);
+    if (block.startsWith('> ')) return <blockquote key={index} {...props} style={{ borderLeft: '3px solid var(--sc-border)', paddingLeft: '1em', marginLeft: 0 }}>{inline(block.replace(/^> /gm, ''), byId)}</blockquote>;
+    return <p key={index} {...props} style={{ whiteSpace: 'pre-wrap', margin: '0 0 1em' }}>{inline(block, byId)}</p>;
   })}{notes.length > 0 && <section className="sc-author-footnotes" aria-label="Chú thích của tác giả"><h4>Chú thích của tác giả</h4><ol>{notes.map(note => <li key={note.id} value={note.number}>{note.body}</li>)}</ol></section>}</div>;
 }

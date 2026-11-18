@@ -55,7 +55,7 @@ test('summary shows progress, a shared decision, machine counts and the usual ty
   assert.equal(partial.resolved, 1);
   assert.equal(partial.shared, undefined);
   assert.deepEqual(partial.machine, [
-    { label: 'entity [PER]', count: 1 }, { label: 'unresolved', count: 1 }, { label: 'entity [LOC]', count: 1 }]);
+    { label: 'Tên riêng (Nhân vật)', count: 1 }, { label: 'Chưa chắc', count: 1 }, { label: 'Tên riêng (Địa điểm)', count: 1 }]);
   const all = applyToGroup(group, {}, machineFor, m => knownIdentity(m, linh));
   assert.equal(summarizeGroup(group, all, machineFor).shared?.canonical_entity_id, 'e-linh');
   const [, single] = groupBySurface(candidates);

@@ -53,7 +53,8 @@ function Editor({novelId,lastWrittenChapter=0,onServerChange,onRegisterEventAdop
  async function reload(id?:string,replace=false):Promise<boolean>{
   scope.assertCurrent();const signal=scope.signal;setPending(true);
   try{
-   const data=normalizePlans((await apiClient.get<ApiEnvelope<Plans>>(path,{signal})).data.data);if(signal.aborted)return false;
+   // A missing plan list (no plan yet, or an empty answer) must not blank the whole memory panel.
+   const data=normalizePlans((await apiClient.get<ApiEnvelope<Plans|null>>(path,{signal})).data.data);if(signal.aborted)return false;
    scope.assertCurrent();setList(data);setLoaded(true);
    let preferred=id;
    if(preferred===undefined)try{preferred=localStorage.getItem(key+':selection')??undefined;}catch{}
@@ -109,7 +110,7 @@ function Editor({novelId,lastWrittenChapter=0,onServerChange,onRegisterEventAdop
   try{
    const data=(await apiClient.post<ApiEnvelope<Plan>>(path,{...body,idempotency_key:local.operationKey(body)},{signal})).data.data;
    if(signal.aborted)return;scope.assertCurrent();
-   const server=normalizePlans((await apiClient.get<ApiEnvelope<Plans>>(path,{signal})).data.data);if(signal.aborted)return;
+   const server=normalizePlans((await apiClient.get<ApiEnvelope<Plans|null>>(path,{signal})).data.data);if(signal.aborted)return;
    setList(server);local.accept(draft(server.plans.find(p=>p.plan_id===data.plan_id),server));remember(data.plan_id);onServerChange?.();
    setMessage(action==='delete'?'Đã lưu trữ bản đã chọn. Nội dung lịch sử vẫn được giữ.':action==='skip'?'Máy chủ xác nhận không dùng kế hoạch.':'Đã lưu phiên bản dàn ý. Không thay đổi lịch sử truyện.');
   }catch(e){if(!signal.aborted)setMessage(e instanceof ApiClientError&&e.status===409?`${getApiErrorMessage(e)}. Bản sửa được giữ. Đọc máy chủ để đối chiếu; không tự ghi đè.`:getApiErrorMessage(e));}

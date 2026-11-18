@@ -153,7 +153,7 @@ export function entityKind(type: string | null | undefined): string {
 }
 
 const STATUS_LABEL: Record<string, string> = { alive: 'Còn sống', dead: 'Đã chết', deceased: 'Đã chết', unknown: 'Chưa rõ',
-  injured: 'Bị thương', wounded: 'Bị thương', missing: 'Mất tích', captured: 'Bị bắt', imprisoned: 'Bị giam',
+  injured: 'Bị thương', wounded: 'Bị thương', unconscious: 'Bất tỉnh', missing: 'Mất tích', captured: 'Bị bắt', imprisoned: 'Bị giam',
   active: 'Đang hoạt động', destroyed: 'Đã bị phá hủy', lost: 'Đã mất' };
 export function entityStatusLabel(status: string | null | undefined): string {
   const raw = String(status ?? '').trim();

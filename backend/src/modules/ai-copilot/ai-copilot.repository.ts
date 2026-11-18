@@ -68,6 +68,7 @@ export async function listRecentCopilotTimelineEvents(novelId: string, chapterId
         left join chapters c on c.chapter_id = ste.chapter_id
         where ste.novel_id = $1
           and ste.deleted_at is null
+          and c.deleted_at is null
           and (
             $2::uuid is null
             or c.chapter_number is null

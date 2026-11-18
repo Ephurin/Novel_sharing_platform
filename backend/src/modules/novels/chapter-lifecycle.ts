@@ -7,6 +7,22 @@ import { successResponse } from '../../core/response/response.js';
 import { getNovel } from './novels.service.js';
 import { findChapterById } from './chapters.repository.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
+import { aiGatewayService } from '../ai/ai-gateway.service.js';
+import { logger } from '../../core/logger/logger.js';
+
+// Live check R4 (BB3): a deleted or archived chapter kept its entity review waiting, so its analysis
+// could still be continued into the story memory. Best effort: the chapter change stands even if the
+// AI service is unreachable, and the AI service also refuses to continue a discarded analysis.
+export async function closeChapterAnalysis(novelId: string, chapterId: string, userId: string | undefined,
+  forward: typeof aiGatewayService.forwardRequest = aiGatewayService.forwardRequest.bind(aiGatewayService)) {
+  try {
+    await forward({ method: 'POST', path: `/v1/story-brains/${novelId}/chapters/${chapterId}/close-analysis`,
+      userId, body: { reason: 'Chương đã được lưu trữ hoặc xóa.' } });
+  } catch (error) {
+    logger.warn({ chapterId, error: error instanceof Error ? error.message : String(error) },
+      'Could not close the analysis of an archived or deleted chapter');
+  }
+}
 const orderSchema = z.object({ chapterIds: boundedArray(z.string().uuid(), 10000, { min: 1 }) });
 function owner(novel: { authorId: string }, auth?: AuthContext) { if (!auth || (auth.role !== 'ADMIN' && novel.authorId !== auth.userId)) throw new AppError(403, 'CONTENT_005', 'Content ownership required'); }
 export const chapterLifecycleController: RequestHandler = async (req, res, next) => {
@@ -33,6 +49,7 @@ export const chapterLifecycleController: RequestHandler = async (req, res, next)
         await client.query('update novels set chapters_count = (select count(*) from chapters where novel_id = $1 and deleted_at is null), updated_at = now() where novel_id = $1', [chapter.novelId]);
       } else await client.query('update chapters set status = $2, updated_at = now() where chapter_id = $1', [id, action === 'restore' ? 'DRAFT' : 'ARCHIVED']);
     });
+    if (action !== 'restore') await closeChapterAnalysis(chapter.novelId, id, req.auth?.userId);
     res.json(successResponse({ chapterId: id, action }));
   } catch (error) { next(error); }
 };

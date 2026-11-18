@@ -30,7 +30,8 @@ export function AuthorMemoryRepair({ novelId, version, entities, disabled, perfo
     <Text fw={600}>Bổ sung hoặc thay thế dữ liệu trích xuất</Text>
     <Text size="sm">Tạo đề xuất từ bản lưu mới nhất. Nếu thay thế đề xuất sai, hãy loại đề xuất cũ riêng; dữ liệu đã duyệt không tự bị xóa.</Text>
     <Select label="Chương nguồn" value={chapterId} onChange={id => { setChapterId(id); setQuote(''); }}
-      data={(chapters.data ?? []).map(c => ({ value: c.chapterId, label: `Chương ${c.chapterNumber}: ${c.title}` }))} />
+      // Demo walkthrough 2026-11-17: titles such as "Chương 1: …" were shown as "Chương 1: Chương 1: …".
+      data={(chapters.data ?? []).map(c => ({ value: c.chapterId, label: /^chương\s*\d+/i.test(c.title.trim()) ? c.title : `Chương ${c.chapterNumber}: ${c.title}` }))} />
     <Textarea label="Nội dung bản lưu (chọn và sao chép đoạn làm bằng chứng)" readOnly value={revision?.content ?? ''} minRows={4} maxRows={10} autosize />
     <Textarea label="Trích dẫn nguyên văn, đủ dài để xác định duy nhất" value={quote} onChange={e => setQuote(e.currentTarget.value)} />
     <Select label="Loại đề xuất" value={kind} onChange={setKind} data={[{ value: 'fact', label: 'Dữ kiện / trạng thái' }, { value: 'entity', label: 'Thực thể' }, { value: 'event', label: 'Sự kiện' }]} />
