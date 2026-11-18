@@ -1,8 +1,8 @@
-# Chương 3 – Use Case độc giả
+# Chương 3 – Use Case Độc giả
 
-> Tách từ [báo cáo Chương 3](../BAO_CAO_CHUONG_3.md). Các sơ đồ bám theo mã nguồn nhánh `main`.
+> Tách từ [bản báo cáo Chương 3](../BAO_CAO_CHUONG_3.md). Các quan hệ được xác định theo mã nguồn nhánh `main`; sơ đồ Mermaid là biểu diễn gần đúng ký pháp UML.
 
-#### a) Khám phá, đọc và lưu tiến độ
+#### a) Khám phá, đọc và quản lý dữ liệu đọc
 
 ```mermaid
 flowchart LR
@@ -10,36 +10,45 @@ flowchart LR
     R["Reader"]
     subgraph SYS["Khám phá và đọc truyện"]
         U1(["Tìm kiếm truyện"])
-        U2(["Lọc và xem danh mục"])
-        U3(["Xem thông tin truyện"])
+        U2(["Lọc kết quả tìm kiếm"])
+        U3(["Xem thông tin tác phẩm"])
         U4(["Xem danh sách chương"])
-        U5(["Đọc chương được phép truy cập"])
-        U6(["Tùy chỉnh giao diện đọc"])
-        U7(["Lưu và xem lịch sử đọc"])
-        U8(["Thêm hoặc xóa khỏi thư viện"])
-        U9(["Tạo dấu trang tại vị trí đọc"])
-        U10(["Xem và xóa dấu trang"])
+        U5(["Đọc chương"])
+        U6(["Kiểm tra quyền đọc"])
+        U7(["Tùy chỉnh giao diện đọc"])
+        U8(["Quản lý thư viện (trừu tượng)"])
+        U9(["Thêm truyện vào thư viện"])
+        U10(["Xóa truyện khỏi thư viện"])
+        U11(["Lưu hoặc xem tiến độ đọc"])
+        U12(["Quản lý dấu trang (trừu tượng)"])
+        U13(["Tạo dấu trang"])
+        U14(["Xem dấu trang"])
+        U15(["Xóa dấu trang"])
     end
     G --- U1
     R --- U1
-    G --- U2
-    R --- U2
     G --- U3
     R --- U3
     G --- U4
     R --- U4
     G --- U5
     R --- U5
-    R --- U6
     R --- U7
     R --- U8
-    R --- U9
-    R --- U10
+    R --- U11
+    R --- U12
+    U2 -.->|"«extend»: khi áp dụng bộ lọc"| U1
+    U5 -.->|"«include»"| U6
+    U9 -.->|"«generalization»"| U8
+    U10 -.->|"«generalization»"| U8
+    U13 -.->|"«generalization»"| U12
+    U14 -.->|"«generalization»"| U12
+    U15 -.->|"«generalization»"| U12
 ```
 
-*Hình 3.3. Use Case khám phá, đọc và lưu tiến độ.*
+*Hình 3.3. Use Case tìm kiếm, đọc và quản lý thư viện/dấu trang.*
 
-Các thao tác được đối chiếu với reading.routes.ts trên nhánh main. Độc giả đã đăng nhập có thể lưu tiến độ, thư viện và dấu trang, trong khi khách truy cập chỉ dùng các chức năng công khai theo quyền đọc. Lưu lịch sử đọc không phải một Use Case bắt buộc xảy ra mỗi khi mở chương.
+**Phân cấp:** Quản lý thư viện và Quản lý dấu trang là các ca sử dụng trừu tượng gom những biến thể trên cùng một tài nguyên; các thao tác thêm/xóa hoặc tạo/xem/xóa là chuyên biệt hóa. **Quan hệ bắt buộc:** Đọc chương luôn kiểm tra quyền truy cập theo trạng thái chương và quyền của người đọc. **Mở rộng:** Lọc chỉ phát sinh khi người dùng chọn bộ lọc trong quá trình tìm kiếm. Việc xem chi tiết truyện trước khi đọc chỉ là luồng điều hướng thông thường, không mặc nhiên là «include». Mã nguồn: `reading.routes.ts`, `reading.service.ts`.
 
 #### b) Bình luận và tương tác cộng đồng
 
@@ -48,33 +57,41 @@ flowchart LR
     G["Guest"]
     R["Reader"]
     subgraph SYS["Tương tác với tác phẩm"]
-        U1(["Xem bình luận truyện và chương"])
+        U1(["Xem bình luận"])
         U2(["Gửi bình luận"])
-        U3(["Sửa hoặc xóa bình luận của mình"])
-        U4(["Xem và gửi trả lời"])
-        U5(["Thả cảm xúc cho bình luận"])
-        U6(["Thích hoặc bỏ thích truyện"])
-        U7(["Theo dõi hoặc bỏ theo dõi tác giả"])
-        U8(["Theo dõi hoặc bỏ theo dõi truyện"])
-        U9(["Đánh giá tác phẩm"])
-        U10(["Bật hoặc tắt thông báo truyện"])
+        U3(["Trả lời bình luận"])
+        U4(["Quản lý bình luận của mình (trừu tượng)"])
+        U5(["Sửa bình luận"])
+        U6(["Xóa bình luận"])
+        U7(["Bày tỏ cảm xúc với bình luận"])
+        U8(["Quản lý lượt thích truyện (trừu tượng)"])
+        U9(["Thích truyện"])
+        U10(["Bỏ thích truyện"])
+        U11(["Theo dõi hoặc bỏ theo dõi tác giả"])
+        U12(["Theo dõi hoặc bỏ theo dõi truyện"])
+        U13(["Thiết lập thông báo truyện"])
+        U14(["Đánh giá tác phẩm"])
     end
     G --- U1
     R --- U1
     R --- U2
-    R --- U3
     R --- U4
-    R --- U5
-    R --- U6
     R --- U7
     R --- U8
-    R --- U9
-    R --- U10
+    R --- U11
+    R --- U12
+    R --- U13
+    R --- U14
+    U3 -.->|"«generalization»"| U2
+    U5 -.->|"«generalization»"| U4
+    U6 -.->|"«generalization»"| U4
+    U9 -.->|"«generalization»"| U8
+    U10 -.->|"«generalization»"| U8
 ```
 
-*Hình 3.4. Use Case tương tác cộng đồng.*
+*Hình 3.4. Use Case bình luận, cảm xúc, theo dõi và đánh giá.*
 
-Các chức năng được đối chiếu với comments.routes.ts, social.routes.ts và novel-engagement.routes.ts. Theo dõi tác giả và theo dõi tác phẩm là hai mục tiêu riêng, tương ứng với hai loại đối tượng. Sửa và xóa bình luận phụ thuộc quyền sở hữu và chính sách hệ thống.
+**Phân cấp:** Trả lời là biến thể của gửi bình luận; sửa và xóa là những biến thể của mục tiêu trừu tượng quản lý bình luận của mình. Thích và bỏ thích là những biến thể cập nhật cùng một quan hệ. **Không gán sai phụ thuộc:** Theo dõi truyện và bật thông báo là hai API riêng; mã nguồn không bắt buộc người dùng phải tạo bản ghi follow trước khi thiết lập thông báo, vì vậy không dùng «include» giữa chúng. Xem bình luận cũng không bắt buộc phải phát sinh trước mọi thao tác gửi bình luận ở cấp service. Căn cứ: `comments.routes.ts`, `social.routes.ts`, `novel-engagement.service.ts`.
 
 #### c) Ví Coin và quyền truy cập VIP
 
@@ -82,26 +99,30 @@ Các chức năng được đối chiếu với comments.routes.ts, social.route
 flowchart LR
     U["Tài khoản có quyền phù hợp"]
     subgraph SYS["Ví Coin mô phỏng"]
-        U1(["Xem số dư Coin"])
-        U2(["Xem giao dịch"])
-        U3(["Xem các gói nạp"])
-        U4(["Tạo phiên nạp Coin mô phỏng"])
-        U5(["Mở khóa chương VIP"])
-        U6(["Ủng hộ tác giả bằng Coin"])
-        U7(["Gửi yêu cầu rút Coin"])
-        U8(["Xem thông tin thu nhập"])
+        U1(["Xem số dư ví"])
+        U2(["Xem lịch sử giao dịch"])
+        U3(["Xem gói nạp Coin"])
+        U4(["Tạo phiên nạp mô phỏng"])
+        U5(["Sử dụng số dư Coin (trừu tượng)"])
+        U6(["Mở khóa chương VIP"])
+        U7(["Ủng hộ tác giả bằng Coin"])
+        U8(["Yêu cầu rút Coin"])
+        U9(["Kiểm tra số dư và điều kiện ví"])
+        U10(["Xem thông tin thu nhập"])
     end
     U --- U1
     U --- U2
     U --- U3
     U --- U4
     U --- U5
-    U --- U6
-    U --- U7
-    U --- U8
+    U --- U10
+    U6 -.->|"«generalization»"| U5
+    U7 -.->|"«generalization»"| U5
+    U8 -.->|"«generalization»"| U5
+    U5 -.->|"«include»"| U9
 ```
 
-*Hình 3.5. Use Case ví Coin mô phỏng và mở khóa chương.*
+*Hình 3.5. Use Case ví Coin mô phỏng với các biến thể sử dụng số dư.*
 
-Hình mô tả các thao tác có endpoint trong wallet.routes.ts, không khẳng định tất cả vai trò được phép sử dụng mọi thao tác. Webhook báo nạp thành công là cơ chế tích hợp mô phỏng, không phải Use Case do độc giả trực tiếp kích hoạt. Không xem Coin như giải pháp thanh toán thương mại thực.
+**Phân cấp:** Mở khóa, ủng hộ và gửi yêu cầu rút là các nghiệp vụ sử dụng số dư theo những cách khác nhau; cùng có bước kiểm tra điều kiện ví/số dư để xử lý an toàn. Hình dùng lớp trừu tượng Sử dụng số dư Coin để diễn tả điểm chung, không khẳng định tồn tại một endpoint có tên như vậy. **Không gán «include»:** Tạo phiên nạp và xem lịch sử giao dịch không phải bước bắt buộc của việc mở khóa; thiếu Coin là trường hợp ngoại lệ hoặc một lần giao dịch khác. Giao dịch nạp thực tế không được mô tả vì đây là Coin mô phỏng. Căn cứ: `wallet.service.ts`, `wallet.repository.ts`.
 
