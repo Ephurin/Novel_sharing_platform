@@ -20,7 +20,7 @@ flowchart LR
         U10(["Chấp nhận đề xuất"])
         U11(["Sửa và chấp nhận"])
         U12(["Từ chối đề xuất"])
-        U13(["Kiểm tra phạm vi và phiên bản đề xuất"])
+        U13(["Kiểm tra quyền và trạng thái đề xuất"])
         U14(["Kích hoạt baseline"])
         U15(["Xem bộ nhớ đã phê duyệt"])
     end
@@ -43,7 +43,7 @@ flowchart LR
 
 *Hình 3.8. Use Case Story Brain với các biến thể khởi tạo, rà soát và quyết định.*
 
-**Phân cấp:** Khởi tạo từ ý tưởng và từ bản thảo là hai biến thể của cùng mục tiêu tạo Story Brain. Chấp nhận, chỉnh sửa–chấp nhận và từ chối là các biến thể quyết định về đề xuất, không phải ba thao tác bắt buộc trong một lần review. **«extend»:** Hợp nhất thực thể chỉ xuất hiện trong quá trình rà soát thực thể khi phát hiện trùng danh tính. **Điều kiện tiên quyết:** Kích hoạt baseline cần kết quả chuẩn bị/rà soát phù hợp; không «include» thao tác khởi tạo mỗi lần kích hoạt. Căn cứ: `ai-gateway.routes.ts`, `narrative_service.py`.
+**Phân cấp:** Khởi tạo từ ý tưởng và từ bản thảo là hai biến thể của cùng mục tiêu tạo Story Brain. Chấp nhận, chỉnh sửa–chấp nhận và từ chối là các biến thể quyết định về đề xuất, không phải ba thao tác bắt buộc trong một lần review. Cả ba nhánh đều được kiểm tra quyền và trạng thái đề xuất; kiểm tra **brain version** là yêu cầu riêng trên nhánh chấp nhận (và một số quyết định nhóm), không áp dụng như bước bắt buộc của mọi lần từ chối. **«extend»:** Hợp nhất thực thể chỉ xuất hiện trong quá trình rà soát thực thể khi phát hiện trùng danh tính. **Điều kiện tiên quyết:** Kích hoạt baseline cần kết quả chuẩn bị/rà soát phù hợp; không «include» thao tác khởi tạo mỗi lần kích hoạt. Căn cứ: `ai-gateway.routes.ts`, `narrative_service.py`.
 
 #### b) AI hỗ trợ viết và quản lý kế hoạch
 
