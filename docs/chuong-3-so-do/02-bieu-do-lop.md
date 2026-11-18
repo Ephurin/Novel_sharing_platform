@@ -54,7 +54,7 @@ classDiagram
     Chapter "1" --> "0..*" ChapterRevision : lịch sử
 ```
 
-*Hình 3.7. Biểu đồ lớp tài khoản, tác phẩm và phiên bản chương.*
+*Hình 3.12. Biểu đồ lớp tài khoản, tác phẩm và phiên bản chương.*
 
 ## 3.3.2. Biểu đồ lớp đọc truyện, tương tác và ví
 
@@ -120,7 +120,7 @@ classDiagram
     Chapter "1" --> "0..*" ChapterUnlock
 ```
 
-*Hình 3.8. Biểu đồ lớp đọc truyện, tương tác và giao dịch Coin.*
+*Hình 3.13. Biểu đồ lớp đọc truyện, tương tác và giao dịch Coin.*
 
 ## 3.3.3. Biểu đồ lớp quản lý ngữ cảnh và AI
 
@@ -180,5 +180,5 @@ classDiagram
     MemoryChunk "1" --> "0..*" MemoryEmbedding
 ```
 
-*Hình 3.9. Biểu đồ lớp miền ngữ cảnh truyện và AI.*
+*Hình 3.14. Biểu đồ lớp miền ngữ cảnh truyện và AI.*
 
