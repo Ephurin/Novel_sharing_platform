@@ -93,17 +93,19 @@ Mã nguồn backend chia thành các nhóm module: `auth`, `users`, `novels`, `r
 
 ## 3.2. Xây dựng biểu đồ Use Case và các kịch bản
 
-### 3.2.1. Xác định tác nhân chính
+### 3.2.1. Xác định tác nhân và mức độ chi tiết
 
-| Tác nhân | Mô tả | Nhóm chức năng tiêu biểu |
+| Tác nhân | Mô tả | Phạm vi nghiệp vụ |
 |---|---|---|
-| Guest | Người chưa đăng nhập | Tìm kiếm, xem thông tin truyện và đọc nội dung công khai |
-| Reader | Người dùng tập trung vào việc đọc | Đọc truyện, lưu lịch sử và dấu trang, bình luận, theo dõi, quản lý ví Coin |
-| Author | Người sáng tác và quản lý truyện | Quản lý tác phẩm, bản thảo, chương, phiên bản, ngữ cảnh truyện và công cụ AI |
-| Admin | Người quản lý vận hành | Quản lý tài khoản, danh mục, xử lý báo cáo và kiểm duyệt |
-| Dịch vụ LLM | Hệ thống ngoài tham gia sinh/phân tích văn bản | Được AI Service gọi, không phải tác nhân sở hữu tác phẩm |
+| Guest | Khách chưa xác thực | Tìm kiếm, xem thông tin và đọc nội dung công khai |
+| Reader | Độc giả | Đọc, lưu tiến độ, thư viện, bình luận, theo dõi, đánh giá, ví Coin mô phỏng |
+| Author | Người sáng tác | Tác phẩm, chương, revision, hồ sơ ngữ cảnh và AI Copilot |
+| Admin | Quản trị viên | Tài khoản, danh mục, kiểm duyệt và vận hành |
+| LLM Provider | Nhà cung cấp mô hình bên ngoài | Được AI Service gọi; không có quyền chỉnh sửa tác phẩm |
 
-**Lưu ý về cách thể hiện:** Mermaid không có cú pháp Use Case UML chính thức như các công cụ UML chuyên dụng. Các hình 3.2–3.6 dùng `flowchart` với nút bo tròn để **biểu diễn nội dung Use Case**, không phải chứng nhận tuân thủ toàn bộ ký pháp UML. Khi nộp báo cáo theo quy chuẩn UML nghiêm ngặt, có thể dựng lại bằng PlantUML/Visual Paradigm từ chính danh sách ca sử dụng này.
+Bản phân tích được tổ chức **hai tầng**: một sơ đồ tổng quát và chín sơ đồ theo nghiệp vụ. Các nút bo tròn là mục tiêu/thao tác của người dùng. Quan hệ «include» chỉ dùng khi một hành vi bắt buộc được bao gồm trong Use Case khác; **đăng nhập và phân quyền được mô tả bằng điều kiện tiên quyết**, không phải các nhánh «extend».
+
+**Quy ước biểu đồ:** Mermaid không cung cấp loại UML Use Case chính thức. Những hình dưới đây dùng flowchart có elip và ranh giới hệ thống để biểu diễn chức năng theo hướng UML, nhưng không thay thế được biểu đồ chuẩn PlantUML/Visual Paradigm nếu khoa yêu cầu ký pháp nghiêm ngặt.
 
 ### 3.2.2. Biểu đồ Use Case tổng quát
 
@@ -113,137 +115,351 @@ flowchart LR
     R["Reader"]
     A["Author"]
     AD["Admin"]
-    subgraph E["Hệ thống Ephurin"]
-        C1(["Tìm kiếm và xem truyện"])
-        C2(["Đọc và lưu tiến độ"])
-        C3(["Tương tác cộng đồng"])
-        C4(["Dùng ví Coin mô phỏng"])
-        C5(["Quản lý tác phẩm và chương"])
-        C6(["Sáng tác và dùng AI Copilot"])
-        C7(["Quản lý tài khoản"])
-        C8(["Kiểm duyệt nội dung"])
+    subgraph SYS["Hệ thống Ephurin"]
+        U1(["Khám phá truyện công khai"])
+        U2(["Đọc và quản lý thư viện"])
+        U3(["Tương tác cộng đồng"])
+        U4(["Sử dụng Coin mô phỏng"])
+        U5(["Quản lý tác phẩm và chương"])
+        U6(["Quản lý ngữ cảnh truyện"])
+        U7(["Sáng tác với AI Copilot"])
+        U8(["Quản trị và kiểm duyệt"])
     end
-    G --> C1
-    R --> C2
-    R --> C3
-    R --> C4
-    A --> C5
-    A --> C6
-    AD --> C7
-    AD --> C8
+    G --- U1
+    R --- U1
+    R --- U2
+    R --- U3
+    R --- U4
+    A --- U5
+    A --- U6
+    A --- U7
+    AD --- U8
 ```
 
-*Hình 3.2. Biểu đồ ca sử dụng tổng quát.*
+*Hình 3.2. Biểu đồ Use Case tổng quát Ephurin.*
 
-Biểu đồ tổng quát xác định ranh giới chức năng mà các nhóm người dùng trực tiếp thao tác. Quyền truy cập cụ thể được kiểm tra bởi middleware và service tương ứng; không nên suy luận chỉ từ hình tổng quát rằng tất cả chức năng đều mở cho mọi tài khoản.
+Sơ đồ này định vị các nhóm chức năng, không cố chứa toàn bộ thao tác. Đăng nhập được mô tả là điều kiện tiên quyết của các ca sử dụng yêu cầu xác thực, không phải một mục tiêu mở rộng của mọi thao tác.
 
-### 3.2.3. Use Case của độc giả
+### 3.2.3. Use Case chi tiết của độc giả
+
+#### a) Khám phá, đọc và lưu tiến độ
 
 ```mermaid
 flowchart LR
+    G["Guest"]
     R["Reader"]
-    subgraph SYS["Phân hệ độc giả"]
-      A(["Tìm kiếm và lọc truyện"])
-      B(["Đọc chương"])
-      C(["Lưu lịch sử đọc / dấu trang"])
-      D(["Quản lý thư viện"])
-      E(["Bình luận / thích / theo dõi"])
-      F(["Đánh giá và nhận thông báo"])
-      G(["Xem ví / mở khóa chương VIP"])
+    subgraph SYS["Khám phá và đọc truyện"]
+        U1(["Tìm kiếm truyện"])
+        U2(["Lọc và xem danh mục"])
+        U3(["Xem thông tin truyện"])
+        U4(["Xem danh sách chương"])
+        U5(["Đọc chương được phép truy cập"])
+        U6(["Tùy chỉnh giao diện đọc"])
+        U7(["Lưu và xem lịch sử đọc"])
+        U8(["Thêm hoặc xóa khỏi thư viện"])
+        U9(["Tạo dấu trang tại vị trí đọc"])
+        U10(["Xem và xóa dấu trang"])
     end
-    R --> A
-    R --> B
-    R --> C
-    R --> D
-    R --> E
-    R --> F
-    R --> G
+    G --- U1
+    R --- U1
+    G --- U2
+    R --- U2
+    G --- U3
+    R --- U3
+    G --- U4
+    R --- U4
+    G --- U5
+    R --- U5
+    R --- U6
+    R --- U7
+    R --- U8
+    R --- U9
+    R --- U10
 ```
 
-*Hình 3.3. Ca sử dụng của độc giả.*
+*Hình 3.3. Use Case khám phá, đọc và lưu tiến độ.*
 
-Chức năng truy cập và lưu tiến độ đọc được đối chiếu với các route `/reading/search`, `/reading/chapters/:chapterId`, `/reading/history/me`, `/reading/library/me` và nhóm route dấu trang. Bình luận, theo dõi và đánh giá nằm trong các module tương tác. Riêng việc đọc chương VIP phải thỏa điều kiện quyền truy cập nội dung.
+Các thao tác được đối chiếu với reading.routes.ts trên nhánh main. Độc giả đã đăng nhập có thể lưu tiến độ, thư viện và dấu trang, trong khi khách truy cập chỉ dùng các chức năng công khai theo quyền đọc. Lưu lịch sử đọc không phải một Use Case bắt buộc xảy ra mỗi khi mở chương.
 
-### 3.2.4. Use Case của tác giả
+#### b) Bình luận và tương tác cộng đồng
+
+```mermaid
+flowchart LR
+    G["Guest"]
+    R["Reader"]
+    subgraph SYS["Tương tác với tác phẩm"]
+        U1(["Xem bình luận truyện và chương"])
+        U2(["Gửi bình luận"])
+        U3(["Sửa hoặc xóa bình luận của mình"])
+        U4(["Xem và gửi trả lời"])
+        U5(["Thả cảm xúc cho bình luận"])
+        U6(["Thích hoặc bỏ thích truyện"])
+        U7(["Theo dõi hoặc bỏ theo dõi tác giả"])
+        U8(["Theo dõi hoặc bỏ theo dõi truyện"])
+        U9(["Đánh giá tác phẩm"])
+        U10(["Bật hoặc tắt thông báo truyện"])
+    end
+    G --- U1
+    R --- U1
+    R --- U2
+    R --- U3
+    R --- U4
+    R --- U5
+    R --- U6
+    R --- U7
+    R --- U8
+    R --- U9
+    R --- U10
+```
+
+*Hình 3.4. Use Case tương tác cộng đồng.*
+
+Các chức năng được đối chiếu với comments.routes.ts, social.routes.ts và novel-engagement.routes.ts. Theo dõi tác giả và theo dõi tác phẩm là hai mục tiêu riêng, tương ứng với hai loại đối tượng. Sửa và xóa bình luận phụ thuộc quyền sở hữu và chính sách hệ thống.
+
+#### c) Ví Coin và quyền truy cập VIP
+
+```mermaid
+flowchart LR
+    U["Tài khoản có quyền phù hợp"]
+    subgraph SYS["Ví Coin mô phỏng"]
+        U1(["Xem số dư Coin"])
+        U2(["Xem giao dịch"])
+        U3(["Xem các gói nạp"])
+        U4(["Tạo phiên nạp Coin mô phỏng"])
+        U5(["Mở khóa chương VIP"])
+        U6(["Ủng hộ tác giả bằng Coin"])
+        U7(["Gửi yêu cầu rút Coin"])
+        U8(["Xem thông tin thu nhập"])
+    end
+    U --- U1
+    U --- U2
+    U --- U3
+    U --- U4
+    U --- U5
+    U --- U6
+    U --- U7
+    U --- U8
+```
+
+*Hình 3.5. Use Case ví Coin mô phỏng và mở khóa chương.*
+
+Hình mô tả các thao tác có endpoint trong wallet.routes.ts, không khẳng định tất cả vai trò được phép sử dụng mọi thao tác. Webhook báo nạp thành công là cơ chế tích hợp mô phỏng, không phải Use Case do độc giả trực tiếp kích hoạt. Không xem Coin như giải pháp thanh toán thương mại thực.
+
+### 3.2.4. Use Case chi tiết của tác giả
+
+#### a) Quản lý tác phẩm, chương và vòng đời công bố
 
 ```mermaid
 flowchart LR
     A["Author"]
-    subgraph SYS["Không gian sáng tác"]
-      U1(["Tạo / cập nhật tác phẩm"])
-      U2(["Tạo và chỉnh sửa chương"])
-      U3(["Lưu bản thảo / tạo revision"])
-      U4(["Sắp xếp và lên lịch chương"])
-      U5(["Gửi yêu cầu công bố"])
-      U6(["Quản lý nhân vật / timeline / tóm tắt"])
-      U7(["Xem thống kê và thu nhập mô phỏng"])
+    subgraph SYS["Tác phẩm và chương truyện"]
+        U1(["Xem danh sách tác phẩm của mình"])
+        U2(["Tạo tác phẩm"])
+        U3(["Sửa hoặc xóa tác phẩm"])
+        U4(["Gửi duyệt công bố tác phẩm"])
+        U5(["Tạo chương"])
+        U6(["Chỉnh sửa và lưu bản thảo"])
+        U7(["Tạo và xem revision"])
+        U8(["Sắp xếp thứ tự chương"])
+        U9(["Lên lịch hoặc hủy lịch chương"])
+        U10(["Gửi duyệt công bố chương"])
+        U11(["Lưu trữ hoặc khôi phục chương"])
+        U12(["Xem thu nhập theo truyện"])
+        U13(["Kiểm tra nội dung theo quy tắc"])
     end
-    A --> U1
-    A --> U2
-    A --> U3
-    A --> U4
-    A --> U5
-    A --> U6
-    A --> U7
+    A --- U1
+    A --- U2
+    A --- U3
+    A --- U4
+    A --- U5
+    A --- U6
+    A --- U7
+    A --- U8
+    A --- U9
+    A --- U10
+    A --- U11
+    A --- U12
+    U10 -.->|"«include»"| U13
 ```
 
-*Hình 3.4. Ca sử dụng của tác giả.*
+*Hình 3.6. Use Case quản lý truyện và chương của tác giả.*
 
-Tác giả được kiểm tra quyền sở hữu truyện trước khi sửa hoặc công bố. Quá trình viết không đồng nhất với quá trình xuất bản: bản nháp, revision và nội dung đã công bố có trách nhiệm lưu trữ và trạng thái riêng.
+Căn cứ chính là novels.routes.ts, chapters.routes.ts và chapters.service.ts. Phần Kiểm tra nội dung theo quy tắc được biểu diễn bằng quan hệ «include» từ Gửi duyệt công bố chương, vì đây là bước xử lý bắt buộc trong luồng submitChapterPublish. Quyền sở hữu và trạng thái bản thảo là điều kiện trước, không phải Use Case mở rộng Đăng nhập.
 
-### 3.2.5. Use Case hỗ trợ sáng tác bằng AI
+#### b) Quản lý ngữ cảnh truyện thủ công
 
 ```mermaid
 flowchart LR
     A["Author"]
-    subgraph SYS["AI Writing / Story Brain"]
-      X1(["Khởi tạo Story Brain từ ý tưởng"])
-      X2(["Khởi tạo từ bản thảo có sẵn"])
-      X3(["Xem / rà soát thực thể và dữ kiện"])
-      X4(["Yêu cầu phân tích / tái phân tích"])
-      X5(["Sinh gợi ý hoặc bản thảo"])
-      X6(["Xem danh sách đề xuất"])
-      X7(["Chấp nhận / sửa / từ chối đề xuất"])
-      X8(["Xem trước ngữ cảnh và quản lý kế hoạch"])
+    subgraph SYS["Dữ kiện tác phẩm do tác giả quản lý"]
+        U1(["Xem và tạo hồ sơ nhân vật"])
+        U2(["Sửa hoặc xóa hồ sơ nhân vật"])
+        U3(["Xem quan hệ giữa nhân vật"])
+        U4(["Tạo hoặc sửa quan hệ nhân vật"])
+        U5(["Xem các sự kiện theo dòng thời gian"])
+        U6(["Thêm, sửa hoặc xóa sự kiện"])
+        U7(["Xem tóm tắt truyện"])
+        U8(["Tạo, sửa hoặc xóa tóm tắt"])
+        U9(["Đồng bộ dữ liệu Story Bible"])
     end
-    A --> X1
-    A --> X2
-    A --> X3
-    A --> X4
-    A --> X5
-    A --> X6
-    A --> X7
-    A --> X8
+    A --- U1
+    A --- U2
+    A --- U3
+    A --- U4
+    A --- U5
+    A --- U6
+    A --- U7
+    A --- U8
+    A --- U9
 ```
 
-*Hình 3.5. Ca sử dụng của tác giả đối với phân hệ AI.*
+*Hình 3.7. Use Case tác giả quản lý hồ sơ nhân vật và dòng thời gian.*
 
-Trên `main` có các route gateway tương ứng cho khởi tạo Story Brain, review thực thể, truy vấn context preview, tạo writing generation, duyệt hoặc từ chối proposal và quản lý story plan. Các use case thể hiện **giao diện chức năng được mã nguồn hỗ trợ**; khả năng đáp ứng mọi kích thước đầu vào, độ chính xác trích xuất hay chất lượng sinh văn bản không thể suy ra từ sự tồn tại của route.
+Các chức năng được đối chiếu với story-context.routes.ts. Đây là phân hệ quản lý thông tin do tác giả nhập trực tiếp và có thể vận hành độc lập với mô hình LLM. Tách phân hệ này khỏi AI là cần thiết để làm rõ trách nhiệm và nguồn dữ liệu chính thức của tác phẩm.
 
-### 3.2.6. Use Case của quản trị viên
+### 3.2.5. Use Case chi tiết của AI Writing Copilot
+
+#### a) Khởi tạo Story Brain và phê duyệt dữ kiện
 
 ```mermaid
 flowchart LR
-    AD["Admin"]
-    subgraph SYS["Phân hệ quản trị"]
-      M1(["Quản lý người dùng / trạng thái tài khoản"])
-      M2(["Quản lý danh mục và truyện"])
-      M3(["Xem báo cáo vi phạm"])
-      M4(["Duyệt nội dung bị gắn cờ"])
-      M5(["Quản lý giao dịch / rút Coin mô phỏng"])
-      M6(["Xem bảng điều khiển vận hành"])
+    A["Author"]
+    subgraph SYS["Story Brain và dữ liệu đề xuất"]
+        U1(["Khởi tạo Story Brain từ ý tưởng"])
+        U2(["Khởi tạo Story Brain từ bản thảo"])
+        U3(["Xem trạng thái tác vụ phân tích"])
+        U4(["Xem thông tin Story Brain"])
+        U5(["Xem hàng đợi cần rà soát"])
+        U6(["Rà soát thực thể trích xuất"])
+        U7(["Hợp nhất các thực thể trùng"])
+        U8(["Chấp nhận nhóm đề xuất"])
+        U9(["Sửa và chấp nhận đề xuất"])
+        U10(["Từ chối đề xuất"])
+        U11(["Kích hoạt baseline được duyệt"])
+        U12(["Xem bộ nhớ đã được phê duyệt"])
     end
-    AD --> M1
-    AD --> M2
-    AD --> M3
-    AD --> M4
-    AD --> M5
-    AD --> M6
+    A --- U1
+    A --- U2
+    A --- U3
+    A --- U4
+    A --- U5
+    A --- U6
+    A --- U7
+    A --- U8
+    A --- U9
+    A --- U10
+    A --- U11
+    A --- U12
 ```
 
-*Hình 3.6. Ca sử dụng của quản trị viên.*
+*Hình 3.8. Use Case khởi tạo Story Brain và duyệt đề xuất.*
 
-Chức năng kiểm duyệt không sử dụng LLM như một nguồn tự động ra quyết định cuối cùng. Module `content-control` thực hiện kiểm tra quy tắc/từ khóa và tổ chức yêu cầu review; Admin quyết định duyệt hoặc từ chối theo quyền được cấp.
+Các endpoint bootstrap, job, review queue, entity reviews, merge, proposal decision, baseline activation và approved memory hiện diện trong ai-gateway.routes.ts và ai-service/api/narrative_routes.py. Chúng chứng minh phạm vi API, không thay thế cho đánh giá độ chính xác hay tỷ lệ hoàn thành job ở Chương 4.
+
+#### b) AI hỗ trợ viết và quản lý kế hoạch
+
+```mermaid
+flowchart LR
+    A["Author"]
+    subgraph SYS["AI Copilot trong quy trình viết"]
+        U1(["Xem trước dữ liệu ngữ cảnh"])
+        U2(["Yêu cầu AI sinh bản thảo"])
+        U3(["Xem kết quả sinh bản thảo"])
+        U4(["Áp dụng kết quả phù hợp"])
+        U5(["Bỏ qua bản thảo gợi ý"])
+        U6(["Phân tích lại chương đã lưu"])
+        U7(["Xem trạng thái trích xuất"])
+        U8(["Gửi đề xuất dữ kiện thủ công"])
+        U9(["Yêu cầu điều chỉnh sự kiện"])
+        U10(["Xem hoặc sửa quy tắc thế giới"])
+        U11(["Tạo hoặc sửa kế hoạch truyện"])
+        U12(["Kích hoạt kế hoạch truyện"])
+        U13(["Yêu cầu brainstorm"])
+    end
+    A --- U1
+    A --- U2
+    A --- U3
+    A --- U4
+    A --- U5
+    A --- U6
+    A --- U7
+    A --- U8
+    A --- U9
+    A --- U10
+    A --- U11
+    A --- U12
+    A --- U13
+```
+
+*Hình 3.9. Use Case AI hỗ trợ sáng tác và cập nhật ngữ cảnh.*
+
+Đối chiếu với ai-gateway.routes.ts, ai-service/application/writing_service.py và các API kế hoạch, tái phân tích. Áp dụng kết quả và bỏ qua kết quả là hai lựa chọn của tác giả; không nối quan hệ «extend» chỉ để sơ đồ nhiều đường. Kết quả LLM không tự động trở thành nội dung chính thức.
+
+### 3.2.6. Use Case chi tiết của quản trị viên
+
+#### a) Kiểm duyệt và xử lý nội dung
+
+```mermaid
+flowchart LR
+    AD["Admin có quyền kiểm duyệt"]
+    subgraph SYS["Kiểm duyệt và báo cáo"]
+        U1(["Xem hàng đợi kiểm duyệt"])
+        U2(["Xem chi tiết nội dung cần duyệt"])
+        U3(["Xem bằng chứng kiểm duyệt"])
+        U4(["Chấp nhận nội dung"])
+        U5(["Từ chối nội dung"])
+        U6(["Xem báo cáo vi phạm"])
+        U7(["Giải quyết báo cáo vi phạm"])
+        U8(["Xem truyện và chương thuộc diện quản lý"])
+        U9(["Gỡ hoặc khôi phục truyện"])
+    end
+    AD --- U1
+    AD --- U2
+    AD --- U3
+    AD --- U4
+    AD --- U5
+    AD --- U6
+    AD --- U7
+    AD --- U8
+    AD --- U9
+```
+
+*Hình 3.10. Use Case kiểm duyệt và xử lý vi phạm.*
+
+Căn cứ là content-control.routes.ts và các route truyện/chương của admin. Kiểm tra theo quy tắc hoặc báo cáo người dùng có thể tạo yêu cầu review; quyết định phê duyệt hoặc từ chối do quản trị viên có quyền thực hiện, không phải cơ chế LLM tự động kiểm duyệt.
+
+#### b) Quản trị người dùng, danh mục và Coin
+
+```mermaid
+flowchart LR
+    AD["Admin có quyền phù hợp"]
+    subgraph SYS["Quản trị và vận hành"]
+        U1(["Xem danh sách người dùng"])
+        U2(["Khóa tài khoản"])
+        U3(["Mở khóa tài khoản"])
+        U4(["Xem danh sách truyện trong hệ thống"])
+        U5(["Quản lý thể loại"])
+        U6(["Quản lý tag"])
+        U7(["Xem yêu cầu rút Coin"])
+        U8(["Chấp thuận rút Coin mô phỏng"])
+        U9(["Từ chối rút Coin mô phỏng"])
+        U10(["Xem thống kê vận hành"])
+    end
+    AD --- U1
+    AD --- U2
+    AD --- U3
+    AD --- U4
+    AD --- U5
+    AD --- U6
+    AD --- U7
+    AD --- U8
+    AD --- U9
+    AD --- U10
+```
+
+*Hình 3.11. Use Case quản trị vận hành Ephurin.*
+
+Đối chiếu với admin.routes.ts. Các quyền thao tác được backend phân theo loại nghiệp vụ như users, finance và audit. Vì vậy sơ đồ ghi Admin có quyền phù hợp, không khẳng định một tài khoản quản trị bất kỳ đều sở hữu toàn bộ quyền.
 
 ### 3.2.7. Mô tả kịch bản các ca sử dụng chính
 
@@ -307,6 +523,77 @@ Chức năng kiểm duyệt không sử dụng LLM như một nguồn tự độ
 | Luồng ngoại lệ | Review đã xử lý, thiếu quyền hoặc trạng thái không hợp lệ |
 | Điều kiện sau | Yêu cầu kiểm duyệt và đối tượng liên quan phản ánh quyết định mới |
 
+#### UC-06. Đọc và lưu dấu trang
+
+| Thuộc tính | Nội dung |
+|---|---|
+| Tác nhân | Reader |
+| Mục đích | Đọc chương được phép truy cập và lưu một vị trí trong văn bản |
+| Điều kiện trước | Chương tồn tại; người dùng đã đăng nhập để lưu dấu trang |
+| Luồng chính | (1) Mở truyện và chương; (2) chọn vị trí; (3) yêu cầu lưu dấu trang; (4) hệ thống kiểm tra dữ liệu và ghi dấu trang |
+| Ngoại lệ | Chương VIP chưa được mở khóa; vị trí không hợp lệ; yêu cầu lưu thất bại |
+| Điều kiện sau | Dấu trang có thể tra cứu ở lần đọc sau |
+
+#### UC-07. Tạo phiên bản chương truyện
+
+| Thuộc tính | Nội dung |
+|---|---|
+| Tác nhân | Author |
+| Mục đích | Lưu một revision để truy vết nội dung |
+| Điều kiện trước | Tác giả có quyền chỉnh sửa chương và bản thảo hợp lệ |
+| Luồng chính | (1) Mở và sửa bản thảo; (2) yêu cầu lưu/snapshot; (3) backend kiểm tra phiên bản và quyền ghi; (4) ghi revision kèm mã băm nội dung |
+| Ngoại lệ | Xung đột phiên bản, sai quyền sở hữu hoặc lỗi lưu |
+| Điều kiện sau | Revision xuất hiện trong lịch sử chương |
+
+#### UC-08. Khởi tạo Story Brain từ bản thảo
+
+| Thuộc tính | Nội dung |
+|---|---|
+| Tác nhân | Author |
+| Mục đích | Xây dựng dữ kiện ngữ cảnh từ bản thảo |
+| Điều kiện trước | Tác giả có quyền với truyện và có nguồn nội dung hợp lệ |
+| Luồng chính | (1) Tạo yêu cầu bootstrap; (2) hệ thống xử lý và tạo kết quả; (3) tác giả kiểm tra thực thể/đề xuất; (4) chấp nhận hoặc từ chối; (5) kích hoạt baseline khi hợp lệ |
+| Ngoại lệ | Job lỗi, dữ liệu trùng, đề xuất không hợp lệ |
+| Điều kiện sau | Dữ liệu đã duyệt được phân biệt với dữ liệu đang đề xuất |
+
+#### UC-09. Đánh giá tác phẩm
+
+| Thuộc tính | Nội dung |
+|---|---|
+| Tác nhân | Reader |
+| Mục đích | Cập nhật đánh giá cho truyện |
+| Điều kiện trước | Đăng nhập và có quyền đánh giá |
+| Luồng chính | (1) Mở thông tin truyện; (2) chọn mức đánh giá, có thể nhập nhận xét; (3) gửi và kiểm tra đầu vào; (4) ghi kết quả |
+| Ngoại lệ | Thông tin không hợp lệ, thiếu quyền hoặc truyện không tồn tại |
+| Điều kiện sau | Đánh giá được cập nhật hoặc giữ nguyên khi xử lý thất bại |
+
+#### UC-10. Xử lý một yêu cầu kiểm duyệt
+
+| Thuộc tính | Nội dung |
+|---|---|
+| Tác nhân | Admin có quyền kiểm duyệt |
+| Mục đích | Giải quyết yêu cầu kiểm duyệt |
+| Điều kiện trước | Review tồn tại và chưa hoàn tất |
+| Luồng chính | (1) Xem hàng đợi; (2) chọn yêu cầu; (3) đọc nội dung và bằng chứng; (4) quyết định chấp nhận hoặc từ chối; (5) lưu quyết định và cập nhật trạng thái liên quan |
+| Ngoại lệ | Thiếu quyền, trạng thái review không hợp lệ |
+| Điều kiện sau | Review và trạng thái nội dung phản ánh quyết định |
+
+### 3.2.8. Ma trận truy vết Use Case và mã nguồn
+
+| Hình | Nhóm chức năng | Mã nguồn đối chiếu trên nhánh main |
+|---|---|---|
+| 3.3 | Khám phá và đọc | `backend/src/modules/reading/reading.routes.ts` |
+| 3.4 | Bình luận và theo dõi | `backend/src/modules/interactions/comments.routes.ts`, `social.routes.ts`, `novel-engagement.routes.ts` |
+| 3.5 | Ví Coin mô phỏng | `backend/src/modules/wallet/wallet.routes.ts` |
+| 3.6 | Tác phẩm và chương | `backend/src/modules/novels/novels.routes.ts`, `chapters.routes.ts` |
+| 3.7 | Ngữ cảnh tác phẩm | `backend/src/modules/story-context/story-context.routes.ts` |
+| 3.8 | Story Brain và proposal | `backend/src/modules/ai/ai-gateway.routes.ts`, `ai-service/api/narrative_routes.py` |
+| 3.9 | AI Writing Copilot | `backend/src/modules/ai/ai-gateway.routes.ts`, `ai-service/application/writing_service.py` |
+| 3.10 | Kiểm duyệt | `backend/src/modules/content-control/content-control.routes.ts`, `backend/src/modules/admin/admin.routes.ts` |
+| 3.11 | Quản trị và vận hành | `backend/src/modules/admin/admin.routes.ts` |
+
+Sơ đồ phản ánh các khả năng nghiệp vụ có mã nguồn/route trên nhánh chính. Việc một API tồn tại **không đồng nghĩa** tất cả luồng end-to-end đã được kiểm thử thành công.
+
 ## 3.3. Biểu đồ lớp thực thể
 
 Biểu đồ lớp trong phần này tập trung vào **lớp miền nghiệp vụ**, không phải biểu diễn trực tiếp mọi controller, DTO hoặc file của hệ thống. Tên lớp và quan hệ được tổng hợp từ mã nguồn, migration và các đối tượng API ở `main`. Cần phân biệt quan hệ lớp với khóa ngoại vật lý trên cơ sở dữ liệu.
@@ -363,7 +650,7 @@ classDiagram
     Chapter "1" --> "0..*" ChapterRevision : lịch sử
 ```
 
-*Hình 3.7. Biểu đồ lớp tài khoản, tác phẩm và phiên bản chương.*
+*Hình 3.12. Biểu đồ lớp tài khoản, tác phẩm và phiên bản chương.*
 
 `User` xác định danh tính và vai trò. `UserProfile` lưu thông tin hồ sơ tách biệt với thông tin đăng nhập. Một tác giả có thể sở hữu nhiều tác phẩm; mỗi tác phẩm có nhiều chương. `ChapterRevision` cho phép lưu bản nội dung bất biến theo `revisionId` và `contentHash`, phục vụ kiểm soát thay đổi và phân tích AI. Nội dung bản thảo đang biên tập có thể được lưu theo mô hình document, không đồng nhất với revision đã chốt.
 
@@ -431,7 +718,7 @@ classDiagram
     Chapter "1" --> "0..*" ChapterUnlock
 ```
 
-*Hình 3.8. Biểu đồ lớp đọc truyện, tương tác và giao dịch Coin.*
+*Hình 3.13. Biểu đồ lớp đọc truyện, tương tác và giao dịch Coin.*
 
 Điểm đáng chú ý là dữ liệu giao dịch được xử lý theo quy tắc toàn vẹn và cần giao dịch cơ sở dữ liệu khi thay đổi số dư/quyền mở khóa. Hệ thống Coin là **mô phỏng**, chưa được coi là tích hợp thanh toán thương mại thực.
 
@@ -493,7 +780,7 @@ classDiagram
     MemoryChunk "1" --> "0..*" MemoryEmbedding
 ```
 
-*Hình 3.9. Biểu đồ lớp miền ngữ cảnh truyện và AI.*
+*Hình 3.14. Biểu đồ lớp miền ngữ cảnh truyện và AI.*
 
 Mô hình tách biệt thông tin đã xác nhận, thông tin suy diễn và đề xuất đang chờ quyết định. `StoryBrain` là tập hợp thông tin truyện phục vụ tra cứu ngữ cảnh. `NarrativeEntity` đại diện danh tính nhân vật, địa điểm, tổ chức hoặc vật phẩm; `NarrativeEvent` lưu diễn biến; `NarrativeFact` lưu dữ kiện hoặc quy tắc. `NarrativeProposal` không tương đương dữ liệu đã được phê duyệt. `MemoryChunk` và `MemoryEmbedding` phục vụ truy xuất ngữ nghĩa. Mô hình được đối chiếu với các lớp ORM và migration AI trên `main`, không chỉ dựa trên file mô tả thiết kế [M4].
 
@@ -589,7 +876,7 @@ erDiagram
     NOVELS ||--o{ PLOT_SUMMARIES : summarizes
 ```
 
-*Hình 3.10. ERD nhóm tài khoản, truyện, chương và ngữ cảnh do tác giả quản lý.*
+*Hình 3.15. ERD nhóm tài khoản, truyện, chương và ngữ cảnh do tác giả quản lý.*
 
 Từ migrations trên `main` có thể xác định: `users.user_id` là khóa chính người dùng; `novels.author_id` tham chiếu tác giả; `chapters.novel_id` tham chiếu truyện; `chapter_revisions.chapter_id` tham chiếu chương và lưu `content_hash`. Bảng `revision_outbox_events` ghi dấu các sự kiện revision, có trạng thái và trường phục vụ retry. Các bảng `character_profiles`, `story_timeline_events` và `plot_summaries` là dữ liệu ngữ cảnh chính thức do backend quản lý. ERD đã bỏ một số trường phụ để giữ khả năng đọc.
 
@@ -661,7 +948,7 @@ erDiagram
     TRANSACTIONS ||--o| CHAPTER_UNLOCKS : evidences
 ```
 
-*Hình 3.11. ERD nhóm đọc truyện, theo dõi, đánh giá và ví Coin.*
+*Hình 3.16. ERD nhóm đọc truyện, theo dõi, đánh giá và ví Coin.*
 
 Độc giả có thể lưu tiến độ đọc và nhiều dấu trang tại vị trí cụ thể trong chương. Các bảng follow/rating liên kết người dùng với tác phẩm. Ví Coin lưu số dư; bảng giao dịch phản ánh thay đổi; `chapter_unlocks` lưu quyền mở khóa tương ứng. Mọi số tiền trong phần này là **Coin nội bộ của hệ thống mô phỏng**.
 
@@ -728,7 +1015,7 @@ erDiagram
     MEMORY_CHUNKS ||--o{ MEMORY_EMBEDDINGS : vectorizes
 ```
 
-*Hình 3.12. ERD tổng quan của schema Narrative Memory.*
+*Hình 3.17. ERD tổng quan của schema Narrative Memory.*
 
 Mô hình Narrative Memory được biểu diễn ở mức nhóm bảng quan trọng, dựa trên `ai-service/infrastructure/orm_models.py` cùng thư mục migration Alembic của `main`. Các trường `confirmation_status`, `is_locked`, `revision_id`, `content_hash`, `brain_version` và `embedding_version` giúp hệ thống phân biệt thông tin đã xác nhận với thông tin chưa duyệt, truy vết nguồn và kiểm tra tính hợp lệ khi xử lý.
 
@@ -775,7 +1062,7 @@ sequenceDiagram
     end
 ```
 
-*Hình 3.13. Sơ đồ tuần tự đăng nhập.*
+*Hình 3.18. Sơ đồ tuần tự đăng nhập.*
 
 Backend sử dụng access token có thời hạn và lưu hash của refresh token để quản lý vòng đời phiên đăng nhập. Truy vấn quyền và trạng thái người dùng được thực hiện ở lớp nghiệp vụ.
 
@@ -815,7 +1102,7 @@ sequenceDiagram
     UI-->>A: Hiển thị kết quả
 ```
 
-*Hình 3.14. Sơ đồ tuần tự lưu bản thảo và gửi công bố chương.*
+*Hình 3.19. Sơ đồ tuần tự lưu bản thảo và gửi công bố chương.*
 
 Mã nguồn phân biệt việc cập nhật bản thảo và nộp công bố. Khi kiểm tra nội dung không phát hiện yêu cầu review, chương có thể được công bố theo quy tắc của backend; nếu cần review, nội dung được đưa vào trạng thái chờ quản trị viên. Trình tự được xây dựng từ `chapters.service.ts` và `content-control.service.ts` trên `main`.
 
@@ -853,7 +1140,7 @@ sequenceDiagram
     end
 ```
 
-*Hình 3.15. Sơ đồ tuần tự AI hỗ trợ sáng tác.*
+*Hình 3.20. Sơ đồ tuần tự AI hỗ trợ sáng tác.*
 
 Sơ đồ mô tả **tương tác nghiệp vụ tổng quát** được hình thành từ các route viết, gateway và lớp application AI. Một số yêu cầu sử dụng job, truy vấn trạng thái hoặc phát luồng sự kiện; thời điểm phản hồi chính xác phụ thuộc operation. Nhánh “áp dụng” thể hiện hành động của tác giả thông qua chức năng lưu/nhận bản thảo hợp lệ; **không** có nghĩa mọi kết quả LLM đều được backend tự động ghi thẳng vào bản nháp.
 
@@ -882,7 +1169,7 @@ sequenceDiagram
     UI-->>R: Kết quả mở khóa
 ```
 
-*Hình 3.16. Sơ đồ tuần tự mở khóa chương bằng Coin mô phỏng.*
+*Hình 3.21. Sơ đồ tuần tự mở khóa chương bằng Coin mô phỏng.*
 
 Các thao tác thay đổi quyền đọc và số dư phải được xử lý nhất quán. Sơ đồ không thể hiện kết nối ngân hàng hoặc cổng thanh toán thực do không thuộc ý nghĩa của chức năng Coin mô phỏng trong phạm vi đồ án.
 
@@ -914,7 +1201,7 @@ sequenceDiagram
     UI-->>AD: Trạng thái mới
 ```
 
-*Hình 3.17. Sơ đồ tuần tự xử lý kiểm duyệt nội dung.*
+*Hình 3.22. Sơ đồ tuần tự xử lý kiểm duyệt nội dung.*
 
 Quy trình kiểm duyệt sử dụng kết quả quét từ khóa/quy tắc và thông tin báo cáo để hỗ trợ quyết định của Admin. Không gộp pipeline kiểm duyệt với pipeline sinh văn bản của AI Copilot.
 
@@ -942,7 +1229,7 @@ flowchart TD
     M --> O
 ```
 
-*Hình 3.18. Activity Diagram của quy trình phân tích và phê duyệt ngữ cảnh AI.*
+*Hình 3.23. Activity Diagram của quy trình phân tích và phê duyệt ngữ cảnh AI.*
 
 Quy trình kết hợp việc trích xuất dữ liệu và vai trò quyết định của tác giả. Hệ thống cần phân biệt **proposed**, **confirmed/locked** và dữ liệu **derived** có thể tính lại. Các kiểm tra version, quyền sở hữu và tính idempotent giúp hạn chế việc cùng một yêu cầu tạo ra thay đổi trùng lặp. Khả năng này được thể hiện qua các API proposal, logic repository và mã xử lý trên `main`; hiệu quả đo đạc được trình bày riêng ở Chương 4.
 
@@ -961,7 +1248,7 @@ stateDiagram-v2
     ARCHIVED --> PUBLISHED: Khôi phục theo quy tắc
 ```
 
-*Hình 3.19. State Machine thể hiện các trạng thái chính của chương truyện.*
+*Hình 3.24. State Machine thể hiện các trạng thái chính của chương truyện.*
 
 Các trạng thái `DRAFT`, `PENDING_MODERATION`, `PUBLISHED`, `REJECTED` và `ARCHIVED` xuất hiện trong migration của backend. Mũi tên là **luồng nghiệp vụ tổng hợp** phục vụ thuyết minh; các chuyển tiếp thực tế phải qua ràng buộc service và có thể thay đổi tùy thao tác/điều kiện. Không được xem hình này là bảng chuyển trạng thái được phép tuyệt đối cho mọi API.
 
@@ -993,7 +1280,7 @@ flowchart TB
     AI --> LLM
 ```
 
-*Hình 3.20. Sơ đồ triển khai hệ thống theo Docker Compose trên nhánh `main`.*
+*Hình 3.25. Sơ đồ triển khai hệ thống theo Docker Compose trên nhánh `main`.*
 
 Ứng dụng web, backend và AI Service được đóng gói thành các thành phần chạy trong Docker Compose cùng PostgreSQL/MongoDB. Ứng dụng di động chạy trên thiết bị hoặc môi trường phát triển, không phải container giao diện web. Bản vẽ nhằm thể hiện thành phần và kết nối; các cổng, biến môi trường và điều kiện health-check chi tiết được kiểm tra trong tệp `docker-compose.yml`.
 
