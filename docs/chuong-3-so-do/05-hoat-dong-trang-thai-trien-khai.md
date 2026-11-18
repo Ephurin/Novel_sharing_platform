@@ -24,7 +24,7 @@ flowchart TD
     M --> O
 ```
 
-*Hình 3.18. Activity Diagram của quy trình phân tích và phê duyệt ngữ cảnh AI.*
+*Hình 3.23. Activity Diagram của quy trình phân tích và phê duyệt ngữ cảnh AI.*
 
 ## 3.6.2. Vòng đời chương truyện
 
@@ -41,7 +41,7 @@ stateDiagram-v2
     ARCHIVED --> PUBLISHED: Khôi phục theo quy tắc
 ```
 
-*Hình 3.19. State Machine thể hiện các trạng thái chính của chương truyện.*
+*Hình 3.24. State Machine thể hiện các trạng thái chính của chương truyện.*
 
 ## 3.6.3. Mô hình triển khai ứng dụng
 
@@ -71,5 +71,5 @@ flowchart TB
     AI --> LLM
 ```
 
-*Hình 3.20. Sơ đồ triển khai hệ thống theo Docker Compose trên nhánh `main`.*
+*Hình 3.25. Sơ đồ triển khai hệ thống theo Docker Compose trên nhánh `main`.*
 
