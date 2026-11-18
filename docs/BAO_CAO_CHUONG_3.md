@@ -254,7 +254,7 @@ flowchart LR
         U6(["Mở khóa chương VIP"])
         U7(["Ủng hộ tác giả bằng Coin"])
         U8(["Yêu cầu rút Coin"])
-        U9(["Kiểm tra số dư và điều kiện ví"])
+        U9(["Kiểm tra điều kiện sử dụng Coin"])
         U10(["Xem thông tin thu nhập"])
     end
     U --- U1
@@ -271,7 +271,7 @@ flowchart LR
 
 *Hình 3.5. Use Case ví Coin mô phỏng với các biến thể sử dụng số dư.*
 
-**Phân cấp:** Mở khóa, ủng hộ và gửi yêu cầu rút là các nghiệp vụ sử dụng số dư theo những cách khác nhau; cùng có bước kiểm tra điều kiện ví/số dư để xử lý an toàn. Hình dùng lớp trừu tượng Sử dụng số dư Coin để diễn tả điểm chung, không khẳng định tồn tại một endpoint có tên như vậy. **Không gán «include»:** Tạo phiên nạp và xem lịch sử giao dịch không phải bước bắt buộc của việc mở khóa; thiếu Coin là trường hợp ngoại lệ hoặc một lần giao dịch khác. Giao dịch nạp thực tế không được mô tả vì đây là Coin mô phỏng. Căn cứ: `wallet.service.ts`, `wallet.repository.ts`.
+**Phân cấp:** Mở khóa, ủng hộ và gửi yêu cầu rút là các nghiệp vụ sử dụng số dư theo những cách khác nhau; đều có bước kiểm tra điều kiện xử lý tương ứng (quyền đã mở khóa, ví và số dư); riêng trường hợp chương đã mở khóa từ trước có thể trả kết quả mà không phát sinh giao dịch trừ Coin mới. Hình dùng lớp trừu tượng Sử dụng số dư Coin để diễn tả điểm chung, không khẳng định tồn tại một endpoint có tên như vậy. **Không gán «include»:** Tạo phiên nạp và xem lịch sử giao dịch không phải bước bắt buộc của việc mở khóa; thiếu Coin là trường hợp ngoại lệ hoặc một lần giao dịch khác. Giao dịch nạp thực tế không được mô tả vì đây là Coin mô phỏng. Căn cứ: `wallet.service.ts`, `wallet.repository.ts`.
 
 ### 3.2.4. Use Case của tác giả
 
@@ -384,7 +384,7 @@ flowchart LR
         U10(["Chấp nhận đề xuất"])
         U11(["Sửa và chấp nhận"])
         U12(["Từ chối đề xuất"])
-        U13(["Kiểm tra phạm vi và phiên bản đề xuất"])
+        U13(["Kiểm tra quyền và trạng thái đề xuất"])
         U14(["Kích hoạt baseline"])
         U15(["Xem bộ nhớ đã phê duyệt"])
     end
@@ -407,7 +407,7 @@ flowchart LR
 
 *Hình 3.8. Use Case Story Brain với các biến thể khởi tạo, rà soát và quyết định.*
 
-**Phân cấp:** Khởi tạo từ ý tưởng và từ bản thảo là hai biến thể của cùng mục tiêu tạo Story Brain. Chấp nhận, chỉnh sửa–chấp nhận và từ chối là các biến thể quyết định về đề xuất, không phải ba thao tác bắt buộc trong một lần review. **«extend»:** Hợp nhất thực thể chỉ xuất hiện trong quá trình rà soát thực thể khi phát hiện trùng danh tính. **Điều kiện tiên quyết:** Kích hoạt baseline cần kết quả chuẩn bị/rà soát phù hợp; không «include» thao tác khởi tạo mỗi lần kích hoạt. Căn cứ: `ai-gateway.routes.ts`, `narrative_service.py`.
+**Phân cấp:** Khởi tạo từ ý tưởng và từ bản thảo là hai biến thể của cùng mục tiêu tạo Story Brain. Chấp nhận, chỉnh sửa–chấp nhận và từ chối là các biến thể quyết định về đề xuất, không phải ba thao tác bắt buộc trong một lần review. Cả ba nhánh đều được kiểm tra quyền và trạng thái đề xuất; kiểm tra **brain version** là yêu cầu riêng trên nhánh chấp nhận (và một số quyết định nhóm), không áp dụng như bước bắt buộc của mọi lần từ chối. **«extend»:** Hợp nhất thực thể chỉ xuất hiện trong quá trình rà soát thực thể khi phát hiện trùng danh tính. **Điều kiện tiên quyết:** Kích hoạt baseline cần kết quả chuẩn bị/rà soát phù hợp; không «include» thao tác khởi tạo mỗi lần kích hoạt. Căn cứ: `ai-gateway.routes.ts`, `narrative_service.py`.
 
 #### b) AI hỗ trợ viết và quản lý kế hoạch
 
