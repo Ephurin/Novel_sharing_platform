@@ -145,22 +145,57 @@ test('reader social uses real APIs: follow, mention, private replies, anchors an
     });
     await fixture.command('approve');
     await fixture.command('prepend');
+    const revisedChapter = (await request(a, `/reading/chapters/${chapterId}`)).data;
+    const openingAnchor = revisedChapter.paragraphs.find(paragraph => paragraph.text === 'Opening paragraph.');
     await page.reload();
     await expect(otherParagraph).toHaveAttribute('data-private-count', '1');
     await expect(otherParagraph).not.toHaveAttribute('data-paragraph-id', chapter.paragraphs[0].paragraphId);
+    const authorFeedback = chapterComments.getByRole('region', { name: 'Góp ý riêng cho tác giả', exact: true });
+    const feedbackScope = authorFeedback.getByRole('textbox', { name: 'Đoạn góp ý', exact: true });
+    const feedbackEditor = authorFeedback.getByRole('textbox', { name: 'Nội dung riêng', exact: true });
+    await chapterComments.getByRole('button', { name: 'Nhắn riêng cho tác giả' }).click();
+    await feedbackScope.click();
+    await page.getByRole('option', { name: /Closing paragraph/ }).click();
+    await expect(authorFeedback.getByText('Feedback on a different paragraph.', { exact: true })).toBeVisible();
+    await expect(authorFeedback.getByText('Anchored feedback for the author.', { exact: true })).toHaveCount(0);
+    await feedbackEditor.fill('Unsent feedback for the closing paragraph.');
+    await otherParagraph.scrollIntoViewIfNeeded();
     await otherParagraph.press('Enter');
     await page.getByRole('button', { name: 'Trao đổi riêng', exact: true }).click();
     await expect(privatePanel.getByRole('textbox')).toBeVisible();
     await expect(privatePanel.locator('article')).toHaveCount(0);
     await privatePanel.getByRole('button', { name: 'Xem góp ý riêng cho tác giả' }).click();
     await expect(privatePanel).toHaveCount(0);
-    const authorFeedback = chapterComments.getByRole('region', { name: 'Góp ý riêng cho tác giả', exact: true });
     await expect(authorFeedback).toBeFocused();
     await expect(authorFeedback).toBeInViewport();
     await expect(authorFeedback.getByText('Anchored feedback for the author.', { exact: true })).toBeVisible();
     await expect(authorFeedback.getByText('Feedback on a different paragraph.', { exact: true })).toHaveCount(0);
+    await expect(feedbackScope).toHaveValue(/Opening paragraph/);
+    await expect(feedbackEditor).toHaveText('');
+    const followup = 'Follow-up from the opening paragraph marker.';
+    await feedbackEditor.fill(followup);
+    const [feedbackResponse] = await Promise.all([
+      page.waitForResponse(response => response.request().method() === 'POST' &&
+        new URL(response.url()).pathname === `/api/v1/chapters/${chapterId}/comments`),
+      authorFeedback.getByRole('button', { name: 'Gửi riêng', exact: true }).click()
+    ]);
+    assert.equal(feedbackResponse.status(), 201);
+    const { commentId: followupId } = (await feedbackResponse.json()).data;
+    const savedFollowup = (await request(a, `/comments/${followupId}/thread`)).data.root;
+    assert.equal(savedFollowup.audience, 'AUTHOR_PRIVATE');
+    assert.equal(savedFollowup.anchor?.contentVersion, revisedChapter.contentVersion);
+    assert.equal(savedFollowup.anchor?.paragraphId, openingAnchor.paragraphId);
+    assert.equal(savedFollowup.anchor?.currentParagraphId, openingAnchor.paragraphId);
+    await expect(authorFeedback.locator('article').getByText(followup, { exact: true })).toBeVisible();
+    await expect(feedbackEditor).toHaveText('');
+    await feedbackScope.click();
+    await page.getByRole('option', { name: /Closing paragraph/ }).click();
+    await expect(feedbackEditor).toHaveText('Unsent feedback for the closing paragraph.');
+    await expect(authorFeedback.getByText(followup, { exact: true })).toHaveCount(0);
     await authorFeedback.getByRole('button', { name: 'Xem góp ý cả chương' }).click();
+    await expect(feedbackEditor).toHaveText('');
     await expect(authorFeedback.getByText('Feedback on a different paragraph.', { exact: true })).toBeVisible();
+    await expect(authorFeedback.getByText(followup, { exact: true })).toBeVisible();
     await chapterComments.getByRole('button', { name: 'Nhắn riêng cho tác giả' }).click();
     let reply;
     for (let index = 0; index < 7; index++) { reply = await request(b, `/comments/${root}/replies`, 'POST', { content: `Private reply ${index}` }); await fixture.command('approve'); }
