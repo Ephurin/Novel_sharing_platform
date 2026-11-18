@@ -22,6 +22,8 @@ export type ReaderNovel = {
 };
 
 export type ReaderChapter = {
+  contentVersion?: string;
+  paragraphs?: { paragraphId: string; paragraphIndex: number; text: string }[];
   chapterId: string;
   novelId: string;
   title: string;
@@ -92,6 +94,8 @@ export async function removeReadingBookmarkEntry(bookmarkId: string) {
 }
 
 export type ReaderComment = {
+  mentions?: { userId: string; start: number; end: number }[];
+  audience?: string;
   isSpoiler?: boolean;
   imageUrl?: string | null;
   gifId?: string | null;
@@ -255,7 +259,7 @@ export async function createComment(chapterId: string, content: string) {
   return response.data.data;
 }
 
-export type CommentInput = { content: string; isSpoiler?: boolean; imageUrl?: string | null; gifId?: string | null };
+export type CommentInput = { mentions?: { userId: string; start: number; end: number }[]; content: string; isSpoiler?: boolean; imageUrl?: string | null; gifId?: string | null };
 
 export async function updateComment(input: CommentInput & { commentId: string }) {
   const { commentId, ...body } = input;

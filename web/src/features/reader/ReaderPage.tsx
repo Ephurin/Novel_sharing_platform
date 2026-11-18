@@ -1,3 +1,4 @@
+import { PrivateComments } from './PrivateComments';
 import { ReaderCatalog } from './ReaderCatalog';
 import { ChapterReader } from './ChapterReader';
 import { CommentsSection } from './CommentsSection';
@@ -110,7 +111,7 @@ export function ReaderNovelDetailPage() {
         readChapterIds={readChapterIds}
         onReadFirst={firstChapter ? () => navigate(`/reader/chapters/${firstChapter.chapterId}`) : undefined}
       />
-      <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} /></section>
+      <section id="reader-comments" aria-label="Bình luận truyện"><PrivateComments target={{ kind: 'novel', id: novelId }} /><CommentsSection kind="novel" id={novelId} /></section>
     </div>
   );
 }
@@ -155,7 +156,7 @@ export function PublicReaderNovelDetailPage() {
           />
           <section id="reader-reviews" className="sc-reader-detail-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact /></section>
           <NovelChapterCatalog chapters={chapters} publicMode readChapterIds={readChapterIds} />
-          <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} /></section>
+          <section id="reader-comments" aria-label="Bình luận truyện"><PrivateComments target={{ kind: 'novel', id: novelId }} /><CommentsSection kind="novel" id={novelId} /></section>
         </>
       ) : null}
     </PublicLayout>

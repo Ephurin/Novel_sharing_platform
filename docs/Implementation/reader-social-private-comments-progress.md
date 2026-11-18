@@ -1,6 +1,6 @@
 # Tiến độ Follow, bình luận bạn bè và góp ý riêng tác giả
 
-Cập nhật: 18/11/2026 (Asia/Bangkok). **Đã hoàn thành mốc 0–2.** Chặng 1 commit `fedb0474`; chặng 2 chưa commit. Xem phần mốc 2 để biết kết quả mới nhất; phần mốc 0/1 bên dưới là lịch sử. Mốc 3–5 chưa triển khai.
+Cập nhật: 18/11/2026 (Asia/Bangkok). **Đã hoàn thành mốc 0–3.** Chặng 1 commit `fedb0474`, chặng 2 commit `f4cbaa7e`; chặng 3 chưa commit. Mốc 4–5 chưa triển khai. Phần mốc 3 là trạng thái mới nhất; các phần trước đó giữ lịch sử thực hiện.
 
 ## Nơi làm việc hiện tại
 
@@ -21,9 +21,27 @@ Cập nhật: 18/11/2026 (Asia/Bangkok). **Đã hoàn thành mốc 0–2.** Ch�
 | 0. Preflight và baseline checks | Hoàn thành, có lỗi baseline | Đã xác minh DB test cô lập và cleanup; backend 52/53 test pass; web 10/10 browser test pass; build/typecheck và Android bundle pass; ghi rõ lỗi author-workflow, lệch patch Expo và giới hạn thiết bị |
 | 1. Follow, hồ sơ, API | Hoàn thành | Backend build/typecheck pass; 18/18 test pass, lượt bổ sung notification pass |
 | 2. Private comments, anchor, tag, notifications, policy | Hoàn thành | Backend build/typecheck pass, 37/37 unit/integration tests pass trên DB cô lập; contract API đã ghi |
-| 3. Web | Chưa làm | Chưa sửa code tính năng |
+| 3. Web | Hoàn thành | Web build pass; browser tích hợp API thật pass; 9/9 hồi quy bình luận/bookmark pass; đã rà ảnh desktop light/mobile dark |
 | 4. Mobile | Chưa làm | Chưa sửa code tính năng |
 | 5. Tích hợp và nghiệm thu | Chưa làm | Chưa có test evidence |
+
+## Mốc 3 — hoàn thành (18/11/2026)
+
+- Kết quả cuối: `npm run build --prefix web` pass (TypeScript + Vite), `git diff --check` pass. Cảnh báo bundle lớn/use-client của dependencies vẫn tồn tại, không phải lỗi build.
+- Browser tích hợp thật **1/1 pass**, 0 skipped, DB tạm `ephurin_test_pr86_browser_b3f0959625504406b19c7fe741a3f30e`, `cleanedUp:true`. Test bao phủ hồ sơ/follow/mutual, chọn đoạn bằng Enter, marker 2 root, ALL/SELECTED, mention root/reply công khai, private reply từ UI, notification thật tới reply trang 2, detached, unfollow/refollow, đổi token tài khoản trước khi khóa VIP, góp ý truyện từ UI/danh sách đã gửi/tab nhận của tác giả. Không có pageerror; mobile 390px không tràn ngang.
+- Bộ hồi quy **9/9 pass**, 0 skipped: `reader-chapter-workspace`, `reader-bookmark-regressions`, `reader-comment-moderation`, `reader-comments` browser tests. Log `.vscode/reader-social-m3-regression-final.log`; build `.vscode/reader-social-m3-build.log`; tích hợp `.vscode/reader-social-m3-real-final.log`.
+- Đã xem ảnh cuối `.vscode/reader-social-m3/screenshots/reader-social-real-/desktop-light-comments.png` và `mobile-dark-thread.png`. Private panel cùng chiều rộng public, trường người nhận/đoạn xếp dọc trên mobile, notification chọn đúng kênh/đoạn. Query recipient giữ nhãn các bạn đã chọn khi thay từ khóa tìm kiếm.
+- Test giữa chừng đã sửa: thao tác chọn lại cùng đoạn làm deselect (test phải dùng đoạn đã chọn bằng bàn phím); assertions gửi bình luận phải chờ article server trả về, không nhận nhầm nội dung trong editor. Khi tiếp tục phiên, reader DB containers đang dừng; chỉ khởi động lại PostgreSQL/MongoDB để chạy fixture, không sửa dữ liệu ứng dụng.
+
+- Chặng 2 đã commit `f4cbaa7e` (`feat: add private reader comment channels and access policy`), không push.
+- Web: thêm `/reader/connections`, public `/readers/:userId`, `/reader/feedback`; tìm kiếm/phân trang follow/follow-back/unfollow và mutual. Menu tài khoản có Bạn bè/Góp ý đã gửi.
+- Public composer giữ emoji/GIF/spoiler/formatting, thêm chọn mutual để ghi mention metadata theo offset UTF-16. Chỉnh nội dung trước mention sẽ bỏ metadata không còn chắc chắn; raw @ không tự tạo metadata.
+- Private composer ở truyện/chương, chọn đoạn từ thao tác đọc hoặc combobox, ALL/SELECTED/AUTHOR_PRIVATE, text/emoji/basic formatting; replies/edit không cho chọn lại scope hoặc GIF. Author comments có tab Góp ý riêng; reader có danh sách đã gửi.
+- Marker lấy từ cả ba kênh đã được backend lọc quyền, gom tất cả trang trước khi đếm root theo currentParagraphId; không gắn marker detached. Không thay index bookmark; ánh xạ đoạn hiển thị sang paragraph contract theo thứ tự/nội dung.
+- Thread notification dùng endpoint `/thread` để xác định trang reply, kiểm tra target khớp URL, giữ focus. Query riêng theo account/channel, gcTime=0, không persist; xóa khi đổi account/logout, invalidate khi unfollow, kiểm tra lại khi foreground và mỗi 15 giây; ẩn dữ liệu khi server trả lỗi quyền.
+- Build web pass. Browser thật lượt đầu pass trên PostgreSQL/MongoDB tạm được tự cleanup, không mock response: follow, mention, friends root, reply trang 2, detached, unfollow, VIP, account switch, author feedback. Fixture `backend/test-support/reader-social-browser-server.ts`; test `web/tests/reader-social-real.browser.test.mjs`; log `.vscode/reader-social-m3-real.log`.
+- Hồi quy đầu phát hiện selector nút mới trùng bookmark; đã tách `.sc-reading-private-action`, lượt cuối pass. Private replies trả lỗi thì ẩn cả thread thay vì giữ root cũ.
+- Docker runtime vẫn là build chặng 2 với private flag false; test mới dùng server cô lập flag true. Không chạy seed hoặc sửa stack UI gốc.
 
 ## Mốc 2 — hoàn thành (18/11/2026)
 

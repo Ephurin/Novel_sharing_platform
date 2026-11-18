@@ -2,7 +2,7 @@
 
 Ngày chốt: 17/11/2026. Repository đã khảo sát: `F:\Code\Github\Novel_sharing_platform`.
 
-Trạng thái: **Đã hoàn thành mốc 0–2; mốc 2 hoàn thành ngày 18/11/2026. Mốc 3–5 chưa triển khai.** Chặng 1 đã commit `fedb0474`; chặng 2 chưa commit. Kết quả và lệnh tái hiện nằm trong progress; contract backend ở `reader-social-private-comments-api.md`.
+Trạng thái: **Đã hoàn thành mốc 0–3 ngày 18/11/2026. Mốc 4–5 chưa triển khai.** Chặng 1 đã commit `fedb0474`, chặng 2 `f4cbaa7e`; chặng 3 chưa commit. Kết quả và lệnh tái hiện nằm trong progress; contract và hướng dẫn kiểm thử web ở `reader-social-private-comments-api.md`.
 
 ## Chuẩn bị đã hoàn thành
 
@@ -198,12 +198,14 @@ Kiểm chứng ngày 18/11/2026: 37/37 test pass, không skipped; backend build/
 
 ### Mốc 3 — Web
 
-- [ ] Hồ sơ reader, tìm bạn, follow/follow lại/unfollow và danh sách kết nối.
-- [ ] Public root/reply ở truyện/chương có tag mutual, giữ tính năng công khai hiện có.
-- [ ] Chọn đoạn, composer phạm vi bạn bè/tác giả, marker/count theo quyền và thread/replies.
-- [ ] Tab góp ý riêng tác giả và danh sách góp ý đã gửi.
-- [ ] Notification mở đúng root/reply ngoài trang đầu; cache theo tài khoản/kênh, xử lý mất quyền và lỗi/empty/loading.
-- [ ] Kiểm thử browser tích hợp thật, responsive và các ca account switch/unfollow/VIP/detached.
+- [x] Hồ sơ reader, tìm bạn, follow/follow lại/unfollow và danh sách kết nối.
+- [x] Public root/reply ở truyện/chương có tag mutual, giữ tính năng công khai hiện có.
+- [x] Chọn đoạn, composer phạm vi bạn bè/tác giả, marker/count theo quyền và thread/replies.
+- [x] Tab góp ý riêng tác giả và danh sách góp ý đã gửi.
+- [x] Notification mở đúng root/reply ngoài trang đầu; cache theo tài khoản/kênh, xử lý mất quyền và lỗi/empty/loading.
+- [x] Kiểm thử browser tích hợp thật, responsive và các ca account switch/unfollow/VIP/detached.
+
+Kiểm chứng: web build pass; browser API thật 1/1 pass, DB cô lập cleanup; 9/9 hồi quy public comments/bookmark pass. Ảnh desktop light/mobile dark đã rà. Chưa rebuild runtime Docker chặng 3; private flag runtime vẫn false. Chi tiết và giới hạn ở progress/API.
 
 ### Mốc 4 — Mobile
 

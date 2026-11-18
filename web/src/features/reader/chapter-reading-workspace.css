@@ -38,8 +38,9 @@
 .sc-reading-line-highlight { position: absolute; pointer-events: none; border-radius: 2px; background: color-mix(in srgb, var(--reader-accent) 7%, transparent); }
 @keyframes sc-reading-line-fade { 0%, 65% { opacity: 1; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .sc-reading-line-flash { animation: none; } }
-.sc-reading-bookmark-action { position: fixed; z-index: 200; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--sc-border); border-radius: 8px; background: var(--sc-surface-elevated); color: var(--sc-primary-text); font: 600 14px/22px var(--sc-font); box-shadow: 0 2px 12px rgb(var(--sc-text-rgb) / .12); cursor: pointer; }
+.sc-reading-bookmark-action, .sc-reading-private-action { position: fixed; z-index: 200; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--sc-border); border-radius: 8px; background: var(--sc-surface-elevated); color: var(--sc-primary-text); font: 600 14px/22px var(--sc-font); box-shadow: 0 2px 12px rgb(var(--sc-text-rgb) / .12); cursor: pointer; }
 .sc-reading-bookmark-action:disabled { cursor: wait; opacity: .7; }
+.chapter-prose [data-private-count]::after { content: attr(data-private-count) ' trao đổi'; display: inline-block; margin-left: 8px; padding: 0 6px; border: 1px solid var(--sc-border); border-radius: 6px; color: var(--sc-primary-text); background: var(--sc-surface-elevated); font: 500 12px/22px var(--sc-font); vertical-align: middle; }
 .sc-reading-bookmark-action[data-placement="side"] { transform: translateY(-50%); }
 .sc-reading-bookmark-action[aria-pressed="true"] { min-width: 44px; justify-content: center; color: var(--sc-danger); background: var(--sc-danger-bg); }
 .sc-reader-bookmark-help { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

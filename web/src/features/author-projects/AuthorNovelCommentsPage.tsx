@@ -1,4 +1,4 @@
-import { Group, Pagination, Select, Stack, Text } from '@mantine/core';
+import { Group, Pagination, Select, Stack, Text, Tabs } from '@mantine/core';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
@@ -10,6 +10,7 @@ import { getNovel, listChapters } from '../novels/novel-api';
 import { useAuthStore } from '../auth/useAuthStore';
 import { listAuthorComments } from '../reader/comments-api';
 import { CommentThread, useRefreshComments } from '../reader/CommentsSection';
+import { FeedbackPage } from '../reader/PrivateComments';
 
 export function AuthorNovelCommentsPage() {
   const { novelId = '' } = useParams();
@@ -35,6 +36,7 @@ function AuthorComments({ novelId }: { novelId: string }) {
         {novel.isError && <ErrorState title="Không tải được tác phẩm" error={novel.error} onRetry={() => void novel.refetch()} />}
         {novel.data && !canManage && <PermissionState requiredRole="Tác giả của tác phẩm" />}
         {canManage && <Stack gap="md">
+          <Tabs defaultValue="public"><Tabs.List><Tabs.Tab value="public">Công khai</Tabs.Tab><Tabs.Tab value="private">Góp ý riêng</Tabs.Tab></Tabs.List><Tabs.Panel value="private" pt="md"><FeedbackPage novelId={novelId} box="received" /></Tabs.Panel><Tabs.Panel value="public" pt="md"><Stack>
           <Group justify="space-between" align="flex-end"><Select label="Phạm vi bình luận" aria-label="Phạm vi bình luận" value={filter} data={options} searchable allowDeselect={false} onChange={value => { if (value) { setFilter(value); setPage(1); } }} style={{ flex: '1 1 260px', maxWidth: '100%' }} />{comments.data && <Text size="sm" c="dimmed">{comments.data.totalItems.toLocaleString('vi-VN')} bình luận</Text>}</Group>
           {chapters.isError && <ErrorState title="Không tải được danh sách chương" error={chapters.error} onRetry={() => void chapters.refetch()} />}
           {comments.isPending && <LoadingState label="Đang tải bình luận…" />}
@@ -42,7 +44,7 @@ function AuthorComments({ novelId }: { novelId: string }) {
           {comments.data?.totalItems === 0 && <EmptyState title="Chưa có bình luận" description="Bình luận đã được duyệt trong mục đã chọn sẽ xuất hiện tại đây." />}
           {comments.data?.items.map(comment => <CommentThread key={comment.commentId} comment={comment} onChanged={refresh} showContext />)}
           {comments.data && comments.data.totalPages > 1 && <Group justify="center"><Pagination total={comments.data.totalPages} value={page} onChange={setPage} siblings={0} boundaries={1} /></Group>}
-        </Stack>}
+        </Stack></Tabs.Panel></Tabs></Stack>}
       </div>
     </div>
   </main></>;

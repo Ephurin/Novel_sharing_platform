@@ -1,3 +1,6 @@
+import { PrivateComments, ParagraphMarkers } from './PrivateComments';
+import { parseAuthorNotes } from '../../shared/lib/author-notes';
+import { useAuthStore } from '../auth/useAuthStore';
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
@@ -32,6 +35,13 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   children?: ReactNode;
 }) {
   const location = useLocation();
+  let anchorCursor = 0;
+  const anchorParagraphs = parseAuthorNotes((chapter.content ?? '').replace(/\r\n/g, '\n')).manuscript.split(/\n\s*\n/).map(block => {
+    const index = chapter.paragraphs?.findIndex((p, i) => i >= anchorCursor && p.text === block.trim()) ?? -1;
+    if (index < 0) return undefined;
+    anchorCursor = index + 1; return chapter.paragraphs![index];
+  });
+  const socialAccount = useAuthStore(state => state.user?.userId);
   const reduce = useReducedMotion();
   const bgGroupId = useId();
   const alignGroupId = useId();
@@ -224,6 +234,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
         <ManuscriptContent content={chapter.content ?? ''} blockProps={(_index, readableIndex) => ({ tabIndex: readableIndex === focusedParagraph ? 0 : -1,
           onBlur: event => { delete event.currentTarget.dataset.bookmarkArrival; },
           'aria-describedby': 'reading-bookmark-help',
+          ...{ 'data-paragraph-id': anchorParagraphs[_index]?.paragraphId },
         })} />
         {lineHighlight && <div key={lineHighlight.key} className="sc-reading-line-flash" aria-hidden="true">
           {lineHighlight.rects.map((rect, index) => <span key={index} className="sc-reading-line-highlight" style={rect} />)}
@@ -236,6 +247,9 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
       aria-label={bookmarkLabel} title={bookmarkLabel}>
       <Icon name={selectedBookmark ? 'close' : 'bookmark_add'} />{bookmarks.saving ? 'Đang xử lý…' : bookmarks.pending ? 'Đang tải…' : bookmarks.error ? 'Chưa tải được' : !selectedBookmark && 'Bookmark'}
     </button>}
+    {selectedPassage && socialAccount && <button type="button" className="sc-reading-private-action" style={{ top: Math.min(selectedPassage.top + 48, innerHeight - 48), left: selectedPassage.left }} onClick={() => {
+      const panel = document.getElementById('reader-private-comments'); panel?.scrollIntoView({ block: 'start' }); panel?.focus({ preventScroll: true });
+    }}>Trao đổi riêng</button>}
     <button type="button" className="sc-reader-tools-toggle" aria-expanded={toolsVisible} aria-controls="chapter-reader-tools" onClick={() => setToolsOpen(value => !value)}>{toolsOpen ? 'Ẩn công cụ đọc' : 'Hiện công cụ đọc'}</button>
     <aside id="chapter-reader-tools" className="sc-reader-tool-rail" aria-label="Công cụ đọc chương" data-open={toolsOpen} aria-hidden={!toolsVisible} inert={!toolsVisible}>
       {navigationLink(previous, 'Chương trước', 'skip_previous')}
@@ -249,6 +263,8 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
       {previous && <Link to={`${base}/chapters/${previous.chapterId}`} className="sc-button"><Icon name="chevron_left" />Chương trước</Link>}
       {next && <Link to={`${base}/chapters/${next.chapterId}`} className="sc-button sc-button-primary">Chương sau<Icon name="chevron_right" /></Link>}
     </footer>
+    <ParagraphMarkers chapter={chapter} article={article} />
+    <div className="sc-reader-comments"><PrivateComments target={{ kind: 'chapter', id: chapter.chapterId }} chapter={chapter} paragraphIndex={selectedPassage ? anchorParagraphs[selectedPassage.index]?.paragraphIndex : undefined} /></div>
     {children}
     <AnimatedModal opened={panel !== null} onClose={() => setPanel(null)} side="right" title={panel === 'toc' ? 'Mục lục chương' : panel === 'bookmarks' ? 'Bookmark' : 'Tùy chỉnh đọc'} className="sc-reader-tool-panel"
       onCloseAutoFocus={event => {

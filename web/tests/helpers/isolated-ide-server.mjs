@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 const require = createRequire(new URL('../../../backend/package.json', import.meta.url));
 const { Client } = require('pg'), { MongoClient } = require('mongodb');
 
-export async function isolatedIdeServer() {
+export async function isolatedIdeServer({ serverFile = 'draft-browser-server.ts' } = {}) {
   const controlUrl = process.env.ADMIN_TEST_POSTGRES_URL || 'postgresql://postgres:postgres@127.0.0.1:5432/postgres';
   const url = new URL(controlUrl);
   assert.equal(url.pathname, '/postgres', 'Use the postgres control database, never a demo/application DB');
@@ -15,7 +15,7 @@ export async function isolatedIdeServer() {
   const control = new Client({ connectionString: controlUrl }); await control.connect();
   await control.query(`create database "${database}"`); url.pathname = '/' + database;
   let isolation, sequence = 0, logs = '';
-  const child = spawn(process.execPath, ['--import', './node_modules/tsx/dist/loader.mjs', 'test-support/draft-browser-server.ts'], {
+  const child = spawn(process.execPath, ['--import', './node_modules/tsx/dist/loader.mjs', 'test-support/' + serverFile], {
     cwd: fileURLToPath(new URL('../../../backend/', import.meta.url)), windowsHide: true, stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
     env: { ...process.env, DATABASE_URL: url.href, MONGODB_URI: process.env.ADMIN_TEST_MONGO_URL || 'mongodb://127.0.0.1:27017/unused_test', JWT_ACCESS_SECRET: 'pr86-browser-synthetic-access', JWT_REFRESH_SECRET: 'pr86-browser-synthetic-refresh', NODE_ENV: 'test', AI_SERVICE_URL: 'http://127.0.0.1:9', LLM_PROVIDER: 'fake', DB_CONNECT_ON_START: 'false' }
   });
@@ -46,11 +46,11 @@ export async function isolatedIdeServer() {
       child.on('message', message => { if (message.ready) { clearTimeout(timer); resolve(message); } });
       child.once('exit', code => { clearTimeout(timer); reject(new Error(`Fixture exited ${code}: ${logs}`)); });
     });
-    const readback = chapterId => new Promise((resolve, reject) => {
+    const command = (action, chapterId) => new Promise((resolve, reject) => {
       const id = ++sequence, timer = setTimeout(() => { child.off('message', listener); reject(new Error('Fixture readback timed out')); }, 10000);
       const listener = message => { if (message.id === id) { clearTimeout(timer); child.off('message', listener); resolve(message); } };
-      child.on('message', listener); child.send({ action: 'readback', id, chapterId });
+      child.on('message', listener); child.send({ action, id, chapterId });
     });
-    return { config, readback, close };
+    return { config, readback: chapterId => command('readback', chapterId), command, close };
   } catch (error) { await close(); throw error; }
 }

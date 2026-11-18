@@ -1,3 +1,5 @@
+import { ConnectionsPage, ReaderProfilePage } from '../features/reader/ConnectionsPage';
+import { FeedbackPage } from '../features/reader/PrivateComments';
 import { AdminAuditPage } from '../features/admin/AdminAuditPage';
 import { AdminAppealsPage } from '../features/admin/AdminAppealsPage';
 import { AdminUserDetailPage } from '../features/admin/AdminUserDetailPage';
@@ -42,6 +44,7 @@ import { WalletPage } from '../features/wallet/WalletPage';
 import { ManuscriptImportPage } from '../features/manuscript-import/ManuscriptImportPage';
 
 export const router = createBrowserRouter([
+  { path: '/readers/:userId', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><ReaderProfilePage /></main></AuthorTheme></OptionalSession> },
   { path: '/public/bookmarks', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><ReadingBookmarksPage publicMode /></main></AuthorTheme></OptionalSession> },
   {
     path: '/',
@@ -212,6 +215,9 @@ export const router = createBrowserRouter([
       </AuthGate>
     ),
     children: [
+      { path: '/reader/connections', element: <ConnectionsPage /> },
+
+      { path: '/reader/feedback', element: <FeedbackPage /> },
       {
         path: '/reader',
         element: <ReaderPage />

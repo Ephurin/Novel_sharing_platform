@@ -21,7 +21,7 @@ function requireSameAccount(account: string) {
 export function CommentsSection({ kind, id }: CommentTarget) {
   const user = useAuthStore(state => state.user);
   const navigation = useLocation();
-  const selectedCommentId = new URLSearchParams(navigation.search).get('commentId');
+  const selectedCommentId = new URLSearchParams(navigation.search).has('threadId') ? null : new URLSearchParams(navigation.search).get('commentId');
   const section = useRef<HTMLDivElement>(null);
   const position = useQuery({ queryKey: ['comment-location', kind, id, selectedCommentId, user?.userId ?? 'guest'],
     queryFn: () => locateComment({ kind, id }, selectedCommentId!), enabled: Boolean(id && selectedCommentId), retry: false });
@@ -99,7 +99,7 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
   const own = user?.userId === comment.userId;
   const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)', false, { getInitialValueInEffect: false });
   const [mode, setMode] = useState<'read' | 'edit' | 'delete' | 'report'>('read');
-  const [draft, setDraft] = useState<CommentInput>({ content: comment.content, isSpoiler: comment.isSpoiler ?? false, imageUrl: comment.imageUrl ?? null, gifId: comment.gifId ?? null });
+  const [draft, setDraft] = useState<CommentInput>({ content: comment.content, mentions: comment.mentions, isSpoiler: comment.isSpoiler ?? false, imageUrl: comment.imageUrl ?? null, gifId: comment.gifId ?? null });
   const [reason, setReason] = useState('');
   const [notice, setNotice] = useState('');
   const [revealed, setRevealed] = useState(false);
@@ -137,14 +137,14 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
     <Group wrap="nowrap" align="flex-start">
       <Avatar src={comment.avatarUrl} alt={comment.displayName} size={36} radius="xl">{comment.displayName.trim().slice(0, 1) || '?'}</Avatar>
       <Stack gap={2} style={{ minWidth: 0, flex: 1 }}>
-        <Text fw={600} style={{ overflowWrap: 'anywhere' }}>{comment.displayName}{own ? ' (Bạn)' : ''}{comment.isAuthor && <Badge ml="xs" size="xs" variant="light">Tác giả</Badge>}</Text>
+        <Text fw={600} style={{ overflowWrap: 'anywhere' }}><Link to={`/readers/${comment.userId}`}>{comment.displayName}</Link>{own ? ' (Bạn)' : ''}{comment.isAuthor && <Badge ml="xs" size="xs" variant="light">Tác giả</Badge>}</Text>
         {showContext && <Link className="sc-comment-source" title={comment.chapterTitle ?? undefined}
-          to={comment.chapterId ? `${base}/chapters/${comment.chapterId}` : `${base}/novels/${comment.novelId}#reader-comments`}>{source}</Link>}
+          to={comment.audience && comment.audience !== 'PUBLIC' ? `${base}/${comment.chapterId ? 'chapters/' + comment.chapterId : 'novels/' + comment.novelId}?threadId=${comment.parentCommentId ?? comment.commentId}&commentId=${comment.commentId}` : comment.chapterId ? `${base}/chapters/${comment.chapterId}` : `${base}/novels/${comment.novelId}#reader-comments`}>{source}</Link>}
         <Text component="time" dateTime={comment.createdAt} size="xs" c="dimmed">{new Date(comment.createdAt).toLocaleString('vi-VN')}</Text>
       </Stack>
       {comment.status !== 'APPROVED' && <Badge variant="light" color={comment.status === 'REJECTED' ? 'red' : 'yellow'}>{comment.status === 'REJECTED' ? 'Không được duyệt' : 'Chờ duyệt'}</Badge>}
     </Group>
-    {mode === 'edit' ? <CommentComposer value={draft} onChange={setDraft} label="Sửa bình luận" submitLabel="Lưu bình luận" pending={update.isPending}
+    {mode === 'edit' ? <CommentComposer privateMode={Boolean(comment.audience && comment.audience !== 'PUBLIC')} value={draft} onChange={setDraft} label="Sửa bình luận" submitLabel="Lưu bình luận" pending={update.isPending}
       onSubmit={draft => { if (user) update.mutate({ ...draft, account: user.userId }); }} onCancel={() => setMode('read')} />
       : <div className="sc-comment-body">
         {spoiler && <button type="button" className="sc-comment-spoiler" aria-expanded={revealed} onClick={() => setRevealed(value => !value)}>
@@ -174,7 +174,7 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
       {active && <>
         {comment.canReply && onReply && <button type="button" className="sc-comment-text-action" onClick={onReply}><CommentIcon name="reply" />Trả lời</button>}
         {own && <button type="button" className="sc-comment-text-action" onClick={() => {
-          setDraft({ content: comment.content, isSpoiler: comment.isSpoiler ?? false, imageUrl: comment.imageUrl ?? null, gifId: comment.gifId ?? null }); setMode('edit');
+          setDraft({ content: comment.content, mentions: comment.mentions, isSpoiler: comment.isSpoiler ?? false, imageUrl: comment.imageUrl ?? null, gifId: comment.gifId ?? null }); setMode('edit');
         }}>Sửa</button>}
         {comment.canDelete && <button type="button" className="sc-comment-text-action is-danger" onClick={() => setMode('delete')}>Xóa</button>}
         {!own && comment.status === 'APPROVED' && <button type="button" className="sc-comment-text-action" disabled={report.isSuccess} onClick={() => setMode('report')}>Báo cáo</button>}
@@ -206,7 +206,7 @@ export function CommentThread({ comment, onChanged, showContext = true, focus }:
   const [page, setPage] = useState(1);
   const [draft, setDraft] = useState<CommentInput>(emptyComment);
   const [notice, setNotice] = useState('');
-  const replies = useQuery({ queryKey: ['comment-replies', comment.commentId, user?.userId ?? 'guest', page], queryFn: () => listCommentReplies(comment.commentId, page), enabled: open });
+  const replies = useQuery({ queryKey: ['comment-replies', comment.commentId, user?.userId ?? 'guest', comment.audience ?? 'PUBLIC', page], queryFn: () => listCommentReplies(comment.commentId, page), enabled: open, gcTime: 0, retry: false, refetchOnWindowFocus: 'always' });
   useEffect(() => { if (replies.data) setPage(current => Math.min(current, Math.max(1, replies.data.totalPages))); }, [replies.data?.totalPages]);
   useEffect(() => { setReplyTarget(null); setDraft(emptyComment); setNotice(''); setOpen(false); setPage(1); create.reset(); }, [user?.userId]);
   useEffect(() => {
@@ -232,16 +232,17 @@ export function CommentThread({ comment, onChanged, showContext = true, focus }:
     if (create.isPending) return;
     setReplyTarget(target); setOpen(true); setNotice(''); create.reset();
   };
+  if (comment.audience && comment.audience !== 'PUBLIC' && replies.isError) return <ErrorState title="Không thể xem cuộc trao đổi riêng" error={replies.error} onRetry={() => void onChanged()} />;
   return <Stack ref={threadRef} gap="xs" className="sc-comment-thread" data-comment-id={comment.commentId}>
     <CommentItem key={`${accountKey}:${comment.commentId}`} comment={comment} onChanged={onChanged} showContext={showContext} onReply={() => startReply(comment)} focus={focus} />
     {(comment.repliesCount > 0 || open) && <Button variant="subtle" size="compact-xs" style={{ alignSelf: 'flex-start' }} aria-expanded={open} aria-controls={`replies-${comment.commentId}`} onClick={() => setOpen(value => !value)}>{open ? 'Ẩn trả lời' : `Xem ${comment.repliesCount} trả lời`}</Button>}
     {open && <Stack ref={repliesRef} id={`replies-${comment.commentId}`} gap="sm" className="sc-comment-replies">
       {replies.isPending && <LoadingState label="Đang tải trả lời…" />}
       {replies.isError && <ErrorState title="Không tải được trả lời" error={replies.error} onRetry={() => void replies.refetch()} />}
-      {replies.data?.items.map(reply => <CommentItem key={`${accountKey}:${reply.commentId}`} comment={reply} onChanged={onChanged} showContext={showContext} forceSpoiler={comment.isSpoiler} onReply={() => startReply(reply)} focus={focus} />)}
+      {!replies.isError && replies.data?.items.map(reply => <CommentItem key={`${accountKey}:${reply.commentId}`} comment={reply} onChanged={onChanged} showContext={showContext} forceSpoiler={comment.isSpoiler} onReply={() => startReply(reply)} focus={focus} />)}
       {replies.data && replies.data.totalPages > 1 && <Pagination size="sm" total={replies.data.totalPages} value={page} onChange={setPage} siblings={0} boundaries={1} />}
       {replyTarget && comment.canReply && <CommentComposer key={`${accountKey}:${replyTarget.commentId}`} value={draft} onChange={setDraft}
-        label={replyTarget.parentCommentId ? `Trả lời @${replyTarget.displayName}` : 'Trả lời bình luận'} autoFocus submitLabel="Gửi trả lời" pending={create.isPending}
+        privateMode={Boolean(comment.audience && comment.audience !== 'PUBLIC')} label={replyTarget.parentCommentId ? `Trả lời @${replyTarget.displayName}` : 'Trả lời bình luận'} autoFocus submitLabel="Gửi trả lời" pending={create.isPending}
         onSubmit={draft => { if (user) create.mutate({ draft, account: user.userId, targetId: replyTarget.commentId }); }} onCancel={() => { setReplyTarget(null); setDraft(emptyComment); create.reset(); }} />}
       {notice && <Text role="status" size="sm">{notice}</Text>}
       {create.isError && <Alert color="red">{getApiErrorMessage(create.error)}</Alert>}

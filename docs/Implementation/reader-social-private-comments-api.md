@@ -69,4 +69,23 @@ Private list/reply/feedback trả array trong data, meta `{page,limit,totalItems
 
 - `PRIVATE_COMMENTS_ENABLED=false` trong `.env.example`. Chỉ bật trên môi trường đã chạy toàn bộ backend có policy mới. False chặn create root/reply private; read/edit/delete vẫn giữ policy. Rollback không được quay lại binary cũ không hiểu audience, không chạy mixed instances khi cho phép private writes.
 - Mongo indexes additive trong `ensureCommentIndexes`: audience/recipientUserIds/userId/createdAt và audience/novelId/chapterId/anchor.paragraphId. Không xóa/backfill dữ liệu cũ, không có SQL migration mới ở mốc 2.
-- Backend tests dùng DB tạm ở reader PostgreSQL 5433/MongoDB 27018. Các thay đổi chưa được deploy vào runtime/demo. Kiểm thử frontend/native và hành vi client cache thuộc mốc 3/4, chưa được chứng minh bởi các tests backend này.
+- Backend tests dùng DB tạm ở reader PostgreSQL 5433/MongoDB 27018. Runtime reader đã build chặng 2, flag vẫn false. Web chặng 3 kiểm thử bằng fixture riêng bật flag; chưa rebuild runtime bằng UI chặng 3. Mobile thuộc mốc 4.
+
+## Giao diện web (mốc 3)
+
+- `/readers/:userId`: hồ sơ công khai, quan hệ/count theo tài khoản xem. `/reader/connections`: tìm độc giả, đang theo dõi/người theo dõi/bạn bè, follow/follow lại/unfollow.
+- `/reader/feedback`: góp ý đã gửi. Trang quản lý `/author/novels/:novelId/comments` có tab Công khai/Góp ý riêng; dữ liệu riêng vẫn do API giới hạn đúng chủ truyện.
+- Trang truyện và chương có Trao đổi riêng. Chọn đoạn bằng click/Enter rồi chọn nút Trao đổi riêng, hoặc dùng trường Đoạn trao đổi. PRIVATE không có GIF/mention; replies kế thừa phạm vi. Hai kênh bạn bè cần đoạn; tác giả nhận góp ý toàn truyện/chương hoặc đoạn.
+- Marker đếm root còn quyền xem trên cả ba kênh, qua tất cả trang; dùng currentParagraphId, không gắn lại detached. Anchor hiển thị quote gốc và trạng thái detached. Không đổi index lưu bookmark.
+- Public composer dùng chọn mutual để thêm metadata mention. Metadata bị loại nếu chỉnh phần đứng trước hoặc trong mention; raw @ không gửi thông báo tag. API xác thực lại username và mutual khi gửi.
+- Private notification dùng threadId/commentId; UI lấy trang reply từ `/thread`, kiểm tra khớp truyện/chương và focus item. Link ngữ cảnh ở feedback/private giữ threadId/commentId.
+- Private query phân biệt account/kênh, không persist, gcTime=0; logout/account switch hủy và xóa private/reply cache. Unfollow invalidates, foreground và polling 15 giây revalidate. Response lỗi không tiếp tục render nội dung riêng đã cache.
+
+### Tái hiện kiểm thử web
+
+1. Khởi động PostgreSQL/MongoDB reader (5433/27018). Đặt `ADMIN_TEST_POSTGRES_URL` tới database điều khiển `/postgres` và `ADMIN_TEST_MONGO_URL` tới Mongo reader; không đưa credentials vào log.
+2. `npm run build --prefix web`.
+3. `node --test web/tests/reader-social-real.browser.test.mjs` — cần Chrome đã cài. Fixture tạo DB/schema/Mongo riêng, dùng API thật, tự cleanup; không seed DB ứng dụng. Có thể đặt `READER_EVIDENCE_DIR` để lưu ảnh.
+4. `node --test web/tests/reader-chapter-workspace.browser.test.mjs web/tests/reader-bookmark-regressions.browser.test.mjs web/tests/reader-comment-moderation.browser.test.mjs web/tests/reader-comments.browser.test.mjs` — hồi quy UI công khai/bookmark.
+
+Marker hiện gom các trang list được phân quyền thay vì endpoint aggregate riêng. Khi quy mô thread lớn, nên đo tải/polling và bổ sung aggregate backend trong đợt tối ưu; không tính count từ dữ liệu công khai hoặc snapshot chưa kiểm quyền.
