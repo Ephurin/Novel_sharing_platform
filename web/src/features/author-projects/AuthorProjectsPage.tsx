@@ -9,8 +9,10 @@ import { prepareCoverImage } from '../../shared/components/cover-image';
 import { WorkspacePreview } from '../../shared/components/WorkspacePreview';
 import { ReactionIcon } from '../../shared/components/InteractionWidgets';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
+import { TagsInput } from '@mantine/core';
 import { navigationLabels } from '../../shared/components/navigation';
 import React, { useState, useMemo, useRef, useEffect, useId } from 'react';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
@@ -67,31 +69,15 @@ export function AuthorProjectsPage() {
   // Modal State for New Project
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
-  const [newGenre, setNewGenre] = useState('');
+  const [newGenres, setNewGenres] = useState<string[]>([]);
   const [newSynopsis, setNewSynopsis] = useState('');
   const [newCoverUrl, setNewCoverUrl] = useState('');
   const [coverToCrop, setCoverToCrop] = useState<File | null>(null);
   const [coverSource, setCoverSource] = useState<File | null>(null);
   useEffect(() => { if (!createModalOpen) setCoverToCrop(null); }, [createModalOpen]);
-  const [isGenreDropdownOpen, setIsGenreDropdownOpen] = useState(false);
   const [isCoverDragging, setIsCoverDragging] = useState(false);
 
-  const genreDropdownRef = useRef<HTMLDivElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (genreDropdownRef.current && !genreDropdownRef.current.contains(e.target as Node)) {
-        setIsGenreDropdownOpen(false);
-      }
-    };
-    if (isGenreDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isGenreDropdownOpen]);
 
   // Toast State
   const { showToast } = useToast();
@@ -187,10 +173,12 @@ export function AuthorProjectsPage() {
       if (trimmedTitle.length > NOVEL_TITLE_MAX) throw new Error(`Tên tác phẩm tối đa ${NOVEL_TITLE_MAX} ký tự.`);
       if (newSynopsis.trim().length < NOVEL_SYNOPSIS_MIN) throw new Error(`Giới thiệu cần tối thiểu ${NOVEL_SYNOPSIS_MIN} ký tự.`);
 
+      const cleanedGenres = newGenres.map((g) => g.trim()).filter(Boolean);
       const novel = await createNovel({
         title: trimmedTitle,
         synopsis: newSynopsis.trim(),
-        genre: newGenre.trim() || undefined,
+        genre: cleanedGenres[0] || undefined,
+        genres: cleanedGenres.length ? cleanedGenres : undefined,
         tags: [],
         coverImageUrl: newCoverUrl.trim() || null
       });
@@ -200,13 +188,13 @@ export function AuthorProjectsPage() {
     onSuccess: async (novel: Novel) => {
       writeAuthorContext(user?.userId ?? '', { novelId: novel.novelId, chapterId: '' });
       await queryClient.invalidateQueries({ queryKey: ['author-projects'] });
+      await queryClient.invalidateQueries({ queryKey: ['novel-genres'] });
       setCreateModalOpen(false);
       setNewTitle('');
-      setNewGenre('');
+      setNewGenres([]);
       setNewSynopsis('');
       setNewCoverUrl('');
       setCoverSource(null);
-      setIsGenreDropdownOpen(false);
       showToast('Đã tạo tác phẩm mới thành công!');
       navigate(`/author/novels/${novel.novelId}`);
     },
@@ -340,6 +328,7 @@ export function AuthorProjectsPage() {
                 </span>
                 <input
                   type="text"
+                  aria-label="Tìm kiếm tác phẩm"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   data-workspace-search placeholder="Tìm kiếm tác phẩm theo tên..."
@@ -365,6 +354,7 @@ export function AuthorProjectsPage() {
                         <button
                           key={value}
                           type="button"
+                          aria-pressed={active}
                           onClick={() => setSelectedStatusTab(value)}
                           className={`relative z-10 px-3 py-1 rounded-md transition-colors cursor-pointer ${
                             active ? 'text-on-primary font-semibold' : 'text-stone-600 hover:text-stone-900'
@@ -388,6 +378,7 @@ export function AuthorProjectsPage() {
                 {/* Genre Dropdown */}
                 <div className="relative">
                   <select
+                    aria-label="Lọc theo thể loại"
                     value={selectedGenre}
                     onChange={(e) => setSelectedGenre(e.target.value)}
                     className="appearance-none bg-stone-50/80 hover:bg-stone-50 border border-stone-200/80 text-stone-700 text-meta py-1.5 pl-3 pr-7 rounded-lg focus:outline-none focus:border-primary-600 cursor-pointer transition-colors"
@@ -418,6 +409,8 @@ export function AuthorProjectsPage() {
                         <button
                           key={mode}
                           type="button"
+                          aria-pressed={active}
+                          aria-label={`Chế độ hiển thị ${title}`}
                           onClick={() => setViewMode(mode)}
                           className={`relative z-10 p-1 rounded-md cursor-pointer transition-colors ${
                             active ? 'text-primary-600' : 'text-stone-400 hover:text-stone-700'
@@ -444,7 +437,15 @@ export function AuthorProjectsPage() {
             <div className="sc-project-library-options">
               <label className="text-meta"><input type="checkbox" checked={onlyPinned} onChange={e => setOnlyPinned(e.target.checked)} /> Chỉ tác phẩm đã ghim</label>
               <FilterPresets name="author-projects" fields={['q', 'status', 'sort', 'genre', 'pinned']} presentation="popover" />
-              {recentIds.some(id => projects.some(p => p.novelId === id)) && <details className="sc-filter-presets"><summary><span className="material-symbols-outlined" aria-hidden="true">chevron_right</span><span>Vừa làm việc</span></summary><div className="sc-workspace-row">{recentIds.map(id => projects.find(p => p.novelId === id)).filter((p): p is Novel => Boolean(p)).slice(0, 5).map(project => <Link className="sc-workspace-button" key={project.novelId} to={`/author/novels/${project.novelId}`}>{project.title}</Link>)}</div></details>}
+              {recentIds.some(id => projects.some(p => p.novelId === id)) && (
+                <AnimatedDisclosure className="sc-filter-presets" summary={<span>Vừa làm việc</span>}>
+                  <div className="sc-workspace-row">
+                    {recentIds.map(id => projects.find(p => p.novelId === id)).filter((p): p is Novel => Boolean(p)).slice(0, 5).map(project => (
+                      <Link className="sc-workspace-button" key={project.novelId} to={`/author/novels/${project.novelId}`}>{project.title}</Link>
+                    ))}
+                  </div>
+                </AnimatedDisclosure>
+              )}
             </div>
             <ActiveFilterChips items={[
               ...(onlyPinned ? [{ id: 'pinned', label: 'Đã ghim', onRemove: () => setOnlyPinned(false) }] : []),
@@ -499,7 +500,7 @@ export function AuthorProjectsPage() {
             {/* Novel Cards: Grid View (Strict 3 columns on desktop) */}
             <ProjectLayout>
             {viewMode === 'grid' && (
-              <AnimatedCollection key="grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-4.5">
+              <AnimatedCollection key="grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-4">
                 {filteredProjects.map((project) => {
                   const cover = project.coverImageUrl;
                   const statusLabel =
@@ -608,8 +609,6 @@ export function AuthorProjectsPage() {
                             <span>Quản lý</span>
                           </Link>
                         </div>
-
-                        <button type="button" className="sc-project-pin" aria-label={`Xem nhanh ${project.title}`} title="Xem nhanh tác phẩm" onClick={() => setPreviewId(project.novelId)}><span className="material-symbols-outlined" aria-hidden="true">visibility</span></button>
 
                         {/* Three-dot overflow menu */}
                         <Menu position="bottom-end">
@@ -728,14 +727,14 @@ export function AuthorProjectsPage() {
                         <button type="button" className="sc-project-pin" aria-label={`Xem nhanh ${project.title}`} title="Xem nhanh tác phẩm" onClick={() => setPreviewId(project.novelId)}><span className="material-symbols-outlined" aria-hidden="true">visibility</span></button>
                         <Link
                           to={`/author/novels/${project.novelId}`}
-                          className="px-2.5 py-1 rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200/80 text-meta font-medium text-stone-700 shadow-2xs transition-colors"
+                          className="inline-flex items-center justify-center px-2.5 py-1 min-h-[32px] rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200/80 text-meta font-medium text-stone-700 shadow-2xs transition-colors"
                         >
                           Quản lý
                         </Link>
                         {project.serialStatus === 'COMPLETED' ? (
                           <Link
                             to={`/public/novels/${project.novelId}`}
-                            className="px-3 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-meta font-semibold shadow-2xs transition-colors"
+                            className="inline-flex items-center justify-center px-3 py-1 min-h-[32px] rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-meta font-semibold shadow-2xs transition-colors"
                           >
                             Xem tác phẩm
                           </Link>
@@ -743,7 +742,7 @@ export function AuthorProjectsPage() {
                           <button
                             type="button"
                             onClick={() => openIde(project.novelId)}
-                            className="px-3 py-1 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-meta font-semibold shadow-2xs transition-colors cursor-pointer"
+                            className="inline-flex items-center justify-center px-3 py-1 min-h-[32px] rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-meta font-semibold shadow-2xs transition-colors cursor-pointer"
                           >
                             Viết tiếp
                           </button>
@@ -782,10 +781,11 @@ export function AuthorProjectsPage() {
             >
               {/* Field 1: Tên tác phẩm */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-meta font-bold text-stone-900">
+                <label htmlFor="create-novel-title" className="text-meta font-bold text-stone-900">
                   Tên tác phẩm <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="create-novel-title"
                   type="text"
                   required
                   minLength={2}
@@ -800,61 +800,28 @@ export function AuthorProjectsPage() {
                 </p>
               </div>
 
-              {/* Field 2: Thể loại chính (dropdown menu) */}
-              <div className="flex flex-col gap-1.5 relative" ref={genreDropdownRef}>
-                <label className="text-meta font-bold text-stone-900">
-                  Thể loại chính
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setIsGenreDropdownOpen(!isGenreDropdownOpen)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low text-meta text-stone-900 font-medium flex items-center justify-between hover:bg-surface-container focus:outline-none focus:ring-1 focus:ring-primary-600 transition-colors cursor-pointer text-left"
-                >
-                  <span>{newGenre || 'Chọn thể loại'}</span>
-                  <span
-                    className={`material-symbols-outlined text-stone-500 text-[20px] transition-transform duration-200 ${
-                      isGenreDropdownOpen ? 'rotate-180 text-primary-600' : ''
-                    }`}
-                  >
-                    expand_more
-                  </span>
-                </button>
-
-                {isGenreDropdownOpen && (
-                  <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200/90 py-1.5 max-h-56 overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
-                    {genres.map((genre) => (
-                      <button
-                        key={genre}
-                        type="button"
-                        onClick={() => {
-                          setNewGenre(genre);
-                          setIsGenreDropdownOpen(false);
-                        }}
-                        className={`w-full px-3.5 py-2 text-left text-meta flex items-center justify-between transition-colors cursor-pointer ${
-                          newGenre === genre
-                            ? 'bg-primary-50 text-primary-600 font-semibold'
-                            : 'text-stone-700 hover:bg-surface-subtle'
-                        }`}
-                      >
-                        <span>{genre}</span>
-                        {newGenre === genre && (
-                          <span className="material-symbols-outlined text-[16px] text-primary-600">check</span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                <input type="text" value={newGenre} onChange={(e) => setNewGenre(e.target.value)} maxLength={100} placeholder="Hoặc nhập thể loại mới" className="w-full px-3.5 py-2 rounded-xl bg-surface-container-low text-meta text-stone-900" />
-                {genresQuery.isError && <span className="text-meta text-red-600">Không tải được danh sách thể loại; bạn vẫn có thể nhập thể loại mới.</span>}
-              </div>
+              {/* Field 2: Thể loại (accessible TagsInput combobox) */}
+              <TagsInput
+                label="Thể loại"
+                description={genresQuery.isError ? 'Không tải được danh sách thể loại; bạn vẫn có thể nhập thể loại mới.' : 'Chọn hoặc nhập tối đa 5 thể loại.'}
+                placeholder="Chọn hoặc nhập thể loại"
+                data={genres}
+                value={newGenres}
+                onChange={setNewGenres}
+                maxTags={5}
+                maxLength={100}
+                clearable
+                comboboxProps={{ withinPortal: false }}
+              />
 
               {/* Field 3: Giới thiệu ngắn */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-meta font-bold text-stone-900">Giới thiệu ngắn</label>
+                  <label htmlFor="create-novel-synopsis" className="text-meta font-bold text-stone-900">Giới thiệu ngắn</label>
                   <span className="text-meta text-stone-400 font-normal">Tối thiểu {NOVEL_SYNOPSIS_MIN} ký tự · {newSynopsis.trim().length}/{NOVEL_SYNOPSIS_MIN}</span>
                 </div>
                 <textarea
+                  id="create-novel-synopsis"
                   rows={5}
                   value={newSynopsis}
                   onChange={(e) => setNewSynopsis(e.target.value)}
@@ -924,6 +891,7 @@ export function AuthorProjectsPage() {
                     {newCoverUrl && (
                       <button
                         type="button"
+                        aria-label="Xóa ảnh bìa"
                         onClick={() => { setNewCoverUrl(''); setCoverSource(null); setCoverToCrop(null); }}
                         disabled={coverUpload.isPending}
                         title="Xóa ảnh"
@@ -954,7 +922,7 @@ export function AuthorProjectsPage() {
                 <span className="material-symbols-outlined text-primary-600 text-[18px] shrink-0 mt-0.5">
                   info
                 </span>
-                <p className="text-meta text-stone-600 leading-relaxed">
+                <p className="text-meta text-stone-800 leading-relaxed">
                   Tác phẩm mới sẽ được lưu dưới dạng bản nháp riêng tư. Bạn có thể thay đổi trạng thái sau.
                 </p>
               </div>

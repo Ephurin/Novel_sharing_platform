@@ -5,6 +5,7 @@ import {StoryPlanEditor} from './StoryPlanEditor';
 import { useAuthStore } from '../auth/useAuthStore';
 import { SetupFoundationPanel } from './SetupFoundationPanel';
 import { SuggestionReveal } from '../../shared/components/AuthorAdminMotion';
+import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
 import { StateComparison } from '../../shared/components/StateComparison';
 import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import { useEffect, useMemo, useState } from 'react';
@@ -451,14 +452,16 @@ function ScopedAuthorMemoryPanel({
       position="left"
       size="xl"
       title="Bộ nhớ và định hướng tiểu thuyết"
+      classNames={{ content: 'sc-author-theme' }}
+      styles={{ content: { background: 'var(--sc-surface-elevated)' } }}
     >
       <Stack gap="sm">
-        <Group justify="space-between" align="center">
+        <Group justify="space-between" align="center" wrap="wrap">
           <Text size="xs" c="dimmed">
             Trạng thái: {brainStatusLabel(brain.data?.status)} · Đề xuất chưa duyệt chưa vào bộ nhớ truyện.
           </Text>
           <Badge variant="outline" size="xs">
-            Bộ nhớ v{currentBrainVersion}
+            Bộ nhớ chính thức v{currentBrainVersion}
           </Badge>
         </Group>
 
@@ -514,13 +517,20 @@ function ScopedAuthorMemoryPanel({
               />
 
               {brain.data && (
-                <AuthorMemoryRepair
-                  novelId={novelId}
-                  version={currentBrainVersion}
-                  entities={memory.data?.entities ?? []}
-                  disabled={pending}
-                  perform={perform}
-                />
+                <AnimatedDisclosure
+                  summaryClassName="text-meta font-semibold text-stone-700"
+                  summary="Bổ sung hoặc thay thế dữ liệu trích xuất (Thủ công)"
+                >
+                  <div className="pt-2">
+                    <AuthorMemoryRepair
+                      novelId={novelId}
+                      version={currentBrainVersion}
+                      entities={memory.data?.entities ?? []}
+                      disabled={pending}
+                      perform={perform}
+                    />
+                  </div>
+                </AnimatedDisclosure>
               )}
 
               <Divider my="xs" label="Đề xuất chờ duyệt" labelPosition="center" />
@@ -1016,6 +1026,8 @@ function ScopedAuthorMemoryPanel({
         }}
         title="Xác nhận loại toàn bộ nhóm đề xuất"
         centered
+        classNames={{ content: 'sc-author-theme' }}
+        styles={{ content: { minHeight: 'auto', background: 'var(--sc-surface-elevated)' } }}
         data-testid="modal-confirm-reject-group"
       >
         <Stack gap="sm">

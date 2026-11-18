@@ -374,13 +374,15 @@ export function BrainstormingModal({
       title={<Text fw={700} size="lg">Trợ lý AI Động não (AI Brainstorming)</Text>}
       size="xl"
       aria-label="AI Brainstorming Modal"
+      classNames={{ content: 'sc-author-theme' }}
+      styles={{ content: { minHeight: 'auto', background: 'var(--sc-surface-elevated)' } }}
     >
       <Stack gap="md">
         <Alert title="Chỉ tạo gợi ý bản nháp (Draft-Only)">
           Gợi ý AI chỉ thêm vào bản nháp khi bạn chọn dùng; <strong>không tự ghi Canon hay kích hoạt M0</strong>, và ghi chú riêng tư không bao giờ gửi cho AI.
         </Alert>
 
-        <Group grow align="flex-start">
+        <Group grow align="flex-start" wrap="wrap">
           <Select
             label="Phạm vi gợi ý"
             value={target}

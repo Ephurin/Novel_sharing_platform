@@ -18,6 +18,7 @@ import { locateAnchor } from './studio-annotations';
 import { authorNoteDefinitions } from '../../shared/lib/author-notes';
 import { useStudioPosition } from './useStudioPosition';
 import { PublishChecklist, StoryReferenceLookup, TextComparison } from './StudioReviewTools';
+import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { AnimatedTabs } from '../../shared/components/AnimatedTabs';
 import { CopyTextButton, FeedbackReveal } from '../../shared/components/ActionFeedback';
@@ -200,15 +201,37 @@ export function AuthorWritingIde() {
   useReadingFonts();
   const chapterNavRef = useStoryCraftAutoAnimate<HTMLElement>();
   const aiResultsRef = useStoryCraftAutoAnimate<HTMLDivElement>();
-  const openAiDrawer = () => {
-    if (window.matchMedia('(max-width: 900px)').matches) setSidebarOpen(false);
+  const sidebarAutoHiddenByAiRef = useRef(false);
+  const restoreAutoHiddenSidebar = () => {
+    if (sidebarAutoHiddenByAiRef.current) {
+      sidebarAutoHiddenByAiRef.current = false;
+      if (window.matchMedia('(min-width: 901px)').matches) {
+        setSidebarOpen(true);
+      }
+    }
+  };
+  const openAiDrawer = (fromUserClick = false) => {
+    if (window.matchMedia('(max-width: 900px)').matches) {
+      sidebarAutoHiddenByAiRef.current = false;
+      setSidebarOpen(false);
+    } else if (fromUserClick && window.innerWidth < 1360 && sidebarOpen) {
+      sidebarAutoHiddenByAiRef.current = true;
+      setSidebarOpen(false);
+    }
     setRightPanel('ai');
   };
+  const closeAiDrawer = () => {
+    setRightPanel(null);
+    restoreAutoHiddenSidebar();
+  };
   const toggleAiDrawer = () => {
-    if (aiDrawerOpen) setRightPanel(null); else openAiDrawer();
+    if (aiDrawerOpen) closeAiDrawer(); else openAiDrawer(true);
   };
   const changeNotesOpen = (open: boolean) => {
-    if (open && window.matchMedia('(max-width: 900px)').matches) setSidebarOpen(false);
+    if (open) {
+      restoreAutoHiddenSidebar();
+      if (window.matchMedia('(max-width: 900px)').matches) setSidebarOpen(false);
+    }
     setRightPanel(current => open ? 'notes' : current === 'notes' ? null : current);
   };
   const [storyBibleOpen, setStoryBibleOpen] = useState(false);
@@ -270,11 +293,40 @@ export function AuthorWritingIde() {
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const editorSelectionRef = useRef<{ scope: string; start: number; end: number } | null>(null);
   const acceptedCaretRef = useRef<{ scope: string; position: number; scrollTop: number } | null>(null);
+  const [activeInlineFormats, setActiveInlineFormats] = useState({
+    bold: false,
+    italic: false,
+    underline: false,
+    strike: false
+  });
+  const syncInlineFormats = (text: string, start: number, end: number) => {
+    const selected = start !== end ? text.slice(start, end) : '';
+    const hasWrap = (prefix: string, suffix = prefix) =>
+      start !== end &&
+      ((start >= prefix.length && text.slice(start - prefix.length, start) === prefix && text.slice(end, end + suffix.length) === suffix) ||
+        (selected.startsWith(prefix) && selected.endsWith(suffix) && selected.length >= prefix.length + suffix.length));
+    const italic =
+      start !== end &&
+      (((text.slice(0, start).match(/\*+$/)?.[0].length ?? 0) % 2 === 1 && (text.slice(end).match(/^\*+/)?.[0].length ?? 0) % 2 === 1) ||
+        ((selected.match(/^\*+/)?.[0].length ?? 0) % 2 === 1 && (selected.match(/\*+$/)?.[0].length ?? 0) % 2 === 1 && selected.length >= 2));
+    const next = {
+      bold: hasWrap('**'),
+      italic,
+      underline: hasWrap('<u>', '</u>'),
+      strike: hasWrap('~~')
+    };
+    setActiveInlineFormats((prev) =>
+      prev.bold === next.bold && prev.italic === next.italic && prev.underline === next.underline && prev.strike === next.strike ? prev : next
+    );
+  };
   const rememberEditorSelection = () => {
     const editor = editorRef.current;
-    if (editor) editorSelectionRef.current = {
-      scope: activeDraftScope, start: editor.selectionStart, end: editor.selectionEnd
-    };
+    if (editor) {
+      editorSelectionRef.current = {
+        scope: activeDraftScope, start: editor.selectionStart, end: editor.selectionEnd
+      };
+      syncInlineFormats(editor.value, editor.selectionStart, editor.selectionEnd);
+    }
   };
 
   // Toast Helper
@@ -322,7 +374,7 @@ export function AuthorWritingIde() {
   async function openPlanning(step:PlanningStep='idea'){const session=writingSession.current;try{await persistence.flush();if(session!==writingSession.current)return;
     // The chapter list feeds Planning's "written chapters" (memory entry, future-event target); re-read it after the flush.
     void queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] });
-    if(window.matchMedia('(max-width: 900px)').matches)setSidebarOpen(false);setRightPanel(null);setPlanningStep(step);setPlanningMounted(true);setPlanning(true);setMemoryPanelOpen(false);setStoryBibleOpen(false);}catch{showToast('Bản nháp chưa lưu xong. Hãy thử lưu trước khi mở lập kế hoạch.');}}
+    if(window.matchMedia('(max-width: 900px)').matches)setSidebarOpen(false);sidebarAutoHiddenByAiRef.current=false;setRightPanel(null);setPlanningStep(step);setPlanningMounted(true);setPlanning(true);setMemoryPanelOpen(false);setStoryBibleOpen(false);}catch{showToast('Bản nháp chưa lưu xong. Hãy thử lưu trước khi mở lập kế hoạch.');}}
   const activeDraftScope = `${user?.userId}:${activeChapterId}`;
   const writingScope = `${user?.userId}:${activeNovelId}:${activeChapterId}`;
   const writingSession = useRef<object>({});
@@ -618,7 +670,7 @@ export function AuthorWritingIde() {
     if (!aiDrawerOpen) return;
     const close = (event: KeyboardEvent) => {
       if (event.key !== 'Escape' || event.defaultPrevented || document.querySelector('[role="dialog"], [role="menu"][data-state="open"]')) return;
-      setRightPanel(null); const source = editorRef.current; if (source) revealStudioSelection(source, source.selectionStart, source.selectionEnd, false);
+      closeAiDrawer(); const source = editorRef.current; if (source) revealStudioSelection(source, source.selectionStart, source.selectionEnd, false);
     };
     document.addEventListener('keydown', close); return () => document.removeEventListener('keydown', close);
   }, [aiDrawerOpen]);
@@ -633,6 +685,7 @@ export function AuthorWritingIde() {
   const applyStudioEdit = (value: string, start: number, end: number) => {
     if (!studioReady || isAcceptingAi) return;
     studioCaret.current = { scope: activeDraftScope, start, end, text: value };
+    syncInlineFormats(value, start, end);
     studioHistory.edit(value, start, end);
     if (value === content && editorRef.current) { revealStudioSelection(editorRef.current, start, end); studioCaret.current = null; }
   };
@@ -955,7 +1008,10 @@ export function AuthorWritingIde() {
 
   const sidebarToggle = !focusMode && !planning && (
     <button
-      onClick={() => setSidebarOpen((prev: boolean) => !prev)}
+      onClick={() => {
+        sidebarAutoHiddenByAiRef.current = false;
+        setSidebarOpen((prev: boolean) => !prev);
+      }}
       className="sc-studio-sidebar-toggle"
       title="Đóng/Mở thanh danh sách chương"
       aria-label="Đóng/Mở thanh danh sách chương"
@@ -966,8 +1022,18 @@ export function AuthorWritingIde() {
     </button>
   );
 
-  const chapterStatusLabel = chapterQuery.data?.status || 'Bản nháp';
-  const chapterPublished = chapterQuery.data?.status === 'PUBLISHED';
+  const rawChapterStatus = chapterQuery.data?.status;
+  const chapterStatusLabel =
+    rawChapterStatus === 'PUBLISHED'
+      ? 'Đã xuất bản'
+      : rawChapterStatus === 'PENDING_MODERATION'
+      ? 'Chờ duyệt'
+      : rawChapterStatus === 'REJECTED'
+      ? 'Từ chối'
+      : rawChapterStatus === 'ARCHIVED'
+      ? 'Đã lưu trữ'
+      : 'Bản nháp';
+  const chapterPublished = rawChapterStatus === 'PUBLISHED';
 
   const chapterSettings = !focusMode && !planning && (
         <section className="sc-studio-settings border-b border-stone-200/80 bg-surface-container-lowest/90 backdrop-blur-sm px-2 flex items-center justify-between shrink-0 z-20 text-meta">
@@ -1075,7 +1141,7 @@ export function AuthorWritingIde() {
           <Breadcrumbs className="is-compact" items={[{ label: novelQuery.data?.title || 'Tác phẩm', to: activeNovelId ? `/author/novels/${activeNovelId}` : authorHomeCrumb.to }, { label: title || 'Chương mới' }]} />
 
           {/* Autosave Indicator */}
-          {!planning && <SaveStatus className="hidden md:inline-flex shrink-0" status={activeChapterId && chapterQuery.data && loadedChapter.current === activeDraftScope ? autosaveStatus : 'idle'} dirty={persistence.dirty} savedAt={lastSavedTime} />}
+          {!planning && <SaveStatus className="inline-flex shrink-0" status={activeChapterId && chapterQuery.data && loadedChapter.current === activeDraftScope ? autosaveStatus : 'idle'} dirty={persistence.dirty} savedAt={lastSavedTime} />}
         </div>
 
         {/* Center: Stats, Theme & Studio Tools (one cohesive group) */}
@@ -1201,14 +1267,14 @@ export function AuthorWritingIde() {
         save={async () => { await persistence.flush(); }} onError={message => showToast(message, 'error')} />}
       {!planning && <StudioSelectionTools key={`selection:${activeDraftScope}`} editor={editorRef} disabled={!studioReady || isAcceptingAi}
         onFormat={format => format === 'bold' ? wrapSelection('**') : format === 'italic' ? wrapSelection('*') : wrapSelection('<u>', '</u>')}
-        onLookup={setReferenceQuery} onAi={() => { rememberEditorSelection(); openAiDrawer(); }} />}
+        onLookup={setReferenceQuery} onAi={() => { rememberEditorSelection(); openAiDrawer(true); }} />}
       <div data-right-panel={rightPanel ?? 'none'} className="sc-studio-body flex-1 min-h-0 flex overflow-hidden relative" style={planning?{display:'none'}:undefined}>
         {/* Left Sidebar Chapters Outline Rail */}
         {sidebarOpen && !focusMode && (
           <>
             <div
               className="sc-sidebar-backdrop"
-              onClick={() => setSidebarOpen(false)}
+              onClick={() => { sidebarAutoHiddenByAiRef.current = false; setSidebarOpen(false); }}
               role="presentation"
               aria-label="Đóng danh sách chương"
             />
@@ -1218,13 +1284,13 @@ export function AuthorWritingIde() {
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-meta font-bold tracking-wider uppercase text-stone-600">Mục lục chương</span>
-                  <span className="text-meta bg-stone-200/80 text-stone-700 px-1.5 py-0.2 rounded-full font-semibold">
+                  <span className="text-meta bg-stone-200/80 text-stone-700 px-1.5 py-0.5 rounded-full font-semibold">
                     {chaptersQuery.data?.length ?? 0}
                   </span>
                 </div>
               </div>
               <button
-                onClick={() => setSidebarOpen(false)}
+                onClick={() => { sidebarAutoHiddenByAiRef.current = false; setSidebarOpen(false); }}
                 className="p-1 rounded text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 transition-colors"
                 title="Thu gọn danh sách"
                 aria-label="Thu gọn danh sách chương"
@@ -1242,6 +1308,7 @@ export function AuthorWritingIde() {
                 </span>
                 <input
                   type="text"
+                  aria-label="Tìm kiếm chương"
                   value={chapterSearch}
                   onChange={(e) => setChapterSearch(e.target.value)}
                   placeholder="Tìm kiếm chương..."
@@ -1278,6 +1345,7 @@ export function AuthorWritingIde() {
                   <button
                     type="button"
                     key={ch.chapterId}
+                    aria-current={isActive ? 'true' : undefined}
                     onClick={() => {
                       if (!isActive) {
                         setSearchParams({ novelId: activeNovelId, chapterId: ch.chapterId });
@@ -1305,12 +1373,12 @@ export function AuthorWritingIde() {
                       </span>
                       <div className="flex items-center gap-1">
                         {ch.isVip && (
-                          <span className="text-meta px-1 py-0.2 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300">
+                          <span className="text-meta px-1 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300">
                             VIP
                           </span>
                         )}
                         <span
-                          className={`text-meta px-1.5 py-0.2 rounded border font-normal ${
+                          className={`text-meta px-1.5 py-0.5 rounded border font-normal ${
                             ch.status === 'PUBLISHED'
                               ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                               : 'bg-stone-100 text-stone-500 border-stone-200/70'
@@ -1388,7 +1456,7 @@ export function AuthorWritingIde() {
             <div id="studio-format-toolbar" className="sc-format-toolbar sticky top-0 z-20 w-full py-2 px-3 sm:px-4 bg-surface/95 backdrop-blur-md border-b border-stone-200/60 flex items-center justify-center mb-2 shrink-0">
               <div className="sc-format-controls py-0 px-1 flex items-center gap-1 max-w-4xl text-meta text-stone-700 select-none">
                 {/* Portalled menus remain usable inside the horizontally scrolling toolbar. */}
-                <Menu position="bottom-start" onCloseAutoFocus={preserveNextToolbarMenu}><Menu.Target><button className="font-medium flex items-center gap-1.5 px-2 py-1" title="Đổi kiểu chữ (7 phông chữ Việt hóa)" type="button">
+                <Menu position="bottom-start" onCloseAutoFocus={preserveNextToolbarMenu}><Menu.Target><button className="font-medium flex items-center gap-1.5 px-2 py-1" title="Đổi kiểu chữ (7 phông chữ Việt hóa)" aria-label="Đổi kiểu chữ (7 phông chữ Việt hóa)" type="button">
                   <span className="material-symbols-outlined text-[16px]">text_fields</span><span>{currentFontConfig.name}</span><span className="material-symbols-outlined text-[15px]">expand_more</span>
                 </button></Menu.Target><Menu.Dropdown><Menu.Label>Phông chữ soạn thảo</Menu.Label>{AVAILABLE_FONTS.map(font => <Menu.Item key={font.id} onClick={() => setFontOption(font.id)} leftSection={fontOption === font.id ? '✓' : ' '}><span style={{fontFamily:font.fontFamily}}>{font.name}</span><span className="block text-meta text-stone-500">{font.tagline}</span></Menu.Item>)}</Menu.Dropdown></Menu>
 
@@ -1401,6 +1469,7 @@ export function AuthorWritingIde() {
                     disabled={fontSize <= 13}
                     className="w-6 h-6 flex items-center justify-center rounded hover:bg-surface-container-lowest text-stone-600 hover:text-stone-900 disabled:opacity-30 disabled:hover:bg-transparent font-medium text-meta transition-colors"
                     title="Giảm cỡ chữ (A-)"
+                    aria-label="Giảm cỡ chữ (A-)"
                     type="button"
                   >
                     A-
@@ -1411,6 +1480,7 @@ export function AuthorWritingIde() {
                     disabled={fontSize >= 28}
                     className="w-6 h-6 flex items-center justify-center rounded hover:bg-surface-container-lowest text-stone-600 hover:text-stone-900 disabled:opacity-30 disabled:hover:bg-transparent font-medium text-meta transition-colors"
                     title="Tăng cỡ chữ (A+)"
+                    aria-label="Tăng cỡ chữ (A+)"
                     type="button"
                   >
                     A+
@@ -1420,9 +1490,11 @@ export function AuthorWritingIde() {
                 <div className="h-4 w-px bg-stone-200 mx-1"></div>
 
                 {/* 3. Text Alignment Group */}
-                <div className="flex items-center bg-stone-100/80 rounded-lg p-0.5 border border-stone-200/60">
+                <div className="flex items-center bg-stone-100/80 rounded-lg p-0.5 border border-stone-200/60" role="group" aria-label="Căn lề bản thảo">
                   <button
                     onClick={() => setTextAlign('justify')}
+                    aria-pressed={textAlign === 'justify'}
+                    aria-label="Căn đều hai bên (Chuẩn sách xuất bản)"
                     className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
                       textAlign === 'justify' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
                     }`}
@@ -1433,6 +1505,8 @@ export function AuthorWritingIde() {
                   </button>
                   <button
                     onClick={() => setTextAlign('left')}
+                    aria-pressed={textAlign === 'left'}
+                    aria-label="Căn trái"
                     className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
                       textAlign === 'left' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
                     }`}
@@ -1443,6 +1517,8 @@ export function AuthorWritingIde() {
                   </button>
                   <button
                     onClick={() => setTextAlign('center')}
+                    aria-pressed={textAlign === 'center'}
+                    aria-label="Căn giữa (Thơ, tiêu đề phụ, lời đề từ)"
                     className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
                       textAlign === 'center' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
                     }`}
@@ -1453,6 +1529,8 @@ export function AuthorWritingIde() {
                   </button>
                   <button
                     onClick={() => setTextAlign('right')}
+                    aria-pressed={textAlign === 'right'}
+                    aria-label="Căn phải (Ký tên, ngày tháng, xuất xứ)"
                     className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
                       textAlign === 'right' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
                     }`}
@@ -1481,7 +1559,7 @@ export function AuthorWritingIde() {
                       : 'border-transparent hover:bg-stone-100 text-stone-500 hover:text-stone-800'
                   }`}
                   title="Thụt đầu dòng đoạn văn (~2.5rem - Quy chuẩn tiểu thuyết)"
-                  aria-label="Thụt đầu dòng"
+                  aria-label="Thụt đầu dòng đoạn văn (~2.5rem - Quy chuẩn tiểu thuyết)"
                   aria-pressed={paragraphIndent}
                   type="button"
                 >
@@ -1495,7 +1573,11 @@ export function AuthorWritingIde() {
                 <button
                   onMouseDown={event => event.preventDefault()}
                   onClick={() => wrapSelection('**', '**', 'văn bản in đậm')}
-                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors font-bold text-meta"
+                  aria-pressed={activeInlineFormats.bold}
+                  aria-label="In đậm (**văn bản**)"
+                  className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors font-bold text-meta ${
+                    activeInlineFormats.bold ? 'bg-primary-50 text-primary-700' : 'hover:bg-stone-100 text-stone-700 hover:text-stone-900'
+                  }`}
                   title="In đậm (**văn bản**)"
                   type="button"
                 >
@@ -1505,7 +1587,11 @@ export function AuthorWritingIde() {
                 <button
                   onMouseDown={event => event.preventDefault()}
                   onClick={() => wrapSelection('*', '*', 'văn bản in nghiêng')}
-                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors italic text-meta"
+                  aria-pressed={activeInlineFormats.italic}
+                  aria-label="In nghiêng (*văn bản*)"
+                  className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors italic text-meta ${
+                    activeInlineFormats.italic ? 'bg-primary-50 text-primary-700' : 'hover:bg-stone-100 text-stone-700 hover:text-stone-900'
+                  }`}
                   title="In nghiêng (*văn bản*)"
                   type="button"
                 >
@@ -1515,7 +1601,11 @@ export function AuthorWritingIde() {
                 <button
                   onMouseDown={event => event.preventDefault()}
                   onClick={() => wrapSelection('<u>', '</u>', 'văn bản gạch chân')}
-                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors text-meta"
+                  aria-pressed={activeInlineFormats.underline}
+                  aria-label="Gạch chân (<u>văn bản</u>)"
+                  className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors text-meta ${
+                    activeInlineFormats.underline ? 'bg-primary-50 text-primary-700' : 'hover:bg-stone-100 text-stone-700 hover:text-stone-900'
+                  }`}
                   title="Gạch chân (<u>văn bản</u>)"
                   type="button"
                 >
@@ -1525,7 +1615,11 @@ export function AuthorWritingIde() {
                 <button
                   onMouseDown={event => event.preventDefault()}
                   onClick={() => wrapSelection('~~', '~~', 'văn bản gạch ngang')}
-                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors text-meta"
+                  aria-pressed={activeInlineFormats.strike}
+                  aria-label="Gạch ngang (~~văn bản~~)"
+                  className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors text-meta ${
+                    activeInlineFormats.strike ? 'bg-primary-50 text-primary-700' : 'hover:bg-stone-100 text-stone-700 hover:text-stone-900'
+                  }`}
                   title="Gạch ngang (~~văn bản~~)"
                   type="button"
                 >
@@ -1535,6 +1629,7 @@ export function AuthorWritingIde() {
                 <button
                   onMouseDown={event => event.preventDefault()}
                   onClick={() => wrapSelection('“', '”', 'lời thoại nhân vật')}
+                  aria-label="Trích dẫn lời thoại “...”"
                   className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-serif text-body transition-colors"
                   title="Trích dẫn lời thoại “...”"
                   type="button"
@@ -1545,6 +1640,7 @@ export function AuthorWritingIde() {
                 <button
                   onMouseDown={event => event.preventDefault()}
                   onClick={insertDialogueDash}
+                  aria-label="Gạch đầu dòng lời thoại (— )"
                   className="px-1.5 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-serif text-meta transition-colors"
                   title="Gạch đầu dòng lời thoại (— )"
                   type="button"
@@ -1562,6 +1658,7 @@ export function AuthorWritingIde() {
             <div className="sc-studio-title-header mb-4 pb-3 border-b border-stone-100">
               <input
                 type="text"
+                aria-label="Tiêu đề chương"
                 value={title}
                 maxLength={CHAPTER_TITLE_MAX}
                 readOnly={isAcceptingAi}
@@ -1570,21 +1667,14 @@ export function AuthorWritingIde() {
                 style={{ fontFamily: currentFontConfig.fontFamily }}
                 className="sc-chapter-title w-full font-bold text-2xl md:text-3xl text-stone-900 border-none p-0 focus:ring-0 focus:outline-none placeholder-stone-300 tracking-tight bg-transparent"
               />
-              <div className="flex flex-wrap items-center gap-2 mt-2.5 text-meta text-stone-400 font-sans">
-                <span>{lastSavedTime ? `Đã lưu: ${lastSavedTime}` : 'Đang soạn thảo'}</span>
-                <span>•</span>
-                <span className="text-stone-600 font-medium">{novelQuery.data?.title || 'Tác phẩm'}</span>
-                <span>•</span>
-                <span className="text-stone-500">Chương số {chapterQuery.data?.chapterNumber ?? 1}</span>
-              </div>
             </div>
 
             {/* Prose Editor Textarea: Auto-grow without internal scrollbar */}
-            <StudioContextMenu key={activeDraftScope} editor={editorRef} disabled={!studioReady || isAcceptingAi} apply={applyStudioEdit} onError={message => showToast(message, 'error')} onLookup={setReferenceQuery} onAi={() => { rememberEditorSelection(); openAiDrawer(); }} onCopied={() => showToast('Đã sao chép vùng chọn.')}><div className="sc-manuscript-input w-full min-h-[500px]">
+            <StudioContextMenu key={activeDraftScope} editor={editorRef} disabled={!studioReady || isAcceptingAi} apply={applyStudioEdit} onError={message => showToast(message, 'error')} onLookup={setReferenceQuery} onAi={() => { rememberEditorSelection(); openAiDrawer(true); }} onCopied={() => showToast('Đã sao chép vùng chọn.')}><div className="sc-manuscript-input w-full min-h-[500px]">
               <div className="sc-studio-editor-mode" role="group" aria-label="Chế độ soạn thảo"><button type="button" aria-pressed={visualEditor} onMouseDown={event => event.preventDefault()} onClick={() => changeEditorMode(true)}>Soạn thảo</button><button type="button" aria-pressed={!visualEditor} onMouseDown={event => event.preventDefault()} onClick={() => changeEditorMode(false)}>Ký hiệu định dạng</button></div>
               {visualEditor && <RichManuscriptEditor value={content} source={editorRef} disabled={!studioReady || isAcceptingAi}
                 style={{ fontFamily: currentFontConfig.fontFamily, fontSize: `${fontSize}px`, lineHeight, textAlign, textIndent: paragraphIndent ? '2.5rem' : '0' }}
-                onChange={(next, start, end) => studioHistory.edit(next, start, end, true)} onSelection={(start, end) => { editorSelectionRef.current = { scope: activeDraftScope, start, end }; studioHistory.remember(start, end); }}
+                onChange={(next, start, end) => { syncInlineFormats(next, start, end); studioHistory.edit(next, start, end, true); }} onSelection={(start, end) => { editorSelectionRef.current = { scope: activeDraftScope, start, end }; syncInlineFormats(content, start, end); studioHistory.remember(start, end); }}
                 onKeyDown={e => { if (e.nativeEvent.isComposing || !(e.ctrlKey || e.metaKey) || isAcceptingAi) return; const key = e.key.toLowerCase(); if (['b','i','u'].includes(key)) { e.preventDefault(); if (key === 'b') wrapSelection('**'); else if (key === 'i') wrapSelection('*'); else wrapSelection('<u>', '</u>'); } }} />}
               <textarea
                 ref={editorRef}
@@ -1636,9 +1726,10 @@ export function AuthorWritingIde() {
                 </div>
               </div>
               <button
-                onClick={() => setRightPanel(null)}
+                onClick={closeAiDrawer}
                 className="p-1 rounded text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors"
                 title="Đóng trợ lý"
+                aria-label="Đóng trợ lý AI"
                 type="button"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
@@ -1726,12 +1817,12 @@ export function AuthorWritingIde() {
                 </motion.div>
               )}
 
-              {aiRecoveryMessage && <div role="status" className="mb-3 rounded border p-3 text-sm">{aiRecoveryMessage}</div>}
+              {aiRecoveryMessage && <div role="status" className="mb-3 rounded-lg border border-stone-200 bg-surface-subtle p-3 text-sm text-stone-800">{aiRecoveryMessage}</div>}
               {aiSuggestion && !isGeneratingAi && (
                 <FeedbackReveal className="bg-primary-50/70 border border-primary-100 rounded-xl p-3.5 text-stone-800 shadow-2xs">
                   <div className="flex items-center justify-between mb-2 text-meta font-semibold text-primary-700">
                     <span className="uppercase tracking-wide">Gợi ý từ AI Copilot</span>
-                    <span className="bg-primary-100 px-1.5 py-0.2 rounded text-meta">{aiSuggestionTone}</span>
+                    <span className="bg-primary-100 px-1.5 py-0.5 rounded text-meta">{aiSuggestionTone}</span>
                   </div>
                   <p className="font-serif text-table leading-relaxed italic text-stone-700 bg-surface-container-lowest/70 p-2.5 rounded-lg border border-primary-100/60 whitespace-pre-wrap">
                     {aiSuggestion}
@@ -1775,6 +1866,7 @@ export function AuthorWritingIde() {
             <div className="p-3 border-t border-stone-200 bg-surface-container-lowest">
               <div className="relative">
                 <textarea
+                  aria-label="Yêu cầu cho trợ lý AI"
                   value={aiInstruction}
                   onChange={(e) => setAiInstruction(e.target.value)}
                   onKeyDown={(e) => {
@@ -1792,6 +1884,7 @@ export function AuthorWritingIde() {
                   disabled={isGeneratingAi || !aiInstruction.trim()}
                   className="absolute right-2 bottom-2.5 p-1 rounded-md bg-primary-600 text-white hover:bg-primary-700 transition-colors shadow-2xs disabled:opacity-50"
                   title="Gửi yêu cầu"
+                  aria-label="Gửi yêu cầu"
                   type="button"
                 >
                   <span className="material-symbols-outlined text-[16px]">send</span>
@@ -1913,18 +2006,19 @@ export function AuthorWritingIde() {
                             </div>
                           </div>
 
-                          <details className="text-meta text-stone-600">
-                          <summary className="cursor-pointer font-medium">Chi tiết nhân vật</summary>
-                          {c.personality && (
-                            <div className="bg-stone-50 rounded-lg p-2 border border-stone-100 text-meta text-stone-600 italic">
-                              "{c.personality}"
-                            </div>
-                          )}
+                          <AnimatedDisclosure className="text-meta text-stone-600" summaryClassName="font-medium" summary="Chi tiết nhân vật">
+                            <div className="pt-2">
+                              {c.personality && (
+                                <div className="bg-stone-50 rounded-lg p-2 border border-stone-100 text-meta text-stone-600 italic">
+                                  "{c.personality}"
+                                </div>
+                              )}
 
-                          <p className="text-stone-600 text-meta whitespace-pre-wrap leading-relaxed mt-2">
-                            {cleanDescription || 'Chưa có tiểu sử chi tiết.'}
-                          </p>
-                          </details>
+                              <p className="text-stone-600 text-meta whitespace-pre-wrap leading-relaxed mt-2">
+                                {cleanDescription || 'Chưa có tiểu sử chi tiết.'}
+                              </p>
+                            </div>
+                          </AnimatedDisclosure>
                         </div>
                       );
                     })}
@@ -2024,15 +2118,6 @@ export function AuthorWritingIde() {
 
             {/* Footer */}
             <div className="p-4 border-t border-stone-200 bg-stone-50 flex items-center justify-end gap-2 shrink-0">
-              <Link
-                to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
-                target="_blank"
-                rel="noreferrer"
-                className="px-3.5 py-1.5 rounded-xl border border-stone-300 text-meta text-stone-700 hover:bg-stone-100 font-medium inline-flex items-center gap-1 transition-colors"
-              >
-                <span className="material-symbols-outlined text-[15px]" aria-hidden="true">edit_note</span>
-                <span>Chỉnh sửa Cẩm nang ↗</span>
-              </Link>
               <button
                 onClick={() => setStoryBibleOpen(false)}
                 className="px-4 py-1.5 rounded-xl bg-primary-600 text-white text-meta font-semibold hover:bg-primary-700 transition-colors shadow-2xs"

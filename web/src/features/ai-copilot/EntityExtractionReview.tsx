@@ -1,4 +1,5 @@
 import { useAuthStore } from '../auth/useAuthStore';
+import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -192,45 +193,52 @@ export function EntityExtractionReview({
 
           <Divider my="xs" />
 
-          <Text size="xs" fw={500}>
-            Khai báo thực thể thế giới (Tạo đề xuất duyệt độc lập, không khẳng định có trong chương)
-          </Text>
-          <Group align="flex-end">
-            <TextInput
-              style={{ flex: 1 }}
-              size="xs"
-              label="Tên thực thể"
-              placeholder="Ví dụ: Vạn Tiên Tông"
-              value={declaredName}
-              onChange={e => setDeclaredName(e.currentTarget.value)}
-              disabled={disabled}
-            />
-            <Select
-              style={{ width: 120 }}
-              size="xs"
-              label="Loại"
-              data={ENTITY_TYPE_OPTIONS}
-              value={declaredType}
-              onChange={v => setDeclaredType(v as EntityType)}
-              disabled={disabled}
-            />
-            <Button
-              size="xs"
-              disabled={disabled || !declaredName.trim() || !declaredType}
-              onClick={() =>
-                perform(async () => {
-                  await memoryPost(`/ai/story-brains/${novelId}/author-entities`, {
-                    name: declaredName.trim(),
-                    entity_type: declaredType
-                  });
-                  setDeclaredName('');
-                  await refreshAll();
-                })
-              }
-            >
-              Khai báo thực thể
-            </Button>
-          </Group>
+          <AnimatedDisclosure
+            summaryClassName="text-meta font-semibold text-stone-700"
+            summary="Khai báo thực thể thế giới (chưa xuất hiện trong chương)"
+          >
+            <Stack gap="xs" pt="xs">
+              <Text size="xs" c="dimmed">
+                Tạo đề xuất duyệt độc lập mà không khẳng định thực thể đã xuất hiện trong chương đang mở.
+              </Text>
+              <Group align="flex-end" wrap="wrap">
+                <TextInput
+                  style={{ flex: 1, minWidth: 180 }}
+                  size="xs"
+                  label="Tên thực thể"
+                  placeholder="Ví dụ: Vạn Tiên Tông"
+                  value={declaredName}
+                  onChange={e => setDeclaredName(e.currentTarget.value)}
+                  disabled={disabled}
+                />
+                <Select
+                  style={{ width: 120 }}
+                  size="xs"
+                  label="Loại"
+                  data={ENTITY_TYPE_OPTIONS}
+                  value={declaredType}
+                  onChange={v => setDeclaredType(v as EntityType)}
+                  disabled={disabled}
+                />
+                <Button
+                  size="xs"
+                  disabled={disabled || !declaredName.trim() || !declaredType}
+                  onClick={() =>
+                    perform(async () => {
+                      await memoryPost(`/ai/story-brains/${novelId}/author-entities`, {
+                        name: declaredName.trim(),
+                        entity_type: declaredType
+                      });
+                      setDeclaredName('');
+                      await refreshAll();
+                    })
+                  }
+                >
+                  Khai báo thực thể
+                </Button>
+              </Group>
+            </Stack>
+          </AnimatedDisclosure>
         </Stack>
       </Paper>
 
@@ -740,7 +748,7 @@ function EntityCheckpoint({
               )}
             </Group>
 
-            <Group gap="xs" align="flex-start">
+            <Group gap="xs" align="flex-start" wrap="wrap">
               <TextInput
                 size="xs"
                 placeholder="Tên nhóm mới (ví dụ: minh-bac-si)"
@@ -748,7 +756,7 @@ function EntityCheckpoint({
                 value={newGroupInput}
                 onChange={e => setNewGroupInput(e.currentTarget.value)}
                 error={newGroupError}
-                style={{ width: 240 }}
+                style={{ width: 240, maxWidth: '100%' }}
                 disabled={disabled}
               />
               <Button size="xs" variant="light" onClick={handleAddGroup} disabled={disabled || !newGroupInput.trim()}>
@@ -797,8 +805,8 @@ function EntityCheckpoint({
             data-testid="entity-review-view-mode"
           />
         </Group>
-        <Group justify="space-between" align="center">
-          <Group gap="xs">
+        <Group justify="space-between" align="center" wrap="wrap">
+          <Group gap="xs" wrap="wrap">
             <Button
               size="xs"
               variant={filterMode === 'all' ? 'filled' : 'subtle'}
@@ -914,8 +922,8 @@ function EntityCheckpoint({
         </Paper>
 
         {/* Review Action Controls */}
-        <Group justify="space-between" align="center">
-          <Group gap="xs">
+        <Group justify="space-between" align="center" wrap="wrap">
+          <Group gap="xs" wrap="wrap">
             {review.status === 'waiting_entity_review' && (
               <>
                 <Button
@@ -1075,8 +1083,8 @@ function OccurrenceCard({
     <Paper p="xs" withBorder radius="sm" data-testid={`entity-occurrence-${candidate.candidate_id}`}>
       <Stack gap="xs">
         {/* Header row: Surface, Offset, Decision badge */}
-        <Group justify="space-between" align="center">
-          <Group gap="xs">
+        <Group justify="space-between" align="center" wrap="wrap">
+          <Group gap="xs" wrap="wrap">
             <Text fw={600} size="sm">
               &ldquo;{candidate.surface}&rdquo;
             </Text>
@@ -1132,7 +1140,7 @@ function OccurrenceCard({
 
         {/* Human Decision Controls */}
         <Stack gap="xs">
-          <Group gap="md" align="flex-end">
+          <Group gap="md" align="flex-end" wrap="wrap">
             {/* 1. Known Entity Selector */}
             <Select
               size="xs"
@@ -1144,7 +1152,7 @@ function OccurrenceCard({
               searchable
               clearable
               disabled={disabled || knownEntities.length === 0}
-              style={{ flex: 1 }}
+              style={{ flex: 1, minWidth: 180 }}
             />
 
             {/* 2. Provisional Group Selector */}
@@ -1185,7 +1193,7 @@ function OccurrenceCard({
                 <Text size="xs" fw={600}>
                   Thuộc tính định danh tạm thời:
                 </Text>
-                <Group grow>
+                <Group grow wrap="wrap">
                   <TextInput
                     size="xs"
                     label="Tên chuẩn (phải có bằng chứng trong chương)"
@@ -1210,7 +1218,7 @@ function OccurrenceCard({
                     disabled={disabled}
                   />
                 </Group>
-                <Group grow>
+                <Group grow wrap="wrap">
                   <TextInput
                     size="xs"
                     label="Bằng chứng alias / tên khác"
@@ -1369,8 +1377,8 @@ function SurfaceGroupCard({
   return (
     <Paper p="xs" withBorder radius="sm" data-testid={`entity-surface-group-${group.key}`}>
       <Stack gap="xs">
-        <Group justify="space-between" align="center">
-          <Group gap="xs">
+        <Group justify="space-between" align="center" wrap="wrap">
+          <Group gap="xs" wrap="wrap">
             <Text fw={600} size="sm">&ldquo;{group.surface}&rdquo;</Text>
             <Badge size="xs" variant="outline" color="gray">{count} vị trí</Badge>
             {shared?.verdict === 'not_entity' ? (
@@ -1398,7 +1406,7 @@ function SurfaceGroupCard({
           </Text>
         </Paper>
 
-        <Group gap="md" align="flex-end">
+        <Group gap="md" align="flex-end" wrap="wrap">
           <Select
             size="xs"
             label="Cả nhóm là nhân vật hoặc địa danh đã có"

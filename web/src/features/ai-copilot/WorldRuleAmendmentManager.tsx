@@ -28,7 +28,6 @@ import {
 } from './setup-api';
 import { getApprovedMemory, type ApprovedMemory, type MemoryFact } from './author-memory-api';
 import { useMemoryChanged } from './memory-events';
-import { StateComparison } from '../../shared/components/StateComparison';
 
 export type WorldRuleFact = {
   fact_id: string;
@@ -627,7 +626,7 @@ export function WorldRuleAmendmentManager({
                             Ghi chú riêng: {pDraft.private_notes}
                           </Text>
                         )}
-                        <Text size="10px" c="dimmed" mt={4}>
+                        <Text size="xs" c="dimmed" mt={4}>
                           Được lưu tự động khi bạn xác nhận yêu cầu trước đó.
                         </Text>
                       </div>
@@ -695,7 +694,7 @@ export function WorldRuleAmendmentManager({
                         >
                           {dDraft.reason}
                         </Text>
-                        <Text size="10px" c="dimmed" mt={4}>
+                        <Text size="xs" c="dimmed" mt={4}>
                           Được lưu tự động khi bạn xác nhận quyết định trước đó ({dDraft.decision === 'accept' ? 'Chấp thuận' : 'Từ chối'}).
                         </Text>
                       </div>
@@ -804,6 +803,8 @@ export function WorldRuleAmendmentManager({
           </Text>
         }
         size="lg"
+        classNames={{ content: 'sc-author-theme' }}
+        styles={{ content: { minHeight: 'auto', background: 'var(--sc-surface-elevated)' } }}
       >
         {historyLoading && <Text size="sm">Đang tải phả hệ và lịch sử sửa đổi...</Text>}
         {historyError && (
@@ -842,7 +843,7 @@ export function WorldRuleAmendmentManager({
                       {item.fact_value}
                     </Text>
                     {item.supersedes_id && (
-                      <Text size="10px" c="dimmed" mt={2}>
+                      <Text size="xs" c="dimmed" mt={2}>
                         Kế nhiệm từ: {item.supersedes_id}
                       </Text>
                     )}
@@ -899,7 +900,7 @@ export function WorldRuleAmendmentManager({
                         </Text>
                       )}
                       {item.successor_fact_id && (
-                        <Text size="10px" c="teal">
+                        <Text size="xs" c="teal">
                           Fact mới sinh: {item.successor_fact_id}
                         </Text>
                       )}
@@ -1902,10 +1903,10 @@ function PendingProposalDecisionView({
         </Group>
 
         {/* Before / After Comparison */}
-        <Group grow align="stretch">
+        <Group grow align="stretch" wrap="wrap">
           <Card withBorder p="xs" bg="var(--sc-surface)">
             <Badge size="xs" color="gray" variant="light" mb={4}>
-              TRƯỚC (Bản Canon đang hiệu lực)
+              Đang áp dụng
             </Badge>
             <Text
               size="xs"
@@ -1917,7 +1918,7 @@ function PendingProposalDecisionView({
           </Card>
           <Card withBorder p="xs" bg="var(--sc-success-bg)">
             <Badge size="xs" color="teal" variant="filled" mb={4}>
-              SAU (Bản đề xuất sửa đổi mới)
+              Đề xuất sửa đổi mới
             </Badge>
             <Text
               size="xs"
@@ -1929,11 +1930,6 @@ function PendingProposalDecisionView({
             </Text>
           </Card>
         </Group>
-
-        <StateComparison
-          before={{ fact_key: rule.fact_key, fact_value: rule.fact_value }}
-          after={{ fact_key: rule.fact_key, fact_value: proposal.replacement_text }}
-        />
 
         <TextInput
           label="Lý do phê duyệt hoặc từ chối (Tùy chọn)"

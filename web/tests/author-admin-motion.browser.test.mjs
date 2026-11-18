@@ -77,7 +77,8 @@ test('author/admin motion preserves filters, actions, values and reader role exc
         assert.deepEqual(await loaded.boundingBox(),coverBox,'loading images must retain cover geometry');
         await expect(page.locator('.sc-loaded-image[data-state="error"]')).toHaveCount(1);
         await expect(page.getByRole('article')).toHaveCount(3);
-        await page.getByRole('button',{name:'Xem nhanh Tác phẩm 1',exact:true}).click();
+        await page.getByRole('button',{name:'Thêm thao tác Tác phẩm 1',exact:true}).click();
+        await page.getByRole('menuitem',{name:'Xem nhanh',exact:true}).click();
         const projectPreview=page.getByRole('dialog',{name:'Tác phẩm 1',exact:true});
         await expect(projectPreview).toContainText('Giới thiệu tác phẩm thử nghiệm.');
         await projectPreview.getByRole('button',{name:'Sau',exact:true}).click();
@@ -176,7 +177,7 @@ test('author/admin motion preserves filters, actions, values and reader role exc
         await expect(page.getByRole('article')).toHaveCount(3);
         await expect.poll(()=>page.evaluate(()=>scrollY)).toBe(350);
         await page.getByText('Vừa làm việc',{exact:true}).click();
-        await expect(page.locator('details').filter({has:page.getByText('Vừa làm việc',{exact:true})}).getByRole('link',{name:'Tác phẩm 1',exact:true})).toBeVisible();
+        await expect(page.locator('.sc-disclosure').filter({has:page.getByText('Vừa làm việc',{exact:true})}).getByRole('link',{name:'Tác phẩm 1',exact:true})).toBeVisible();
 
         await page.goto(base+'/admin');await expect(page.locator('.admin-metric')).toHaveCount(4);
         await expect(page.locator('svg .sc-author-chart-bar')).toHaveCount(14);
