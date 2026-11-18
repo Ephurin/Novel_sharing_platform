@@ -1,4 +1,4 @@
-import { ParagraphDiscussion, useAuthorFeedbackMarkers, useChapterDiscussions, usePrivateCommentFocus } from './PrivateComments';
+import { ParagraphDiscussion, useChapterAuthorFeedback, useChapterDiscussions, usePrivateCommentFocus } from './PrivateComments';
 import { parseAuthorNotes } from '../../shared/lib/author-notes';
 import { useAuthStore } from '../auth/useAuthStore';
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
@@ -30,10 +30,10 @@ export function chapterDisplayTitle(chapter: ReaderChapter) {
   return title ? `Chương ${chapter.chapterNumber}: ${title}` : `Chương ${chapter.chapterNumber}`;
 }
 
-export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, tocPending, tocFailed, onRetryToc, onReport, reporting, children }: {
+export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, tocPending, tocFailed, onRetryToc, onReport, reporting, onOpenAuthorFeedback, children }: {
   chapter: ReaderChapter; novel?: ReaderNovel; chapters: ReaderChapter[]; publicMode: boolean;
   tocPending: boolean; tocFailed: boolean; onRetryToc: () => void; onReport?: () => void; reporting?: boolean;
-  children?: ReactNode;
+  onOpenAuthorFeedback?: (paragraphId: string) => void; children?: ReactNode;
 }) {
   const location = useLocation();
   let anchorCursor = 0;
@@ -59,7 +59,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   const [failedCoverUrl, setFailedCoverUrl] = useState<string>();
   const article = useRef<HTMLElement>(null);
   const discussions = useChapterDiscussions(chapter);
-  const authorMarkers = useAuthorFeedbackMarkers(chapter);
+  const authorFeedback = useChapterAuthorFeedback(chapter);
   const privateFocus = usePrivateCommentFocus({ kind: 'chapter', id: chapter.chapterId });
   const [openedDiscussion, setOpenedDiscussion] = useState<{ account: string; paragraphId: string; navigationKey: string }>();
   const [dismissedLink, setDismissedLink] = useState<string>();
@@ -69,6 +69,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
     privateFocus.data?.root.audience !== 'AUTHOR_PRIVATE' && !manualParagraph;
   const discussionId = manualParagraph || (opensFromLink && !privateFocus.isError ? privateFocus.data?.root.anchor?.currentParagraphId : undefined) || undefined;
   const discussionOpen = Boolean(manualParagraph || opensFromLink);
+  const feedbackByParagraph = authorFeedback.isError ? undefined : authorFeedback.data;
   const paragraphElement = (id?: string) => id ? article.current?.querySelector<HTMLElement>(`[data-paragraph-id="${CSS.escape(id)}"]`) : undefined;
   const closeDiscussion = (restoreFocus: boolean) => {
     setOpenedDiscussion(undefined);
@@ -119,14 +120,13 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
     const blocks = Array.from(article.current?.querySelectorAll<HTMLElement>('[data-paragraph-id]') ?? []);
     if (!socialAccount) return;
     const friends = discussions.isError ? undefined : discussions.data?.groups;
-    const feedback = authorMarkers.isError ? undefined : authorMarkers.data;
     for (const block of blocks) {
       const paragraphId = block.dataset.paragraphId!;
-      const count = (friends?.get(paragraphId)?.length ?? 0) + (feedback?.get(paragraphId) ?? 0);
+      const count = (friends?.get(paragraphId)?.length ?? 0) + (feedbackByParagraph?.get(paragraphId)?.length ?? 0);
       if (count) block.dataset.privateCount = String(count);
     }
     return () => { for (const block of blocks) delete block.dataset.privateCount; };
-  }, [chapter, socialAccount, discussions.data, discussions.isError, authorMarkers.data, authorMarkers.isError]);
+  }, [chapter, socialAccount, discussions.data, discussions.isError, feedbackByParagraph]);
 
   const paragraphs = () => Array.from(article.current?.querySelectorAll<HTMLElement>('.chapter-prose > p, .chapter-prose > blockquote, .chapter-prose > hr') ?? []);
   const flashLine = (range: Range) => {
@@ -362,6 +362,10 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
       <div className="sc-paragraph-discussion-body">
         <ParagraphDiscussion key={`${socialAccount}:${discussionId ?? 'detached'}:${opensFromLink ? privateFocus.focusId : 'manual'}`}
           chapter={chapter} paragraphId={discussionId} focus={opensFromLink ? privateFocus : undefined} discussions={discussions}
+          onOpenAuthorFeedback={discussionId && onOpenAuthorFeedback && feedbackByParagraph?.get(discussionId)?.length ? () => {
+            closeDiscussion(false);
+            onOpenAuthorFeedback(discussionId);
+          } : undefined}
           onCancel={() => closeDiscussion(true)} />
       </div>
     </section>}

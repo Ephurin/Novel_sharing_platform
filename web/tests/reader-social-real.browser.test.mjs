@@ -139,16 +139,28 @@ test('reader social uses real APIs: follow, mention, private replies, anchors an
       content: 'Anchored feedback for the author.', audience: 'AUTHOR_PRIVATE',
       anchor: { contentVersion: chapter.contentVersion, paragraphId: chapter.paragraphs[0].paragraphId }
     });
+    await request(a, `/chapters/${chapterId}/comments`, 'POST', {
+      content: 'Feedback on a different paragraph.', audience: 'AUTHOR_PRIVATE',
+      anchor: { contentVersion: chapter.contentVersion, paragraphId: chapter.paragraphs[2].paragraphId }
+    });
     await fixture.command('approve');
+    await fixture.command('prepend');
     await page.reload();
     await expect(otherParagraph).toHaveAttribute('data-private-count', '1');
+    await expect(otherParagraph).not.toHaveAttribute('data-paragraph-id', chapter.paragraphs[0].paragraphId);
     await otherParagraph.press('Enter');
     await page.getByRole('button', { name: 'Trao đổi riêng', exact: true }).click();
     await expect(privatePanel.getByRole('textbox')).toBeVisible();
     await expect(privatePanel.locator('article')).toHaveCount(0);
-    await privatePanel.getByRole('button', { name: 'Đóng hộp trao đổi' }).click();
-    await chapterComments.getByRole('button', { name: 'Nhắn riêng cho tác giả' }).click();
-    await expect(chapterComments.getByText('Anchored feedback for the author.', { exact: true })).toBeVisible();
+    await privatePanel.getByRole('button', { name: 'Xem góp ý riêng cho tác giả' }).click();
+    await expect(privatePanel).toHaveCount(0);
+    const authorFeedback = chapterComments.getByRole('region', { name: 'Góp ý riêng cho tác giả', exact: true });
+    await expect(authorFeedback).toBeFocused();
+    await expect(authorFeedback).toBeInViewport();
+    await expect(authorFeedback.getByText('Anchored feedback for the author.', { exact: true })).toBeVisible();
+    await expect(authorFeedback.getByText('Feedback on a different paragraph.', { exact: true })).toHaveCount(0);
+    await authorFeedback.getByRole('button', { name: 'Xem góp ý cả chương' }).click();
+    await expect(authorFeedback.getByText('Feedback on a different paragraph.', { exact: true })).toBeVisible();
     await chapterComments.getByRole('button', { name: 'Nhắn riêng cho tác giả' }).click();
     let reply;
     for (let index = 0; index < 7; index++) { reply = await request(b, `/comments/${root}/replies`, 'POST', { content: `Private reply ${index}` }); await fixture.command('approve'); }
@@ -163,6 +175,7 @@ test('reader social uses real APIs: follow, mention, private replies, anchors an
     await marker.press('Enter');
     await mobile.getByRole('button', { name: 'Trao đổi riêng', exact: true }).click();
     const recipientPanel = mobile.getByRole('dialog', { name: 'Trao đổi với bạn bè' });
+    await expect(recipientPanel.getByRole('button', { name: 'Xem góp ý riêng cho tác giả' })).toHaveCount(0);
     const selectedMessage = recipientPanel.locator('article').filter({ hasText: 'Selected friend only. @social2' });
     const allMessage = recipientPanel.locator('article').filter({ hasText: 'Only mutual friends see this.' });
     const replySelected = selectedMessage.getByRole('button', { name: 'Trả lời Social 1', exact: true });
@@ -220,8 +233,29 @@ test('reader social uses real APIs: follow, mention, private replies, anchors an
     await expect(editedReply.getByText('Edited selected reply.', { exact: true })).toBeVisible();
     await editedReply.getByRole('button', { name: 'Thao tác với tin nhắn của Social 2', exact: true }).click();
     await mobile.getByRole('menuitem', { name: 'Xóa' }).click();
-    await editedReply.getByRole('button', { name: 'Xác nhận xóa' }).click();
-    await expect(editedReply).toHaveCount(0);
+    const selectedRootId = selected.data[0].commentId;
+    const selectedReplyList = url => url.pathname === `/api/v1/comments/${selectedRootId}/replies` && url.searchParams.has('page');
+    const { promise: holdReplyReads, resolve: releaseReplyReads } = Promise.withResolvers();
+    await mobile.route(selectedReplyList, async route => {
+      await holdReplyReads;
+      await route.fallback();
+    });
+    try {
+      await Promise.all([
+        mobile.waitForResponse(async response => {
+          const url = new URL(response.url());
+          if (!response.ok() || response.request().method() !== 'GET' ||
+            url.pathname !== `/api/v1/chapters/${chapterId}/comments` || url.searchParams.get('channel') !== 'FRIENDS_SELECTED') return false;
+          return (await response.json()).data.some(comment => comment.commentId === selectedRootId && comment.repliesCount === 0);
+        }),
+        editedReply.getByRole('button', { name: 'Xác nhận xóa' }).click()
+      ]);
+      await expect(selectedMessage).toBeVisible();
+      await expect(editedReply).toHaveCount(0);
+    } finally {
+      releaseReplyReads();
+      await mobile.unroute(selectedReplyList);
+    }
     assert.equal((await send(b, `/comments/${ownReplyId}/thread`)).status, 404);
     await fixture.command('notify');
     const notifications = await request(a, '/notifications?limit=20');

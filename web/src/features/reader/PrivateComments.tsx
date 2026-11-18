@@ -81,19 +81,23 @@ export function useChapterDiscussions(chapter: ReaderChapter) {
   });
 }
 
-export function useAuthorFeedbackMarkers(chapter: ReaderChapter) {
+export function useChapterAuthorFeedback(chapter?: ReaderChapter, enabled = true) {
   const account = useAuthStore(s => s.user?.userId);
   return useQuery({
-    queryKey: ['private-comments', account, 'author-feedback-markers', chapter.chapterId, chapter.contentVersion],
-    enabled: Boolean(account && chapter.contentVersion),
+    queryKey: ['private-comments', account, 'chapter-author-feedback', chapter?.chapterId, chapter?.contentVersion],
+    enabled: Boolean(enabled && account && chapter?.contentVersion),
     ...policy,
     queryFn: async () => {
-      const counts = new Map<string, number>();
-      for (const { anchor } of await listChapterPrivateRoots(chapter.chapterId, 'AUTHOR_PRIVATE')) {
+      const groups = new Map<string, PrivateComment[]>();
+      for (const item of await listChapterPrivateRoots(chapter!.chapterId, 'AUTHOR_PRIVATE')) {
+        const { anchor } = item;
         const id = !anchor?.detached && anchor?.currentParagraphId;
-        if (id) counts.set(id, (counts.get(id) ?? 0) + 1);
+        if (!id) continue;
+        const group = groups.get(id) ?? [];
+        group.push(item);
+        groups.set(id, group);
       }
-      return counts;
+      return groups;
     }
   });
 }
@@ -271,8 +275,9 @@ async function loadChatReplies(rootId: string) {
   return messages;
 }
 
-export function ParagraphDiscussion({ chapter, paragraphId, focus, discussions, onCancel }: {
+export function ParagraphDiscussion({ chapter, paragraphId, focus, discussions, onCancel, onOpenAuthorFeedback }: {
   chapter: ReaderChapter; paragraphId?: string; focus?: PrivateFocus; discussions: ReturnType<typeof useChapterDiscussions>; onCancel: () => void;
+  onOpenAuthorFeedback?: () => void;
 }) {
   const account = useAuthStore(s => s.user?.userId);
   const active = useAuthStore(s => s.user?.status === 'ACTIVE');
@@ -291,7 +296,7 @@ export function ParagraphDiscussion({ chapter, paragraphId, focus, discussions, 
     ? [...roots, focusedRoot] : roots;
   const replies = useQueries({
     queries: visibleRoots.map(root => ({
-      queryKey: ['comment-replies', root.commentId, account, root.audience, 'chat-history'],
+      queryKey: ['comment-replies', root.commentId, account, root.audience, 'chat-history', root.repliesCount],
       queryFn: () => loadChatReplies(root.commentId),
       enabled: root.repliesCount > 0,
       ...policy
@@ -300,9 +305,10 @@ export function ParagraphDiscussion({ chapter, paragraphId, focus, discussions, 
   const messages = visibleRoots.flatMap((root, index) => {
     const result = replies[index];
     if (result.isError) return [];
+    const visibleReplies = root.repliesCount > 0 ? result.data ?? [] : [];
     return [
       { message: root as ReaderComment, root, spoiler: false, detachedQuote: root.anchor?.detached ? root.anchor.quote : undefined },
-      ...(result.data ?? []).map(message => ({ message, root, spoiler: Boolean(root.isSpoiler), detachedQuote: undefined }))
+      ...visibleReplies.map(message => ({ message, root, spoiler: Boolean(root.isSpoiler), detachedQuote: undefined }))
     ];
   }).sort((a, b) => a.message.createdAt.localeCompare(b.message.createdAt) || a.message.commentId.localeCompare(b.message.commentId));
   const latest = messages.at(-1)?.message.commentId;
@@ -318,6 +324,8 @@ export function ParagraphDiscussion({ chapter, paragraphId, focus, discussions, 
   }, [latest, messages.length, focusId]);
 
   return <div className="sc-paragraph-chat">
+    {onOpenAuthorFeedback && <Button className="sc-private-chat-back" variant="subtle" size="compact-sm" disabled={sending}
+      onClick={onOpenAuthorFeedback}>Xem góp ý riêng cho tác giả</Button>}
     <div ref={history} className="sc-paragraph-chat-history" onScroll={event => {
       const element = event.currentTarget;
       stickToBottom.current = element.scrollHeight - element.scrollTop - element.clientHeight < 32;
@@ -359,46 +367,86 @@ export function ParagraphDiscussion({ chapter, paragraphId, focus, discussions, 
   </div>;
 }
 
-export function AuthorPrivateFeedback({ target, chapter }: { target: CommentTarget; chapter?: ReaderChapter }) {
+type AuthorFeedbackRequest = { paragraphId: string };
+
+export function AuthorPrivateFeedback({ target, chapter, requestedFeedback }: {
+  target: CommentTarget; chapter?: ReaderChapter; requestedFeedback?: AuthorFeedbackRequest;
+}) {
   const account = useAuthStore(s => s.user?.userId);
-  return account ? <AuthorPrivateSession key={`${account}:${target.kind}:${target.id}`} target={target} chapter={chapter} account={account} /> : null;
+  return account ? <AuthorPrivateSession key={`${account}:${target.kind}:${target.id}`} target={target} chapter={chapter}
+    account={account} requestedFeedback={requestedFeedback} /> : null;
 }
 
-function AuthorPrivateSession({ target, chapter, account }: { target: CommentTarget; chapter?: ReaderChapter; account: string }) {
+function AuthorPrivateSession({ target, chapter, account, requestedFeedback }: {
+  target: CommentTarget; chapter?: ReaderChapter; account: string; requestedFeedback?: AuthorFeedbackRequest;
+}) {
   const active = useAuthStore(s => s.user?.status === 'ACTIVE');
   const focus = usePrivateCommentFocus(target);
   const authorNotification = focus.requested && focus.data?.root.audience === 'AUTHOR_PRIVATE';
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [paragraphId, setParagraphId] = useState<string | null>(null);
-  useEffect(() => { if (authorNotification) setOpen(true); }, [authorNotification, focus.navigationKey]);
+  const [listParagraphId, setListParagraphId] = useState<string>();
+  const panel = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (authorNotification) {
+      setListParagraphId(undefined);
+      setPage(1);
+      setOpen(true);
+    }
+  }, [authorNotification, focus.navigationKey]);
+  useEffect(() => {
+    if (!requestedFeedback) return;
+    setListParagraphId(requestedFeedback.paragraphId);
+    setPage(1);
+    setOpen(true);
+    const frame = requestAnimationFrame(() => {
+      panel.current?.scrollIntoView({ block: 'start' });
+      panel.current?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [requestedFeedback]);
+  const pageSize = 10;
   const query = useQuery({
     queryKey: ['private-comments', account, target.kind, target.id, 'AUTHOR_PRIVATE', page],
-    queryFn: () => list(`/${target.kind === 'chapter' ? 'chapters' : 'novels'}/${target.id}/comments`, { channel: 'AUTHOR_PRIVATE', page, limit: 10 }),
-    enabled: open,
+    queryFn: () => list(`/${target.kind === 'chapter' ? 'chapters' : 'novels'}/${target.id}/comments`, { channel: 'AUTHOR_PRIVATE', page, limit: pageSize }),
+    enabled: open && !listParagraphId,
     ...policy
   });
+  const anchored = useChapterAuthorFeedback(chapter, open && Boolean(listParagraphId));
+  const activeList = listParagraphId ? anchored : query;
+  const scopedItems = listParagraphId ? anchored.data?.get(listParagraphId) ?? [] : [];
+  const totalPages = listParagraphId ? Math.max(1, Math.ceil(scopedItems.length / pageSize)) : query.data?.pages ?? 1;
+  const currentPage = Math.min(page, totalPages);
+  const items = listParagraphId ? scopedItems.slice((currentPage - 1) * pageSize, currentPage * pageSize) : query.data?.items;
+  const showFocusedThread = authorNotification && !listParagraphId;
   const refresh = usePrivateRefresh();
   return <Stack gap="xs">
     <Button variant={open ? 'light' : 'default'} size="compact-sm" aria-expanded={open} style={{ alignSelf: 'flex-start' }}
       onClick={() => setOpen(value => !value)}>Nhắn riêng cho tác giả</Button>
     {target.kind === 'novel' && focus.requested && !authorNotification && (focus.isPending || focus.isError) &&
       <FocusedPrivateThread focus={focus} onChanged={refresh} />}
-    {open && <Stack id="reader-author-feedback" className="sc-author-feedback-inline" gap="sm">
+    {open && <Stack ref={panel} id="reader-author-feedback" role="region" aria-label="Góp ý riêng cho tác giả"
+      tabIndex={-1} className="sc-author-feedback-inline" gap="sm">
       {chapter?.paragraphs?.length && active ? <Select aria-label="Đoạn góp ý" placeholder="Toàn chương"
         searchable clearable value={paragraphId} onChange={setParagraphId}
         data={chapter.paragraphs.map(p => ({ value: p.paragraphId, label: `${p.paragraphIndex + 1}. ${p.text.slice(0, 90)}` }))} /> : null}
       <PrivateComposer target={target} author onCancel={() => setOpen(false)}
         anchor={chapter?.contentVersion && paragraphId ? { contentVersion: chapter.contentVersion, paragraphId } : undefined} />
-      {authorNotification && <FocusedPrivateThread focus={focus} onChanged={refresh} />}
-      {query.isPending && <Text size="sm" role="status">Đang tải góp ý…</Text>}
-      {query.isError && <ErrorState title="Không tải được góp ý" error={query.error} onRetry={() => void query.refetch()} />}
-      {!query.isError && query.data?.items.filter(comment => comment.commentId !== focus.data?.root.commentId).map(comment =>
+      {listParagraphId && <Group justify="space-between" gap="xs">
+        <Text size="sm" fw={600}>Góp ý cho đoạn đã chọn</Text>
+        <Button variant="subtle" size="compact-sm" onClick={() => { setListParagraphId(undefined); setPage(1); }}>Xem góp ý cả chương</Button>
+      </Group>}
+      {showFocusedThread && <FocusedPrivateThread focus={focus} onChanged={refresh} />}
+      {activeList.isPending && <Text size="sm" role="status">Đang tải góp ý…</Text>}
+      {activeList.isError && <ErrorState title="Không tải được góp ý" error={activeList.error} onRetry={() => void activeList.refetch()} />}
+      {listParagraphId && activeList.isSuccess && !items?.length && <Text size="sm" c="dimmed">Đoạn này chưa có góp ý.</Text>}
+      {!activeList.isError && items?.filter(comment => !showFocusedThread || comment.commentId !== focus.data?.root.commentId).map(comment =>
         <Stack key={comment.commentId} gap="xs">
           {comment.anchor && <Text size="sm" c="dimmed">{comment.anchor.detached ? 'Đoạn gốc đã thay đổi: ' : 'Đoạn: '}{comment.anchor.quote}</Text>}
           <CommentThread comment={comment} onChanged={refresh} />
         </Stack>)}
-      {!query.isError && query.data && query.data.pages > 1 && <Pagination total={query.data.pages} value={page} onChange={setPage} />}
+      {!activeList.isError && totalPages > 1 && <Pagination total={totalPages} value={currentPage} onChange={setPage} />}
     </Stack>}
   </Stack>;
 }
