@@ -11,6 +11,7 @@ const HERO = '30000000-0000-0000-0000-000000000001';
 const IDIOM = '30000000-0000-0000-0000-000000000002';
 const EVENT = '40000000-0000-0000-0000-000000000001';
 const FACT = '50000000-0000-0000-0000-000000000001';
+const STATUS = '50000000-0000-0000-0000-000000000002';
 
 test('author removes a wrong entity and corrects / removes a fact (MOCK HTTP ONLY)', { timeout: 180000 }, async () => {
   const bundle = await build({ entryPoints: [fileURLToPath(new URL('fixtures/entity-profile-fixture.tsx', import.meta.url))],
@@ -32,7 +33,8 @@ test('author removes a wrong entity and corrects / removes a fact (MOCK HTTP ONL
       { entity_id: IDIOM, name: 'Quỷ Môn Quan', entity_type: 'LOC', status: 'Unknown', location: 'Unknown' }],
     events: [{ event_id: EVENT, event_type: 'discovery', summary: 'Trần Vũ đứng trước Quỷ Môn Quan.', chapter: 3,
       participants: [HERO, IDIOM], metadata: {} }],
-    facts: [{ fact_id: FACT, subject_entity_id: HERO, fact_key: 'hair_color', fact_value: 'silver', chapter_number: 9, fact_type: 'trait' }],
+    facts: [{ fact_id: FACT, subject_entity_id: HERO, fact_key: 'hair_color', fact_value: 'silver', chapter_number: 9, fact_type: 'trait' },
+      { fact_id: STATUS, subject_entity_id: HERO, fact_key: 'status', fact_value: 'Alive', chapter_number: 9, fact_type: 'state' }],
     relations: [], transitions: [], aliases: []
   };
   const calls = [];
@@ -56,7 +58,7 @@ test('author removes a wrong entity and corrects / removes a fact (MOCK HTTP ONL
         calls.push({ path, body });
         const old = memory.facts.find(f => f.fact_id === match[1]);
         const successor = { ...old, fact_id: `fact-${calls.length}`, fact_value: body.retire ? old.fact_value : body.fact_value };
-        memory.facts = [...memory.facts.filter(f => f.fact_id !== match[1]), ...(body.retire ? [] : [successor])];
+        memory.facts = memory.facts.flatMap(f => f.fact_id !== match[1] ? [f] : body.retire ? [] : [successor]);
         memory.brain_version++;
         return route.fulfill({ json: { data: { fact_id: successor.fact_id, brain_version: memory.brain_version,
           status: body.retire ? 'removed' : 'corrected' } } });
@@ -87,20 +89,31 @@ test('author removes a wrong entity and corrects / removes a fact (MOCK HTTP ONL
     await expect(page.getByTestId(`retired-entity-warning-${EVENT}`)).toContainText('Quỷ Môn Quan');
     await expect(page.getByText('Quỷ Môn Quan · đã gỡ')).toBeVisible();
 
-    // 3. Correct the English fact value, then remove the fact.
+    // 3. A status is picked from the list and keeps its stored word (Alive -> Dead), not the label.
+    await page.getByRole('tab', { name: /^Dữ kiện/ }).click();
+    await page.getByTestId(`btn-edit-fact-${STATUS}`).click();
+    await expect(page.getByTestId(`input-fact-${STATUS}`)).toHaveValue('Còn sống');
+    await page.getByTestId(`input-fact-${STATUS}`).click();
+    await page.getByRole('option', { name: 'Đã chết' }).click();
+    await page.getByTestId(`btn-save-fact-${STATUS}`).click();
+    await expect.poll(() => calls.length).toBe(2);
+    assert.deepEqual(calls[1].body, { expected_brain_version: 2, fact_value: 'Dead' });
+    await expect(page.getByText('Đã chết', { exact: true })).toBeVisible();
+
+    // 4. Correct the English fact value, then remove the fact.
     await page.getByRole('tab', { name: /^Dữ kiện/ }).click();
     await page.getByTestId(`btn-edit-fact-${FACT}`).click();
     await page.getByTestId(`input-fact-${FACT}`).fill('bạc trắng');
     await page.getByTestId(`btn-save-fact-${FACT}`).click();
-    await expect.poll(() => calls.length).toBe(2);
-    assert.deepEqual(calls[1].body, { expected_brain_version: 2, fact_value: 'bạc trắng' });
+    await expect.poll(() => calls.length).toBe(3);
+    assert.deepEqual(calls[2].body, { expected_brain_version: 3, fact_value: 'bạc trắng' });
     await expect(page.getByText('bạc trắng', { exact: true })).toBeVisible();
-    const corrected = memory.facts[0].fact_id;
+    const corrected = memory.facts.find(f => f.fact_key === 'hair_color').fact_id;
     await page.getByTestId(`btn-remove-fact-${corrected}`).click();
     await page.getByTestId(`btn-confirm-remove-fact-${corrected}`).click();
-    await expect.poll(() => calls.length).toBe(3);
-    assert.deepEqual(calls[2].body, { expected_brain_version: 3, retire: true });
-    await expect(page.getByText('Chưa có dữ kiện nào trong bộ nhớ truyện.')).toBeVisible();
+    await expect.poll(() => calls.length).toBe(4);
+    assert.deepEqual(calls[3].body, { expected_brain_version: 4, retire: true });
+    await expect(page.getByText('bạc trắng', { exact: true })).toHaveCount(0);
     assert.deepEqual(errors, []);
     await context.close();
   } finally {
