@@ -1,16 +1,36 @@
 import { becomeAuthor } from './auth.service.js';
 import type { RequestHandler } from 'express';
+import { randomBytes } from 'node:crypto';
+import jwt from 'jsonwebtoken';
 import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { successResponse } from '../../core/response/response.js';
+import { verifyGoogleIdentity } from './google-identity.js';
+import { cancelPendingRegistration } from './auth.repository.js';
+import { registrationIdSchema } from './auth.schemas.js';
 import {
   changePassword,
   getCurrentUser,
+  getPendingRegistration,
   login,
+  loginWithGoogle,
   logout,
   refreshAccessToken,
-  register
+  recoverRegistration,
+  register,
+  resendRegistrationEmail,
+  verifyRegistration
 } from './auth.service.js';
+
+const webOrigin = new URL(env.WEB_ORIGIN);
+const secureRegistrationCookie = webOrigin.protocol === 'https:';
+const registrationCookie = `${secureRegistrationCookie ? '__Host-' : ''}${env.REFRESH_TOKEN_COOKIE_NAME}_registration`;
+const registrationCookieOptions = {
+  path: secureRegistrationCookie ? '/' : `${env.API_PREFIX}/auth/register`,
+  httpOnly: true,
+  sameSite: 'lax' as const,
+  secure: secureRegistrationCookie
+};
 
 function setRefreshCookie(
   response: Parameters<RequestHandler>[1],
@@ -35,17 +55,168 @@ function clearRefreshCookie(response: Parameters<RequestHandler>[1]) {
   });
 }
 
+function sendPendingRegistration(response: Parameters<RequestHandler>[1], result: Awaited<ReturnType<typeof register>>) {
+  response.cookie(registrationCookie, result.registrationId, {
+    ...registrationCookieOptions,
+    maxAge: Math.max(0, Date.parse(result.expiresAt) - Date.now())
+  });
+  response.set('Cache-Control', 'no-store').status(202).json(successResponse(result));
+}
+
 export const registerController: RequestHandler = async (request, response, next) => {
   try {
-    const result = await register(request.body);
-    setRefreshCookie(response, result.refreshToken, result.refreshTokenMaxAgeMs);
+    sendPendingRegistration(response, await register(request.body));
+  } catch (error) {
+    next(error);
+  }
+};
 
-    response.status(201).json(
-      successResponse({
-        user: result.user,
-        accessToken: result.accessToken
-      })
-    );
+export const resendRegistrationController: RequestHandler = async (request, response, next) => {
+  try {
+    response.set('Cache-Control', 'no-store');
+    const { registrationId } = request.body;
+    if (request.get('Origin') !== webOrigin.origin || request.cookies?.[registrationCookie] !== registrationId) {
+      throw new AppError(403, 'AUTH_EMAIL_BROWSER', 'Hãy gửi lại email trong tab đã đăng ký hoặc đăng ký lại.');
+    }
+    sendPendingRegistration(response, await resendRegistrationEmail(registrationId));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const pendingRegistrationController: RequestHandler = async (request, response, next) => {
+  try {
+    response.set('Cache-Control', 'no-store');
+    if (request.get('Origin') !== webOrigin.origin) {
+      throw new AppError(403, 'AUTH_EMAIL_BROWSER', 'Hãy mở trang đăng ký trên StoryCraft.');
+    }
+    const registrationId = registrationIdSchema.safeParse(request.cookies?.[registrationCookie]);
+    const pending = registrationId.success ? await getPendingRegistration(registrationId.data, 'web') : null;
+    if (!pending && registrationId.success) response.clearCookie(registrationCookie, registrationCookieOptions);
+    response.json(successResponse(pending));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const cancelRegistrationController: RequestHandler = async (request, response, next) => {
+  try {
+    const { registrationId } = request.body;
+    if (request.get('Origin') !== webOrigin.origin || request.cookies?.[registrationCookie] !== registrationId) {
+      throw new AppError(403, 'AUTH_EMAIL_BROWSER', 'Hãy hủy từ phiên đăng ký ban đầu.');
+    }
+    await cancelPendingRegistration(registrationId, 'web');
+    response.clearCookie(registrationCookie, registrationCookieOptions);
+    response.set('Cache-Control', 'no-store').status(204).end();
+  } catch (error) {
+    next(error);
+  }
+};
+
+const nativeRegistrationAudience = 'storycraft-native-registration-resend';
+
+function sendNativePendingRegistration(response: Parameters<RequestHandler>[1], result: Awaited<ReturnType<typeof register>>) {
+  const resendToken = jwt.sign({ exp: Math.floor(Date.parse(result.expiresAt) / 1000) }, env.JWT_REFRESH_SECRET, {
+    algorithm: 'HS256',
+    audience: nativeRegistrationAudience,
+    subject: result.registrationId
+  });
+  response.set('Cache-Control', 'no-store').status(202).json(successResponse({ ...result, resendToken }));
+}
+
+export const registerNativeController: RequestHandler = async (request, response, next) => {
+  try {
+    sendNativePendingRegistration(response, await register(request.body, 'native'));
+  } catch (error) {
+    next(error);
+  }
+};
+
+function authenticateNativeRegistration(registrationId: string, resendToken: string) {
+  try {
+    jwt.verify(resendToken, env.JWT_REFRESH_SECRET, {
+      algorithms: ['HS256'], audience: nativeRegistrationAudience, subject: registrationId
+    });
+  } catch {
+    throw new AppError(403, 'AUTH_EMAIL_REGISTRATION_EXPIRED', 'Phiên đăng ký không còn hiệu lực. Hãy đăng ký lại hoặc mở link khôi phục trong email.');
+  }
+}
+
+export const resendNativeRegistrationController: RequestHandler = async (request, response, next) => {
+  try {
+    response.set('Cache-Control', 'no-store');
+    const { registrationId, resendToken } = request.body;
+    authenticateNativeRegistration(registrationId, resendToken);
+    sendNativePendingRegistration(response, await resendRegistrationEmail(registrationId, 'native'));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const pendingNativeRegistrationController: RequestHandler = async (request, response, next) => {
+  try {
+    const { registrationId, resendToken } = request.body;
+    authenticateNativeRegistration(registrationId, resendToken);
+    response.set('Cache-Control', 'no-store').json(successResponse(await getPendingRegistration(registrationId, 'native')));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const cancelNativeRegistrationController: RequestHandler = async (request, response, next) => {
+  try {
+    const { registrationId, resendToken } = request.body;
+    authenticateNativeRegistration(registrationId, resendToken);
+    await cancelPendingRegistration(registrationId, 'native');
+    response.set('Cache-Control', 'no-store').status(204).end();
+  } catch (error) {
+    next(error);
+  }
+};
+
+function sendVerifiedRegistration(response: Parameters<RequestHandler>[1], session: Awaited<ReturnType<typeof verifyRegistration>>) {
+  setRefreshCookie(response, session.refreshToken, session.refreshTokenMaxAgeMs);
+  response.set('Cache-Control', 'no-store').status(201).json(successResponse({
+    user: session.user,
+    accessToken: session.accessToken
+  }));
+}
+
+export const verifyRegistrationController: RequestHandler = async (request, response, next) => {
+  try {
+    const { registrationId, code } = request.body;
+    const result = await verifyRegistration(registrationId, { code });
+    if (request.cookies?.[registrationCookie] === registrationId) {
+      response.clearCookie(registrationCookie, registrationCookieOptions);
+    }
+    sendVerifiedRegistration(response, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyRegistrationLinkController: RequestHandler = async (request, response, next) => {
+  try {
+    // Binding the link to the browser that began signup keeps a forwarded link from activating someone else's password.
+    const registrationId = registrationIdSchema.safeParse(request.cookies?.[registrationCookie]);
+    if (request.get('Origin') !== webOrigin.origin || !registrationId.success) {
+      throw new AppError(403, 'AUTH_EMAIL_BROWSER', 'Hãy mở link trong trình duyệt đã đăng ký, hoặc nhập mã 8 số ở tab đăng ký.');
+    }
+    const result = await verifyRegistration(registrationId.data, { linkToken: request.body.token });
+    response.clearCookie(registrationCookie, registrationCookieOptions);
+    sendVerifiedRegistration(response, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const recoverRegistrationController: RequestHandler = async (request, response, next) => {
+  try {
+    response.set('Cache-Control', 'no-store');
+    if (request.get('Origin') !== webOrigin.origin) {
+      throw new AppError(403, 'AUTH_EMAIL_BROWSER', 'Hãy mở link khôi phục trên StoryCraft.');
+    }
+    sendVerifiedRegistration(response, await recoverRegistration(request.body));
   } catch (error) {
     next(error);
   }
@@ -62,6 +233,75 @@ export const loginController: RequestHandler = async (request, response, next) =
         accessToken: result.accessToken
       })
     );
+  } catch (error) {
+    next(error);
+  }
+};
+
+const googleCookie = `${env.REFRESH_TOKEN_COOKIE_NAME}_google`;
+const googleCookieOptions = {
+  path: `${env.API_PREFIX}/auth/google`,
+  httpOnly: true,
+  sameSite: 'strict' as const,
+  secure: webOrigin.protocol === 'https:'
+};
+const googleChallengeSeconds = 15 * 60;
+const googleChallengeAudience = 'storycraft-google-login';
+
+function readGoogleChallenge(cookie: unknown) {
+  if (typeof cookie !== 'string') return null;
+  try {
+    const claims = jwt.verify(cookie, env.JWT_REFRESH_SECRET, {
+      audience: googleChallengeAudience,
+      algorithms: ['HS256']
+    });
+    if (typeof claims !== 'string' && typeof claims.jti === 'string' && typeof claims.exp === 'number') {
+      return { nonce: claims.jti, expiresAt: new Date(claims.exp * 1000) };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export const requireGoogleOrigin: RequestHandler = (request, response, next) => {
+  response.set('Cache-Control', 'no-store');
+  if (request.get('Origin') !== webOrigin.origin) {
+    return next(new AppError(403, 'AUTH_GOOGLE_ORIGIN', 'Hãy đăng nhập Google từ địa chỉ web đã cấu hình cho StoryCraft.'));
+  }
+  next();
+};
+
+export const googleChallengeController: RequestHandler = (request, response) => {
+  const clientId = env.GOOGLE_OAUTH_CLIENT_ID;
+  if (!clientId) {
+    response.json(successResponse(null));
+    return;
+  }
+  const nonce = randomBytes(32).toString('base64url');
+  const challenge = jwt.sign({}, env.JWT_REFRESH_SECRET, {
+    audience: googleChallengeAudience,
+    jwtid: nonce,
+    expiresIn: googleChallengeSeconds
+  });
+  response.cookie(googleCookie, challenge, {
+    ...googleCookieOptions,
+    maxAge: googleChallengeSeconds * 1000
+  });
+  response.json(successResponse({ clientId, nonce }));
+};
+
+export const googleLoginController: RequestHandler = async (request, response, next) => {
+  try {
+    const clientId = env.GOOGLE_OAUTH_CLIENT_ID;
+    if (!clientId) throw new AppError(404, 'AUTH_GOOGLE_DISABLED', 'StoryCraft chưa bật đăng nhập Google.');
+    const challenge = readGoogleChallenge(request.cookies?.[googleCookie]);
+    if (!challenge) throw new AppError(401, 'AUTH_GOOGLE_CHALLENGE', 'Phiên đăng nhập Google đã hết hạn. Hãy thử lại.');
+    const identity = await verifyGoogleIdentity(request.body.credential, clientId, challenge.nonce);
+    const session = await loginWithGoogle({ ...identity, ...challenge, password: request.body.password });
+    response.clearCookie(googleCookie, googleCookieOptions);
+    setRefreshCookie(response, session.refreshToken, session.refreshTokenMaxAgeMs);
+    response.json(successResponse({ user: session.user, accessToken: session.accessToken }));
   } catch (error) {
     next(error);
   }

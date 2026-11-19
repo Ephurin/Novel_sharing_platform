@@ -24,7 +24,7 @@ export const listReviewsSchema = z.object({
   query: z.object({
     targetType: moderationTargetTypeSchema.optional(),
     status: z.enum(['PENDING', 'APPROVED', 'REJECTED', 'REVISION_REQUIRED']).optional(),
-    source: z.enum(['KEYWORD_FILTER', 'USER_REPORT']).optional(),
+    source: z.enum(['KEYWORD_FILTER', 'PUBLICATION_REQUEST', 'USER_REPORT']).optional(),
     page: z.coerce.number().int().positive().default(1),
     limit: z.coerce.number().int().positive().max(100).default(20)
   })

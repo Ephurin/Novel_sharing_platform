@@ -54,7 +54,7 @@ export type ModerationReview = {
 export type ModerationReviewFilters = {
   targetType?: 'NOVEL' | 'CHAPTER' | 'COMMENT' | 'USER' | '';
   status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REVISION_REQUIRED' | '';
-  source?: 'KEYWORD_FILTER' | 'USER_REPORT' | '';
+  source?: 'PUBLICATION_REQUEST' | 'KEYWORD_FILTER' | 'USER_REPORT' | '';
 };
 
 export type ModerationReviewDetail = ModerationReview & {
@@ -105,6 +105,14 @@ export type AdminNovelChapter = {
   publishedAt: string | null;
   updatedAt: string;
   deletedAt: string | null;
+  pendingReviewId: string | null;
+};
+
+export type AdminChapterPreview = {
+  title: string;
+  content: string | null;
+  pendingReviewId: string | null;
+  contentSource: 'submitted' | 'draft' | null;
 };
 
 export type AdminNovel = {
@@ -130,7 +138,13 @@ export type AdminNovel = {
 
 export type AdminNovelDetail = AdminNovel & {
   chapters: AdminNovelChapter[];
+  pendingReviewId: string | null;
 };
+
+export async function getAdminChapterPreview(chapterId: string) {
+  const response = await apiClient.get<ApiEnvelope<AdminChapterPreview>>(`/admin/chapters/${chapterId}`);
+  return response.data.data;
+}
 
 export async function getDashboardStats() {
   const response = await apiClient.get<ApiEnvelope<DashboardStats>>('/admin/dashboard/stats');

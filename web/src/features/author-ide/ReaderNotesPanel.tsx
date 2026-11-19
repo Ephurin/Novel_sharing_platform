@@ -6,19 +6,19 @@ import { plainStudioText } from './studio-tools';
 type Composer = { mode: 'create'; anchor: TextAnchor } | { mode: 'edit'; id: string };
 
 /** Public notes use chapter autosave, while the existing passage notes remain private. */
-export function ReaderNotesPanel({ content, ready, request, getSelection, apply, onJump, editor, publishedContent, chapterStatus, onPreview, onPublish }: {
+export function ReaderNotesPanel({ content, ready, request, getSelection, apply, onJump, editor, publishedContent, chapterStatus, awaitingPublicationReview, onPreview, onPublish }: {
   content: string; ready: boolean; request: number; getSelection: () => { start: number; end: number };
   apply: (content: string, start: number, end: number) => void; onJump: (start: number, end: number) => void;
   editor: RefObject<HTMLTextAreaElement | null>;
-  publishedContent?: string | null; chapterStatus?: string; onPreview?: () => void; onPublish?: () => void;
+  publishedContent?: string | null; chapterStatus?: string; awaitingPublicationReview?: boolean; onPreview?: () => void; onPublish?: () => void;
 }) {
   const { all } = parseAuthorNotes(content);
   const published = parseAuthorNotes(publishedContent ?? '');
   const hasChanges = authorNotesPublicationSignature(content) !== authorNotesPublicationSignature(publishedContent ?? '');
   const isPublished = chapterStatus === 'PUBLISHED';
-  const publicationMessage = chapterStatus === 'PENDING_MODERATION' ? 'Chương đang chờ duyệt. Chú thích của phiên bản này chỉ hiện sau khi được duyệt.'
+  const publicationMessage = awaitingPublicationReview ? 'Chương đang chờ duyệt. Chú thích của phiên bản này chỉ hiện sau khi được duyệt.'
     : isPublished && !hasChanges ? 'Chú thích đã có trên bản công khai.'
-    : isPublished ? 'Chú thích đã thay đổi trong bản nháp. Trang đọc vẫn dùng bản công khai cũ; cần xuất bản phiên bản mới để cập nhật.'
+    : isPublished ? 'Chú thích đã thay đổi trong bản nháp. Trang đọc vẫn dùng bản công khai cũ; hãy gửi duyệt phiên bản mới để cập nhật.'
     : 'Chú thích đang ở bản nháp. Độc giả chỉ thấy sau khi chương được xuất bản.';
   const [composer, setComposer] = useState<Composer | null>(null), [body, setBody] = useState('');
   const [error, setError] = useState(''), [message, setMessage] = useState('');
@@ -64,7 +64,7 @@ export function ReaderNotesPanel({ content, ready, request, getSelection, apply,
       <p>{publicationMessage}</p>
       <div className="sc-studio-tool-row">
         {onPreview && <button type="button" onClick={onPreview}>Xem trước như độc giả</button>}
-        {onPublish && (!isPublished || hasChanges) && <button type="button" disabled={!ready || chapterStatus === 'PENDING_MODERATION'} onClick={onPublish}>{isPublished ? 'Xuất bản phiên bản mới' : 'Xuất bản chương có chú thích'}</button>}
+        {onPublish && (!isPublished || hasChanges) && <button type="button" disabled={!ready || awaitingPublicationReview} onClick={onPublish}>{isPublished ? 'Gửi duyệt phiên bản mới' : 'Gửi duyệt chương có chú thích'}</button>}
       </div>
     </div>}
     <button type="button" className="sc-feedback-button" disabled={!ready || all.length >= AUTHOR_NOTE_LIMIT} onClick={choose}>Chú thích vùng chọn / dòng hiện tại</button>

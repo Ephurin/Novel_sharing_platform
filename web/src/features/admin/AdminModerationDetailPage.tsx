@@ -8,7 +8,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getModerationReview, resolveModerationReview } from './admin-api';
 import {
   AdminConfirm,
-  AdminHeader,
   AdminId,
   AdminPanel,
   dateTime,
@@ -44,12 +43,20 @@ export function AdminModerationDetailPage() {
     onSuccess: async () => {
       setDecision(null);
       setReason('');
+      const review = query.data;
+      const novelId = review?.target?.novelId;
       await Promise.all([
         cache.invalidateQueries({ queryKey: ['admin-moderation'] }),
         cache.invalidateQueries({
           queryKey: ['admin-moderation-detail', reviewId]
         }),
-        cache.invalidateQueries({ queryKey: ['admin-stats'] })
+        cache.invalidateQueries({ queryKey: ['admin-stats'] }),
+        ...(novelId
+          ? [cache.invalidateQueries({ queryKey: ['admin-novel-detail', novelId] })]
+          : []),
+        ...(review?.targetType === 'CHAPTER'
+          ? [cache.invalidateQueries({ queryKey: ['admin-chapter', review.targetId] })]
+          : [])
       ]);
     }
   });
@@ -60,45 +67,51 @@ export function AdminModerationDetailPage() {
   const report = review.source === 'USER_REPORT';
   const commentReport = report && review.targetType === 'COMMENT';
   const content = review.target?.content || '';
-  const approveLabel = report ? 'Chấp nhận báo cáo' : 'Duyệt nội dung';
+  const publication = !report && (review.targetType === 'NOVEL' || review.targetType === 'CHAPTER');
+  const approveLabel = report ? 'Chấp nhận báo cáo' : publication ? 'Duyệt xuất bản' : 'Duyệt nội dung';
   const rejectLabel = report ? 'Từ chối báo cáo' : 'Từ chối nội dung';
   return (
-    <>
-      <div className="admin-actions">
-        <Button variant="subtle" onClick={() => navigate(-1)}>
-          ← Quay lại
-        </Button>
+    <div className="admin-review-page">
+      <Button variant="subtle" size="compact-sm" mb="sm" onClick={() => navigate(-1)}>
+        ← Quay lại
+      </Button>
+      <header className="admin-page-header admin-review-header">
+        <div>
+          <div className="admin-review-title">
+            <h1>Chi tiết kiểm duyệt</h1>
+            <Status value={review.status} />
+          </div>
+          <p>{labels[review.source]} · {labels[review.targetType]}</p>
+        </div>
         <Button
           component={Link}
           to={report ? '/admin/reports' : '/admin/moderation'}
-          variant="subtle"
+          variant="default"
+          size="sm"
         >
           Mở hàng đợi
         </Button>
-      </div>
-      <AdminHeader
-        title="Chi tiết kiểm duyệt"
-        description={`${labels[review.source]} · ${labels[review.targetType]}`}
-      >
-        <Status value={review.status} />
-      </AdminHeader>
-      <div className="admin-grid-two admin-review-layout">
-        <AdminPanel>
-          <h2>Nội dung cần kiểm tra</h2>
+      </header>
+      <div className="admin-review-layout">
+        <AdminPanel className="admin-review-reader">
           {review.target ? (
             <>
-              <h3>{review.target.title}</h3>
-              {review.target.username && <p className="admin-muted">@{review.target.username}</p>}
-              {review.target.novelTitle && (
-                <p className="admin-muted">
-                  {review.target.novelTitle}{' '}
-                  {review.target.chapterTitle && `· ${review.target.chapterTitle}`}
-                </p>
-              )}
-              {review.target.isSubmittedVersion && (
-                <p className="admin-muted">Phiên bản đã gửi để kiểm duyệt</p>
-              )}
-              <div className="admin-prose" id="admin-review-content">
+              <header className="admin-review-reader-header">
+                <h2>{review.target.title || 'Nội dung cần kiểm tra'}</h2>
+                <div className="admin-review-byline">
+                  {review.target.username && <span>@{review.target.username}</span>}
+                  {review.target.novelId ? (
+                    <Link className="admin-link" to={`/admin/novels/${review.target.novelId}`}>
+                      {review.target.novelTitle || 'Mở truyện liên quan'} →
+                    </Link>
+                  ) : review.target.novelTitle && <span>{review.target.novelTitle}</span>}
+                  {review.target.chapterTitle && <span>{review.target.chapterTitle}</span>}
+                </div>
+                {review.target.isSubmittedVersion && (
+                  <p className="admin-muted">Phiên bản đã gửi để kiểm duyệt</p>
+                )}
+              </header>
+              <div className="admin-prose admin-review-manuscript" id="admin-review-content">
                 {expanded || content.length <= 800
                   ? content || 'Đối tượng chưa có nội dung văn bản.'
                   : `${content.slice(0, 800)}…`}
@@ -107,6 +120,7 @@ export function AdminModerationDetailPage() {
               {content.length > 800 && (
                 <Button
                   variant="subtle"
+                  mt="sm"
                   aria-expanded={expanded}
                   aria-controls="admin-review-content"
                   onClick={() => setExpanded(!expanded)}
@@ -114,19 +128,12 @@ export function AdminModerationDetailPage() {
                   {expanded ? 'Thu gọn' : 'Xem đầy đủ'}
                 </Button>
               )}
-              {review.target.novelId && (
-                <p>
-                  <Link className="admin-link" to={`/admin/novels/${review.target.novelId}`}>
-                    Mở truyện liên quan →
-                  </Link>
-                </p>
-              )}
             </>
           ) : (
             <EmptyState description="Đối tượng không còn tồn tại hoặc không có nội dung để xem." />
           )}
         </AdminPanel>
-        <div>
+        <aside className="admin-review-sidebar" aria-label="Bằng chứng và quyết định kiểm duyệt">
           <AdminPanel>
             <h2>Bằng chứng</h2>
             {(report || review.evidenceSummary.reportCount > 0) && (
@@ -160,7 +167,7 @@ export function AdminModerationDetailPage() {
                 ))}
               </ul>
             )}
-            {!review.evidenceSummary.reportCount && !review.evidenceSummary.matchedRules.length && (
+            {!review.evidenceSummary.reportCount && !review.evidenceSummary.matchedRules.length && !review.evidenceSummary.summary && (
               <p className="admin-muted">Chưa có bằng chứng bổ sung.</p>
             )}
           </AdminPanel>
@@ -199,7 +206,7 @@ export function AdminModerationDetailPage() {
                 Đã lưu quyết định xử lý.
               </p>
             )}
-            <div className="admin-actions">
+            <div className="admin-review-decisions">
               <Button
                 disabled={review.status !== 'PENDING' || mutation.isPending}
                 data-testid={
@@ -229,28 +236,28 @@ export function AdminModerationDetailPage() {
               </Button>
             </div>
           </AdminPanel>
-        </div>
+          <AnimatedDisclosure className="admin-panel admin-metadata" summary="Thông tin kiểm duyệt">
+            <dl>
+              <dt>Mã kiểm duyệt</dt>
+              <dd>
+                <AdminId value={review.reviewId} label="mã kiểm duyệt" compact={false} />
+              </dd>
+              <dt>Mã đối tượng</dt>
+              <dd>
+                <AdminId value={review.targetId} label="mã đối tượng" compact={false} />
+              </dd>
+              <dt>Tiếp nhận</dt>
+              <dd>{dateTime(review.createdAt)}</dd>
+              {review.reviewedAt && (
+                <>
+                  <dt>Xử lý</dt>
+                  <dd>{dateTime(review.reviewedAt)}</dd>
+                </>
+              )}
+            </dl>
+          </AnimatedDisclosure>
+        </aside>
       </div>
-      <AnimatedDisclosure className="admin-metadata" summary="Thông tin kiểm duyệt">
-        <dl>
-          <dt>Mã kiểm duyệt</dt>
-          <dd>
-            <AdminId value={review.reviewId} label="mã kiểm duyệt" compact={false} />
-          </dd>
-          <dt>Mã đối tượng</dt>
-          <dd>
-            <AdminId value={review.targetId} label="mã đối tượng" compact={false} />
-          </dd>
-          <dt>Tiếp nhận</dt>
-          <dd>{dateTime(review.createdAt)}</dd>
-          {review.reviewedAt && (
-            <>
-              <dt>Xử lý</dt>
-              <dd>{dateTime(review.reviewedAt)}</dd>
-            </>
-          )}
-        </dl>
-      </AnimatedDisclosure>
       <AdminConfirm
         destructive={
           decision === 'REJECTED' ||
@@ -282,13 +289,13 @@ export function AdminModerationDetailPage() {
               ? decision === 'APPROVED'
                 ? 'Bình luận sẽ được duyệt để hiển thị.'
                 : 'Bình luận sẽ bị từ chối kiểm duyệt.'
-              : review.targetType === 'NOVEL' || review.targetType === 'CHAPTER'
+              : publication
                 ? decision === 'APPROVED'
                   ? 'Duyệt xuất bản nội dung theo phiên bản đang được kiểm duyệt.'
                   : 'Từ chối xuất bản nội dung đang được kiểm duyệt.'
                 : 'Ghi nhận quyết định xử lý trong hồ sơ kiểm duyệt tài khoản.'}
         </p>
       </AdminConfirm>
-    </>
+    </div>
   );
 }

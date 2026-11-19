@@ -4,6 +4,7 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { join, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 import { execSync } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { chromium } from '@playwright/test';
@@ -19,6 +20,7 @@ const ENV_FILE = join(ROOT_DIR, 'Pipeline_test', 'tools', '.env.p123-core-0b0995
 const COMPOSE_FILE = join(ROOT_DIR, 'Pipeline_test', 'tools', 'compose.p123-p3.yml');
 const GATEWAY_BASE = 'http://127.0.0.1:14082/api/v1';
 const WEB_PORT = 14081;
+const { hashSync } = createRequire(join(ROOT_DIR, 'backend/package.json'))('bcryptjs');
 
 // Docker database helpers
 function runCompose(service, cmd) {
@@ -34,6 +36,17 @@ function runSql(query) {
 function runMongo(evalScript) {
   const escaped = evalScript.replace(/"/g, '\\"');
   return runCompose('mongodb', `mongosh --quiet --eval "${escaped}"`);
+}
+
+function seedAuthor(email, username, password) {
+  assert.match(email, /^[a-z0-9_]+@example\.invalid$/);
+  assert.match(username, /^[a-z0-9_]+$/);
+  const hash = Buffer.from(hashSync(password, 12)).toString('base64');
+  return runSql(`with account as (insert into users (email, username, password_hash, role)
+    values ('${email}', '${username}', convert_from(decode('${hash}', 'base64'), 'UTF8'), 'AUTHOR') returning user_id),
+    profile as (insert into user_profiles (user_id, display_name) select user_id, '${username}' from account),
+    wallet as (insert into wallets (user_id) select user_id from account)
+    select user_id from account`);
 }
 
 test('Full Mounted Author IDE E2E against Real Backend (S09–S11 Gate)', { timeout: 180000 }, async (t) => {
@@ -59,17 +72,7 @@ test('Full Mounted Author IDE E2E against Real Backend (S09–S11 Gate)', { time
   const authorPass = `Core!${crypto.randomBytes(12).toString('hex')}`;
   const authorUser = `author_${authorSuffix}`;
 
-  // Register Author A
-  const regA = await fetch(`${GATEWAY_BASE}/auth/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: authorUser, email: authorEmail, password: authorPass })
-  }).then(r => r.json());
-  assert.equal(regA.success, true, 'Author A registration must succeed');
-  const authorAId = regA.data.user.userId;
-
-  // Promote to AUTHOR in PostgreSQL
-  runSql(`UPDATE users SET role='AUTHOR' WHERE user_id='${authorAId}'`);
+  const authorAId = seedAuthor(authorEmail, authorUser, authorPass);
 
   // Login Author A
   const loginA = await fetch(`${GATEWAY_BASE}/auth/login`, {
@@ -80,16 +83,10 @@ test('Full Mounted Author IDE E2E against Real Backend (S09–S11 Gate)', { time
   assert.equal(loginA.success, true, 'Author A login must succeed');
   const authorToken = loginA.data.accessToken;
 
-  // Register Foreign Author B
+  // Seed Foreign Author B
   const foreignEmail = `foreign_e2e_${authorSuffix}@example.invalid`;
   const foreignPass = `Core!${crypto.randomBytes(12).toString('hex')}`;
-  const regB = await fetch(`${GATEWAY_BASE}/auth/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: `foreign_${authorSuffix}`, email: foreignEmail, password: foreignPass })
-  }).then(r => r.json());
-  const authorBId = regB.data.user.userId;
-  runSql(`UPDATE users SET role='AUTHOR' WHERE user_id='${authorBId}'`);
+  seedAuthor(foreignEmail, `foreign_${authorSuffix}`, foreignPass);
   const loginB = await fetch(`${GATEWAY_BASE}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

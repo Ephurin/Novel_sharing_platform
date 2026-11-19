@@ -125,7 +125,7 @@ export async function updateChapterMetadata(
         is_vip = coalesce($4, is_vip),
         price_coins = coalesce($5, price_coins),
         updated_at = now()
-      where chapter_id = $1 and deleted_at is null and status in ('DRAFT', 'REJECTED', 'PENDING_MODERATION', 'PUBLISHED')
+      where chapter_id = $1 and deleted_at is null and status in ('DRAFT', 'REJECTED', 'PENDING_MODERATION')
       returning *
     `,
     [chapterId, input.title, input.wordCount, input.isVip, input.priceCoins]
@@ -163,7 +163,7 @@ export async function submitChapterForPublish(chapterId: string, client?: DbClie
     `
       update chapters
       set status = 'PENDING_MODERATION', updated_at = now()
-      where chapter_id = $1 and deleted_at is null and status in ('DRAFT', 'REJECTED', 'PUBLISHED')
+      where chapter_id = $1 and deleted_at is null and status in ('DRAFT', 'REJECTED')
       returning *
     `,
     [chapterId]
@@ -191,7 +191,7 @@ export async function publishChapter(
         status = 'PUBLISHED',
         published_at = coalesce(published_at, now()),
         updated_at = now()
-      where chapter_id = $1 and deleted_at is null and status in ('DRAFT', 'REJECTED', 'PENDING_MODERATION', 'PUBLISHED')
+      where chapter_id = $1 and deleted_at is null and status in ('PENDING_MODERATION', 'PUBLISHED')
       returning *
     `,
     [chapterId, input.title, input.content, input.wordCount]
@@ -200,8 +200,8 @@ export async function publishChapter(
   return result.rows[0] ? mapChapter(result.rows[0]) : null;
 }
 
-export async function rejectChapterPublication(chapterId: string) {
-  const result = await getPostgresPool().query(
+export async function rejectChapterPublication(chapterId: string, client: DbClient) {
+  const result = await client.query(
     `
       update chapters
       set status = 'REJECTED', updated_at = now()
@@ -220,6 +220,20 @@ export async function touchChapterUpdatedAt(chapterId: string, client?: DbClient
     'update chapters set updated_at = now() where chapter_id = $1 and deleted_at is null',
     [chapterId]
   );
+}
+
+export async function listPendingChapterRevisions(novelId: string, client?: DbClient) {
+  const result = await (client ?? getPostgresPool()).query<{ chapter_id: string }>(
+    `select c.chapter_id from chapters c
+     where c.novel_id=$1 and c.status='PUBLISHED' and c.deleted_at is null
+       and exists (
+         select 1 from moderation_reviews r where r.target_type='CHAPTER'
+           and r.target_id=c.chapter_id::text and r.status='PENDING'
+           and r.source in ('KEYWORD_FILTER', 'PUBLICATION_REQUEST') and r.submitted_content is not null
+       )`,
+    [novelId]
+  );
+  return new Set(result.rows.map(row => row.chapter_id));
 }
 
 export async function listPublicationSchedules(novelId: string) {

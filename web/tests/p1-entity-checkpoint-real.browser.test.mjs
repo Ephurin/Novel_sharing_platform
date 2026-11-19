@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { randomUUID } from 'node:crypto';
 import { expect } from '@playwright/test';
 import { createHarness, until, hash } from './helpers/p1-real-stack.mjs';
 import { fixtures } from './helpers/p1-fixtures.mjs';
@@ -64,13 +63,10 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
     return saved;
   }
   try {
-    await h.step('Public API fixture: fresh author/novel/chapter; real UI bootstrap creates immutable revision and fake extraction', async () => {
-      const suffix = randomUUID().slice(0, 8), password = 'Local!' + randomUUID(); h.secrets.add(password);
-      const email = 'ux_' + suffix + '@example.invalid';
-      await h.api('POST', '/auth/register', { username: 'ux_' + suffix, email, password });
-      const login = (await h.api('POST', '/auth/login', { identifier: email, password })).data;
-      const promoted = (await h.api('POST', '/auth/become-author', {}, login.accessToken)).data;
-      a = { email, password, token: promoted.accessToken || login.accessToken };
+    await h.step('Fresh author/novel/chapter fixture; real UI bootstrap creates immutable revision and fake extraction', async () => {
+      const reader = await h.account('READER');
+      const promoted = (await h.api('POST', '/auth/become-author', {}, reader.token)).data;
+      a = { ...reader, token: promoted.accessToken };
       novel = (await h.api('POST', '/novels', { title: 'UX checkpoint tổng duyệt', synopsis: 'Offline fictional fixture for the checkpoint review, long enough for the 50-character rule.' }, a.token)).data.novelId;
       // The extractor no longer emits noise candidates, so two minor names give the stale-409 step
       // two unresolved occurrences to reject; they never become entities.

@@ -4,8 +4,9 @@ import { applySanction, restoreSanction } from './admin-sanctions.js';
 import { drainAdminJobs } from './admin-jobs.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
+import { findOpenReview } from '../content-control/content-control.repository.js';
 import { createNotification } from '../interactions/notifications.repository.js';
-import { restoreDraftChaptersByNovelId } from '../novels/draft-chapters.repository.js';
+import { findDraftChapterByChapterId, restoreDraftChaptersByNovelId } from '../novels/draft-chapters.repository.js';
 import {
   approveWithdrawRequest,
   listWithdrawRequests as listWithdrawRequestRows,
@@ -22,6 +23,7 @@ import type {
 import {
   createGenre,
   createTag,
+  findAdminChapterById,
   findAdminNovelById,
   findAdminUserById,
   getDashboardStats,
@@ -59,7 +61,27 @@ export async function listNovels(input: ListAdminNovelsInput) {
 export async function getNovel(novelId: string) {
   const novel = await findAdminNovelById(novelId, true);
   if (!novel) throw new AppError(404, 'CONTENT_001', 'Content not found');
-  return novel;
+  const review = novel.status === 'PENDING_MODERATION' && !novel.deletedAt
+    ? await findOpenReview('NOVEL', novelId, undefined, ['KEYWORD_FILTER', 'PUBLICATION_REQUEST'])
+    : null;
+  return { ...novel, pendingReviewId: review?.review_id ?? null };
+}
+
+export async function getChapterPreview(chapterId: string) {
+  const record = await findAdminChapterById(chapterId);
+  if (!record) throw new AppError(404, 'CONTENT_001', 'Chapter not found');
+  const { submittedContent, ...chapter } = record;
+  const legacySubmission = chapter.pendingReviewId && chapter.status === 'PENDING_MODERATION';
+  const draft = !submittedContent && !chapter.deleted_at && (legacySubmission || !chapter.content)
+    ? await findDraftChapterByChapterId(chapterId)
+    : null;
+  const preview = submittedContent ?? draft;
+  return {
+    ...chapter,
+    title: preview?.title ?? chapter.title,
+    content: preview?.content ?? chapter.content,
+    contentSource: submittedContent || (legacySubmission && draft) ? 'submitted' : draft ? 'draft' : null
+  };
 }
 
 export async function removeNovel(auth: AuthContext, novelId: string, input: RemoveNovelInput) {

@@ -74,7 +74,7 @@ import {
   type WritingGenerationJob
 } from '../ai-copilot/ai-copilot-api';
 import { getApiErrorMessage } from '../../shared/api/api-client';
-import { publishCopy, publishedToast } from './publish-copy';
+import { chapterPublicationLabel, publishCopy, publishedToast } from './publish-copy';
 import { useReadingFonts } from '../../theme/load-reading-fonts';
 
 export type FontOption = 'merriweather' | 'lora' | 'literata' | 'playfair' | 'roboto-slab' | 'vietnam' | 'jakarta';
@@ -350,6 +350,8 @@ export function AuthorWritingIde() {
   const chaptersQuery = useQuery({
     queryKey: ['author', 'chapters', activeNovelId, user?.userId],
     queryFn: () => listChapters(activeNovelId),
+    refetchInterval: query => query.state.data?.some(chapter =>
+      chapter.status === 'PENDING_MODERATION' || chapter.pendingPublicationRevision) ? 10000 : false,
     enabled: Boolean(activeNovelId)
   });
 
@@ -362,7 +364,11 @@ export function AuthorWritingIde() {
   const chapterQuery = useQuery({
     queryKey: ['author', 'chapter', activeChapterId, user?.userId],
     queryFn: () => getChapter(activeChapterId),
-    refetchInterval: query => ['PENDING','PENDING_MODERATION'].includes(query.state.data?.publicationSchedule?.status ?? '') ? 10000 : false,
+    refetchInterval: query => {
+      const chapter = query.state.data;
+      return chapter?.status === 'PENDING_MODERATION' || chapter?.pendingPublicationRevision ||
+        chapter?.publicationSchedule?.status === 'PENDING' ? 10000 : false;
+    },
     enabled: Boolean(activeChapterId)
   });
 
@@ -766,7 +772,7 @@ export function AuthorWritingIde() {
       showToast(publishedToast(res.moderationRequired, novelQuery.data?.status));
     },
     onError: (err: unknown) => {
-      showToast(`Lỗi xuất bản: ${getApiErrorMessage(err)}`);
+      showToast(`Lỗi gửi duyệt: ${getApiErrorMessage(err)}`);
     }
   });
 
@@ -1023,16 +1029,8 @@ export function AuthorWritingIde() {
   );
 
   const rawChapterStatus = chapterQuery.data?.status;
-  const chapterStatusLabel =
-    rawChapterStatus === 'PUBLISHED'
-      ? 'Đã xuất bản'
-      : rawChapterStatus === 'PENDING_MODERATION'
-      ? 'Chờ duyệt'
-      : rawChapterStatus === 'REJECTED'
-      ? 'Từ chối'
-      : rawChapterStatus === 'ARCHIVED'
-      ? 'Đã lưu trữ'
-      : 'Bản nháp';
+  const awaitingPublicationReview = rawChapterStatus === 'PENDING_MODERATION' || Boolean(chapterQuery.data?.pendingPublicationRevision);
+  const chapterStatusLabel = chapterPublicationLabel(chapterQuery.data);
   const chapterPublished = rawChapterStatus === 'PUBLISHED';
 
   const chapterSettings = !focusMode && !planning && (
@@ -1111,10 +1109,11 @@ export function AuthorWritingIde() {
 
       <button
         onClick={() => setPublishModalOpen(true)}
+        disabled={awaitingPublicationReview}
         className="inline-flex items-center gap-1.5 px-3 py-1 text-meta font-semibold rounded-lg text-white bg-primary-600 hover:bg-primary-700 shadow-sm shadow-primary-200 transition-all"
         type="button"
       >
-        <span>Xuất bản chương</span>
+        <span>{awaitingPublicationReview ? 'Chờ admin duyệt' : 'Gửi duyệt chương'}</span>
         <span className="material-symbols-outlined text-[15px]">send</span>
       </button>
     </>
@@ -1262,7 +1261,8 @@ export function AuthorWritingIde() {
       <StudioNovelSearch key={searchScope} opened={novelSearchOpen} chapters={chaptersQuery.data ?? []} activeChapterId={activeChapterId} content={content} onClose={() => setNovelSearchOpen(false)} onNavigate={navigateSearchHit} />
       {planningMounted&&novelQuery.data&&<div key={JSON.stringify([user?.userId,activeNovelId])} style={{display:planning?'flex':'none',flex:1,minHeight:0}}><PlanningStudio novelId={activeNovelId} title={novelQuery.data.title} step={planningStep} onStep={setPlanningStep} chapters={chaptersQuery.data??[]} onWrite={id=>{if(id)setSearchParams({novelId:activeNovelId,chapterId:id});setPlanning(false);}} onCreate={()=>createChapterMutation.mutate()} creating={createChapterMutation.isPending} onMemory={tab=>{setMemoryTab(tab??'review');setMemoryPanelOpen(true);}} onRefreshChapters={()=>void queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] })}/></div>}
       {!planning && <StudioWorkbench onSearchNovel={() => setNovelSearchOpen(true)} notesOpen={rightPanel === 'notes'} onNotesOpenChange={changeNotesOpen} onLookup={setReferenceQuery} formatToolbarVisible={formatToolbarVisible} chapterSettings={chapterSettings} primaryActions={studioPrimaryActions} sidebarToggle={sidebarToggle} fileActions={manuscriptActions} key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
-        publishedContent={chapterQuery.data?.status === 'PUBLISHED' ? chapterQuery.data.content : undefined} chapterStatus={chapterQuery.data?.status} onPublish={() => setPublishModalOpen(true)}
+        publishedContent={chapterQuery.data?.status === 'PUBLISHED' ? chapterQuery.data.content : undefined} chapterStatus={chapterQuery.data?.status}
+        awaitingPublicationReview={awaitingPublicationReview} onPublish={() => setPublishModalOpen(true)}
         apply={applyStudioEdit} undo={() => moveStudioHistory()} redo={() => moveStudioHistory(true)} canUndo={studioHistory.canUndo} canRedo={studioHistory.canRedo}
         save={async () => { await persistence.flush(); }} onError={message => showToast(message, 'error')} />}
       {!planning && <StudioSelectionTools key={`selection:${activeDraftScope}`} editor={editorRef} disabled={!studioReady || isAcceptingAi}
@@ -1384,7 +1384,7 @@ export function AuthorWritingIde() {
                               : 'bg-stone-100 text-stone-500 border-stone-200/70'
                           }`}
                         >
-                          {ch.status === 'PUBLISHED' ? 'Đã đăng' : 'Bản nháp'}
+                          {chapterPublicationLabel(ch)}
                         </span>
                       </div>
                     </div>
@@ -2134,7 +2134,7 @@ export function AuthorWritingIde() {
       <AnimatedModal
         opened={publishModalOpen}
         onClose={() => setPublishModalOpen(false)}
-        title="Xác nhận xuất bản chương"
+        title="Xác nhận gửi duyệt chương"
         size="lg"
         centered
       >
@@ -2197,7 +2197,7 @@ export function AuthorWritingIde() {
               </button>
               <button
                 onClick={() => publishMutation.mutate()}
-                disabled={publishMutation.isPending || !titleReady || !contentReady}
+                disabled={publishMutation.isPending || awaitingPublicationReview || !titleReady || !contentReady}
                 className="px-4 py-1.5 rounded-lg bg-primary-600 text-white hover:bg-primary-700 font-semibold transition-all shadow-sm shadow-primary-200  disabled:opacity-50"
                 type="button"
               >

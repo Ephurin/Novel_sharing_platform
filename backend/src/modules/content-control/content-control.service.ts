@@ -23,16 +23,17 @@ import {
   listReviews as listReviewRows,
   listReportsForReview,
   findOpenReportByReporter,
-  resolveReview as resolveReviewRow
+  resolveReview as resolveReviewRow,
+  type ResolvedModerationReview
 } from './content-control.repository.js';
 import {
   createModerationEvidence,
   findModerationEvidence
 } from './moderation-evidence.repository.js';
 import type {
+  ContentControlResult,
   MatchedRule,
-  ModerationStatus,
-  ModerationTargetType
+  ModerationSnapshot
 } from './content-control.types.js';
 import {
   findCommentRecordById,
@@ -41,8 +42,8 @@ import {
   type CommentStatus
 } from '../interactions/comments.repository.js';
 import { findReadableChapter } from '../reading/reading.repository.js';
-import { publishNovel, rejectNovelPublication } from '../novels/novels.repository.js';
-import { findNovelById } from '../novels/novels.repository.js';
+import { findNovelById, publishNovel, rejectNovelPublication } from '../novels/novels.repository.js';
+import { assertNovelReadyForPublication } from '../novels/novel-publication-eligibility.js';
 import {
   findChapterById,
   publishChapter,
@@ -51,6 +52,8 @@ import {
 import { findDraftChapterByChapterId } from '../novels/draft-chapters.repository.js';
 import { notifyFollowersOfPublishedChapter } from '../interactions/new-chapter-notifications.js';
 import { validateGiphyGif } from '../media/giphy.service.js';
+
+const uuidPattern = /^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i;
 
 function scanContent(content: string, rules: MatchedRule[]) {
   const normalizedContent = content.toLowerCase();
@@ -71,15 +74,27 @@ function highestSeverity(rules: MatchedRule[]) {
 
 export async function checkContent(
   input: ContentControlCheckInput & {
-    publicationSnapshot?: { title: string; content: string; wordCount: number; gifId?: string | null };
+    publicationSnapshot?: ModerationSnapshot;
     forceReview?: boolean;
+    publicationRequest?: boolean;
   },
   client?: PoolClient
-) {
+): Promise<ContentControlResult> {
+  const publicationTarget = input.targetType === 'NOVEL' || input.targetType === 'CHAPTER';
+  // The standalone admin check shares the same target lock as author submission.
+  if (!client && publicationTarget && uuidPattern.test(input.targetId)) {
+    return withPostgresTransaction(async transaction => {
+      await transaction.query(input.targetType === 'NOVEL'
+        ? 'select novel_id from novels where novel_id=$1 for update'
+        : 'select chapter_id from chapters where chapter_id=$1 for update', [input.targetId]);
+      return checkContent(input, transaction);
+    });
+  }
+
   const rules = await listActiveFilterRules(client);
   const matchedRules = scanContent(input.content, rules);
 
-  if (!matchedRules.length && !input.forceReview) {
+  if (!matchedRules.length && !input.forceReview && !input.publicationRequest) {
     return {
       result: 'PASS',
       moderationRequired: false,
@@ -91,7 +106,8 @@ export async function checkContent(
     input.targetType,
     input.targetId,
     client,
-    'KEYWORD_FILTER'
+    publicationTarget ? ['KEYWORD_FILTER', 'PUBLICATION_REQUEST']
+      : ['KEYWORD_FILTER']
   );
   if (existingReview) {
     if (input.publicationSnapshot && !existingReview.submitted_content) {
@@ -103,21 +119,14 @@ export async function checkContent(
         throw new AppError(409, 'CONTENT_REVIEW_STALE', 'Kết quả duyệt đã thay đổi, hãy gửi lại');
       existingReview.submitted_content = attached.rows[0].submitted_content;
     }
-    if (
-      input.publicationSnapshot &&
-      existingReview.submitted_content &&
-      JSON.stringify(existingReview.submitted_content) !== JSON.stringify(input.publicationSnapshot)
-    ) {
-      const snapshot = existingReview.submitted_content;
-      if (
-        snapshot.title !== input.publicationSnapshot.title ||
-        snapshot.content !== input.publicationSnapshot.content
-      )
-        throw new AppError(
-          409,
-          'CONTENT_REVIEW_PENDING',
-          'Phiên bản trước đang chờ duyệt. Hãy chờ kết quả trước khi gửi phiên bản mới.'
-        );
+    const snapshot = existingReview.submitted_content;
+    if (input.publicationSnapshot && snapshot &&
+        (snapshot.title !== input.publicationSnapshot.title || snapshot.content !== input.publicationSnapshot.content)) {
+      throw new AppError(
+        409,
+        'CONTENT_REVIEW_PENDING',
+        'Phiên bản trước đang chờ duyệt. Hãy chờ kết quả trước khi gửi phiên bản mới.'
+      );
     }
     return {
       result: 'NEED_ADMIN_REVIEW',
@@ -126,14 +135,19 @@ export async function checkContent(
     } as const;
   }
 
+  const source = input.publicationRequest && !matchedRules.length ? 'PUBLICATION_REQUEST' : 'KEYWORD_FILTER';
   const evidenceId = await createModerationEvidence(
     {
       targetType: input.targetType,
       targetId: input.targetId,
       riskLevel: highestSeverity(matchedRules),
-      source: 'KEYWORD_FILTER',
+      source,
       matchedRules,
-      summary: input.forceReview ? 'GIF đính kèm cần quản trị viên kiểm duyệt.' : `${matchedRules.length} content filter rule(s) matched.`
+      summary: source === 'PUBLICATION_REQUEST'
+        ? 'Bộ lọc tự động không phát hiện vi phạm. Nội dung đang chờ quản trị viên duyệt xuất bản.'
+        : input.forceReview
+          ? 'GIF đính kèm cần quản trị viên kiểm duyệt.'
+          : `${matchedRules.length} content filter rule(s) matched.`
     },
     client
   );
@@ -142,7 +156,7 @@ export async function checkContent(
     {
       targetType: input.targetType,
       targetId: input.targetId,
-      source: 'KEYWORD_FILTER',
+      source,
       evidenceId,
       submittedContent: input.publicationSnapshot
     },
@@ -159,7 +173,7 @@ export async function checkContent(
 export async function createUserReport(auth: AuthContext, input: CreateReportInput) {
   if (
     input.targetType !== 'COMMENT' &&
-    !/^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i.test(input.targetId)
+    !uuidPattern.test(input.targetId)
   )
     throw new AppError(422, 'REPORT_TARGET', 'Mã đối tượng không hợp lệ.');
   if (input.targetType === 'NOVEL') {
@@ -213,7 +227,7 @@ export async function createUserReport(auth: AuthContext, input: CreateReportInp
         input.targetType,
         input.targetId,
         client,
-        'USER_REPORT'
+        ['USER_REPORT']
       );
       const review =
         existingReview ??
@@ -270,6 +284,7 @@ export async function listModerationReviews(input: ListReviewsInput) {
       source: row.source,
       status: row.status,
       evidenceId: row.evidence_id,
+      targetTitle: row.submitted_content?.title ?? null,
       reportCount: row.report_count,
       createdAt: row.created_at
     })),
@@ -303,6 +318,11 @@ export async function getModerationReview(reviewId: string, auth?: AuthContext) 
     listReportsForReview(reviewId),
     getAdminReviewTarget(review.target_type, review.target_id)
   ]);
+  const submitted = review.submitted_content ??
+    (review.target_type === 'CHAPTER' && review.source === 'KEYWORD_FILTER' &&
+      review.status === 'PENDING' && target?.status === 'PENDING_MODERATION'
+      ? await findDraftChapterByChapterId(review.target_id)
+      : null);
   const reasonCounts = new Map<string, number>();
   for (const report of reports) {
     reasonCounts.set(report.reason, (reasonCounts.get(report.reason) ?? 0) + 1);
@@ -317,12 +337,12 @@ export async function getModerationReview(reviewId: string, auth?: AuthContext) 
     createdAt: review.created_at,
     reason: review.reason,
     reviewedAt: review.reviewed_at,
-    target: review.submitted_content
+    target: target && submitted
       ? {
           ...target,
-          title: review.submitted_content.title,
-          content: review.submitted_content.content,
-          ...(review.target_type === 'COMMENT' ? { gifId: review.submitted_content.gifId ?? null } : {}),
+          title: submitted.title,
+          content: submitted.content,
+          ...(review.target_type === 'COMMENT' ? { gifId: submitted.gifId ?? null } : {}),
           isSubmittedVersion: true
         }
       : target,
@@ -388,6 +408,76 @@ async function recoverResolvedCommentReview(
   });
 }
 
+function stalePublicationReview() {
+  return new AppError(409, 'CONTENT_REVIEW_STALE', 'Nội dung không còn ở trạng thái có thể duyệt xuất bản.');
+}
+
+async function lockPublicationTarget(client: PoolClient, targetType: string, targetId: string, approved: boolean) {
+  if (targetType === 'NOVEL') {
+    await client.query('select novel_id from novels where novel_id=$1 for update', [targetId]);
+  } else if (targetType === 'CHAPTER') {
+    // Lock the novel first, matching archive and novel submission operations.
+    const novel = await client.query(
+      `select n.novel_id from novels n join chapters c on c.novel_id=n.novel_id
+       where c.chapter_id=$1 and n.deleted_at is null for share of n`,
+      [targetId]
+    );
+    if (approved && !novel.rowCount) throw stalePublicationReview();
+    await client.query('select chapter_id from chapters where chapter_id=$1 for update', [targetId]);
+  }
+}
+
+async function applyPublicationDecision(
+  client: PoolClient,
+  review: ResolvedModerationReview,
+  reason?: string
+) {
+  const approved = review.status === 'APPROVED';
+  const targetId = review.target_id;
+  if (review.target_type === 'NOVEL') {
+    const novel = await findNovelById(targetId, client);
+    if (novel?.status !== 'PENDING_MODERATION') {
+      if (approved) throw stalePublicationReview();
+      return;
+    }
+    if (approved) {
+      const submitted = review.submitted_content;
+      if (submitted) {
+        if (submitted.title !== novel.title || submitted.content !== novel.synopsis) throw stalePublicationReview();
+        await assertNovelReadyForPublication(client, targetId);
+      }
+      await publishNovel(targetId, client);
+    } else {
+      await rejectNovelPublication(targetId, client);
+    }
+    return;
+  }
+
+  if (review.target_type !== 'CHAPTER') return;
+  const chapter = await findChapterById(targetId, client);
+  const revision = chapter?.status === 'PUBLISHED' && Boolean(review.submitted_content);
+  if (approved) {
+    if (!chapter || (chapter.status !== 'PENDING_MODERATION' && !revision)) throw stalePublicationReview();
+    const submitted = review.submitted_content;
+    const draft = submitted ? null : await findDraftChapterByChapterId(targetId);
+    const content = submitted?.content ?? draft?.content ?? chapter.content;
+    if (!content) throw new AppError(409, 'CONTENT_004', 'Invalid content state');
+    await publishChapter(targetId, {
+      title: submitted?.title ?? draft?.title ?? chapter.title,
+      content,
+      wordCount: submitted?.wordCount ?? draft?.wordCount ?? chapter.wordCount
+    }, client);
+    if (!revision) await notifyFollowersOfPublishedChapter(client, targetId);
+  } else if (chapter?.status === 'PENDING_MODERATION') {
+    await rejectChapterPublication(targetId, client);
+  }
+
+  await client.query(
+    "update chapter_publication_schedules set status=$2,error=$3,updated_at=now() where moderation_review_id=$1 and status='PENDING_MODERATION'",
+    [review.review_id, approved ? 'PUBLISHED' : 'FAILED', approved ? null : (reason ?? 'Nội dung không được duyệt')]
+  );
+}
+
 export async function resolveModerationReview(
   auth: AuthContext,
   reviewId: string,
@@ -413,20 +503,8 @@ export async function resolveModerationReview(
     throw new AppError(422, 'ADMIN_003', 'Rejection reason required');
   }
 
-  if (
-    review.target_type === 'CHAPTER' &&
-    review.source === 'KEYWORD_FILTER' &&
-    input.decision === 'APPROVED'
-  ) {
-    const chapter = await findChapterById(review.target_id);
-    if (!chapter || chapter.status !== 'PENDING_MODERATION')
-      throw new AppError(
-        409,
-        'CONTENT_REVIEW_STALE',
-        'Chương không còn chờ duyệt; không thể phát hành phiên bản cũ'
-      );
-  }
   const resolved = await withPostgresTransaction(async (client) => {
+    await lockPublicationTarget(client, review.target_type, review.target_id, input.decision === 'APPROVED');
     if (review.target_type === 'COMMENT') {
       await client.query("select pg_advisory_xact_lock(hashtextextended('comment:' || $1, 0))", [review.target_id]);
       const comment = await findCommentRecordById(review.target_id);
@@ -438,13 +516,14 @@ export async function resolveModerationReview(
     const row = await resolveReviewRow(
       {
         reviewId,
-        status: input.decision as ModerationStatus,
+        status: input.decision,
         reviewedBy: auth.userId,
         reason: input.reason
       },
       client
     );
-    if (row)
+    if (row) {
+      await applyPublicationDecision(client, row, input.reason);
       await audit(client, auth, {
         action: `PUBLICATION_${input.decision}`,
         targetType: review.target_type,
@@ -453,6 +532,7 @@ export async function resolveModerationReview(
         before: { status: review.status },
         after: { status: row.status, reviewId }
       });
+    }
     return row;
   });
 
@@ -472,52 +552,10 @@ export async function resolveModerationReview(
     }
   }
 
-  if (resolved.target_type === 'NOVEL') {
-    if (resolved.status === 'APPROVED') {
-      await publishNovel(resolved.target_id);
-    } else {
-      await rejectNovelPublication(resolved.target_id);
-    }
-  }
-
-  if (resolved.target_type === 'CHAPTER') {
-    if (resolved.status === 'APPROVED') {
-      const chapter = await findChapterById(resolved.target_id);
-      if (!chapter) {
-        throw new AppError(404, 'CONTENT_001', 'Content not found');
-      }
-
-      const draft = await findDraftChapterByChapterId(resolved.target_id);
-      const content = resolved.submitted_content?.content ?? draft?.content ?? chapter.content;
-
-      if (!content) {
-        throw new AppError(409, 'CONTENT_004', 'Invalid content state');
-      }
-
-      await publishChapter(resolved.target_id, {
-        title: resolved.submitted_content?.title ?? draft?.title ?? chapter.title,
-        content,
-        wordCount: resolved.submitted_content?.wordCount ?? draft?.wordCount ?? chapter.wordCount
-      });
-      await notifyFollowersOfPublishedChapter(getPostgresPool(), resolved.target_id);
-    } else {
-      await rejectChapterPublication(resolved.target_id);
-    }
-  }
-
-  if (resolved.target_type === 'CHAPTER')
-    await getPostgresPool().query(
-      "update chapter_publication_schedules set status=$2,error=$3,updated_at=now() where moderation_review_id=$1 and status='PENDING_MODERATION'",
-      [
-        resolved.review_id,
-        resolved.status === 'APPROVED' ? 'PUBLISHED' : 'FAILED',
-        resolved.status === 'APPROVED' ? null : (input.reason ?? 'Nội dung không được duyệt')
-      ]
-    );
   return {
     reviewId: resolved.review_id,
     status: resolved.status,
-    targetType: resolved.target_type as ModerationTargetType,
+    targetType: resolved.target_type,
     targetId: resolved.target_id
   };
 }

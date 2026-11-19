@@ -2,6 +2,7 @@ import { AppError } from '../../core/errors/app-error.js';
 import type { PoolClient, QueryResultRow } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { slugify } from '../../core/utils/slug.js';
+import type { ModerationSnapshot } from '../content-control/content-control.types.js';
 import type {
   ListAdminNovelsInput,
   ListAdminUsersInput,
@@ -9,6 +10,18 @@ import type {
 } from './admin.schemas.js';
 
 type DbClient = Pick<PoolClient, 'query'>;
+
+const pendingChapterReviewJoin = `
+  left join lateral (
+    select r.review_id, r.submitted_content
+    from moderation_reviews r
+    where r.target_type = 'CHAPTER' and r.target_id = c.chapter_id::text
+      and r.status = 'PENDING' and r.source in ('KEYWORD_FILTER', 'PUBLICATION_REQUEST')
+      and c.status in ('PENDING_MODERATION', 'PUBLISHED') and c.deleted_at is null
+    order by r.created_at desc, r.review_id
+    limit 1
+  ) review on true
+`;
 
 function mapAdminUser(row: QueryResultRow) {
   return {
@@ -57,7 +70,8 @@ function mapAdminChapter(row: QueryResultRow) {
     wordCount: row.word_count,
     publishedAt: row.published_at,
     updatedAt: row.updated_at,
-    deletedAt: row.deleted_at
+    deletedAt: row.deleted_at,
+    pendingReviewId: row.pending_review_id
   };
 }
 
@@ -184,10 +198,13 @@ export async function findAdminNovelById(novelId: string, includeDeleted = false
 
   const chaptersResult = await getPostgresPool().query(
     `
-      select *
-      from chapters
-      where novel_id = $1
-      order by chapter_number asc
+      select c.chapter_id, c.novel_id, c.title, c.chapter_number, c.status, c.is_vip,
+             c.price_coins, c.word_count, c.published_at, c.updated_at, c.deleted_at,
+             review.review_id as pending_review_id
+      from chapters c
+      ${pendingChapterReviewJoin}
+      where c.novel_id = $1
+      order by c.chapter_number asc
     `,
     [novelId]
   );
@@ -205,6 +222,26 @@ export async function findAdminNovelById(novelId: string, includeDeleted = false
     })),
     chapters: chaptersResult.rows.map(mapAdminChapter)
   };
+}
+
+export async function findAdminChapterById(chapterId: string) {
+  const result = await getPostgresPool().query<{
+    chapter_id: string;
+    title: string;
+    content: string | null;
+    status: string;
+    deleted_at: Date | null;
+    pendingReviewId: string | null;
+    submittedContent: ModerationSnapshot | null;
+  }>(
+    `select c.chapter_id, c.title, c.content, c.status, c.deleted_at,
+            review.review_id as "pendingReviewId", review.submitted_content as "submittedContent"
+     from chapters c
+     ${pendingChapterReviewJoin}
+     where c.chapter_id = $1`,
+    [chapterId]
+  );
+  return result.rows[0] ?? null;
 }
 
 export async function softRemoveNovelAggregate(client: DbClient, novelId: string) {

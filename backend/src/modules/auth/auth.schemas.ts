@@ -9,9 +9,36 @@ const passwordSchema = z
 
 export const registerSchema = z.object({
   body: z.object({
-    email: z.string().email(),
+    email: z.string().email().max(255),
     username: z.string().min(3).max(50).regex(/^[a-zA-Z0-9_]+$/),
     password: passwordSchema
+  })
+});
+
+export const registrationIdSchema = z.string().uuid();
+
+export const resendRegistrationSchema = z.object({
+  body: z.object({ registrationId: registrationIdSchema })
+});
+
+export const resendNativeRegistrationSchema = z.object({
+  body: resendRegistrationSchema.shape.body.extend({ resendToken: z.string().min(1).max(1024) })
+});
+
+export const verifyRegistrationSchema = z.object({
+  body: z.object({
+    registrationId: registrationIdSchema,
+    code: z.string().regex(/^\d{8}$/)
+  })
+});
+
+export const verifyRegistrationLinkSchema = z.object({
+  body: z.object({ token: z.string().regex(/^[A-Za-z0-9_-]{43}$/) })
+});
+
+export const recoverRegistrationSchema = z.object({
+  body: registerSchema.shape.body.omit({ email: true }).extend({
+    token: z.string().min(1).max(1024)
   })
 });
 
@@ -19,6 +46,13 @@ export const loginSchema = z.object({
   body: z.object({
     identifier: z.string().min(1),
     password: z.string().min(1)
+  })
+});
+
+export const googleLoginSchema = z.object({
+  body: z.object({
+    credential: z.string().min(1).max(16384),
+    password: z.string().min(1).max(1024).optional()
   })
 });
 

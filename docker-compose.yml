@@ -84,6 +84,15 @@ services:
       JWT_ACCESS_EXPIRES_SECONDS: 3600
       JWT_REFRESH_EXPIRES_DAYS: 7
       REFRESH_TOKEN_COOKIE_NAME: ephurin_refresh_token
+      GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
+      AUTH_TRUSTED_PROXY_HOST: ${AUTH_TRUSTED_PROXY_HOST-web}
+      SMTP_URL: ${SMTP_URL:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_SECURE: ${SMTP_SECURE:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-}
       AI_LLM_BASE_URL: ${AI_LLM_BASE_URL:-https://foreseeable-kaliyah-fleshier.ngrok-free.dev/v1}
       AI_LLM_API_KEY: ${AI_LLM_API_KEY:-}
       AI_LLM_MODEL: ${AI_LLM_MODEL:-qwen3:8b}
@@ -115,6 +124,13 @@ services:
       - "8080:80"
     depends_on:
       - backend
+
+  mailpit:
+    image: axllent/mailpit:v1.27.4
+    profiles: [dev-mail]
+    ports:
+      - "127.0.0.1:8026:8025"
+      - "127.0.0.1:1026:1025"
 
 volumes:
   postgres_data:

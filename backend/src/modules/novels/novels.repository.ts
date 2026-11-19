@@ -1,5 +1,6 @@
 import type { PoolClient, QueryResultRow } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
+import { AppError } from '../../core/errors/app-error.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { slugify } from '../../core/utils/slug.js';
 import type { CreateNovelInput, ListNovelsInput, UpdateNovelInput } from './novels.schemas.js';
@@ -207,8 +208,16 @@ export async function listNovelsByAuthor(authorId: string, input: ListNovelsInpu
 
 export async function updateNovel(novelId: string, input: UpdateNovelInput) {
   return withPostgresTransaction(async (client) => {
-    const existing = await client.query('select novel_id from novels where novel_id = $1 and deleted_at is null for update', [novelId]);
-    if (!existing.rows[0]) return null;
+    const existing = (await client.query(
+      'select status, title, synopsis from novels where novel_id = $1 and deleted_at is null for update',
+      [novelId]
+    )).rows[0];
+    if (!existing) return null;
+    if (existing.status === 'PENDING_MODERATION' &&
+        ((input.title !== undefined && input.title !== existing.title) ||
+         (input.synopsis !== undefined && input.synopsis !== (existing.synopsis ?? '').trim()))) {
+      throw new AppError(409, 'CONTENT_REVIEW_PENDING', 'Hãy chờ kết quả duyệt trước khi đổi tên hoặc giới thiệu của tác phẩm.');
+    }
     const changingGenres = input.genres !== undefined || input.genre !== undefined;
     const names = input.genres ?? (input.genre ? [input.genre] : []);
     const metadata = changingGenres ? await writeNovelGenres(client, novelId, names) : null;
@@ -223,7 +232,8 @@ export async function updateNovel(novelId: string, input: UpdateNovelInput) {
         where novel_id = $1 and deleted_at is null
         returning novel_id
       `,
-      [novelId, input.title, input.synopsis, input.coverImageUrl ?? null,
+      [novelId, existing.status === 'PENDING_MODERATION' ? undefined : input.title,
+        existing.status === 'PENDING_MODERATION' ? undefined : input.synopsis, input.coverImageUrl ?? null,
         input.coverImageUrl !== undefined, metadata?.genreId ?? null, changingGenres,
         input.authorNote?.trim() || null, input.authorNote !== undefined]
     );
@@ -281,7 +291,7 @@ export async function publishNovel(novelId: string, client?: DbClient) {
         status = 'PUBLISHED',
         published_at = coalesce(published_at, now()),
         updated_at = now()
-      where novel_id = $1 and deleted_at is null and status in ('DRAFT', 'REJECTED', 'PENDING_MODERATION')
+      where novel_id = $1 and deleted_at is null and status = 'PENDING_MODERATION'
       returning *
     `,
     [novelId]
@@ -290,8 +300,8 @@ export async function publishNovel(novelId: string, client?: DbClient) {
   return result.rows[0] ? mapNovel(result.rows[0]) : null;
 }
 
-export async function rejectNovelPublication(novelId: string) {
-  const result = await getPostgresPool().query(
+export async function rejectNovelPublication(novelId: string, client: DbClient) {
+  const result = await client.query(
     `
       update novels
       set status = 'REJECTED', updated_at = now()

@@ -30,6 +30,23 @@ docker-compose logs -f backend
 
 If your Docker installation supports the newer plugin command, `docker compose ...` is also valid.
 
+## Email confirmation
+
+Password registration sends a confirmation link and an eight-digit backup code. The link uses `WEB_ORIGIN` and works in the browser that started registration. For local testing, set these values in the root `.env` file and start the `dev-mail` profile:
+
+```dotenv
+SMTP_URL=smtp://mailpit:1025
+SMTP_FROM="StoryCraft <no-reply@storycraft.test>"
+```
+
+```powershell
+docker compose --profile dev-mail up -d --build
+```
+
+Open the Mailpit inbox at `http://localhost:8026`. A backend running directly on the host can use `smtp://localhost:1026` instead. For real delivery, set `SMTP_FROM` to the verified sender. Use `SMTP_URL` or leave it empty and set `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, and `SMTP_PASS` separately. Keep credentials in environment configuration. SMTP authentication requires TLS. Use port 465 with implicit TLS or port 587 with STARTTLS for Gmail.
+
+The bundled Compose stack trusts the private `web` service for authentication rate-limit addresses. Nginx replaces client-supplied `X-Real-IP` with the connection address. For a custom deployment, set `AUTH_TRUSTED_PROXY_HOST` to the dedicated proxy's private hostname or exact IP address if it applies the same header policy. Leave it empty for direct API traffic.
+
 ## Demo Seed
 
 The backend container automatically runs migrations and seed when these compose variables are enabled:

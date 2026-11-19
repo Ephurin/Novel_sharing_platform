@@ -33,7 +33,7 @@ export function chapterDisplayTitle(chapter: ReaderChapter) {
 export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, tocPending, tocFailed, onRetryToc, onReport, reporting, onOpenAuthorFeedback, children }: {
   chapter: ReaderChapter; novel?: ReaderNovel; chapters: ReaderChapter[]; publicMode: boolean;
   tocPending: boolean; tocFailed: boolean; onRetryToc: () => void; onReport?: () => void; reporting?: boolean;
-  onOpenAuthorFeedback?: (paragraphId: string) => void; children?: ReactNode;
+  onOpenAuthorFeedback?: () => void; children?: ReactNode;
 }) {
   const location = useLocation();
   let anchorCursor = 0;
@@ -364,7 +364,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
           chapter={chapter} paragraphId={discussionId} focus={opensFromLink ? privateFocus : undefined} discussions={discussions}
           onOpenAuthorFeedback={discussionId && onOpenAuthorFeedback && feedbackByParagraph?.get(discussionId)?.length ? () => {
             closeDiscussion(false);
-            onOpenAuthorFeedback(discussionId);
+            onOpenAuthorFeedback();
           } : undefined}
           onCancel={() => closeDiscussion(true)} />
       </div>

@@ -13,6 +13,7 @@ fingerprint must be unchanged). Windows-only: the stack and browser helpers use 
 Usage (repo root):
   EPHURIN_ALLOW_TEST_DB_MUTATIONS=1 EPHURIN_E2E_DEMO_PASSWORD=... python scripts/run_srs_acceptance_e2e.py
 Optional: EPHURIN_E2E_BACKEND_PORT (4314), EPHURIN_E2E_WEB_PORT (5314), EPHURIN_E2E_EVIDENCE_DIR.
+Run Docker's dev-mail profile for registration checks. SMTP and inbox default to localhost:1026 and 8026.
 Exit codes: 0 every executed check passed, 1 at least one FAIL, 3 REFUSED (nothing was written).
 """
 
@@ -202,12 +203,33 @@ class Suite:
             time.sleep(step)
         return None
 
+    def register_and_verify(self, client: Client, account: Dict[str, str]) -> Response:
+        pending = client.call("POST", "/auth/register", account, auth=False)
+        assert pending.status == 202, f"registration email: {pending.brief()}"
+        inbox = os.environ.get("EPHURIN_E2E_MAILPIT_URL", "http://localhost:8026").rstrip("/")
+
+        def code_from_mail():
+            search = httpx.get(f"{inbox}/api/v1/search", params={"query": f"to:{account['email']}"}, timeout=5)
+            search.raise_for_status()
+            for item in search.json().get("messages", []):
+                if item["Subject"] == "Xác nhận tài khoản StoryCraft":
+                    message = httpx.get(f"{inbox}/api/v1/message/{item['ID']}", timeout=5)
+                    message.raise_for_status()
+                    match = re.search(r"Mã dự phòng là (\d{8})", message.json().get("Text", ""))
+                    if match:
+                        return match.group(1)
+            return None
+
+        code = self.wait(code_from_mail, timeout=10, step=0.25)
+        assert code, "registration code missing from local test inbox"
+        return client.call("POST", "/auth/register/verify", {"registrationId": pending.data["registrationId"], "code": code}, auth=False)
+
     def new_reader(self, prefix: str) -> Tuple[Client, Dict[str, str]]:
         suffix = uuid.uuid4().hex[:8]
-        account = {"email": f"{prefix}_{suffix}@srs.test", "username": f"{prefix}_{suffix}", "password": STRONG_PASSWORD}
+        account = {"email": f"{prefix}_{suffix}@gmail.com", "username": f"{prefix}_{suffix}", "password": STRONG_PASSWORD}
         client = Client(self.stack.api_url)
-        response = client.call("POST", "/auth/register", account, auth=False)
-        assert response.status in (200, 201), f"register: {response.brief()}"
+        response = self.register_and_verify(client, account)
+        assert response.status == 201, f"register: {response.brief()}"
         assert client.login(account["email"], account["password"]).status == 200
         return client, account
 
@@ -228,16 +250,16 @@ class Suite:
     # AUTH --------------------------------------------------------------------
     def auth_cases(self) -> None:
         suffix = uuid.uuid4().hex[:8]
-        account = {"email": f"srs_new_{suffix}@srs.test", "username": f"srs_new_{suffix}", "password": STRONG_PASSWORD}
+        account = {"email": f"srs_new_{suffix}@gmail.com", "username": f"srs_new_{suffix}", "password": STRONG_PASSWORD}
         fresh = Client(self.stack.api_url)
 
         def register_valid():
-            response = fresh.call("POST", "/auth/register", account, auth=False)
+            response = self.register_and_verify(fresh, account)
             row = self.sql("SELECT role, password_hash FROM users WHERE email = %s", (account["email"],))
             hashed = bool(row) and row[0][1].startswith(("$2", "$argon2"))
-            return response.status in (200, 201) and row and row[0][0] == "READER" and hashed, {
+            return response.status == 201 and row and row[0][0] == "READER" and hashed, {
                 "response": response.brief(), "role": row[0][0] if row else None, "password_hashed": hashed}
-        self.record("TC-AUTH-01", "Đăng ký hợp lệ tạo tài khoản READER, mật khẩu được băm", register_valid)
+        self.record("TC-AUTH-01", "Xác nhận email tạo tài khoản READER, mật khẩu được băm", register_valid)
 
         def invalid_email():
             response = fresh.call("POST", "/auth/register", {**account, "email": "not-an-email", "username": f"x{suffix}"}, auth=False)
@@ -245,12 +267,12 @@ class Suite:
         self.record("TC-AUTH-02", "Email sai định dạng trả AUTH_001", invalid_email)
 
         def weak_password():
-            response = fresh.call("POST", "/auth/register", {"email": f"w{suffix}@srs.test", "username": f"w{suffix}", "password": "short"}, auth=False)
+            response = fresh.call("POST", "/auth/register", {"email": f"w{suffix}@gmail.com", "username": f"w{suffix}", "password": "short"}, auth=False)
             return response.status == 400, {"response": response.brief()}
         self.record("TC-AUTH-03", "Mật khẩu yếu bị từ chối", weak_password)
 
         def duplicate_username():
-            response = fresh.call("POST", "/auth/register", {**account, "email": f"d{suffix}@srs.test"}, auth=False)
+            response = fresh.call("POST", "/auth/register", {**account, "email": f"d{suffix}@gmail.com"}, auth=False)
             return response.code == "USER_004", {"response": response.brief(), "srs_code": "USER_004"}
         self.record("TC-AUTH-04", "Trùng username trả USER_004", duplicate_username)
 
@@ -560,9 +582,15 @@ class Suite:
         def clean_chapter_publish():
             submit, chapter_id, status = submit_chapter(pipeline, "Chương sạch", long_text)
             self.clean_chapter_id = chapter_id
+            hidden = self.guest.call("GET", f"/reading/chapters/{chapter_id}")
+            approved = approve_review(chapter_id) if status == "PENDING_MODERATION" else None
+            final_status = chapter_status(chapter_id)
             public = self.guest.call("GET", f"/reading/chapters/{chapter_id}")
-            return status == "PUBLISHED" and public.status == 200, {"submit": submit.brief(), "final_status": status, "guest_read": public.brief()}
-        self.record("TC-NOV-07", "Chương hợp lệ được xuất bản và khách đọc được", clean_chapter_publish)
+            ok = status == "PENDING_MODERATION" and hidden.status == 404 and approved and approved.status == 200
+            return bool(ok and final_status == "PUBLISHED" and public.status == 200), {
+                "submit": submit.brief(), "pending_status": status, "final_status": final_status,
+                "admin_approval": approved.brief() if approved else None, "guest_read": public.brief()}
+        self.record("TC-NOV-07", "Chương hợp lệ chỉ công khai sau khi admin duyệt", clean_chapter_publish)
 
         def flagged_chapter_pending():
             submit, chapter_id, status = submit_chapter(pipeline, "Chương cần duyệt", f"Nội dung có {FILTER_WORD}. " + long_text)
@@ -915,6 +943,8 @@ def main() -> int:
     # The stack passes this process's environment to the API (dotenv does not override it).
     os.environ["AI_LLM_BASE_URL"] = llm.base_url
     os.environ["AI_LLM_TIMEOUT_MS"] = str(AI_TIMEOUT_MS)
+    os.environ["SMTP_URL"] = os.environ.get("EPHURIN_E2E_SMTP_URL", "smtp://localhost:1026")
+    os.environ["SMTP_FROM"] = "StoryCraft <no-reply@storycraft.test>"
     try:
         stack.start()
         suite = Suite(stack, password, llm)
