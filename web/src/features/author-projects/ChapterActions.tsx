@@ -32,8 +32,9 @@ export function ChapterActions({ chapter }: { chapter: Chapter }) {
       setAction(null);
     }
   });
+  const awaitingReview = chapter.status === 'PENDING_MODERATION' || chapter.pendingPublicationRevision;
   const confirmation = action === 'publish'
-    ? 'Gửi bản nháp đã lưu để phát hành? Nội dung có thể cần kiểm duyệt.'
+    ? 'Gửi bản nháp đã lưu cho admin duyệt trước khi xuất bản?'
     : action === 'delete'
       ? 'Xóa chương đã lưu trữ? Chương sẽ được gỡ khỏi danh sách.'
       : action === 'restore'
@@ -54,8 +55,8 @@ export function ChapterActions({ chapter }: { chapter: Chapter }) {
             <>
               <Menu.Item onClick={() => { setVip(chapter.isVip); setPrice(chapter.priceCoins || 1); setAction('pricing'); }}>Quyền đọc &amp; giá xu</Menu.Item>
               {['DRAFT','REJECTED'].includes(chapter.status) && <Menu.Item onClick={() => setScheduleOpen(true)}>Lên lịch xuất bản</Menu.Item>}
-              <Menu.Item onClick={() => setAction('publish')}>Gửi phát hành</Menu.Item>
-              <Menu.Item onClick={() => setAction('archive')}>Lưu trữ chương</Menu.Item>
+              <Menu.Item disabled={awaitingReview} onClick={() => setAction('publish')}>Gửi duyệt chương</Menu.Item>
+              <Menu.Item disabled={awaitingReview} onClick={() => setAction('archive')}>Lưu trữ chương</Menu.Item>
             </>
           )}
         </Menu.Dropdown>

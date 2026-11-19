@@ -72,7 +72,16 @@ export function AdminNovelDetailPage() {
       <AdminHeader
         title="Chi tiết truyện"
         description={`Cập nhật lần cuối: ${dateTime(novel.updatedAt)}`}
-      />
+      >
+        <Button component={Link} to="/admin/moderation" variant="subtle">
+          Hàng đợi kiểm duyệt
+        </Button>
+        {novel.pendingReviewId && (
+          <Button component={Link} to={`/admin/moderation/${novel.pendingReviewId}`} variant="light">
+            Kiểm duyệt truyện
+          </Button>
+        )}
+      </AdminHeader>
       <AdminPanel>
         <div className="admin-novel-overview">
           <div className="admin-novel-cover">
@@ -209,9 +218,21 @@ export function AdminNovelDetailPage() {
                     <td>{ch.isVip ? `VIP · ${number(ch.priceCoins)} Xu` : 'Miễn phí'}</td>
                     <td>{ch.deletedAt ? 'Đã gỡ' : 'Bình thường'}</td>
                     <td>
-                      <Button variant="light" size="xs" onClick={() => setChapterId(ch.chapterId)}>
-                        Xem nội dung
-                      </Button>
+                      <div className="admin-actions">
+                        <Button variant="light" size="xs" onClick={() => setChapterId(ch.chapterId)}>
+                          Xem nội dung
+                        </Button>
+                        {ch.pendingReviewId && (
+                          <Button
+                            component={Link}
+                            to={`/admin/moderation/${ch.pendingReviewId}`}
+                            variant="subtle"
+                            size="xs"
+                          >
+                            Kiểm duyệt chương
+                          </Button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -42,10 +42,10 @@ export function ChapterSchedule({ chapterId, novelId, onClose }: { chapterId: st
       {chapter.data && <>
         <Text fw={600}>{chapter.data.draft?.title ?? chapter.data.title}</Text>
         {current?.status === 'PENDING' && <Text size="sm">Lịch hiện tại: {new Date(current.scheduledAt).toLocaleString('vi-VN')}</Text>}
-        <TextInput type="datetime-local" label="Ngày giờ đăng" value={date} onChange={event => setDate(event.currentTarget.value)} required
+        <TextInput type="datetime-local" label="Ngày giờ gửi duyệt" value={date} onChange={event => setDate(event.currentTarget.value)} required
           description={`Múi giờ: ${Intl.DateTimeFormat().resolvedOptions().timeZone}. Sửa bản nháp sẽ hủy lịch cũ.`} />
         {previewTime && <FeedbackReveal key={date}><Text size="sm" c={futureDate ? 'dimmed' : 'red'} role="status"><FeedbackIcon icon={futureDate ? 'event_available' : 'event_busy'} /> Dự kiến: {previewTime} (Asia/Bangkok){!futureDate && ' · Chọn thời gian trong tương lai'}</Text></FeedbackReveal>}
-        <Text size="sm" c="dimmed">Tác phẩm cần được phát hành. Chương vẫn tuân theo quy trình kiểm duyệt.</Text>
+        <Text size="sm" c="dimmed">Tác phẩm cần được xuất bản trước. Đến giờ đã chọn, chương sẽ được gửi cho admin và chỉ đăng sau khi được duyệt.</Text>
         {save.isError && <Alert color="red">{getApiErrorMessage(save.error)}</Alert>}
         <Group justify="flex-end">
           {current?.status === 'PENDING' && <Button variant="subtle" color="red" disabled={save.isPending} onClick={() => save.mutate(true)}>Hủy lịch</Button>}

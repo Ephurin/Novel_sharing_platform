@@ -1,6 +1,7 @@
 import { LoadedImage } from '../../shared/components/AuthorAdminMotion';
 import { useWorkspacePreference, stringArray } from '../../shared/components/WorkspacePreferences';
 import { ResponsiveFilters, SelectionToolbar, useUpdatedItems } from '../../shared/components/InteractionWidgets';
+import { getApiErrorMessage } from '../../shared/api/api-client';
 import { useToast } from '../../shared/components/ToastProvider';
 import { ImageUpload } from '../../shared/components/ImageUpload';
 import { ChapterActions, ChapterOrder, ChapterHistoryPanel } from './ChapterActions';
@@ -43,6 +44,7 @@ export function AuthorNovelMetadataPage() {
   const novelQuery = useQuery({
     queryKey: ['novel', novelId],
     queryFn: () => getNovel(novelId),
+    refetchInterval: query => query.state.data?.status === 'PENDING_MODERATION' ? 10000 : false,
     enabled: Boolean(novelId)
   });
   const [, setRecentProjects] = useWorkspacePreference<string[]>('recent-projects', [], stringArray);
@@ -53,7 +55,9 @@ export function AuthorNovelMetadataPage() {
   const chaptersQuery = useQuery({
     queryKey: ['chapters', novelId],
     queryFn: () => listChapters(novelId),
-    refetchInterval: query => query.state.data?.some(ch => ['PENDING','PENDING_MODERATION'].includes(ch.publicationSchedule?.status ?? '')) ? 10000 : false,
+    refetchInterval: query => query.state.data?.some(chapter =>
+      chapter.status === 'PENDING_MODERATION' || chapter.pendingPublicationRevision ||
+      chapter.publicationSchedule?.status === 'PENDING') ? 10000 : false,
     enabled: Boolean(novelId)
   });
   const earningsQuery = useQuery({
@@ -152,11 +156,9 @@ export function AuthorNovelMetadataPage() {
       await queryClient.invalidateQueries({ queryKey: ['novel', novelId] });
       await queryClient.invalidateQueries({ queryKey: ['author-projects'] });
       setEditModalOpen(false);
-      showToast('Đã gửi tác phẩm lên hàng đợi kiểm duyệt!');
+      showToast('Đã gửi tác phẩm cho admin duyệt xuất bản.');
     },
-    onError: (err: any) => {
-      showToast('Lỗi gửi duyệt: ' + (err?.message || 'Không thể gửi duyệt'));
-    }
+    onError: (error) => showToast('Lỗi gửi duyệt: ' + getApiErrorMessage(error))
   });
 
   const createChapterMutation = useMutation({
@@ -738,7 +740,7 @@ export function AuthorNovelMetadataPage() {
                             )}
                           </div>
                           <div className="text-stone-400 text-meta mt-0.5">
-                            {chapter.publicationSchedule?.status === 'PENDING' ? 'Đăng lúc ' + new Date(chapter.publicationSchedule.scheduledAt).toLocaleString('vi-VN') : chapter.publicationSchedule?.status === 'PENDING_MODERATION' ? 'Lịch đăng đang chờ duyệt' : chapter.publicationSchedule?.error ?? (chapter.draft?.autosave && 'Đang soạn trong Studio')}
+                            {chapter.publicationSchedule?.status === 'PENDING' ? 'Gửi duyệt lúc ' + new Date(chapter.publicationSchedule.scheduledAt).toLocaleString('vi-VN') : chapter.publicationSchedule?.status === 'PENDING_MODERATION' ? 'Lịch đăng đang chờ duyệt' : chapter.pendingPublicationRevision ? 'Phiên bản mới đang chờ duyệt' : chapter.publicationSchedule?.error ?? (chapter.draft?.autosave && 'Đang soạn trong Studio')}
                           </div>
                         </td>
                         <td className="py-3 px-3.5 text-right font-mono text-stone-800">

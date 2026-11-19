@@ -42,6 +42,7 @@ export type Chapter = {
   priceCoins: number;
   status: ChapterStatus;
   updatedAt: string;
+  pendingPublicationRevision?: boolean;
   publicationSchedule?: { scheduledAt: string; status: string; error: string | null } | null;
   draft?: {
     title: string;

@@ -37,7 +37,8 @@ test('P3: Full auto needs active memory and a system plan, not a manuscript base
 });
 
 test('P4/P5: the publish dialog says what happens and warns when readers cannot see the chapter', () => {
-  assert.equal(publishCopy('PUBLISHED').confirm, 'Xuất bản chương');
+  assert.equal(publishCopy('PUBLISHED').confirm, 'Gửi duyệt chương');
+  assert.match(publishCopy('PUBLISHED').notice, /chỉ được xuất bản sau khi admin duyệt/);
   assert.equal(publishCopy('PUBLISHED').readerNotice, null);
   assert.match(publishCopy('DRAFT').readerNotice!, /bản nháp, nên độc giả chưa đọc được/);
   assert.match(publishedToast(false, 'DRAFT'), /sau khi truyện được công khai/);

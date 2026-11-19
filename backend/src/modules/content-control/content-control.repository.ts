@@ -3,10 +3,19 @@ import { getPostgresPool } from '../../core/database/postgres.js';
 import type { ListReviewsInput, CreateReportInput } from './content-control.schemas.js';
 import type {
   MatchedRule,
+  ModerationSnapshot,
   ModerationSource,
   ModerationStatus,
   ModerationTargetType
 } from './content-control.types.js';
+
+export type ResolvedModerationReview = {
+  review_id: string;
+  target_type: ModerationTargetType;
+  target_id: string;
+  status: ModerationStatus;
+  submitted_content: ModerationSnapshot | null;
+};
 
 function mapRule(row: QueryResultRow): MatchedRule {
   return {
@@ -37,7 +46,7 @@ export async function createModerationReview(
     targetId: string;
     source: ModerationSource;
     evidenceId?: string | null;
-    submittedContent?: { title: string; content: string; wordCount: number; gifId?: string | null };
+    submittedContent?: ModerationSnapshot;
   },
   client?: PoolClient
 ) {
@@ -66,18 +75,18 @@ export async function findOpenReview(
   targetType: ModerationTargetType,
   targetId: string,
   client?: PoolClient,
-  source?: ModerationSource
+  sources?: ModerationSource[]
 ) {
   const runner = client ?? getPostgresPool();
   const result = await runner.query(
     `
       select *
       from moderation_reviews
-      where target_type = $1 and target_id = $2 and status = 'PENDING' and ($3::moderation_source is null or source=$3)
+      where target_type = $1 and target_id = $2 and status = 'PENDING' and ($3::moderation_source[] is null or source=any($3))
       order by created_at desc
       limit 1
     `,
-    [targetType, targetId, source ?? null]
+    [targetType, targetId, sources ?? null]
   );
 
   return result.rows[0] ?? null;
@@ -223,7 +232,7 @@ export async function resolveReview(
   },
   client?: PoolClient
 ) {
-  const result = await (client ?? getPostgresPool()).query(
+  const result = await (client ?? getPostgresPool()).query<ResolvedModerationReview>(
     `
       update moderation_reviews
       set status = $2,

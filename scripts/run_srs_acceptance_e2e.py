@@ -560,9 +560,15 @@ class Suite:
         def clean_chapter_publish():
             submit, chapter_id, status = submit_chapter(pipeline, "Chương sạch", long_text)
             self.clean_chapter_id = chapter_id
+            hidden = self.guest.call("GET", f"/reading/chapters/{chapter_id}")
+            approved = approve_review(chapter_id) if status == "PENDING_MODERATION" else None
+            final_status = chapter_status(chapter_id)
             public = self.guest.call("GET", f"/reading/chapters/{chapter_id}")
-            return status == "PUBLISHED" and public.status == 200, {"submit": submit.brief(), "final_status": status, "guest_read": public.brief()}
-        self.record("TC-NOV-07", "Chương hợp lệ được xuất bản và khách đọc được", clean_chapter_publish)
+            ok = status == "PENDING_MODERATION" and hidden.status == 404 and approved and approved.status == 200
+            return bool(ok and final_status == "PUBLISHED" and public.status == 200), {
+                "submit": submit.brief(), "pending_status": status, "final_status": final_status,
+                "admin_approval": approved.brief() if approved else None, "guest_read": public.brief()}
+        self.record("TC-NOV-07", "Chương hợp lệ chỉ công khai sau khi admin duyệt", clean_chapter_publish)
 
         def flagged_chapter_pending():
             submit, chapter_id, status = submit_chapter(pipeline, "Chương cần duyệt", f"Nội dung có {FILTER_WORD}. " + long_text)

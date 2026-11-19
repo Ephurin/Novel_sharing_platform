@@ -1,11 +1,22 @@
-import type { NovelStatus } from '../novels/novel-types';
+import type { Chapter, ChapterStatus, NovelStatus } from '../novels/novel-types';
 
-// Live retest 3: the dialog said "Xác nhận gửi duyệt" but most chapters are published at once (P5),
-// and a chapter of a novel that is not public yet showed "Đã đăng" while readers got a raw
-// CONTENT_001 error (P4).
 const NOVEL_STATUS_LABEL: Record<NovelStatus, string> = {
   DRAFT: 'bản nháp', PENDING_MODERATION: 'đang chờ duyệt', PUBLISHED: 'công khai', REJECTED: 'bị từ chối'
 };
+
+const CHAPTER_STATUS_LABEL: Record<ChapterStatus, string> = {
+  DRAFT: 'Bản nháp',
+  PENDING_MODERATION: 'Chờ duyệt',
+  PUBLISHED: 'Đã xuất bản',
+  REJECTED: 'Từ chối',
+  ARCHIVED: 'Đã lưu trữ'
+};
+
+export function chapterPublicationLabel(chapter?: Pick<Chapter, 'status' | 'pendingPublicationRevision'>) {
+  return chapter?.pendingPublicationRevision
+    ? 'Phiên bản mới chờ duyệt'
+    : CHAPTER_STATUS_LABEL[chapter?.status ?? 'DRAFT'];
+}
 
 export function novelHiddenFromReaders(status: NovelStatus | undefined): boolean {
   return Boolean(status) && status !== 'PUBLISHED';
@@ -14,9 +25,9 @@ export function novelHiddenFromReaders(status: NovelStatus | undefined): boolean
 export function publishCopy(novelStatus: NovelStatus | undefined) {
   const hidden = novelHiddenFromReaders(novelStatus);
   return {
-    confirm: 'Xuất bản chương',
-    pending: 'Đang xuất bản...',
-    notice: 'Hệ thống quét nội dung trước khi đăng. Nếu phát hiện nội dung cần kiểm duyệt, chương sẽ chờ duyệt; nếu không, chương được đăng ngay.',
+    confirm: 'Gửi duyệt chương',
+    pending: 'Đang gửi duyệt...',
+    notice: 'Hệ thống kiểm tra nội dung trước khi chuyển cho admin. Chương chỉ được xuất bản sau khi admin duyệt.',
     readerNotice: hidden
       ? `Truyện đang ở trạng thái ${NOVEL_STATUS_LABEL[novelStatus!]}, nên độc giả chưa đọc được chương này. Hãy gửi duyệt truyện ở trang thông tin truyện để công khai.`
       : null
@@ -24,7 +35,7 @@ export function publishCopy(novelStatus: NovelStatus | undefined) {
 }
 
 export function publishedToast(moderationRequired: boolean, novelStatus: NovelStatus | undefined): string {
-  if (moderationRequired) return 'Chương đang chờ kiểm duyệt trước khi được đăng.';
+  if (moderationRequired) return 'Chương đang chờ kiểm duyệt của admin trước khi được đăng.';
   return novelHiddenFromReaders(novelStatus)
     ? 'Chương đã được đăng, nhưng độc giả chỉ đọc được sau khi truyện được công khai.'
     : 'Chương đã được xuất bản công khai thành công!';

@@ -7,7 +7,7 @@ import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { rateLimit } from '../../core/security/rate-limit.js';
-import { removeNovel, restoreNovel } from '../admin/admin.service.js';
+import { getChapterPreview, getNovel as getAdminNovel, removeNovel, restoreNovel } from '../admin/admin.service.js';
 import { createCopilotSuggestion } from '../ai-copilot/ai-copilot.service.js';
 import { generateCopilotSuggestionWithLlm, isLlmConfigured } from '../ai-copilot/llm-provider.js';
 import { env } from '../../core/config/env.js';
@@ -15,9 +15,13 @@ import { createServer } from 'node:http';
 import { randomUUID } from 'node:crypto';
 import { WEBHOOK_CALLS_PER_SESSION } from '../wallet/wallet.routes.js';
 import { notifyFollowersOfPublishedChapter } from '../interactions/new-chapter-notifications.js';
-import { submitChapterPublish } from './chapters.service.js';
+import { getChapter, submitChapterPublish } from './chapters.service.js';
+import { upsertDraftChapter } from './draft-chapters.repository.js';
+import { publishDueChapters } from './chapter-schedules.js';
+import { findReadableChapter } from '../reading/reading.repository.js';
+import { getModerationReview, listModerationReviews, resolveModerationReview } from '../content-control/content-control.service.js';
 import { createNovelSchema, NOVEL_SYNOPSIS_MIN } from './novels.schemas.js';
-import { createNovel, INITIAL_PUBLISH_MIN_CHAPTERS, submitPublish, updateNovel } from './novels.service.js';
+import { createNovel, INITIAL_PUBLISH_MIN_CHAPTERS, readNovel, submitPublish, updateNovel } from './novels.service.js';
 
 // Backend rules from docs/SRS that the SRS acceptance runner (scripts/run_srs_acceptance_e2e.py) found missing.
 describe('SRS backend rules', () => {
@@ -143,7 +147,7 @@ describe('SRS backend rules', () => {
 
   test('NOV-04 (D2): two valid chapters are needed; ARCHIVED, short or over-long-title chapters do not count', async () => {
     assert.equal(INITIAL_PUBLISH_MIN_CHAPTERS, 2);
-    const admitted = async (novelId: string) => assert.ok(['PUBLISHED', 'PENDING_MODERATION'].includes((await submitPublish(authorAuth, novelId)).status));
+    const admitted = async (novelId: string) => assert.equal((await submitPublish(authorAuth, novelId)).status, 'PENDING_MODERATION');
 
     await expectNotReady(await novel('DRAFT'), 0);
 
@@ -210,7 +214,10 @@ describe('SRS backend rules', () => {
   test('NOV-04 (D2): a novel that is already PUBLISHED is not held back by the first-publish rule', async () => {
     const published = await novel('PUBLISHED');
     const chapterId = await chapter(published, 1, longText);
-    assert.equal((await submitChapterPublish(authorAuth, chapterId)).status, 'PUBLISHED', 'a lone chapter of a published novel still publishes');
+    const submission = await submitChapterPublish(authorAuth, chapterId);
+    assert.equal(submission.status, 'PENDING_MODERATION', 'a lone chapter of a published novel enters the review queue');
+    await resolveModerationReview(adminAuth, submission.moderationReviewId!, { decision: 'APPROVED' });
+    assert.ok(await findReadableChapter(chapterId));
     await assert.rejects(submitPublish(authorAuth, published), (error: unknown) => {
       assert.ok(error instanceof AppError);
       assert.equal(error.code, 'CONTENT_004', 'a published novel is never re-admitted, so the chapter count is not applied');
@@ -218,6 +225,105 @@ describe('SRS backend rules', () => {
     });
     assert.equal((await pool.query('select status from novels where novel_id = $1', [published])).rows[0].status, 'PUBLISHED');
   });
+  test('clean novel requests are idempotent, private until approval and rechecked before publication', async () => {
+    const novelId = await novel('DRAFT');
+    const firstChapter = await chapter(novelId, 1, longText);
+    await chapter(novelId, 2, longText);
+    const [submitted, retried] = await Promise.all([submitPublish(authorAuth, novelId), submitPublish(authorAuth, novelId)]);
+    assert.equal(submitted.status, 'PENDING_MODERATION');
+    const reviewId = submitted.moderationReviewId!;
+    assert.ok(reviewId);
+    assert.equal(retried.moderationReviewId, reviewId);
+    assert.equal((await getAdminNovel(novelId)).pendingReviewId, reviewId);
+    await assert.rejects(readNovel(novelId), { code: 'CONTENT_001' });
+    await assert.rejects(updateNovel(authorAuth, novelId, { title: 'Tên chưa được duyệt' }), { code: 'CONTENT_REVIEW_PENDING' });
+    await assert.rejects(resolveModerationReview(authorAuth, reviewId, { decision: 'APPROVED' }), { httpStatus: 403 });
+
+    const queue = await listModerationReviews({ targetType: 'NOVEL', source: 'PUBLICATION_REQUEST', status: 'PENDING', page: 1, limit: 100 });
+    assert.equal(queue.data.filter(item => item.targetId === novelId).length, 1);
+    const review = await getModerationReview(reviewId, adminAuth);
+    assert.equal(review.target?.content, longText);
+    assert.ok(review.target && 'isSubmittedVersion' in review.target && review.target.isSubmittedVersion);
+    assert.deepEqual(review.evidenceSummary.matchedRules, []);
+
+    await pool.query("update chapters set status='ARCHIVED' where chapter_id=$1", [firstChapter]);
+    await assert.rejects(resolveModerationReview(adminAuth, reviewId, { decision: 'APPROVED' }), { code: 'VALIDATION_002' });
+    assert.equal((await getModerationReview(reviewId, adminAuth)).status, 'PENDING');
+    await pool.query("update chapters set status='DRAFT' where chapter_id=$1", [firstChapter]);
+    await resolveModerationReview(adminAuth, reviewId, { decision: 'APPROVED' });
+    assert.equal((await readNovel(novelId)).status, 'PUBLISHED');
+    assert.equal((await getAdminNovel(novelId)).pendingReviewId, null);
+  });
+
+  test('chapter decisions apply only the submitted revision and keep the prior public version during review', async () => {
+    const novelId = await novel('PUBLISHED');
+    const chapterId = await chapter(novelId, 1, '');
+    const draft = { chapterId, novelId, authorId: authorAuth.userId, wordCount: 95, autosave: false };
+    await upsertDraftChapter({ ...draft, title: 'Bản đầu', content: longText });
+    const draftPreview = await getChapterPreview(chapterId);
+    assert.equal(draftPreview.content, longText);
+    assert.equal(draftPreview.contentSource, 'draft');
+    assert.equal(draftPreview.pendingReviewId, null);
+
+    const original = await submitChapterPublish(authorAuth, chapterId);
+    const submittedPreview = await getChapterPreview(chapterId);
+    assert.equal(submittedPreview.content, longText);
+    assert.equal(submittedPreview.title, 'Bản đầu');
+    assert.equal(submittedPreview.contentSource, 'submitted');
+    assert.equal(submittedPreview.pendingReviewId, original.moderationReviewId);
+    assert.equal((await getAdminNovel(novelId)).chapters[0].pendingReviewId, original.moderationReviewId);
+    await resolveModerationReview(adminAuth, original.moderationReviewId!, { decision: 'APPROVED' });
+    const submittedContent = longText + 'Bản được gửi.';
+    const laterContent = longText + 'Bản chỉnh sửa sau khi gửi.';
+    await upsertDraftChapter({ ...draft, title: 'Bản sửa', content: submittedContent });
+    const revision = await submitChapterPublish(authorAuth, chapterId);
+    assert.equal(revision.status, 'PUBLISHED');
+    assert.equal((await getChapter(chapterId, authorAuth)).pendingPublicationRevision, true);
+    assert.equal((await findReadableChapter(chapterId))?.content, longText);
+    assert.equal((await getModerationReview(revision.moderationReviewId!, adminAuth)).target?.content, submittedContent);
+    await upsertDraftChapter({ ...draft, title: 'Bản sửa tiếp', content: laterContent });
+    assert.equal((await getChapterPreview(chapterId)).content, submittedContent);
+    assert.equal((await getAdminNovel(novelId)).chapters[0].pendingReviewId, revision.moderationReviewId);
+    await assert.rejects(submitChapterPublish(authorAuth, chapterId), { code: 'CONTENT_REVIEW_PENDING' });
+
+    await resolveModerationReview(adminAuth, revision.moderationReviewId!, { decision: 'REJECTED', reason: 'Cần chỉnh sửa.' });
+    assert.equal((await findReadableChapter(chapterId))?.content, longText);
+    assert.equal((await getChapter(chapterId, authorAuth)).pendingPublicationRevision, false);
+    const rejectedPreview = await getChapterPreview(chapterId);
+    assert.equal(rejectedPreview.content, longText);
+    assert.equal(rejectedPreview.pendingReviewId, null);
+
+    const resubmitted = await submitChapterPublish(authorAuth, chapterId);
+    await upsertDraftChapter({ ...draft, title: 'Bản nháp mới hơn', content: longText + 'Bản riêng tư.' });
+    await resolveModerationReview(adminAuth, resubmitted.moderationReviewId!, { decision: 'APPROVED' });
+    const approved = await findReadableChapter(chapterId);
+    assert.equal(approved?.title, 'Bản sửa tiếp');
+    assert.equal(approved?.content, laterContent);
+  });
+
+  test('a due chapter waits for admin approval and the schedule tracks the same review', async () => {
+    const novelId = await novel('PUBLISHED');
+    const chapterId = await chapter(novelId, 1, longText);
+    const draft = await upsertDraftChapter({
+      chapterId, novelId, authorId: authorAuth.userId, title: 'Chương đặt lịch', content: longText, wordCount: 95, autosave: false
+    });
+    await pool.query(
+      "insert into chapter_publication_schedules(chapter_id,scheduled_at,draft_version,status) values($1,now()-interval '1 minute',$2,'PENDING')",
+      [chapterId, draft.version]
+    );
+    const schedule = async () => (await pool.query(
+      'select status, moderation_review_id from chapter_publication_schedules where chapter_id=$1', [chapterId]
+    )).rows[0];
+    await publishDueChapters();
+    const pending = await schedule();
+    assert.equal(pending.status, 'PENDING_MODERATION');
+    assert.ok(pending.moderation_review_id);
+    assert.equal(await findReadableChapter(chapterId), null);
+    await resolveModerationReview(adminAuth, pending.moderation_review_id, { decision: 'APPROVED' });
+    assert.equal((await schedule()).status, 'PUBLISHED');
+    assert.equal((await findReadableChapter(chapterId))?.title, 'Chương đặt lịch');
+  });
+
   test('NOV-06: a chapter under 500 characters is not published', async () => {
     const novelId = await novel('PUBLISHED');
     const chapterId = await chapter(novelId, 1, 'Nội dung quá ngắn.');
@@ -239,12 +345,16 @@ describe('SRS backend rules', () => {
     await pool.query('insert into novel_follows (novel_id, user_id) values ($1, $2) on conflict do nothing', [novelId, novelFollowerId]);
     await pool.query('insert into novel_notification_subscriptions (novel_id, user_id, enabled) values ($1, $2, true)', [novelId, subscriberId]);
     const chapterId = await chapter(novelId, 1, longText);
-    const published = await submitChapterPublish(authorAuth, chapterId);
-    assert.equal(published.status, 'PUBLISHED');
+    const submission = await submitChapterPublish(authorAuth, chapterId);
+    assert.equal(submission.status, 'PENDING_MODERATION');
+    assert.equal(await findReadableChapter(chapterId), null);
     const events = async () => (await pool.query(
       "select user_id, type, payload from notification_events where payload->>'chapterId' = $1 and type in ('NEW_CHAPTER', 'NOVEL_CHAPTER_PUBLISHED')",
       [chapterId]
     )).rows;
+    assert.deepEqual(await events(), []);
+    await resolveModerationReview(adminAuth, submission.moderationReviewId!, { decision: 'APPROVED' });
+    assert.ok(await findReadableChapter(chapterId));
     const first = await events();
     const byUser = (id: string) => first.filter((row) => row.user_id === id).map((row) => row.type);
     assert.deepEqual(byUser(followerId), ['NEW_CHAPTER']);
@@ -261,7 +371,9 @@ describe('SRS backend rules', () => {
     const novelId = await novel('DRAFT');
     await pool.query('insert into follows (follower_id, author_id) values ($1, $2) on conflict do nothing', [followerId, authorAuth.userId]);
     const chapterId = await chapter(novelId, 1, longText);
-    await submitChapterPublish(authorAuth, chapterId);
+    const submission = await submitChapterPublish(authorAuth, chapterId);
+    await resolveModerationReview(adminAuth, submission.moderationReviewId!, { decision: 'APPROVED' });
+    assert.equal(await findReadableChapter(chapterId), null);
     const count = (await pool.query("select count(*)::int as n from notification_events where type = 'NEW_CHAPTER' and payload->>'chapterId' = $1", [chapterId])).rows[0].n;
     assert.equal(count, 0);
   });

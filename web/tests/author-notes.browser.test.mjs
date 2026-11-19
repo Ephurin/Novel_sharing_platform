@@ -17,22 +17,22 @@ test('author footnotes survive edits, undo, autosave and reload, then appear to 
       // A chapter must reach 500 characters before it can be published (SRS D1); the notes flow below ends in a real publish.
       const initial = '“Huynh cứ yên tâm”, nàng khẽ nói.\n\nMột câu chuyện mới bắt đầu.\n\n' + 'Gió chiều thổi qua sân, lá vàng rơi chậm trên bậc đá cũ trước hiên nhà. '.repeat(8).trim();
       assert.ok(initial.length >= 500, 'the fixture chapter is long enough to publish');
-      let saved = initial, published = initial, version = 1, patches = 0, publications = 0;
+      let saved = initial, published = initial, submitted = null, version = 1, patches = 0, submissions = 0;
       const noteBody = '“Huynh” là cách gọi anh kết nghĩa, không phải anh ruột.\nCách xưng hô này thể hiện sự kính trọng.';
       const updatedBody = noteBody + '\n<script>window.noteExecuted = true</script>';
       const chapter = content => ({ chapterId: 'chapter-1', novelId: 'novel-1', chapterNumber: 1, title: 'Cách xưng hô', status: 'DRAFT', content, isVip: false, priceCoins: 0, draftVersion: version, draft: { content, title: 'Cách xưng hô', version } });
-      const authorChapter = () => ({ ...chapter(published), status: 'PUBLISHED', draft: { content: saved, title: 'Cách xưng hô', version } });
+      const authorChapter = () => ({ ...chapter(published), status: 'PUBLISHED', pendingPublicationRevision: submitted !== null, draft: { content: saved, title: 'Cách xưng hô', version } });
       const routeApi = async route => {
         const url = new URL(route.request().url()), method = route.request().method();
         let data = [];
         if (url.pathname.endsWith('/auth/me')) data = { userId: 'author-1', username: 'author', email: 'author@example.invalid', role: 'AUTHOR', status: 'ACTIVE' };
-        else if (url.pathname.endsWith('/novels/me')) data = [{ novelId: 'novel-1', title: 'Truyện thử', status: 'DRAFT' }];
+        else if (url.pathname.endsWith('/novels/me')) data = [{ novelId: 'novel-1', title: 'Truyện thử', status: 'PUBLISHED' }];
         else if (url.pathname.endsWith('/reading/novels/novel-1')) data = { novelId: 'novel-1', title: 'Truyện thử', chapters: [chapter(published)] };
         else if (url.pathname.endsWith('/reading/chapters/chapter-1')) data = chapter(published);
         else if (url.pathname.endsWith('/novels/novel-1/chapters')) data = [authorChapter()];
-        else if (url.pathname.endsWith('/novels/novel-1')) data = { novelId: 'novel-1', authorId: 'author-1', title: 'Truyện thử', status: 'DRAFT' };
+        else if (url.pathname.endsWith('/novels/novel-1')) data = { novelId: 'novel-1', authorId: 'author-1', title: 'Truyện thử', status: 'PUBLISHED' };
         else if (url.pathname.endsWith('/chapters/chapter-1/revisions/snapshot')) data = { revisionId: 'revision-1', contentHash: 'test-hash', content: saved };
-        else if (url.pathname.endsWith('/chapters/chapter-1/submit-publish')) { publications++; published = saved; data = { chapterId: 'chapter-1', status: 'PUBLISHED', moderationRequired: false }; }
+        else if (url.pathname.endsWith('/chapters/chapter-1/submit-publish')) { submissions++; submitted = saved; data = { chapterId: 'chapter-1', status: 'PUBLISHED', moderationRequired: true }; }
         else if (url.pathname.endsWith('/chapters/chapter-1')) {
           if (method === 'PATCH') { const payload = route.request().postDataJSON(); assert.equal(payload.expectedVersion, version); saved = payload.content; version++; patches++; }
           data = authorChapter();
@@ -66,7 +66,7 @@ test('author footnotes survive edits, undo, autosave and reload, then appear to 
         await page.keyboard.press('Control+z'); await expect(canonical).toHaveValue(initial);
         await page.keyboard.press('Control+Shift+z'); await expect(canonical).toHaveValue(withNote);
         await page.keyboard.press('Control+s'); await expect.poll(() => saved).toBe(withNote);
-        await expect(notes.getByRole('status', { name: 'Trạng thái công khai chú thích', exact: true })).toContainText('cần xuất bản phiên bản mới');
+        await expect(notes.getByRole('status', { name: 'Trạng thái công khai chú thích', exact: true })).toContainText('hãy gửi duyệt phiên bản mới');
         await expect(notes.getByText('Chưa có trên bản công khai', { exact: true })).toBeVisible();
         const id = /\[\^(author-[\w-]+)\]/.exec(saved)[1];
         if (profile.mode === 'visual') {
@@ -118,11 +118,18 @@ test('author footnotes survive edits, undo, autosave and reload, then appear to 
           await reader.goto(`${base}/public/chapters/chapter-1`);
           await expect(reader.locator('.chapter-prose')).toBeVisible();
           await expect(reader.locator('.sc-author-note-reference')).toHaveCount(0);
-          assert.equal(publications, 0, 'saving and previewing a note must not publish the draft');
-          await notes.getByRole('button', { name: 'Xuất bản phiên bản mới', exact: true }).click();
-          await page.getByRole('button', { name: 'Xuất bản chương', exact: true }).click();
-          await expect.poll(() => publications).toBe(1);
-          await expect(notes.getByRole('status', { name: 'Trạng thái công khai chú thích', exact: true })).toHaveAttribute('data-published', 'true');
+          assert.equal(submissions, 0, 'saving and previewing a note must not submit the draft');
+          await notes.getByRole('button', { name: 'Gửi duyệt phiên bản mới', exact: true }).click();
+          await page.getByRole('button', { name: 'Gửi duyệt chương', exact: true }).click();
+          await expect.poll(() => submissions).toBe(1);
+          const noteStatus = notes.getByRole('status', { name: 'Trạng thái công khai chú thích', exact: true });
+          await expect(noteStatus).toContainText('đang chờ duyệt');
+          await reader.reload();
+          await expect(reader.locator('.chapter-prose')).toBeVisible();
+          await expect(reader.locator('.sc-author-note-reference')).toHaveCount(0);
+
+          published = submitted;
+          submitted = null;
           await reader.reload();
           const reference = reader.getByRole('button', { name: 'Chú thích 1 của tác giả', exact: true });
           await expect(reference).toBeVisible(); await reference.click();

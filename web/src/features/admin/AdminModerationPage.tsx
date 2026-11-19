@@ -18,7 +18,7 @@ import {
 import { ErrorState, LoadingState } from '../../shared/components/PageStates';
 
 export function AdminModerationPage({ reports = false }: { reports?: boolean }) {
-  const urlFilters = useUrlFilters({ targetType: '', status: 'PENDING', source: '', page: 1 }, { targetType: ['', 'NOVEL', 'CHAPTER', 'COMMENT', 'USER'], status: ['', 'PENDING', 'APPROVED', 'REJECTED', 'REVISION_REQUIRED'], source: ['', 'KEYWORD_FILTER', 'USER_REPORT'] });
+  const urlFilters = useUrlFilters({ targetType: '', status: 'PENDING', source: '', page: 1 }, { targetType: ['', 'NOVEL', 'CHAPTER', 'COMMENT', 'USER'], status: ['', 'PENDING', 'APPROVED', 'REJECTED', 'REVISION_REQUIRED'], source: ['', 'PUBLICATION_REQUEST', 'KEYWORD_FILTER', 'USER_REPORT'] });
   const [targetType, setTargetType] = urlFilters.field('targetType');
   const [status, setStatus] = urlFilters.field('status');
   const [source, setSource] = urlFilters.field('source');
@@ -75,7 +75,7 @@ export function AdminModerationPage({ reports = false }: { reports?: boolean }) 
             <span className="admin-muted">Nguồn: Báo cáo người dùng</span>
           ) : (
             <Select comboboxProps={{ withinPortal: false }}               label="Nguồn"
-              data={options(['KEYWORD_FILTER', 'USER_REPORT'], 'Tất cả nguồn')}
+              data={options(['PUBLICATION_REQUEST', 'KEYWORD_FILTER', 'USER_REPORT'], 'Tất cả nguồn')}
               value={source}
               onChange={(v) => {
                 setSource(v ?? '');

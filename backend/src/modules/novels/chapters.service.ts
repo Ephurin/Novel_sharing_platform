@@ -8,15 +8,15 @@ import { getPostgresPool } from '../../core/database/postgres.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { checkContent } from '../content-control/content-control.service.js';
-import { CHAPTER_CONTENT_MIN, type CreateChapterInput, type UpdateChapterInput } from './chapters.schemas.js';
-import { notifyFollowersOfPublishedChapter } from '../interactions/new-chapter-notifications.js';
+import { CHAPTER_CONTENT_MIN, CHAPTER_TITLE_MAX, type CreateChapterInput, type UpdateChapterInput } from './chapters.schemas.js';
+import { findNovelById } from './novels.repository.js';
 import {
   createChapter as createChapterRow,
   findChapterById,
   getNextChapterNumber,
   listChaptersByNovelId,
+  listPendingChapterRevisions,
   listPublicationSchedules,
-  publishChapter,
   submitChapterForPublish,
   updateChapterMetadata,
   touchChapterUpdatedAt,
@@ -121,8 +121,14 @@ export async function listChapters(novelId: string, auth?: AuthContext) {
   const novel = await readNovel(novelId, auth);
   const rows = await listChaptersByNovelId(novelId);
   if (auth && (auth.userId === novel.authorId || isContentAdmin(auth))) {
-    const schedules = await listPublicationSchedules(novelId);
-    return rows.map(chapter => ({ ...chapter, publicationSchedule: schedules.get(chapter.chapterId) ?? null }));
+    const [schedules, pendingRevisions] = await Promise.all([
+      listPublicationSchedules(novelId), listPendingChapterRevisions(novelId)
+    ]);
+    return rows.map(chapter => ({
+      ...chapter,
+      publicationSchedule: schedules.get(chapter.chapterId) ?? null,
+      pendingPublicationRevision: pendingRevisions.has(chapter.chapterId)
+    }));
   }
   return rows.filter(chapter => chapter.status === 'PUBLISHED').map(({ publicationSchedule: _schedule, ...chapter }) => ({ ...chapter, content: null }));
 }
@@ -137,11 +143,16 @@ export async function getChapter(chapterId: string, auth: AuthContext) {
 
   const novel = await getNovel(chapter.novelId);
   assertOwner(novel, auth);
-  const draft = await findDraftChapterByChapterId(chapterId);
+  const [draft, schedules, pendingRevisions] = await Promise.all([
+    findDraftChapterByChapterId(chapterId),
+    listPublicationSchedules(chapter.novelId),
+    chapter.status === 'PUBLISHED' ? listPendingChapterRevisions(chapter.novelId) : null
+  ]);
 
   return {
     ...chapter,
-    publicationSchedule: (await listPublicationSchedules(chapter.novelId)).get(chapterId) ?? null,
+    publicationSchedule: schedules.get(chapterId) ?? null,
+    pendingPublicationRevision: pendingRevisions?.has(chapterId) ?? false,
     draft: draft
       ? {
           title: draft.title,
@@ -179,13 +190,7 @@ async function updateChapterUnderLease(auth: AuthContext, chapterId: string, inp
     throw new AppError(404, 'CONTENT_001', 'Content not found');
   }
 
-  const isPublishedPricingOnlyUpdate =
-    chapter.status === 'PUBLISHED' &&
-    (input.isVip !== undefined || input.priceCoins !== undefined) &&
-    input.title === undefined &&
-    input.content === undefined;
-
-  if (!['DRAFT', 'REJECTED', 'PENDING_MODERATION', 'PUBLISHED'].includes(chapter.status) && !isPublishedPricingOnlyUpdate) {
+  if (!['DRAFT', 'REJECTED', 'PENDING_MODERATION', 'PUBLISHED'].includes(chapter.status)) {
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');
   }
 
@@ -208,8 +213,7 @@ async function updateChapterUnderLease(auth: AuthContext, chapterId: string, inp
   }
   assertPremiumPricing({ isVip: nextIsVip, priceCoins: nextPriceCoins });
 
-  const isPublishedDraftUpdate =
-    chapter.status === 'PUBLISHED' && (input.title !== undefined || input.content !== undefined) && !isPublishedPricingOnlyUpdate;
+  const editingText = input.title !== undefined || input.content !== undefined;
 
   let draft = existingDraft;
 
@@ -229,30 +233,23 @@ async function updateChapterUnderLease(auth: AuthContext, chapterId: string, inp
     });
   }
 
-  const sameMetadata = samePricing && (isPublishedDraftUpdate ||
+  const sameMetadata = samePricing && ((chapter.status === 'PUBLISHED' && editingText) ||
     ((input.title === undefined || input.title === chapter.title) && wordCount === chapter.wordCount));
   const updatedChapter = sameDraft && sameMetadata ? chapter : await withPostgresTransaction(async client => {
-    await client.query('select chapter_id from chapters where chapter_id = $1 for update', [chapterId]);
-
-    if (input.title !== undefined || input.content !== undefined) {
+    const current = (await client.query(
+      'select status from chapters where chapter_id=$1 and deleted_at is null for update', [chapterId]
+    )).rows[0];
+    if (editingText) {
       await client.query("update chapter_publication_schedules set status='CANCELLED', error='Bản thảo đã thay đổi; hãy đặt lịch lại.', updated_at=now() where chapter_id=$1 and status='PENDING'", [chapterId]);
-      if (isPublishedDraftUpdate) await touchChapterUpdatedAt(chapterId, client);
+      if (current?.status === 'PUBLISHED') await touchChapterUpdatedAt(chapterId, client);
     }
 
     let updated;
-    if (isPublishedDraftUpdate) {
-      updated =
-        input.isVip !== undefined || input.priceCoins !== undefined
-          ? await updateChapterPricing(chapterId, {
-              isVip: nextIsVip,
-              priceCoins: nextPriceCoins
-            }, client)
-          : chapter;
-    } else if (isPublishedPricingOnlyUpdate) {
-      updated = await updateChapterPricing(chapterId, {
-        isVip: nextIsVip,
-        priceCoins: nextPriceCoins
-      }, client);
+    if (current?.status === 'PUBLISHED') {
+      // Approval can commit while MongoDB saves a newer draft. Keep its title and prose private.
+      updated = input.isVip !== undefined || input.priceCoins !== undefined
+        ? await updateChapterPricing(chapterId, { isVip: nextIsVip, priceCoins: nextPriceCoins }, client)
+        : await findChapterById(chapterId, client);
     } else {
       updated = await updateChapterMetadata(chapterId, {
         title: input.title,
@@ -290,18 +287,25 @@ async function updateChapterUnderLease(auth: AuthContext, chapterId: string, inp
   };
 }
 
-export async function submitChapterPublish(auth: AuthContext, chapterId: string, client?: PoolClient): Promise<{ chapterId: string; status: string; moderationRequired: boolean; moderationReviewId: string | null }> {
+export async function submitChapterPublish(
+  auth: AuthContext,
+  chapterId: string,
+  client?: PoolClient,
+  expectedDraftVersion?: number
+) {
   if (!client) return withPostgresTransaction(async transaction => {
     await transaction.query('select chapter_id from chapters where chapter_id=$1 for update', [chapterId]);
-    return submitChapterPublish(auth, chapterId, transaction);
+    return submitChapterPublishLocked(auth, chapterId, transaction, expectedDraftVersion);
   });
-  const chapter = await findChapterById(chapterId);
+  return submitChapterPublishLocked(auth, chapterId, client, expectedDraftVersion);
+}
 
-  if (!chapter) {
-    throw new AppError(404, 'CONTENT_001', 'Content not found');
-  }
+async function submitChapterPublishLocked(auth: AuthContext, chapterId: string, client: PoolClient, expectedDraftVersion?: number) {
+  const chapter = await findChapterById(chapterId, client);
+  if (!chapter) throw new AppError(404, 'CONTENT_001', 'Content not found');
 
-  const novel = await getNovel(chapter.novelId);
+  const novel = await findNovelById(chapter.novelId, client);
+  if (!novel) throw new AppError(404, 'CONTENT_001', 'Content not found');
   assertOwner(novel, auth);
 
   if (!['DRAFT', 'REJECTED', 'PENDING_MODERATION', 'PUBLISHED'].includes(chapter.status)) {
@@ -309,12 +313,19 @@ export async function submitChapterPublish(auth: AuthContext, chapterId: string,
   }
 
   const draft = await findDraftChapterByChapterId(chapterId);
+  if (expectedDraftVersion !== undefined && draft?.version !== expectedDraftVersion) {
+    throw new AppError(409, 'DRAFT_CONFLICT', 'Bản thảo đã thay đổi; hãy đặt lịch lại');
+  }
   const publishTitle = draft?.title ?? chapter.title;
   const publishContent = draft?.content ?? chapter.content;
   const publishWordCount = draft?.wordCount ?? chapter.wordCount;
 
   if (!publishContent) {
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');
+  }
+
+  if (!publishTitle.trim() || publishTitle.length > CHAPTER_TITLE_MAX) {
+    throw new AppError(422, 'CONTENT_003', `Tiêu đề chương cần từ 1 tới ${CHAPTER_TITLE_MAX} ký tự.`);
   }
 
   const contentLength = publishContent.trim().length;
@@ -328,32 +339,14 @@ export async function submitChapterPublish(auth: AuthContext, chapterId: string,
     targetId: chapter.chapterId,
     content: `${publishTitle}\n\n${publishContent}`,
     submittedBy: auth.userId,
+    publicationRequest: true,
     publicationSnapshot: { title: publishTitle, content: publishContent, wordCount: publishWordCount }
   }, client);
 
   await client.query("update chapter_publication_schedules set status='CANCELLED', error='Đã gửi phát hành thủ công.', updated_at=now() where chapter_id=$1 and status='PENDING'", [chapterId]);
-  if (!moderation.moderationRequired) {
-    const publishedChapter = await publishChapter(chapterId, {
-      title: publishTitle,
-      content: publishContent,
-      wordCount: publishWordCount
-    }, client);
-
-    if (!publishedChapter) {
-      throw new AppError(409, 'CONTENT_004', 'Invalid content state');
-    }
-
-    await client.query("update chapter_publication_schedules set status='CANCELLED', error='Đã phát hành phiên bản mới thủ công.', updated_at=now() where chapter_id=$1 and status='PENDING_MODERATION'", [chapterId]);
-    await notifyFollowersOfPublishedChapter(client, chapterId);
-    return {
-      chapterId: publishedChapter.chapterId,
-      status: publishedChapter.status,
-      moderationRequired: false,
-      moderationReviewId: null
-    };
-  }
-
-  const updatedChapter = chapter.status === 'PENDING_MODERATION' ? chapter : await submitChapterForPublish(chapterId, client);
+  const updatedChapter = chapter.status === 'PENDING_MODERATION' || chapter.status === 'PUBLISHED'
+    ? chapter
+    : await submitChapterForPublish(chapterId, client);
   if (!updatedChapter) {
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');
   }

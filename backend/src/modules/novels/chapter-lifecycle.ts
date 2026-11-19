@@ -5,7 +5,7 @@ import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { successResponse } from '../../core/response/response.js';
 import { getNovel } from './novels.service.js';
-import { findChapterById } from './chapters.repository.js';
+import { findChapterById, listPendingChapterRevisions } from './chapters.repository.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { aiGatewayService } from '../ai/ai-gateway.service.js';
 import { logger } from '../../core/logger/logger.js';
@@ -36,7 +36,10 @@ export const chapterLifecycleController: RequestHandler = async (req, res, next)
       await client.query('select novel_id from novels where novel_id = $1 for update', [chapter.novelId]);
       const current = (await client.query('select status from chapters where chapter_id = $1 and deleted_at is null for update', [id])).rows[0];
       if (!current) throw new AppError(404, 'CONTENT_001', 'Chapter not found');
-      if (action === 'archive' && current.status === 'PENDING_MODERATION') throw new AppError(409, 'CONTENT_REVIEW_PENDING', 'Chương đang chờ kiểm duyệt; hãy chờ kết quả trước khi lưu trữ');
+      if (action === 'archive' && (current.status === 'PENDING_MODERATION' ||
+          (current.status === 'PUBLISHED' && (await listPendingChapterRevisions(chapter.novelId, client)).has(id)))) {
+        throw new AppError(409, 'CONTENT_REVIEW_PENDING', 'Chương đang chờ kiểm duyệt; hãy chờ kết quả trước khi lưu trữ');
+      }
       if (action === 'restore' && current.status !== 'ARCHIVED') throw new AppError(409, 'CONTENT_004', 'Chỉ khôi phục chương đã lưu trữ');
       if (action !== 'restore') {
         const paid = await client.query('select 1 from chapter_unlocks where chapter_id = $1 limit 1', [id]);

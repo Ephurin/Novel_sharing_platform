@@ -499,7 +499,7 @@ test(
           for (const rule of review.evidenceSummary.matchedRules)
             await page.locator('.admin-evidence-list').getByText(rule, { exact: true }).waitFor();
           await page.getByText(review.evidenceSummary.summary, { exact: true }).waitFor();
-          await page.getByRole('button', { name: 'Duyệt nội dung', exact: true }).click();
+          await page.getByRole('button', { name: 'Duyệt xuất bản', exact: true }).click();
           await page
             .getByRole('dialog')
             .getByText('Duyệt xuất bản nội dung theo phiên bản đang được kiểm duyệt.', {
@@ -509,8 +509,31 @@ test(
           await page.getByRole('button', { name: 'Xác nhận xử lý', exact: true }).click();
           await page.waitForFunction(() => !document.querySelector('[role="dialog"]'));
           assert.equal((await api(`/admin/novels/${id('novel:2')}`)).data.status, 'PUBLISHED');
+          const author = (await api('/auth/login', {
+            method: 'POST', body: { identifier: 'admin_seed_1', password: 'AdminDemo@2026' }
+          })).data.accessToken;
+          const title = 'Chương mới cần admin duyệt';
+          const contentText = 'Đoạn văn dùng để kiểm thử bước duyệt cuối của chương mới. '.repeat(12);
+          const chapter = (await api(`/novels/${id('novel:1')}/chapters`, {
+            method: 'POST', auth: author, status: 201, body: { title, content: contentText }
+          })).data;
+          const submission = (await api(`/chapters/${chapter.chapterId}/submit-publish`, {
+            method: 'POST', auth: author,
+          })).data;
+          assert.equal(submission.status, 'PENDING_MODERATION');
+          await api(`/reading/chapters/${chapter.chapterId}`, { auth: null, status: 404 });
+          await goto('/admin/moderation?source=PUBLICATION_REQUEST');
+          const row = page.getByTestId(`moderation-review-card-${submission.moderationReviewId}`);
+          await row.getByText(title, { exact: true }).waitFor();
+          await row.getByText('Yêu cầu xuất bản', { exact: true }).waitFor();
+          await row.getByRole('link', { name: 'Chi tiết →' }).click();
+          assert.equal((await page.locator('#admin-review-content').innerText()).trim(), contentText.trim());
+          await page.getByRole('button', { name: 'Duyệt xuất bản', exact: true }).click();
+          await page.getByRole('button', { name: 'Xác nhận xử lý', exact: true }).click();
+          await page.waitForFunction(() => !document.querySelector('[role="dialog"]'));
+          assert.equal((await api(`/reading/chapters/${chapter.chapterId}`, { auth: null })).data.content, contentText);
           checks.push(
-            'Full reported text and available evidence remain accessible; keyword approval publishes submitted novel'
+            'Admin reviews flagged novels and clean chapters, and publishes the submitted version'
           );
         }
       );

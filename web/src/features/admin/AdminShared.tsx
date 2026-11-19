@@ -59,6 +59,7 @@ export const labels: Record<string, string> = {
   GENRE: 'Thể loại',
   TAG: 'Tag',
   KEYWORD_FILTER: 'Từ khóa',
+  PUBLICATION_REQUEST: 'Yêu cầu xuất bản',
   USER_REPORT: 'Báo cáo người dùng',
   SUCCESS: 'Thành công',
   FAILED: 'Đã từ chối',

@@ -65,11 +65,11 @@ export async function publishDueChapters() {
         try {
           if (schedule.deleted_at || schedule.novel_deleted || schedule.user_status !== 'ACTIVE' || !['AUTHOR','ADMIN'].includes(schedule.role)) throw new AppError(409, 'SCHEDULE_ACCOUNT', 'Tác giả hoặc nội dung không còn hoạt động');
           if (schedule.novel_status !== 'PUBLISHED' || !['DRAFT','REJECTED'].includes(schedule.chapter_status)) throw new AppError(409, 'SCHEDULE_STATE', 'Trạng thái tác phẩm hoặc chương đã thay đổi');
-          const draft = await findDraftChapterByChapterId(schedule.chapter_id);
-          if (!draft || draft.version !== schedule.draft_version) throw new AppError(409, 'DRAFT_CONFLICT', 'Bản thảo đã thay đổi; hãy đặt lịch lại');
-          const published = await submitChapterPublish({ userId: schedule.author_id, role: schedule.role }, schedule.chapter_id, client);
-          status = published.moderationRequired ? 'PENDING_MODERATION' : 'PUBLISHED';
-          reviewId = published.moderationReviewId;
+          const submission = await submitChapterPublish(
+            { userId: schedule.author_id, role: schedule.role }, schedule.chapter_id, client, schedule.draft_version
+          );
+          status = 'PENDING_MODERATION';
+          reviewId = submission.moderationReviewId;
         } catch (cause) {
           if (!(cause instanceof AppError)) throw cause;
           // A handled domain failure must not commit partial moderation writes.
@@ -79,7 +79,7 @@ export async function publishDueChapters() {
         await client.query(`update chapter_publication_schedules set status=$2,error=$3,moderation_review_id=$4,updated_at=now() where chapter_id=$1`, [schedule.chapter_id,status,error,reviewId]);
         await enqueueNotification(client, {
           eventKey: 'schedule:' + schedule.schedule_id, userId: schedule.author_id, type: 'CHAPTER_SCHEDULE',
-          title: status === 'PUBLISHED' ? 'Chương đã đăng theo lịch' : status === 'PENDING_MODERATION' ? 'Chương theo lịch đang chờ duyệt' : 'Chương chưa thể đăng theo lịch',
+          title: status === 'PENDING_MODERATION' ? 'Chương theo lịch đang chờ admin duyệt' : 'Chương chưa thể gửi duyệt theo lịch',
           content: error ?? 'Mở tác phẩm để xem trạng thái chương.', payload: { href: '/author/novels/' + schedule.novel_id }
         });
         return true;
