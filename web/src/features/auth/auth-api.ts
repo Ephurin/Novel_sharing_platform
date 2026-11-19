@@ -11,6 +11,16 @@ export async function register(input: { email: string; username: string; passwor
   return response.data.data;
 }
 
+export async function getGoogleChallenge() {
+  const response = await apiClient.post<ApiEnvelope<{ clientId: string; nonce: string } | null>>('/auth/google/challenge');
+  return response.data.data;
+}
+
+export async function loginWithGoogle(credential: string, password?: string) {
+  const response = await apiClient.post<ApiEnvelope<AuthSession>>('/auth/google', { credential, password });
+  return response.data.data;
+}
+
 export async function getCurrentUser() {
   const response = await apiClient.get<ApiEnvelope<AuthUser>>('/auth/me');
   return response.data.data;

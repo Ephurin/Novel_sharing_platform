@@ -1,17 +1,21 @@
 import { promoteReaderToAuthor } from './auth.repository.js';
 import bcrypt from 'bcryptjs';
-import { createHash, randomUUID } from 'node:crypto';
+import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import jwt from 'jsonwebtoken';
+import type { PoolClient } from 'pg';
 import { env } from '../../core/config/env.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import {
+  consumeGoogleChallenge,
   createRefreshToken,
   createUserAccount,
   findAuthUserByEmailOrUsername,
   findAuthUserById,
+  findGoogleAccount,
   findValidRefreshToken,
+  linkGoogleAccount,
   revokeRefreshToken,
   updateLastLoginAt,
   updatePasswordHash
@@ -79,19 +83,18 @@ function getRefreshExpiryDate() {
   return expiresAt;
 }
 
-async function issueTokenPair(user: AuthUser) {
+async function issueTokenPair(user: AuthUser, client?: PoolClient) {
   const accessToken = createAccessToken(user);
   const refreshToken = createRefreshJwt(user);
   const tokenHash = hashToken(refreshToken);
   const expiresAt = getRefreshExpiryDate();
 
-  await withPostgresTransaction(async (client) => {
-    await createRefreshToken(client, {
-      userId: user.userId,
-      tokenHash,
-      expiresAt
-    });
+  const persist = (sessionClient: PoolClient) => createRefreshToken(sessionClient, {
+    userId: user.userId,
+    tokenHash,
+    expiresAt
   });
+  await (client ? persist(client) : withPostgresTransaction(persist));
 
   return {
     accessToken,
@@ -162,6 +165,64 @@ export async function login(input: LoginInput) {
     user: toPublicUser(user),
     ...tokens
   };
+}
+
+function googleLinkRequired() {
+  return new AppError(409, 'AUTH_GOOGLE_LINK_REQUIRED', 'Email này đã có tài khoản StoryCraft. Nhập mật khẩu StoryCraft để liên kết với Google.');
+}
+
+export async function loginWithGoogle(input: {
+  subject: string;
+  email: string;
+  displayName?: string;
+  nonce: string;
+  expiresAt: Date;
+  password?: string;
+}) {
+  try {
+    return await withPostgresTransaction(async (client) => {
+      // Concurrent sign-ins for the same Google identity must reuse the same StoryCraft account.
+      await client.query("select pg_advisory_xact_lock(hashtextextended('auth:google:' || $1, 0))", [input.subject]);
+      if (!(await consumeGoogleChallenge(client, input.nonce, input.expiresAt))) {
+        throw new AppError(401, 'AUTH_GOOGLE_CHALLENGE', 'Phiên đăng nhập Google đã hết hạn. Hãy thử lại.');
+      }
+      const account = await findGoogleAccount(client, input.subject, input.email);
+      let user: AuthUser;
+      if (!account) {
+        const prefix = input.email.split('@')[0].replace(/[^a-z0-9_]/g, '_').slice(0, 32);
+        user = await createUserAccount(client, {
+          email: input.email,
+          username: `${prefix}_${randomBytes(6).toString('hex')}`,
+          displayName: input.displayName || prefix,
+          passwordHash: null,
+          googleSubject: input.subject
+        });
+      } else {
+        user = account.user;
+        if (account.deleted || user.status !== 'ACTIVE') {
+          throw new AppError(403, 'AUTH_GOOGLE_INACTIVE', 'Tài khoản StoryCraft này hiện không hoạt động.');
+        }
+        if (!account.matchesGoogle) {
+          if (account.hasProvider || !user.passwordHash) {
+            throw new AppError(409, 'AUTH_GOOGLE_LINK_CONFLICT', 'Email này đã được sử dụng bởi một phương thức đăng nhập khác.');
+          }
+          if (!input.password) throw googleLinkRequired();
+          if (!(await bcrypt.compare(input.password, user.passwordHash))) {
+            throw new AppError(401, 'AUTH_GOOGLE_LINK_PASSWORD', 'Mật khẩu StoryCraft không chính xác.');
+          }
+          await linkGoogleAccount(client, user.userId, input.subject);
+        }
+      }
+
+      await updateLastLoginAt(user.userId, client);
+      return { user: toPublicUser(user), ...await issueTokenPair(user, client) };
+    });
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'constraint' in error && error.constraint === 'users_email_key') {
+      throw googleLinkRequired();
+    }
+    throw error;
+  }
 }
 
 export async function refreshAccessToken(refreshToken: string | undefined) {

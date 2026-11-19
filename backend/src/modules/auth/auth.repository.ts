@@ -53,25 +53,28 @@ export async function createUserAccount(
   input: {
     email: string;
     username: string;
-    passwordHash: string;
+    passwordHash: string | null;
+    displayName?: string;
+    googleSubject?: string;
   }
 ) {
   const userResult = await client.query(
     `
-      insert into users (email, username, password_hash, role, status)
-      values ($1, $2, $3, 'READER', 'ACTIVE')
+      insert into users (email, username, password_hash, role, status, oauth_provider, oauth_subject)
+      values ($1, $2, $3, 'READER', 'ACTIVE', $4, $5)
       returning *
     `,
-    [input.email.toLowerCase(), input.username, input.passwordHash]
+    [input.email.toLowerCase(), input.username, input.passwordHash, input.googleSubject ? 'google' : null, input.googleSubject ?? null]
   );
   const user = userResult.rows[0];
+  const displayName = input.displayName || input.username;
 
   await client.query(
     `
       insert into user_profiles (user_id, display_name)
       values ($1, $2)
     `,
-    [user.user_id, input.username]
+    [user.user_id, displayName]
   );
 
   await client.query(
@@ -84,13 +87,13 @@ export async function createUserAccount(
 
   return mapAuthUser({
     ...user,
-    display_name: input.username,
+    display_name: displayName,
     avatar_url: null
   });
 }
 
-export async function updateLastLoginAt(userId: string) {
-  await getPostgresPool().query(
+export async function updateLastLoginAt(userId: string, client?: DbClient) {
+  await (client ?? getPostgresPool()).query(
     `
       update users
       set last_login_at = now(), updated_at = now()
@@ -98,6 +101,41 @@ export async function updateLastLoginAt(userId: string) {
     `,
     [userId]
   );
+}
+
+export async function findGoogleAccount(client: DbClient, subject: string, email: string) {
+  const result = await client.query(
+    `select u.*, p.display_name, p.avatar_url
+     from users u left join user_profiles p on p.user_id = u.user_id
+     where (u.oauth_provider = 'google' and u.oauth_subject = $1) or lower(u.email) = $2
+     order by coalesce(u.oauth_provider = 'google' and u.oauth_subject = $1, false) desc,
+              (u.email = $2) desc, u.user_id
+     limit 1 for update of u`,
+    [subject, email]
+  );
+  const row = result.rows[0];
+  return row ? {
+    user: mapAuthUser(row),
+    deleted: row.deleted_at !== null,
+    hasProvider: Boolean(row.oauth_provider || row.oauth_subject),
+    matchesGoogle: row.oauth_provider === 'google' && row.oauth_subject === subject
+  } : null;
+}
+
+export async function linkGoogleAccount(client: DbClient, userId: string, subject: string) {
+  await client.query(
+    "update users set oauth_provider = 'google', oauth_subject = $2 where user_id = $1",
+    [userId, subject]
+  );
+}
+
+export async function consumeGoogleChallenge(client: DbClient, nonce: string, expiresAt: Date) {
+  await client.query('delete from consumed_google_challenges where expires_at <= now()');
+  const result = await client.query(
+    'insert into consumed_google_challenges (nonce, expires_at) select $1, $2::timestamptz where $2 > now() on conflict do nothing',
+    [nonce, expiresAt]
+  );
+  return result.rowCount === 1;
 }
 
 export async function updatePasswordHash(userId: string, passwordHash: string) {

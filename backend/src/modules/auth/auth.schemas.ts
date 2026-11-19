@@ -22,6 +22,13 @@ export const loginSchema = z.object({
   })
 });
 
+export const googleLoginSchema = z.object({
+  body: z.object({
+    credential: z.string().min(1).max(16384),
+    password: z.string().min(1).max(1024).optional()
+  })
+});
+
 export const changePasswordSchema = z.object({
   body: z.object({
     currentPassword: z.string().min(1),

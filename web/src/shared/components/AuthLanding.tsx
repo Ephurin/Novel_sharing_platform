@@ -4,6 +4,8 @@ import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { useId, useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { login, register } from '../../features/auth/auth-api';
+import type { AuthSession } from '../../features/auth/auth-types';
+import { GoogleSignIn } from '../../features/auth/GoogleSignIn';
 import { useAuthStore } from '../../features/auth/useAuthStore';
 import { getApiErrorMessage } from '../api/api-client';
 import { useStoryCraftAutoAnimate } from '../hooks/useStoryCraftAutoAnimate';
@@ -21,18 +23,21 @@ export function AuthLanding() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [googleBusy, setGoogleBusy] = useState(false);
   const reduce = useReducedMotion();
   const tabGroupId = useId();
   const fieldsRef = useStoryCraftAutoAnimate<HTMLDivElement>();
 
+  const handleSession = (session: AuthSession) => {
+    setError(null);
+    setSession(session);
+    queryClient.setQueryData(['auth', 'me'], session.user);
+    navigate(getRoleHome(session.user.role), { replace: true });
+  };
+
   const authMutation = useMutation({
     mutationFn: () => (mode === 'login' ? login({ identifier: email, password }) : register({ email, username, password })),
-    onSuccess: (session) => {
-      setError(null);
-      setSession(session);
-      queryClient.setQueryData(['auth', 'me'], session.user);
-      navigate(getRoleHome(session.user.role), { replace: true });
-    },
+    onSuccess: handleSession,
     onError: (caughtError) => {
       setError(getApiErrorMessage(caughtError));
     }
@@ -49,7 +54,7 @@ export function AuthLanding() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!authMutation.isPending) authMutation.mutate();
+    if (!authMutation.isPending && !googleBusy) authMutation.mutate();
   };
 
   return (
@@ -155,11 +160,13 @@ export function AuthLanding() {
               onChange={(event) => setPassword(event.currentTarget.value)}
             />
             {error ? <Alert color="red" role="alert">{error}</Alert> : null}
-            <Button type="submit" loading={authMutation.isPending} fullWidth mt={4}>
+            <Button type="submit" loading={authMutation.isPending} disabled={googleBusy} fullWidth mt={4}>
               {mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}
             </Button>
           </Stack>
         </form>
+
+        <GoogleSignIn blocked={authMutation.isPending} onBusyChange={setGoogleBusy} onSession={handleSession} />
 
         <Stack gap="xs" mt="md" pt="md" className="border-t border-stone-200/80">
           <Button variant="light" fullWidth onClick={() => navigate('/public')}>

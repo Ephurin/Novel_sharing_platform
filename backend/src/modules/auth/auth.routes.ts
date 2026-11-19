@@ -3,16 +3,20 @@ import { Router, type RequestHandler } from 'express';
 import { z } from 'zod';
 import { AppError } from '../../core/errors/app-error.js';
 import { requireAuth } from '../../core/security/auth.middleware.js';
+import { rateLimit } from '../../core/security/rate-limit.js';
 import { validateRequest } from '../../core/validation/validate.js';
 import {
   changePasswordController,
+  googleChallengeController,
+  googleLoginController,
   loginController,
   logoutController,
   meController,
   refreshTokenController,
-  registerController
+  registerController,
+  requireGoogleOrigin
 } from './auth.controller.js';
-import { changePasswordSchema, loginSchema, registerSchema } from './auth.schemas.js';
+import { changePasswordSchema, googleLoginSchema, loginSchema, registerSchema } from './auth.schemas.js';
 
 export const authRoutes = Router();
 
@@ -28,6 +32,10 @@ const rejectInvalidEmail: RequestHandler = (request, _response, next) => {
 
 authRoutes.post('/register', rejectInvalidEmail, validateRequest(registerSchema), registerController);
 authRoutes.post('/login', validateRequest(loginSchema), loginController);
+authRoutes.post('/google/challenge', requireGoogleOrigin, googleChallengeController);
+authRoutes.post('/google', requireGoogleOrigin,
+  rateLimit({ scope: 'google-login', max: 60, windowMs: 60000 }),
+  validateRequest(googleLoginSchema), googleLoginController);
 authRoutes.post('/refresh-token', refreshTokenController);
 authRoutes.post('/logout', requireAuth, logoutController);
 authRoutes.get('/me', requireAuth, meController);
