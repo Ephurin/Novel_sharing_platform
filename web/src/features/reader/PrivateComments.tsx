@@ -1,4 +1,4 @@
-import { Alert, Avatar, Button, Group, Menu, Pagination, Select, Stack, Text, Title } from '@mantine/core';
+import { Alert, Avatar, Button, Group, Menu, Pagination, Stack, Text, Title } from '@mantine/core';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
@@ -81,15 +81,15 @@ export function useChapterDiscussions(chapter: ReaderChapter) {
   });
 }
 
-export function useChapterAuthorFeedback(chapter?: ReaderChapter, enabled = true) {
+export function useChapterAuthorFeedback(chapter: ReaderChapter) {
   const account = useAuthStore(s => s.user?.userId);
   return useQuery({
-    queryKey: ['private-comments', account, 'chapter-author-feedback', chapter?.chapterId, chapter?.contentVersion],
-    enabled: Boolean(enabled && account && chapter?.contentVersion),
+    queryKey: ['private-comments', account, 'chapter-author-feedback', chapter.chapterId, chapter.contentVersion],
+    enabled: Boolean(account && chapter.contentVersion),
     ...policy,
     queryFn: async () => {
       const groups = new Map<string, PrivateComment[]>();
-      for (const item of await listChapterPrivateRoots(chapter!.chapterId, 'AUTHOR_PRIVATE')) {
+      for (const item of await listChapterPrivateRoots(chapter.chapterId, 'AUTHOR_PRIVATE')) {
         const { anchor } = item;
         const id = !anchor?.detached && anchor?.currentParagraphId;
         if (!id) continue;
@@ -184,7 +184,7 @@ function PrivateComposer({ target, anchor, author = false, replyTo, savedDraft, 
   const { editor, formatting, limitReached } = useCommentEditor({
     value: draft.content, mentions: draft.mentions, id: editorId,
     label: replyTo ? 'Trả lời bình luận' : 'Nội dung riêng',
-    placeholder: replyTo ? 'Viết trả lời…' : 'Viết tin nhắn…',
+    placeholder: replyTo ? 'Viết trả lời…' : author ? 'Viết bình luận riêng…' : 'Viết tin nhắn…',
     disabled: create.isPending,
     onChange: value => setDraft({ ...value, hasSelectedRecipients: hasSelectedRecipients || (chooseAudience && value.mentions.length > 0) })
   });
@@ -373,42 +373,37 @@ export function ParagraphDiscussion({ chapter, paragraphId, focus, discussions, 
   </div>;
 }
 
-type AuthorFeedbackRequest = { paragraphId: string };
+export type AuthorFeedbackRequest = { chapterId: string; userId: string };
 
-export function AuthorPrivateFeedback({ target, chapter, requestedFeedback }: {
-  target: CommentTarget; chapter?: ReaderChapter; requestedFeedback?: AuthorFeedbackRequest;
+export function AuthorPrivateFeedback({ target, requestedFeedback }: {
+  target: CommentTarget; requestedFeedback?: AuthorFeedbackRequest;
 }) {
   const account = useAuthStore(s => s.user?.userId);
-  return account ? <AuthorPrivateSession key={`${account}:${target.kind}:${target.id}`} target={target} chapter={chapter}
+  return account ? <AuthorPrivateSession key={`${account}:${target.kind}:${target.id}`} target={target}
     account={account} requestedFeedback={requestedFeedback} /> : null;
 }
 
-function AuthorPrivateSession({ target, chapter, account, requestedFeedback }: {
-  target: CommentTarget; chapter?: ReaderChapter; account: string; requestedFeedback?: AuthorFeedbackRequest;
+function AuthorPrivateSession({ target, account, requestedFeedback }: {
+  target: CommentTarget; account: string; requestedFeedback?: AuthorFeedbackRequest;
 }) {
-  const active = useAuthStore(s => s.user?.status === 'ACTIVE');
   const focus = usePrivateCommentFocus(target);
   const authorNotification = focus.requested && focus.data?.root.audience === 'AUTHOR_PRIVATE';
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(1);
-  const [paragraphId, setParagraphId] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
-  const draftKey = paragraphId ?? 'general';
-  const savedDraft = usePrivateDraft(draftKey);
+  const savedDraft = usePrivateDraft('general');
   const panel = useRef<HTMLDivElement>(null);
   const lastNotification = useRef<string>(undefined);
   const lastFeedbackRequest = useRef<AuthorFeedbackRequest>(undefined);
   useEffect(() => {
     if (!authorNotification || sending || lastNotification.current === focus.navigationKey) return;
     lastNotification.current = focus.navigationKey;
-    setParagraphId(null);
     setPage(1);
     setOpen(true);
   }, [authorNotification, focus.navigationKey, sending]);
   useEffect(() => {
     if (!requestedFeedback || sending || lastFeedbackRequest.current === requestedFeedback) return;
     lastFeedbackRequest.current = requestedFeedback;
-    setParagraphId(requestedFeedback.paragraphId);
     setPage(1);
     setOpen(true);
     const frame = requestAnimationFrame(() => {
@@ -417,25 +412,14 @@ function AuthorPrivateSession({ target, chapter, account, requestedFeedback }: {
     });
     return () => cancelAnimationFrame(frame);
   }, [requestedFeedback, sending]);
-  const pageSize = 10;
   const query = useQuery({
     queryKey: ['private-comments', account, target.kind, target.id, 'AUTHOR_PRIVATE', page],
-    queryFn: () => list(`/${target.kind === 'chapter' ? 'chapters' : 'novels'}/${target.id}/comments`, { channel: 'AUTHOR_PRIVATE', page, limit: pageSize }),
-    enabled: open && !paragraphId,
+    queryFn: () => list(`/${target.kind === 'chapter' ? 'chapters' : 'novels'}/${target.id}/comments`, { channel: 'AUTHOR_PRIVATE', page, limit: 10 }),
+    enabled: open,
     ...policy
   });
-  const anchored = useChapterAuthorFeedback(chapter, open && Boolean(paragraphId));
-  const activeList = paragraphId ? anchored : query;
-  const scopedItems = paragraphId ? anchored.data?.get(paragraphId) ?? [] : [];
-  const totalPages = paragraphId ? Math.max(1, Math.ceil(scopedItems.length / pageSize)) : query.data?.pages ?? 1;
-  const currentPage = Math.min(page, totalPages);
-  const items = paragraphId ? scopedItems.slice((currentPage - 1) * pageSize, currentPage * pageSize) : query.data?.items;
-  const showFocusedThread = authorNotification && !paragraphId;
+  const totalPages = query.data?.pages ?? 1;
   const refresh = usePrivateRefresh();
-  const changeScope = (next: string | null) => {
-    setParagraphId(next);
-    setPage(1);
-  };
   return <Stack gap="xs">
     <Button variant={open ? 'light' : 'default'} size="compact-sm" aria-expanded={open} disabled={sending} style={{ alignSelf: 'flex-start' }}
       onClick={() => setOpen(value => !value)}>Nhắn riêng cho tác giả</Button>
@@ -443,26 +427,18 @@ function AuthorPrivateSession({ target, chapter, account, requestedFeedback }: {
       <FocusedPrivateThread focus={focus} onChanged={refresh} />}
     {open && <Stack ref={panel} id="reader-author-feedback" role="region" aria-label="Góp ý riêng cho tác giả"
       tabIndex={-1} className="sc-author-feedback-inline" gap="sm">
-      {chapter?.paragraphs?.length && active ? <Select aria-label="Đoạn góp ý" placeholder="Toàn chương"
-        searchable clearable disabled={sending} value={paragraphId} onChange={changeScope}
-        data={chapter.paragraphs.map(p => ({ value: p.paragraphId, label: `${p.paragraphIndex + 1}. ${p.text.slice(0, 90)}` }))} /> : null}
-      <PrivateComposer key={draftKey} target={target} author savedDraft={savedDraft} onSendingChange={setSending}
-        onCancel={() => { savedDraft.save(emptyPrivateDraft); setOpen(false); }}
-        anchor={chapter?.contentVersion && paragraphId ? { contentVersion: chapter.contentVersion, paragraphId } : undefined} />
-      {paragraphId && <Group justify="space-between" gap="xs">
-        <Text size="sm" fw={600}>Góp ý cho đoạn đã chọn</Text>
-        <Button variant="subtle" size="compact-sm" disabled={sending} onClick={() => changeScope(null)}>Xem góp ý cả chương</Button>
-      </Group>}
-      {showFocusedThread && <FocusedPrivateThread focus={focus} onChanged={refresh} />}
-      {activeList.isPending && <Text size="sm" role="status">Đang tải góp ý…</Text>}
-      {activeList.isError && <ErrorState title="Không tải được góp ý" error={activeList.error} onRetry={() => void activeList.refetch()} />}
-      {paragraphId && activeList.isSuccess && !items?.length && <Text size="sm" c="dimmed">Đoạn này chưa có góp ý.</Text>}
-      {!activeList.isError && items?.filter(comment => !showFocusedThread || comment.commentId !== focus.data?.root.commentId).map(comment =>
+      <PrivateComposer target={target} author savedDraft={savedDraft} onSendingChange={setSending}
+        onSent={() => setPage(1)}
+        onCancel={() => { savedDraft.save(emptyPrivateDraft); setOpen(false); }} />
+      {authorNotification && <FocusedPrivateThread focus={focus} onChanged={refresh} />}
+      {query.isPending && <Text size="sm" role="status">Đang tải góp ý…</Text>}
+      {query.isError && <ErrorState title="Không tải được góp ý" error={query.error} onRetry={() => void query.refetch()} />}
+      {!query.isError && query.data?.items.filter(comment => !authorNotification || comment.commentId !== focus.data?.root.commentId).map(comment =>
         <Stack key={comment.commentId} gap="xs">
           {comment.anchor && <Text size="sm" c="dimmed">{comment.anchor.detached ? 'Đoạn gốc đã thay đổi: ' : 'Đoạn: '}{comment.anchor.quote}</Text>}
           <CommentThread comment={comment} onChanged={refresh} />
         </Stack>)}
-      {!activeList.isError && totalPages > 1 && <Pagination total={totalPages} value={currentPage} onChange={setPage} />}
+      {!query.isError && totalPages > 1 && <Pagination total={totalPages} value={Math.min(page, totalPages)} onChange={setPage} />}
     </Stack>}
   </Stack>;
 }
