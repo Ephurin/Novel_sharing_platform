@@ -1,7 +1,7 @@
 import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
 import type { AuthSession, AuthUser } from './auth-types';
 
-export type PendingRegistration = { registrationId: string; email: string };
+export type PendingRegistration = { registrationId: string; email: string; resendAfterSeconds: number };
 
 export async function login(input: { identifier: string; password: string }) {
   const response = await apiClient.post<ApiEnvelope<AuthSession>>('/auth/login', input);
@@ -13,8 +13,18 @@ export async function register(input: { email: string; username: string; passwor
   return response.data.data;
 }
 
+export async function resendRegistrationEmail(registrationId: string) {
+  const response = await apiClient.post<ApiEnvelope<PendingRegistration>>('/auth/register/resend', { registrationId });
+  return response.data.data;
+}
+
 export async function verifyRegistration(registrationId: string, code: string) {
   const response = await apiClient.post<ApiEnvelope<AuthSession>>('/auth/register/verify', { registrationId, code });
+  return response.data.data;
+}
+
+export async function verifyRegistrationLink(token: string) {
+  const response = await apiClient.post<ApiEnvelope<AuthSession>>('/auth/register/verify-link', { token });
   return response.data.data;
 }
 

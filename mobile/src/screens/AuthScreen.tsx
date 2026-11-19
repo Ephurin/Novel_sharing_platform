@@ -120,7 +120,7 @@ export function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: Curren
                 label={mode === 'login' ? 'Email hoặc tên đăng nhập' : 'Email'}
                 value={identifier}
                 onChangeText={setIdentifier}
-                placeholder={mode === 'login' ? 'ten_ban hoặc email@domain.vn' : 'email@domain.vn'}
+                placeholder={mode === 'login' ? 'ten_ban hoặc email@domain.vn' : 'ban@gmail.com'}
                 autoCapitalize="none"
                 keyboardType={mode === 'register' ? 'email-address' : 'default'}
                 autoComplete={mode === 'login' ? 'username' : 'email'}

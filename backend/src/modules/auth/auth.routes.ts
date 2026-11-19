@@ -15,9 +15,11 @@ import {
   refreshTokenController,
   registerController,
   requireGoogleOrigin,
-  verifyRegistrationController
+  resendRegistrationController,
+  verifyRegistrationController,
+  verifyRegistrationLinkController
 } from './auth.controller.js';
-import { changePasswordSchema, googleLoginSchema, loginSchema, registerSchema, verifyRegistrationSchema } from './auth.schemas.js';
+import { changePasswordSchema, googleLoginSchema, loginSchema, registerSchema, resendRegistrationSchema, verifyRegistrationLinkSchema, verifyRegistrationSchema } from './auth.schemas.js';
 
 export const authRoutes = Router();
 
@@ -33,7 +35,10 @@ const rejectInvalidEmail: RequestHandler = (request, _response, next) => {
 
 authRoutes.post('/register', rateLimit({ scope: 'email-registration', max: 30, windowMs: 60000 }),
   rejectInvalidEmail, validateRequest(registerSchema), registerController);
+authRoutes.post('/register/resend', rateLimit({ scope: 'email-registration-resend', max: 10, windowMs: 60000 }),
+  validateRequest(resendRegistrationSchema), resendRegistrationController);
 authRoutes.post('/register/verify', validateRequest(verifyRegistrationSchema), verifyRegistrationController);
+authRoutes.post('/register/verify-link', validateRequest(verifyRegistrationLinkSchema), verifyRegistrationLinkController);
 authRoutes.post('/login', validateRequest(loginSchema), loginController);
 authRoutes.post('/google/challenge', requireGoogleOrigin, googleChallengeController);
 authRoutes.post('/google', requireGoogleOrigin,

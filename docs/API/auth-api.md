@@ -14,7 +14,7 @@ Related SRS: `docs/SRS/auth-service.md`
 
 ### POST /auth/register
 
-Request a one-time email confirmation code. A `202 Accepted` response returns `registrationId` and `email`. No account or session exists at this step.
+Request a confirmation email for an `@gmail.com` address. It contains a confirmation link and an eight-digit backup code. A `202 Accepted` response returns `registrationId`, `email`, and `resendAfterSeconds` and sets an HTTP-only browser cookie for link verification and resend. The account and login session are created after confirmation.
 
 **Auth:** Optional  
 **Roles:** Guest
@@ -23,7 +23,7 @@ Request a one-time email confirmation code. A `202 Accepted` response returns `r
 
 ```json
 {
-  "email": "reader@example.com",
+  "email": "reader@gmail.com",
   "username": "reader01",
   "password": "StrongPassword123!"
 }
@@ -36,7 +36,8 @@ Request a one-time email confirmation code. A `202 Accepted` response returns `r
   "success": true,
   "data": {
     "registrationId": "6e32f264-731c-445e-9965-5e1ff6a90062",
-    "email": "reader@example.com"
+    "email": "reader@gmail.com",
+    "resendAfterSeconds": 60
   },
   "error": null,
   "meta": {}
@@ -46,10 +47,22 @@ Request a one-time email confirmation code. A `202 Accepted` response returns `r
 | Code | HTTP | Condition |
 | :--- | :---: | :--- |
 | `AUTH_001` | 400 | Invalid email format. |
+| `AUTH_EMAIL_DOMAIN` | 400 | Registration requires a Gmail address. |
 | `VALIDATION_001` | 400 | Missing or weak password. |
 | `USER_004` | 409 | Username already exists. |
 | `USER_005` | 409 | Email already exists. |
-| `AUTH_EMAIL_RATE_LIMIT` | 429 | A code for this email was requested less than a minute ago. |
+| `AUTH_EMAIL_RATE_LIMIT` | 429 | A confirmation email was requested less than a minute ago. |
+| `AUTH_EMAIL_UNAVAILABLE` | 503 | Email delivery is unavailable. |
+
+### POST /auth/register/resend
+
+Submit `registrationId` from the signup browser with the registration cookie and the configured web origin. Resend is available one minute after the last send, for up to one hour. A successful resend returns the same `202 Accepted` response as signup and replaces the old link and backup code. The new pair is valid for 15 minutes. A failed send preserves the previous pair.
+
+| Code | HTTP | Condition |
+| :--- | :---: | :--- |
+| `AUTH_EMAIL_BROWSER` | 403 | The registration cookie or origin is invalid. |
+| `AUTH_EMAIL_REGISTRATION_EXPIRED` | 400 | The pending registration expired or was consumed. |
+| `AUTH_EMAIL_RATE_LIMIT` | 429 | The resend cooldown is active. |
 | `AUTH_EMAIL_UNAVAILABLE` | 503 | Email delivery is unavailable. |
 
 ### POST /auth/register/verify
@@ -64,7 +77,7 @@ Submit `registrationId` and the eight-digit `code` received by email. The code e
   "data": {
     "user": {
       "userId": "user_123",
-      "email": "reader@example.com",
+      "email": "reader@gmail.com",
       "username": "reader01",
       "role": "READER",
       "status": "ACTIVE"
@@ -84,6 +97,15 @@ Submit `registrationId` and the eight-digit `code` received by email. The code e
 | `USER_004` | 409 | Username already exists. |
 | `USER_005` | 409 | Email already exists. |
 | `VALIDATION_001` | 400 | Invalid registration ID or code format. |
+
+### POST /auth/register/verify-link
+
+The link opens `/verify-email#token=…` on the configured `WEB_ORIGIN`. Only pressing the confirmation button submits `token` in a POST from the browser that started registration. This method and the backup code use the same pending registration. Either successful verification consumes both and returns `201 Created` with the same session response.
+
+| Code | HTTP | Condition |
+| :--- | :---: | :--- |
+| `AUTH_EMAIL_BROWSER` | 403 | The request is missing the signup browser cookie or comes from another origin. Use the code in the signup tab. |
+| `AUTH_EMAIL_LINK` | 400 | The link is invalid, expired, or used. |
 
 ### POST /auth/login
 

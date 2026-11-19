@@ -86,6 +86,11 @@ services:
       REFRESH_TOKEN_COOKIE_NAME: ephurin_refresh_token
       GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
       SMTP_URL: ${SMTP_URL:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_SECURE: ${SMTP_SECURE:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
       SMTP_FROM: ${SMTP_FROM:-}
       AI_LLM_BASE_URL: ${AI_LLM_BASE_URL:-https://foreseeable-kaliyah-fleshier.ngrok-free.dev/v1}
       AI_LLM_API_KEY: ${AI_LLM_API_KEY:-}

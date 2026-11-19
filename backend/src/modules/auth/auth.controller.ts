@@ -6,6 +6,8 @@ import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { successResponse } from '../../core/response/response.js';
 import { verifyGoogleIdentity } from './google-identity.js';
+import { REGISTRATION_RECOVERY_MINUTES } from './auth.repository.js';
+import { registrationIdSchema } from './auth.schemas.js';
 import {
   changePassword,
   getCurrentUser,
@@ -14,8 +16,19 @@ import {
   logout,
   refreshAccessToken,
   register,
+  resendRegistrationEmail,
   verifyRegistration
 } from './auth.service.js';
+
+const webOrigin = new URL(env.WEB_ORIGIN);
+const secureRegistrationCookie = webOrigin.protocol === 'https:';
+const registrationCookie = `${secureRegistrationCookie ? '__Host-' : ''}${env.REFRESH_TOKEN_COOKIE_NAME}_registration`;
+const registrationCookieOptions = {
+  path: secureRegistrationCookie ? '/' : `${env.API_PREFIX}/auth/register`,
+  httpOnly: true,
+  sameSite: 'lax' as const,
+  secure: secureRegistrationCookie
+};
 
 function setRefreshCookie(
   response: Parameters<RequestHandler>[1],
@@ -40,26 +53,66 @@ function clearRefreshCookie(response: Parameters<RequestHandler>[1]) {
   });
 }
 
+function sendPendingRegistration(response: Parameters<RequestHandler>[1], result: Awaited<ReturnType<typeof register>>) {
+  response.cookie(registrationCookie, result.registrationId, {
+    ...registrationCookieOptions,
+    maxAge: REGISTRATION_RECOVERY_MINUTES * 60_000
+  });
+  response.set('Cache-Control', 'no-store').status(202).json(successResponse(result));
+}
+
 export const registerController: RequestHandler = async (request, response, next) => {
   try {
-    const result = await register(request.body);
-    response.set('Cache-Control', 'no-store').status(202).json(successResponse(result));
+    sendPendingRegistration(response, await register(request.body));
   } catch (error) {
     next(error);
   }
 };
 
+export const resendRegistrationController: RequestHandler = async (request, response, next) => {
+  try {
+    response.set('Cache-Control', 'no-store');
+    const { registrationId } = request.body;
+    if (request.get('Origin') !== webOrigin.origin || request.cookies?.[registrationCookie] !== registrationId) {
+      throw new AppError(403, 'AUTH_EMAIL_BROWSER', 'Hãy gửi lại email trong tab đã đăng ký hoặc đăng ký lại.');
+    }
+    sendPendingRegistration(response, await resendRegistrationEmail(registrationId));
+  } catch (error) {
+    next(error);
+  }
+};
+
+function sendVerifiedRegistration(response: Parameters<RequestHandler>[1], session: Awaited<ReturnType<typeof verifyRegistration>>) {
+  setRefreshCookie(response, session.refreshToken, session.refreshTokenMaxAgeMs);
+  response.set('Cache-Control', 'no-store').status(201).json(successResponse({
+    user: session.user,
+    accessToken: session.accessToken
+  }));
+}
+
 export const verifyRegistrationController: RequestHandler = async (request, response, next) => {
   try {
-    const result = await verifyRegistration(request.body.registrationId, request.body.code);
-    setRefreshCookie(response, result.refreshToken, result.refreshTokenMaxAgeMs);
+    const { registrationId, code } = request.body;
+    const result = await verifyRegistration(registrationId, { code });
+    if (request.cookies?.[registrationCookie] === registrationId) {
+      response.clearCookie(registrationCookie, registrationCookieOptions);
+    }
+    sendVerifiedRegistration(response, result);
+  } catch (error) {
+    next(error);
+  }
+};
 
-    response.set('Cache-Control', 'no-store').status(201).json(
-      successResponse({
-        user: result.user,
-        accessToken: result.accessToken
-      })
-    );
+export const verifyRegistrationLinkController: RequestHandler = async (request, response, next) => {
+  try {
+    // Binding the link to the browser that began signup keeps a forwarded link from activating someone else's password.
+    const registrationId = registrationIdSchema.safeParse(request.cookies?.[registrationCookie]);
+    if (request.get('Origin') !== webOrigin.origin || !registrationId.success) {
+      throw new AppError(403, 'AUTH_EMAIL_BROWSER', 'Hãy mở link trong trình duyệt đã đăng ký, hoặc nhập mã 8 số ở tab đăng ký.');
+    }
+    const result = await verifyRegistration(registrationId.data, { linkToken: request.body.token });
+    response.clearCookie(registrationCookie, registrationCookieOptions);
+    sendVerifiedRegistration(response, result);
   } catch (error) {
     next(error);
   }
@@ -81,13 +134,12 @@ export const loginController: RequestHandler = async (request, response, next) =
   }
 };
 
-const googleOrigin = new URL(env.WEB_ORIGIN);
 const googleCookie = `${env.REFRESH_TOKEN_COOKIE_NAME}_google`;
 const googleCookieOptions = {
   path: `${env.API_PREFIX}/auth/google`,
   httpOnly: true,
   sameSite: 'strict' as const,
-  secure: googleOrigin.protocol === 'https:'
+  secure: webOrigin.protocol === 'https:'
 };
 const googleChallengeSeconds = 15 * 60;
 const googleChallengeAudience = 'storycraft-google-login';
@@ -110,7 +162,7 @@ function readGoogleChallenge(cookie: unknown) {
 
 export const requireGoogleOrigin: RequestHandler = (request, response, next) => {
   response.set('Cache-Control', 'no-store');
-  if (request.get('Origin') !== googleOrigin.origin) {
+  if (request.get('Origin') !== webOrigin.origin) {
     return next(new AppError(403, 'AUTH_GOOGLE_ORIGIN', 'Hãy đăng nhập Google từ địa chỉ web đã cấu hình cho StoryCraft.'));
   }
   next();

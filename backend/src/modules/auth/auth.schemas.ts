@@ -15,11 +15,21 @@ export const registerSchema = z.object({
   })
 });
 
+export const registrationIdSchema = z.string().uuid();
+
+export const resendRegistrationSchema = z.object({
+  body: z.object({ registrationId: registrationIdSchema })
+});
+
 export const verifyRegistrationSchema = z.object({
   body: z.object({
-    registrationId: z.string().uuid(),
+    registrationId: registrationIdSchema,
     code: z.string().regex(/^\d{8}$/)
   })
+});
+
+export const verifyRegistrationLinkSchema = z.object({
+  body: z.object({ token: z.string().regex(/^[A-Za-z0-9_-]{43}$/) })
 });
 
 export const loginSchema = z.object({

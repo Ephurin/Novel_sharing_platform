@@ -56,6 +56,7 @@ export const router = createBrowserRouter([
     path: '/login',
     element: <AuthLanding />
   },
+  { path: '/verify-email', element: <AuthLanding confirmEmailFromLink /> },
   {
     path: '/public',
     element: <AuthorTheme><PublicReaderPage /></AuthorTheme>

@@ -32,7 +32,7 @@ If your Docker installation supports the newer plugin command, `docker compose .
 
 ## Email confirmation
 
-Password registration sends an eight-digit code and creates the account after the code is confirmed. For local testing, set these values in the root `.env` file and start the `dev-mail` profile:
+Password registration sends a confirmation link and an eight-digit backup code. The link uses `WEB_ORIGIN` and works in the browser that started registration. For local testing, set these values in the root `.env` file and start the `dev-mail` profile:
 
 ```dotenv
 SMTP_URL=smtp://mailpit:1025
@@ -43,7 +43,7 @@ SMTP_FROM="StoryCraft <no-reply@storycraft.test>"
 docker compose --profile dev-mail up -d --build
 ```
 
-Open the Mailpit inbox at `http://localhost:8026`. A backend running directly on the host can use `smtp://localhost:1026` instead. For real delivery, set `SMTP_URL` to the SMTP provider's connection URL and `SMTP_FROM` to its verified sender. Keep credentials in environment configuration. Authentication over `smtp://` requires STARTTLS when credentials are present. A provider using implicit TLS can use `smtps://`.
+Open the Mailpit inbox at `http://localhost:8026`. A backend running directly on the host can use `smtp://localhost:1026` instead. For real delivery, set `SMTP_FROM` to the verified sender. Use `SMTP_URL` or leave it empty and set `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, and `SMTP_PASS` separately. Keep credentials in environment configuration. SMTP authentication requires TLS. Use port 465 with implicit TLS or port 587 with STARTTLS for Gmail.
 
 ## Demo Seed
 

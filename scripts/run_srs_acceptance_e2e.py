@@ -212,12 +212,12 @@ class Suite:
             search = httpx.get(f"{inbox}/api/v1/search", params={"query": f"to:{account['email']}"}, timeout=5)
             search.raise_for_status()
             for item in search.json().get("messages", []):
-                if item["Subject"] == "Mã xác nhận tài khoản StoryCraft":
+                if item["Subject"] == "Xác nhận tài khoản StoryCraft":
                     message = httpx.get(f"{inbox}/api/v1/message/{item['ID']}", timeout=5)
                     message.raise_for_status()
-                    match = re.search(r"\b\d{8}\b", message.json().get("Text", ""))
+                    match = re.search(r"Mã dự phòng là (\d{8})", message.json().get("Text", ""))
                     if match:
-                        return match.group()
+                        return match.group(1)
             return None
 
         code = self.wait(code_from_mail, timeout=10, step=0.25)
@@ -226,7 +226,7 @@ class Suite:
 
     def new_reader(self, prefix: str) -> Tuple[Client, Dict[str, str]]:
         suffix = uuid.uuid4().hex[:8]
-        account = {"email": f"{prefix}_{suffix}@srs.test", "username": f"{prefix}_{suffix}", "password": STRONG_PASSWORD}
+        account = {"email": f"{prefix}_{suffix}@gmail.com", "username": f"{prefix}_{suffix}", "password": STRONG_PASSWORD}
         client = Client(self.stack.api_url)
         response = self.register_and_verify(client, account)
         assert response.status == 201, f"register: {response.brief()}"
@@ -250,7 +250,7 @@ class Suite:
     # AUTH --------------------------------------------------------------------
     def auth_cases(self) -> None:
         suffix = uuid.uuid4().hex[:8]
-        account = {"email": f"srs_new_{suffix}@srs.test", "username": f"srs_new_{suffix}", "password": STRONG_PASSWORD}
+        account = {"email": f"srs_new_{suffix}@gmail.com", "username": f"srs_new_{suffix}", "password": STRONG_PASSWORD}
         fresh = Client(self.stack.api_url)
 
         def register_valid():
@@ -267,12 +267,12 @@ class Suite:
         self.record("TC-AUTH-02", "Email sai định dạng trả AUTH_001", invalid_email)
 
         def weak_password():
-            response = fresh.call("POST", "/auth/register", {"email": f"w{suffix}@srs.test", "username": f"w{suffix}", "password": "short"}, auth=False)
+            response = fresh.call("POST", "/auth/register", {"email": f"w{suffix}@gmail.com", "username": f"w{suffix}", "password": "short"}, auth=False)
             return response.status == 400, {"response": response.brief()}
         self.record("TC-AUTH-03", "Mật khẩu yếu bị từ chối", weak_password)
 
         def duplicate_username():
-            response = fresh.call("POST", "/auth/register", {**account, "email": f"d{suffix}@srs.test"}, auth=False)
+            response = fresh.call("POST", "/auth/register", {**account, "email": f"d{suffix}@gmail.com"}, auth=False)
             return response.code == "USER_004", {"response": response.brief(), "srs_code": "USER_004"}
         self.record("TC-AUTH-04", "Trùng username trả USER_004", duplicate_username)
 

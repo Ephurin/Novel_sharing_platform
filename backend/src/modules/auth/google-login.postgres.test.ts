@@ -66,12 +66,13 @@ test('Google sign-in validates the web challenge and links only with the existin
 
   assert.equal((await post('/google/challenge', {}, undefined, 'http://localhost:9999')).response.status, 403);
   const first = await challenge();
-  const email = `google-${Date.now()}@example.test`;
+  const email = `google-${Date.now()}@gmail.com`;
   const firstToken = credential(first.nonce, 'google-new-user', email);
   assert.equal((await post('/google', { credential: firstToken })).body.error.code, 'AUTH_GOOGLE_CHALLENGE');
   assert.equal((await post('/google', { credential: credential('wrong', 'google-new-user', email) }, first.cookie)).body.error.code, 'AUTH_GOOGLE_CHALLENGE');
   assert.equal((await post('/google', { credential: credential(first.nonce, 'google-new-user', email, 'wrong-audience') }, first.cookie)).body.error.code, 'AUTH_GOOGLE_CREDENTIAL');
   assert.equal((await post('/google', { credential: credential(first.nonce, 'google-new-user', email, clientId, false) }, first.cookie)).body.error.code, 'AUTH_GOOGLE_EMAIL');
+  assert.equal((await post('/google', { credential: credential(first.nonce, 'google-new-user', 'other@example.test') }, first.cookie)).body.error.code, 'AUTH_GOOGLE_EMAIL_DOMAIN');
 
   const concurrent = await challenge();
   const [created, retried] = await Promise.all([
@@ -98,7 +99,7 @@ test('Google sign-in validates the web challenge and links only with the existin
   assert.equal((await post('/google', { credential: credential(locked.nonce, 'google-new-user', email) }, locked.cookie)).response.status, 403);
 
   const existing = await withPostgresTransaction(async (client) => createUserAccount(client, {
-    email: 'password-google@example.test', username: 'google_existing_account',
+    email: 'password-google@gmail.com', username: 'google_existing_account',
     passwordHash: await bcrypt.hash('StrongPassword123!', 12)
   }));
   const link = await challenge();
