@@ -97,9 +97,9 @@ export async function savePendingRegistration(client: DbClient, input: {
 
 export async function reserveRegistrationDelivery(client: DbClient, email: string) {
   const result = await client.query(
-    `insert into registration_email_delivery_budget (email, window_started_at, sent_count)
-     values ($1, clock_timestamp(), 1)
-     on conflict (email) do update set sent_count = case
+    `insert into registration_email_delivery_budget (mailbox_key, window_started_at, sent_count)
+     values (registration_delivery_mailbox_key($1), clock_timestamp(), 1)
+     on conflict (mailbox_key) do update set sent_count = case
        when registration_email_delivery_budget.window_started_at <= clock_timestamp() - interval '1 hour' then 1
        else registration_email_delivery_budget.sent_count + 1 end,
        window_started_at = case

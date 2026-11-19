@@ -7,6 +7,22 @@ import { createRegistrationEmail } from './registration-email-template.js';
 let transporter: ReturnType<typeof nodemailer.createTransport> | undefined;
 const timeouts = { connectionTimeout: 6000, greetingTimeout: 6000, socketTimeout: 10000 };
 
+// Each admitted send can hold a transaction open. Leave the rest of the shared pool available.
+const maxConcurrentRegistrationDeliveries = 2;
+let activeRegistrationDeliveries = 0;
+
+export async function withRegistrationDeliverySlot<T>(deliver: () => Promise<T>): Promise<T> {
+  if (activeRegistrationDeliveries >= maxConcurrentRegistrationDeliveries) {
+    throw new AppError(503, 'AUTH_EMAIL_BUSY', 'Hệ thống đang gửi nhiều email xác nhận. Hãy thử lại sau ít giây.');
+  }
+  activeRegistrationDeliveries++;
+  try {
+    return await deliver();
+  } finally {
+    activeRegistrationDeliveries--;
+  }
+}
+
 function getRegistrationTransport() {
   if (transporter) return transporter;
   if (env.SMTP_URL) {

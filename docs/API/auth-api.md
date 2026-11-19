@@ -54,7 +54,8 @@ Request a confirmation email for an `@gmail.com` address. It contains a confirma
 | `USER_004` | 409 | Username already exists. |
 | `USER_005` | 409 | Email already exists. |
 | `AUTH_EMAIL_RATE_LIMIT` | 429 | The address already has an active signup session. Resume that session or use the recovery link from the mailbox. |
-| `AUTH_EMAIL_DELIVERY_LIMIT` | 429 | Five deliveries for this address have already been accepted within the current one-hour window. |
+| `AUTH_EMAIL_DELIVERY_LIMIT` | 429 | The Gmail mailbox already received five accepted deliveries within the current one-hour window. Dot and plus aliases share that budget. |
+| `AUTH_EMAIL_BUSY` | 503 | The backend already has two registration deliveries in progress. Retry shortly. |
 | `AUTH_EMAIL_UNAVAILABLE` | 503 | Email delivery is unavailable. |
 
 ### POST /auth/register/resend
@@ -67,7 +68,8 @@ Submit `registrationId` from the signup browser with the registration cookie and
 | `AUTH_EMAIL_REGISTRATION_EXPIRED` | 400 | The pending registration expired or was consumed. |
 | `AUTH_EMAIL_RATE_LIMIT` | 429 | The resend cooldown is active. |
 | `AUTH_EMAIL_RESEND_LIMIT` | 429 | All three resends have been used. |
-| `AUTH_EMAIL_DELIVERY_LIMIT` | 429 | The address has reached its hourly delivery limit. |
+| `AUTH_EMAIL_DELIVERY_LIMIT` | 429 | The Gmail mailbox has reached its hourly delivery limit. |
+| `AUTH_EMAIL_BUSY` | 503 | The backend already has two registration deliveries in progress. Retry shortly. |
 | `AUTH_EMAIL_UNAVAILABLE` | 503 | Email delivery is unavailable. |
 
 ### POST /auth/register/verify

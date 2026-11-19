@@ -36,7 +36,7 @@ import {
 } from './auth.repository.js';
 import type { AuthUser, PublicAuthUser } from './auth.types.js';
 import type { ChangePasswordInput, LoginInput, RegisterInput } from './auth.schemas.js';
-import { sendRegistrationEmail } from './registration-mail.js';
+import { sendRegistrationEmail, withRegistrationDeliverySlot } from './registration-mail.js';
 
 const refreshTokenPayloadSchema = {
   issuer: 'ephurin-api',
@@ -173,23 +173,25 @@ async function assertRegistrationAvailable(email: string, username: string, clie
 }
 
 export async function register(input: RegisterInput, channel: RegistrationChannel = 'web') {
-  const email = input.email.toLowerCase();
-  await assertRegistrationAvailable(email, input.username);
-  const registrationId = randomUUID();
-  const { code, codeHash, confirmationUrl, linkTokenHash } = createRegistrationProofs(registrationId, channel);
-  const passwordHash = await bcrypt.hash(input.password, 12);
-  await pruneExpiredRegistrationData();
-  return withPostgresTransaction(async (client) => {
-    const saved = await savePendingRegistration(client, {
-      registrationId, email, username: input.username, passwordHash,
-      codeHash, linkTokenHash, channel, expiryMinutes: REGISTRATION_EXPIRY_MINUTES
+  return withRegistrationDeliverySlot(async () => {
+    const email = input.email.toLowerCase();
+    await assertRegistrationAvailable(email, input.username);
+    const registrationId = randomUUID();
+    const { code, codeHash, confirmationUrl, linkTokenHash } = createRegistrationProofs(registrationId, channel);
+    const passwordHash = await bcrypt.hash(input.password, 12);
+    await pruneExpiredRegistrationData();
+    return withPostgresTransaction(async (client) => {
+      const saved = await savePendingRegistration(client, {
+        registrationId, email, username: input.username, passwordHash,
+        codeHash, linkTokenHash, channel, expiryMinutes: REGISTRATION_EXPIRY_MINUTES
+      });
+      if (!saved) {
+        throw new AppError(429, 'AUTH_EMAIL_RATE_LIMIT', 'Email đang chờ xác nhận. Hãy dùng phiên đăng ký trước hoặc mở link khôi phục trong email đã nhận.');
+      }
+      await assertRegistrationAvailable(email, input.username, client);
+      await sendSignupEmail(client, email, code, confirmationUrl, REGISTRATION_EXPIRY_MINUTES);
+      return describeRegistration(registrationId, email, saved.deadline_at, REGISTRATION_RESEND_SECONDS, 0);
     });
-    if (!saved) {
-      throw new AppError(429, 'AUTH_EMAIL_RATE_LIMIT', 'Email đang chờ xác nhận. Hãy dùng phiên đăng ký trước hoặc mở link khôi phục trong email đã nhận.');
-    }
-    await assertRegistrationAvailable(email, input.username, client);
-    await sendSignupEmail(client, email, code, confirmationUrl, REGISTRATION_EXPIRY_MINUTES);
-    return describeRegistration(registrationId, email, saved.deadline_at, REGISTRATION_RESEND_SECONDS, 0);
   });
 }
 
@@ -199,7 +201,7 @@ export async function getPendingRegistration(registrationId: string, channel: Re
 }
 
 export async function resendRegistrationEmail(registrationId: string, channel: RegistrationChannel = 'web') {
-  return withPostgresTransaction(async (client) => {
+  return withRegistrationDeliverySlot(() => withPostgresTransaction(async (client) => {
     const pending = await findRegistrationContext(registrationId, channel, client);
     if (!pending) {
       throw new AppError(400, 'AUTH_EMAIL_REGISTRATION_EXPIRED', 'Phiên đăng ký đã hết hạn. Hãy quay lại để đăng ký lại.');
@@ -219,7 +221,7 @@ export async function resendRegistrationEmail(registrationId: string, channel: R
     await sendSignupEmail(client, pending.email, code, confirmationUrl, minutes);
     await replaceRegistrationProofs(client, registrationId, { codeHash, linkTokenHash, expiryMinutes: REGISTRATION_EXPIRY_MINUTES });
     return describeRegistration(registrationId, pending.email, pending.deadline_at, REGISTRATION_RESEND_SECONDS, pending.resends_used + 1);
-  });
+  }));
 }
 
 export async function recoverRegistration(input: { token: string; username: string; password: string }) {

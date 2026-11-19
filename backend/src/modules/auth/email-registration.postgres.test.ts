@@ -1,13 +1,15 @@
 import assert from 'node:assert/strict';
+import { EventEmitter, once } from 'node:events';
 import type { AddressInfo } from 'node:net';
 import { test } from 'node:test';
+import { setTimeout as delay } from 'node:timers/promises';
 import nodemailer from 'nodemailer';
 import { createApp } from '../../app.js';
 import { env } from '../../core/config/env.js';
 import { disconnectMongo, getMongoDatabase } from '../../core/database/mongo.js';
 import { disconnectPostgres, getPostgresPool } from '../../core/database/postgres.js';
 import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
-import { resendRegistrationEmail } from './auth.service.js';
+import { register, resendRegistrationEmail } from './auth.service.js';
 
 type RegistrationResponse = {
   data: { registrationId: string; email: string; expiresAt: string; resendsRemaining: number; resendAfterSeconds: number; resendToken?: string; accessToken?: string; user?: { userId: string; role: string } };
@@ -30,6 +32,7 @@ test('password registration offers a browser-bound link and a one-time backup co
   env.SMTP_FROM = 'no-reply@storycraft.test';
   const inbox = new Map<string, string>();
   let smtpUnavailable = false;
+  let beforeSend: (() => Promise<void>) | undefined;
   t.mock.method(nodemailer, 'createTransport', (options: { host: string; port: number; secure: boolean; requireTLS: boolean; auth: { user: string; pass: string } }) => {
     assert.equal(options.host, 'smtp.gmail.com');
     assert.equal(options.port, 587);
@@ -39,6 +42,7 @@ test('password registration offers a browser-bound link and a one-time backup co
     return {
       sendMail: async ({ to, text }: { to: string; text: string }) => {
         if (smtpUnavailable) throw new Error('Fixture SMTP unavailable');
+        await beforeSend?.();
         inbox.set(to, text);
         return { accepted: [to] };
       }
@@ -244,5 +248,86 @@ test('password registration offers a browser-bound link and a one-time backup co
     assert.equal((await post('/login', { identifier: held.email, password: held.password })).response.status, 401);
     assert.equal((await post('/login', { identifier: held.email, password: owned.password })).response.status, 200);
     assert.equal((await post('/register/recover', owned, { Origin: linkUrl.origin })).body.error.code, 'USER_005');
+  });
+
+  await t.test('Gmail dot and plus aliases share the signup and resend budget', async () => {
+    const variants = ['quotafixture', 'quota.fixture+tag', 'q.uota.fixture', 'quotafixture+other'];
+    const registrations = [];
+    for (const [index, alias] of variants.entries()) {
+      const email = `${alias}@gmail.com`;
+      const result = await post('/register', { ...details, email, username: `mailbox_budget_${index}` });
+      assert.equal(result.response.status, 202);
+      assert.equal(result.body.data.email, email);
+      assert.ok(inbox.has(email), 'The recipient remains the submitted alias');
+      registrations.push(result.body.data.registrationId);
+    }
+    const [first, second] = registrations;
+    await pool.query("update pending_email_registrations set requested_at = now() - interval '2 minutes' where registration_id = any($1::uuid[])", [[first, second]]);
+    await resendRegistrationEmail(first);
+    await assert.rejects(resendRegistrationEmail(second), { code: 'AUTH_EMAIL_DELIVERY_LIMIT' });
+
+    const overLimit = 'Qu.o.ta.fixture+overflow@gmail.com';
+    const blocked = await post('/register', { ...details, email: overLimit, username: 'mailbox_over_limit' });
+    assert.equal(blocked.body.error.code, 'AUTH_EMAIL_DELIVERY_LIMIT');
+    assert.ok(!inbox.has(overLimit.toLowerCase()));
+    assert.equal((await pool.query('select sent_count from registration_email_delivery_budget where mailbox_key = $1',
+      ['quotafixture@gmail.com'])).rows[0].sent_count, 5);
+    assert.equal((await post('/register', {
+      ...details, email: 'differentfixture@gmail.com', username: 'mailbox_distinct'
+    })).response.status, 202);
+  });
+
+  await t.test('slow SMTP leaves shared database capacity for ordinary API requests', async () => {
+    const smtp = new EventEmitter();
+    let sends = 0;
+    let release!: () => void;
+    const blockedSmtp = new Promise<void>(resolve => { release = resolve; });
+    beforeSend = () => {
+      if (++sends === 2) smtp.emit('both-sending');
+      return blockedSmtp;
+    };
+
+    const started = once(smtp, 'both-sending', { signal: AbortSignal.timeout(5_000) });
+    const inFlight = [
+      post('/register', { ...details, email: 'heldmailone@gmail.com', username: 'held_mail_one' }),
+      post('/register/native', { ...details, email: 'heldmailtwo@gmail.com', username: 'held_mail_two' })
+    ];
+    let queued: Promise<unknown>[] = [];
+    try {
+      await started;
+      const timeout = new AbortController();
+      // Offer more deliveries than the whole pg pool could serve while SMTP is stalled.
+      queued = Array.from({ length: 12 }, (_, index) => assert.rejects(register({
+        ...details, email: `heldoverflow${index}@gmail.com`, username: `held_overflow_${index}`
+      }), { code: 'AUTH_EMAIL_BUSY' }));
+      try {
+        await Promise.race([
+          Promise.all(queued),
+          delay(5_000, undefined, { signal: timeout.signal }).then(() => assert.fail('Over-capacity requests did not return promptly'))
+        ]);
+      } finally {
+        timeout.abort();
+      }
+      const overCapacity = await post('/register', { ...details, email: 'heldmailmore@gmail.com', username: 'held_mail_more' });
+      assert.equal(overCapacity.response.status, 503);
+      assert.equal(overCapacity.body.error.code, 'AUTH_EMAIL_BUSY');
+      await assert.rejects(resendRegistrationEmail(retry.body.data.registrationId), { code: 'AUTH_EMAIL_BUSY' });
+      assert.equal(sends, 2);
+      assert.equal(pool.waitingCount, 0);
+      const account = await fetch(`${base}/me`, {
+        headers: { Authorization: `Bearer ${confirmed.body.data.accessToken}` },
+        signal: AbortSignal.timeout(3_000)
+      });
+      assert.equal(account.status, 200);
+      assert.equal((await account.json() as { data: { userId: string } }).data.userId, confirmed.body.data.user?.userId);
+    } finally {
+      release();
+      await Promise.allSettled([...inFlight, ...queued]);
+      beforeSend = undefined;
+    }
+    assert.deepEqual((await Promise.all(inFlight)).map(result => result.response.status), [202, 202]);
+    assert.equal((await post('/register', {
+      ...details, email: 'heldmailretry@gmail.com', username: 'held_mail_retry'
+    })).response.status, 202);
   });
 });
