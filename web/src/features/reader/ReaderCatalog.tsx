@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { useDebouncedValue } from '@mantine/hooks';
 import { MultiSelect, NativeSelect, Pagination, TextInput } from '@mantine/core';
@@ -59,12 +59,15 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
     clearButtonProps={{ 'aria-label': `Bỏ ${label.toLowerCase()}`, 'aria-hidden': false, tabIndex: 0 }} comboboxProps={{ withinPortal: false }} /></div>;
 
   const statusGroupId = useId();
+  const searchRef = useRef<HTMLInputElement>(null);
   const reduce = useReducedMotion();
   return <div className="sc-catalog">
     <h1 className="text-page-title">{publicMode ? 'Thư viện công khai' : 'Danh sách truyện'}</h1>
     <ResponsiveFilters className="sc-catalog-filters">
-      <TextInput label="Tìm truyện" aria-label="Tìm truyện" value={q} maxLength={200} data-testid="reader-search-input"
-        placeholder="Tìm theo tên truyện, giới thiệu…" onChange={event => change({ q: event.currentTarget.value })} />
+      <TextInput ref={searchRef} label="Tìm truyện" value={q} maxLength={200} data-testid="reader-search-input"
+        placeholder="Tìm theo tên truyện, giới thiệu…" onChange={event => change({ q: event.currentTarget.value })}
+        rightSection={q ? <button type="button" className="sc-catalog-search-clear" aria-label="Xóa từ khóa tìm kiếm" onClick={() => { change({ q: '' }); searchRef.current?.focus(); }}><span className="material-symbols-outlined" aria-hidden="true">close</span></button> : null}
+        rightSectionPointerEvents={q ? 'auto' : 'none'} />
       <div className="sc-catalog-filter-row">
         {select('genre', 'Lọc theo thể loại', taxonomy.data?.genres ?? [])}
         {select('tag', 'Lọc theo thẻ', taxonomy.data?.tags ?? [])}
@@ -98,20 +101,25 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
   </div>;
 }
 
+const cardStatusLabels: Record<string, string> = { ONGOING: 'Đang ra', COMPLETED: 'Hoàn thành', HIATUS: 'Tạm ngưng' };
+
 function CatalogCard({ novel, to, index = 0 }: { novel: ReaderNovel; to: string; index?: number }) {
   const [failedUrl, setFailedUrl] = useState<string>();
   const reduce = useReducedMotion();
-  const labels: Record<string, string> = { ONGOING: 'Đang ra', COMPLETED: 'Hoàn thành', HIATUS: 'Tạm ngưng', PUBLISHED: 'Đã xuất bản' };
+  const statusCode = novel.serialStatus ?? novel.status ?? '';
+  const isCompleted = statusCode === 'COMPLETED';
+  const primaryGenre = novel.genres?.[0] || novel.genre || null;
   return <motion.article className="sc-novel-card sc-reader-book sc-catalog-card"
     initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }}
     transition={{ duration: reduce ? 0 : 0.2, delay: reduce ? 0 : Math.min(index, 7) * 0.03, ease: [0.22, 1, 0.36, 1] }}>
     <Link className="sc-book-cover sc-cover-hover" to={to} aria-label={`Đọc truyện: ${novel.title}`}>
       {novel.coverImageUrl && failedUrl !== novel.coverImageUrl ? <img src={novel.coverImageUrl} alt="" loading="lazy" onError={() => setFailedUrl(novel.coverImageUrl ?? undefined)} /> : <span className="sc-cover-placeholder" aria-hidden="true">{novel.title}</span>}
-      <span className="sc-book-status">{labels[novel.serialStatus ?? novel.status ?? ''] ?? 'Đang ra'}</span>
+      <span className="sc-book-status" data-completed={isCompleted || undefined}>{cardStatusLabels[statusCode] ?? 'Đang ra'}</span>
     </Link>
     <div className="sc-book-info">
       <Link to={to} className="sc-book-title" title={novel.title}>{novel.title}</Link>
-      <div className="sc-book-metrics"><span>{novel.chaptersCount ?? 0} chương</span><span>{(novel.viewsCount ?? 0).toLocaleString('vi-VN')} lượt đọc</span></div>
+      {primaryGenre && <span className="sc-book-genre text-meta" translate="no">{primaryGenre}</span>}
+      <div className="sc-book-metrics"><span>{(novel.chaptersCount ?? 0).toLocaleString('vi-VN')} chương · {(novel.viewsCount ?? 0).toLocaleString('vi-VN')} lượt đọc</span></div>
     </div>
     <NovelQuickPreview novel={novel} to={to} />
   </motion.article>;

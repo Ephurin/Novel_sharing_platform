@@ -1,5 +1,13 @@
 # INTERACTION & SOCIAL SERVICE - SPECIFICATION
 
+## Phạm vi reader social
+
+Hai tài khoản đang hoạt động trở thành bạn bè khi theo dõi lẫn nhau. Bình luận công khai ở truyện và chương hỗ trợ tag bạn bè bằng username và metadata vị trí. Bình luận bạn bè gắn vào đoạn đã xuất bản, cho phép chọn tất cả bạn bè hiện tại hoặc từng người. Người nhận cần thuộc danh sách lúc gửi và còn quan hệ hai chiều khi xem.
+
+Góp ý tác giả ở truyện, chương hoặc đoạn dành cho người gửi và chủ truyện. Luồng riêng tuân theo quyền đọc VIP, trạng thái xuất bản và kiểm duyệt. Trả lời kế thừa phạm vi của bình luận gốc. Thông báo riêng chỉ dẫn tới luồng sau khi kiểm tra quyền. Quản trị viên xem nội dung riêng qua hồ sơ kiểm duyệt có ghi audit.
+
+Chi tiết endpoint và ứng dụng nằm trong [contract reader social](../Implementation/reader-social-private-comments-api.md).
+
 ## 1. OVERVIEW & BUSINESS RULES (Tổng quan & Quy tắc nghiệp vụ)
 
 *   **Mission:** Xây dựng môi trường tương tác cộng đồng trong Ephurin, quản lý hệ thống bình luận (inline/chapter), lượt yêu thích (Likes), theo dõi tác giả (Follows), điều phối cơ chế thông báo (Notifications) và phối hợp với Content Control & Moderation Service khi bình luận cần kiểm tra trước khi hiển thị.

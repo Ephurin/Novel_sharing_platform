@@ -1,8 +1,12 @@
+import { ParagraphDiscussion, useChapterAuthorFeedback, useChapterDiscussions, usePrivateCommentFocus } from './PrivateComments';
+import { parseAuthorNotes } from '../../shared/lib/author-notes';
+import { useAuthStore } from '../auth/useAuthStore';
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { NumberInput, Select } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
+import { autoUpdate, flip, offset, shift, useDismiss, useFloating, useInteractions } from '@floating-ui/react';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
 import { ReadingProgress } from '../../shared/components/ReadingProgress';
@@ -26,12 +30,19 @@ export function chapterDisplayTitle(chapter: ReaderChapter) {
   return title ? `Chương ${chapter.chapterNumber}: ${title}` : `Chương ${chapter.chapterNumber}`;
 }
 
-export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, tocPending, tocFailed, onRetryToc, onReport, reporting, children }: {
+export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, tocPending, tocFailed, onRetryToc, onReport, reporting, onOpenAuthorFeedback, children }: {
   chapter: ReaderChapter; novel?: ReaderNovel; chapters: ReaderChapter[]; publicMode: boolean;
   tocPending: boolean; tocFailed: boolean; onRetryToc: () => void; onReport?: () => void; reporting?: boolean;
-  children?: ReactNode;
+  onOpenAuthorFeedback?: (paragraphId: string) => void; children?: ReactNode;
 }) {
   const location = useLocation();
+  let anchorCursor = 0;
+  const anchorParagraphs = parseAuthorNotes((chapter.content ?? '').replace(/\r\n/g, '\n')).manuscript.split(/\n\s*\n/).map(block => {
+    const index = chapter.paragraphs?.findIndex((p, i) => i >= anchorCursor && p.text === block.trim()) ?? -1;
+    if (index < 0) return undefined;
+    anchorCursor = index + 1; return chapter.paragraphs![index];
+  });
+  const socialAccount = useAuthStore(state => state.user?.userId);
   const reduce = useReducedMotion();
   const bgGroupId = useId();
   const alignGroupId = useId();
@@ -47,6 +58,35 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   const bookmarkAction = useRef<HTMLButtonElement>(null);
   const [failedCoverUrl, setFailedCoverUrl] = useState<string>();
   const article = useRef<HTMLElement>(null);
+  const discussions = useChapterDiscussions(chapter);
+  const authorFeedback = useChapterAuthorFeedback(chapter);
+  const privateFocus = usePrivateCommentFocus({ kind: 'chapter', id: chapter.chapterId });
+  const [openedDiscussion, setOpenedDiscussion] = useState<{ account: string; paragraphId: string; navigationKey: string }>();
+  const [dismissedLink, setDismissedLink] = useState<string>();
+  const manualParagraph = openedDiscussion?.account === socialAccount && openedDiscussion?.navigationKey === location.key
+    ? openedDiscussion?.paragraphId : undefined;
+  const opensFromLink = privateFocus.requested && dismissedLink !== location.key &&
+    privateFocus.data?.root.audience !== 'AUTHOR_PRIVATE' && !manualParagraph;
+  const discussionId = manualParagraph || (opensFromLink && !privateFocus.isError ? privateFocus.data?.root.anchor?.currentParagraphId : undefined) || undefined;
+  const discussionOpen = Boolean(manualParagraph || opensFromLink);
+  const feedbackByParagraph = authorFeedback.isError ? undefined : authorFeedback.data;
+  const paragraphElement = (id?: string) => id ? article.current?.querySelector<HTMLElement>(`[data-paragraph-id="${CSS.escape(id)}"]`) : undefined;
+  const closeDiscussion = (restoreFocus: boolean) => {
+    setOpenedDiscussion(undefined);
+    setDismissedLink(location.key);
+    if (restoreFocus) (paragraphElement(discussionId) ?? heading.current)?.focus({ preventScroll: true });
+  };
+  const { refs, context: floatingContext, floatingStyles, isPositioned } = useFloating({
+    open: discussionOpen, onOpenChange: open => { if (!open) closeDiscussion(false); },
+    placement: 'right-start', strategy: 'fixed', whileElementsMounted: autoUpdate,
+    middleware: [offset(12), flip({ padding: 12, fallbackPlacements: ['left-start', 'bottom-start', 'top-start'] }), shift({ padding: 12 })]
+  });
+  const dismiss = useDismiss(floatingContext, {
+    escapeKey: false,
+    outsidePress: event => !(event.target instanceof Element && event.target.closest('[data-private-recipient-menu], [data-private-chat-overlay]'))
+  });
+  const { getFloatingProps } = useInteractions([dismiss]);
+  const discussionHeading = useId();
   const toc = useRef<HTMLElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const jumpAfterClose = useRef(false);
@@ -63,6 +103,30 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   const toolsVisible = !mobile || toolsOpen;
   const selectedBookmark = bookmarks.items.find(item => item.chapterId === chapter.chapterId && item.paragraphIndex === selectedPassage?.index && (item.startOffset ?? 0) === selectedPassage?.line.startOffset);
   const bookmarkLabel = bookmarks.pending ? 'Đang tải bookmark…' : bookmarks.error ? 'Không tải được bookmark' : selectedBookmark ? 'Xóa bookmark' : 'Bookmark';
+  const selectedDiscussionId = selectedPassage ? anchorParagraphs[selectedPassage.index]?.paragraphId : undefined;
+
+  useLayoutEffect(() => {
+    const anchor = paragraphElement(discussionId);
+    refs.setReference(anchor ?? null);
+    if (!anchor) return;
+    anchor.dataset.discussionOpen = 'true';
+    if (opensFromLink) anchor.scrollIntoView({ block: 'center', behavior: 'instant' });
+    return () => { delete anchor.dataset.discussionOpen; };
+  }, [discussionId, opensFromLink, refs.setReference]);
+  useEffect(() => {
+    if (manualParagraph && (isPositioned || mobile)) refs.floating.current?.focus({ preventScroll: true });
+  }, [manualParagraph, isPositioned, mobile, refs.floating]);
+  useEffect(() => {
+    const blocks = Array.from(article.current?.querySelectorAll<HTMLElement>('[data-paragraph-id]') ?? []);
+    if (!socialAccount) return;
+    const friends = discussions.isError ? undefined : discussions.data?.groups;
+    for (const block of blocks) {
+      const paragraphId = block.dataset.paragraphId!;
+      const count = (friends?.get(paragraphId)?.length ?? 0) + (feedbackByParagraph?.get(paragraphId)?.length ?? 0);
+      if (count) block.dataset.privateCount = String(count);
+    }
+    return () => { for (const block of blocks) delete block.dataset.privateCount; };
+  }, [chapter, socialAccount, discussions.data, discussions.isError, feedbackByParagraph]);
 
   const paragraphs = () => Array.from(article.current?.querySelectorAll<HTMLElement>('.chapter-prose > p, .chapter-prose > blockquote, .chapter-prose > hr') ?? []);
   const flashLine = (range: Range) => {
@@ -134,16 +198,48 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
 
   useEffect(() => {
     if (!selectedPassage) return;
-    const dismiss = () => setSelectedPassage(null);
+    const dismiss = () => {
+      setSelectedPassage(null);
+      clearTimeout(highlightTimer.current);
+      setLineHighlight(null);
+    };
+    const onPointerDown = (event: globalThis.PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) {
+        dismiss();
+        return;
+      }
+      if (target.closest('.sc-reading-passage-actions')) return;
+      if (!target.closest('.chapter-prose > p, .chapter-prose > blockquote')) {
+        dismiss();
+      }
+    };
     const followScroll = () => setSelectedPassage(current => {
       if (!current || current.scrollY === window.scrollY) return current;
       const top = current.top + current.scrollY - window.scrollY;
       return top < 8 || top > innerHeight - 88 ? null : { ...current, top, scrollY: window.scrollY };
     });
-    const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') { dismiss(); paragraphs()[selectedPassage.index]?.focus({ preventScroll: true }); } };
-    window.addEventListener('scroll', followScroll, { passive: true }); window.addEventListener('resize', dismiss); window.addEventListener('keydown', escape);
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        dismiss();
+        const block = paragraphs()[selectedPassage.index];
+        if (block) {
+          block.dataset.bookmarkArrival = 'true';
+          block.focus({ preventScroll: true });
+        }
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown, true);
+    window.addEventListener('scroll', followScroll, { passive: true });
+    window.addEventListener('resize', dismiss);
+    window.addEventListener('keydown', escape);
     if (selectedPassage.keyboard) bookmarkAction.current?.focus({ preventScroll: true });
-    return () => { window.removeEventListener('scroll', followScroll); window.removeEventListener('resize', dismiss); window.removeEventListener('keydown', escape); };
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true);
+      window.removeEventListener('scroll', followScroll);
+      window.removeEventListener('resize', dismiss);
+      window.removeEventListener('keydown', escape);
+    };
   }, [selectedPassage]);
   const choosePassage = (block: HTMLElement, x?: number, y?: number) => {
     const index = paragraphs().indexOf(block);
@@ -152,12 +248,12 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
     const line = readingLineAt(block, y ?? box.top);
     if (!line) return;
     const lineBox = line.range.getBoundingClientRect();
-    const beside = !mobile && innerWidth - box.right > 240;
+    const beside = !mobile && innerWidth - box.right > 64;
     const top = beside ? lineBox.top + lineBox.height / 2 : lineBox.bottom + 8;
     block.dataset.bookmarkArrival = 'true';
     setFocusedParagraph(paragraphs().filter(item => item.tagName !== 'HR').indexOf(block));
     setSelectedPassage({ index, offset: y === undefined ? 0 : Math.max(0, Math.min(1, (y - box.top) / Math.max(1, box.height))),
-      top: Math.max(beside ? 30 : 8, Math.min(innerHeight - (beside ? 30 : 120), top)), left: Math.max(8, Math.min(innerWidth - 184, beside ? box.right + 12 : x ?? box.right - 176)), scrollY: window.scrollY, keyboard: x === undefined, beside, line });
+      top: Math.max(beside ? 30 : 8, Math.min(innerHeight - (beside ? 30 : 60), top)), left: Math.max(8, Math.min(innerWidth - 52, beside ? box.right + 12 : (x !== undefined ? x - 22 : box.right - 44))), scrollY: window.scrollY, keyboard: x === undefined, beside, line });
     flashLine(line.range);
     if (mobile) setToolsOpen(true);
   };
@@ -205,7 +301,8 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
         initial={reduce ? false : { opacity: 0.6 }} animate={{ opacity: 1 }} transition={{ duration: reduce ? 0 : 0.18 }}
         onClick={event => {
           const target = (event.target as Element).closest<HTMLElement>('.chapter-prose > p, .chapter-prose > blockquote');
-          if (!target || (event.target as Element).closest('a, button') || gesture.current.moved || gesture.current.selected || performance.now() - gesture.current.time > 500 || Math.abs(window.scrollY - gesture.current.scroll) > 8 || !window.getSelection()?.isCollapsed) return;
+          if (!window.getSelection()?.isCollapsed) { setSelectedPassage(null); return; }
+          if (!target || (event.target as Element).closest('a, button') || gesture.current.moved || gesture.current.selected || performance.now() - gesture.current.time > 500 || Math.abs(window.scrollY - gesture.current.scroll) > 8) return;
           event.stopPropagation(); choosePassage(target, event.clientX, event.clientY);
         }}
         onKeyDown={event => {
@@ -213,17 +310,21 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
           const blocks = paragraphs();
           const index = blocks.indexOf(block);
           if (index < 0) return;
+          if (event.key === 'Escape' && !selectedPassage) { block.dataset.bookmarkArrival = 'true'; return; }
           if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); choosePassage(block); }
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             event.preventDefault();
+            delete block.dataset.bookmarkArrival;
             const readable = blocks.filter(item => item.tagName !== 'HR');
             const next = readable[Math.max(0, Math.min(readable.length - 1, readable.indexOf(block) + (event.key === 'ArrowDown' ? 1 : -1)))];
+            if (next) delete next.dataset.bookmarkArrival;
             setFocusedParagraph(readable.indexOf(next)); next?.focus();
           }
         }}>
         <ManuscriptContent content={chapter.content ?? ''} blockProps={(_index, readableIndex) => ({ tabIndex: readableIndex === focusedParagraph ? 0 : -1,
           onBlur: event => { delete event.currentTarget.dataset.bookmarkArrival; },
           'aria-describedby': 'reading-bookmark-help',
+          ...{ 'data-paragraph-id': anchorParagraphs[_index]?.paragraphId },
         })} />
         {lineHighlight && <div key={lineHighlight.key} className="sc-reading-line-flash" aria-hidden="true">
           {lineHighlight.rects.map((rect, index) => <span key={index} className="sc-reading-line-highlight" style={rect} />)}
@@ -231,11 +332,43 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
       </motion.article></ReadingProgress>
       <span id="reading-bookmark-help" className="sc-reader-bookmark-help">Bấm vào dòng cần lưu, hoặc nhấn Enter để bookmark dòng đầu. Dùng phím lên, xuống để chuyển đoạn.</span>
     </div>
-    {selectedPassage && <button ref={bookmarkAction} type="button" className="sc-reading-bookmark-action" data-placement={selectedPassage.beside ? 'side' : 'below'} style={{ top: selectedPassage.top, left: selectedPassage.left }}
+    {selectedPassage && <div className="sc-reading-passage-actions" role="group" aria-label="Công cụ cho đoạn đã chọn"
+      data-placement={selectedPassage.beside ? 'side' : 'below'} style={{ top: selectedPassage.top, left: selectedPassage.left }}>
+    <button ref={bookmarkAction} type="button" className="sc-reading-bookmark-action" data-placement={selectedPassage.beside ? 'side' : 'below'}
       disabled={bookmarks.pending || bookmarks.saving || Boolean(bookmarks.error)} onClick={savePassage} aria-pressed={Boolean(selectedBookmark)}
       aria-label={bookmarkLabel} title={bookmarkLabel}>
-      <Icon name={selectedBookmark ? 'close' : 'bookmark_add'} />{bookmarks.saving ? 'Đang xử lý…' : bookmarks.pending ? 'Đang tải…' : bookmarks.error ? 'Chưa tải được' : !selectedBookmark && 'Bookmark'}
-    </button>}
+      <Icon name={selectedBookmark ? 'bookmark_remove' : 'bookmark_add'} />
+    </button>
+    {selectedDiscussionId && socialAccount && <button type="button" className="sc-reading-private-action"
+      aria-label="Trao đổi riêng" title="Trao đổi riêng" aria-haspopup="dialog"
+      onClick={() => {
+        setOpenedDiscussion({ account: socialAccount, paragraphId: selectedDiscussionId, navigationKey: location.key });
+        setSelectedPassage(null);
+      }}><Icon name="forum" /></button>}
+    </div>}
+    {discussionOpen && <section ref={refs.setFloating} id="reader-private-comments" tabIndex={-1} role="dialog" aria-labelledby={discussionHeading}
+      className="sc-paragraph-discussion" data-docked={mobile || !discussionId}
+      style={!mobile && discussionId ? { ...floatingStyles, visibility: isPositioned ? undefined : 'hidden' } : undefined}
+      {...getFloatingProps({ onKeyDown: event => {
+        if (event.key === 'Escape' && !event.defaultPrevented && !(event.target as HTMLElement).closest('[aria-expanded="true"], [data-private-chat-overlay]')) {
+          event.stopPropagation();
+          closeDiscussion(true);
+        }
+      } })}>
+      <header className="sc-paragraph-discussion-header">
+        <h2 id={discussionHeading}>Trao đổi với bạn bè</h2>
+        <button type="button" className="sc-comment-tool" title="Đóng hộp trao đổi" aria-label="Đóng hộp trao đổi" onClick={() => closeDiscussion(true)}><Icon name="close" /></button>
+      </header>
+      <div className="sc-paragraph-discussion-body">
+        <ParagraphDiscussion key={`${socialAccount}:${discussionId ?? 'detached'}:${opensFromLink ? privateFocus.focusId : 'manual'}`}
+          chapter={chapter} paragraphId={discussionId} focus={opensFromLink ? privateFocus : undefined} discussions={discussions}
+          onOpenAuthorFeedback={discussionId && onOpenAuthorFeedback && feedbackByParagraph?.get(discussionId)?.length ? () => {
+            closeDiscussion(false);
+            onOpenAuthorFeedback(discussionId);
+          } : undefined}
+          onCancel={() => closeDiscussion(true)} />
+      </div>
+    </section>}
     <button type="button" className="sc-reader-tools-toggle" aria-expanded={toolsVisible} aria-controls="chapter-reader-tools" onClick={() => setToolsOpen(value => !value)}>{toolsOpen ? 'Ẩn công cụ đọc' : 'Hiện công cụ đọc'}</button>
     <aside id="chapter-reader-tools" className="sc-reader-tool-rail" aria-label="Công cụ đọc chương" data-open={toolsOpen} aria-hidden={!toolsVisible} inert={!toolsVisible}>
       {navigationLink(previous, 'Chương trước', 'skip_previous')}

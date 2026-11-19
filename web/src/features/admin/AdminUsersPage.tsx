@@ -146,29 +146,31 @@ export function AdminUsersPage() {
                         </div>
                       </div>
                     </td>
-                    <td>{user.role}</td>
+                    <td>{filterLabels[user.role] || user.role}</td>
                     <td>
                       <Status value={user.status} />
                     </td>
                     <td>
-                      <Button variant="subtle" size="xs" onClick={() => setPreviewId(user.userId)}>Xem nhanh</Button>
-                      <Button
-                        disabled={user.userId === currentUser?.userId || user.status === 'DELETED'}
-                        variant="light"
-                        color={user.status === 'LOCKED' ? undefined : 'red'}
-                        className={user.status === 'LOCKED' ? undefined : 'admin-danger'}
-                        size="xs"
-                        leftSection={
-                          <AdminIcon name={user.status === 'LOCKED' ? 'lock_open' : 'lock'} />
-                        }
-                        onClick={() => {
-                          mutation.reset();
-                          setReason('');
-                          setSelected(user);
-                        }}
-                      >
-                        {user.status === 'LOCKED' ? 'Mở khóa' : 'Khóa tài khoản'}
-                      </Button>
+                      <div className="admin-actions">
+                        <Button variant="subtle" size="xs" onClick={() => setPreviewId(user.userId)}>Xem nhanh</Button>
+                        <Button
+                          disabled={user.userId === currentUser?.userId || user.status === 'DELETED'}
+                          variant="light"
+                          color={user.status === 'LOCKED' ? undefined : 'red'}
+                          className={user.status === 'LOCKED' ? undefined : 'admin-danger'}
+                          size="xs"
+                          leftSection={
+                            <AdminIcon name={user.status === 'LOCKED' ? 'lock_open' : 'lock'} />
+                          }
+                          onClick={() => {
+                            mutation.reset();
+                            setReason('');
+                            setSelected(user);
+                          }}
+                        >
+                          {user.status === 'LOCKED' ? 'Mở khóa' : 'Khóa tài khoản'}
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}

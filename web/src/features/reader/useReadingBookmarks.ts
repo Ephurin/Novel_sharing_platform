@@ -76,8 +76,15 @@ export function useReadingBookmarks(novelId?: string, { loadAll = false } = {}) 
     },
     onError: (error, variables) => { if (useAuthStore.getState().user?.userId === variables.account) showToast(getApiErrorMessage(error), 'error'); }
   });
-  const update = (operation: Operation) => {
-    if (userId) { mutation.mutate({ account: userId, operation }); return; }
+  const update = async (operation: Operation): Promise<boolean> => {
+    if (userId) {
+      try {
+        await mutation.mutateAsync({ account: userId, operation });
+        return true;
+      } catch {
+        return false;
+      }
+    }
     try {
       const items = parse(snapshot());
       if (operation.type === 'remove') write(items.filter(item => item.bookmarkId !== operation.bookmarkId));
@@ -88,7 +95,11 @@ export function useReadingBookmarks(novelId?: string, { loadAll = false } = {}) 
           ...items.filter(item => item.bookmarkId !== existing?.bookmarkId)]);
       }
       success(operation);
-    } catch { showToast('Không lưu được bookmark trên thiết bị. Hãy kiểm tra bộ nhớ trình duyệt.', 'error'); }
+      return true;
+    } catch {
+      showToast('Không lưu được bookmark trên thiết bị. Hãy kiểm tra bộ nhớ trình duyệt.', 'error');
+      return false;
+    }
   };
   const guest = useMemo(() => parse(local).filter(item => !novelId || item.novelId === novelId), [local, novelId]);
   const items = useMemo(() => userId ? query.data?.pages.flatMap(page => page.items) ?? [] : guest, [userId, query.data, guest]);

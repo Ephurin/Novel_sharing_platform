@@ -206,7 +206,7 @@ export function AdminNovelDetailPage() {
                     <td>
                       <Status value={ch.status} />
                     </td>
-                    <td>{ch.isVip ? `VIP · ${number(ch.priceCoins)} coin` : 'Miễn phí'}</td>
+                    <td>{ch.isVip ? `VIP · ${number(ch.priceCoins)} Xu` : 'Miễn phí'}</td>
                     <td>{ch.deletedAt ? 'Đã gỡ' : 'Bình thường'}</td>
                     <td>
                       <Button variant="light" size="xs" onClick={() => setChapterId(ch.chapterId)}>

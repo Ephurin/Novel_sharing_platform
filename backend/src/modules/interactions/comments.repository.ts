@@ -1,3 +1,4 @@
+import type { PrivacyFields, Mention } from './comment-privacy.js';
 import { randomUUID } from 'node:crypto';
 import { getMongoDatabase } from '../../core/database/mongo.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
@@ -7,7 +8,7 @@ const collectionName = 'comments';
 
 export type CommentStatus = 'PENDING_MODERATION' | 'APPROVED' | 'REJECTED' | 'DELETED';
 
-export type CommentDocument = {
+export type CommentDocument = PrivacyFields & {
   commentId: string;
   chapterId: string | null;
   novelId: string;
@@ -33,8 +34,12 @@ export const approvedCommentFilter = {
   $or: [{ gifId: { $in: [null, ''] } }, { mediaApproved: true }]
 };
 
-export function isCommentPublic(comment: Pick<CommentDocument, 'status' | 'imageUrl' | 'gifId' | 'mediaApproved'>) {
+export function isCommentApproved(comment: Pick<CommentDocument, 'status' | 'imageUrl' | 'gifId' | 'mediaApproved'>) {
   return comment.status === 'APPROVED' && !comment.imageUrl && (!comment.gifId || comment.mediaApproved === true);
+}
+
+export function isCommentPublic(comment: Pick<CommentDocument, 'status' | 'imageUrl' | 'gifId' | 'mediaApproved' | 'audience'>) {
+  return (!comment.audience || comment.audience === 'PUBLIC') && isCommentApproved(comment);
 }
 
 export function withCommentWriteLock<T>(commentId: string, action: (client: PoolClient) => Promise<T>) {
@@ -55,10 +60,12 @@ export async function ensureCommentIndexes() {
   await collection().createIndex({ parentCommentId: 1, status: 1, createdAt: 1, commentId: 1 });
   await collection().createIndex({ userId: 1, createdAt: -1 });
   await collection().createIndex({ status: 1, createdAt: -1 });
+  await collection().createIndex({ audience: 1, recipientUserIds: 1, userId: 1, createdAt: -1 });
+  await collection().createIndex({ audience: 1, novelId: 1, chapterId: 1, 'anchor.paragraphId': 1 });
   await reactions().createIndex({ commentId: 1, userId: 1 }, { unique: true });
 }
 
-export async function createComment(input: {
+export async function createComment(input: PrivacyFields & {
   chapterId: string | null;
   novelId: string;
   userId: string;
@@ -73,6 +80,10 @@ export async function createComment(input: {
 }) {
   const now = new Date();
   const comment: CommentDocument = {
+    audience: input.audience ?? 'PUBLIC',
+    recipientUserIds: input.recipientUserIds,
+    anchor: input.anchor,
+    mentions: input.mentions,
     commentId: randomUUID(),
     chapterId: input.chapterId,
     novelId: input.novelId,
@@ -137,6 +148,7 @@ function visibleCommentsFilter(input: CommentListInput) {
     ...(input.visibleChapterIds ? { chapterId: { $in: [null, ...input.visibleChapterIds] } } : {}),
     parentCommentId: input.parentCommentId ?? null,
     novelId: input.novelId,
+    audience: { $in: [null, 'PUBLIC'] },
     $or: [approvedCommentFilter, ...(input.viewerId ? [{ userId: input.viewerId, status: { $in: ['APPROVED', 'PENDING_MODERATION', 'REJECTED'] } }] : [])],
     deletedAt: null
   };
@@ -176,12 +188,13 @@ export async function findCommentRecordById(commentId: string) {
   return collection().findOne({ commentId });
 }
 
-export async function updateCommentContent(commentId: string, content: string, options: { isSpoiler?: boolean; imageUrl?: string | null; gifId?: string | null } = {}) {
+export async function updateCommentContent(commentId: string, content: string, options: { mentions?: Mention[]; isSpoiler?: boolean; imageUrl?: string | null; gifId?: string | null } = {}) {
   await collection().updateOne(
     { commentId, deletedAt: null },
     {
       $set: {
         content,
+        mentions: options.mentions ?? [],
         ...(options.isSpoiler !== undefined ? { isSpoiler: options.isSpoiler } : {}),
         ...(options.imageUrl !== undefined ? { imageUrl: options.imageUrl } : {}),
         ...(options.gifId !== undefined ? { gifId: options.gifId } : {}),

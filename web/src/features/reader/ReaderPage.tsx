@@ -1,3 +1,4 @@
+import { AuthorPrivateFeedback } from './PrivateComments';
 import { ReaderCatalog } from './ReaderCatalog';
 import { ChapterReader } from './ChapterReader';
 import { CommentsSection } from './CommentsSection';
@@ -21,6 +22,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../shared/components/Pa
 import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import { ReaderNotFound, isReaderNotFound } from './ReaderNotFound';
 import { useToast } from '../../shared/components/ToastProvider';
+import { useReadingFonts } from '../../theme/load-reading-fonts';
 import {
   getHistoryForNovel,
   getReaderNovel,
@@ -110,7 +112,7 @@ export function ReaderNovelDetailPage() {
         readChapterIds={readChapterIds}
         onReadFirst={firstChapter ? () => navigate(`/reader/chapters/${firstChapter.chapterId}`) : undefined}
       />
-      <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} /></section>
+      <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} authorFeedback={<AuthorPrivateFeedback target={{ kind: 'novel', id: novelId }} />} /></section>
     </div>
   );
 }
@@ -155,7 +157,7 @@ export function PublicReaderNovelDetailPage() {
           />
           <section id="reader-reviews" className="sc-reader-detail-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact /></section>
           <NovelChapterCatalog chapters={chapters} publicMode readChapterIds={readChapterIds} />
-          <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} /></section>
+          <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} authorFeedback={<AuthorPrivateFeedback target={{ kind: 'novel', id: novelId }} />} /></section>
         </>
       ) : null}
     </PublicLayout>
@@ -165,10 +167,12 @@ export function PublicReaderNovelDetailPage() {
 // ─── Chapter reading ────────────────────────────────────────────────────────
 
 export function ReaderChapterPage() {
+  useReadingFonts();
   return <ChapterReader />;
 }
 
 export function PublicReaderChapterPage() {
+  useReadingFonts();
   return <PublicLayout><ChapterReader publicMode /></PublicLayout>;
 }
 
@@ -197,9 +201,7 @@ export function ReaderLibraryPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3"><PageHeader crumbs={[readerHomeCrumb, { label: 'Thư viện của tôi' }]} title="Thư viện của tôi" />
-        <Link to="/reader/bookmarks" className="sc-button sc-button-soft"><span className="material-symbols-outlined" aria-hidden="true">bookmarks</span>Bookmark</Link>
-      </div>
+      <PageHeader crumbs={[readerHomeCrumb, { label: 'Thư viện của tôi' }]} title="Thư viện của tôi" />
       <section className="flex flex-col gap-4">
         <SectionHeading title="Truyện đang theo dõi" count={libraryQuery.isSuccess ? `${novels.length} truyện` : undefined} />
         <QueryStates
@@ -315,7 +317,7 @@ function PageHeader({ crumbs = [], title, description, actions }: { crumbs?: Bre
     <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
       <div className="flex flex-col gap-1">
         <Breadcrumbs items={crumbs} />
-        <h1 className="font-headline-sm text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">{title}</h1>
+        <h1 className="text-page-title text-stone-900">{title}</h1>
         {description ? <p className="text-body text-stone-500">{description}</p> : null}
       </div>
       {actions ? <div className="flex items-center gap-2">{actions}</div> : null}

@@ -244,8 +244,13 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
         await page.reload(); await expect(page.locator('.sc-reading-bookmark-entry')).toHaveCount(1);
         await page.screenshot({ path: path.join(output, `${role}-${width}-${theme}-bookmarks.png`) });
         if (role === 'READER') {
-          await page.getByRole('link', { name: 'Kệ sách', exact: true }).click();
-          await page.getByRole('navigation', { name: 'Điều hướng chính', exact: true }).getByRole('link', { name: 'Bookmark', exact: true }).click();
+          const sections = page.getByRole('navigation', { name: 'Mục đọc của tôi', exact: true });
+          await expect(sections.getByRole('link', { name: 'Bookmark', exact: true })).toHaveAttribute('aria-current', 'page');
+          await sections.getByRole('link', { name: 'Thư viện của tôi', exact: true }).click();
+          await expect(page.getByRole('heading', { name: 'Thư viện của tôi', exact: true })).toBeVisible();
+          await sections.getByRole('link', { name: 'Lịch sử đọc', exact: true }).click();
+          await expect(sections.getByRole('link', { name: 'Lịch sử đọc', exact: true })).toHaveAttribute('aria-current', 'page');
+          await page.getByRole('navigation', { name: 'Công cụ đọc', exact: true }).getByRole('link', { name: 'Bookmark', exact: true }).click();
           await page.getByRole('button', { name: /Hành trình qua những mùa gió/ }).click();
           await expect(page.locator('.sc-reading-bookmark-entry')).toHaveCount(1);
         }

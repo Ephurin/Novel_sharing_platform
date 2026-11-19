@@ -7,6 +7,10 @@
 .sc-author-theme .sc-catalog-filter-row .mantine-MultiSelect-root input.mantine-MultiSelect-inputField { min-height: 24px; height: 24px; line-height: 24px; }
 .sc-author-theme .sc-catalog-filter-row .mantine-Pill-remove { min-height: 0; }
 .sc-author-theme .sc-catalog-filter-row select.mantine-NativeSelect-input:not([multiple]):not([size]) { min-height: 40px; height: 40px; }
+.sc-catalog-filter-row .mantine-NativeSelect-section { display: none; }
+.sc-catalog-search-clear { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: var(--sc-radius-control); background: transparent; color: var(--sc-text-muted); cursor: pointer; }
+.sc-catalog-search-clear:hover { background: var(--sc-neutral-bg); color: var(--sc-text); }
+.sc-catalog-search-clear .material-symbols-outlined { font-size: 18px; }
 .sc-catalog-status { display: flex; flex-wrap: wrap; gap: 8px; }
 .sc-catalog-status button { position: relative; z-index: 1; padding: 6px 12px; min-height: 36px; border: 1px solid var(--sc-border); border-radius: var(--sc-radius-control); color: var(--sc-text); background: transparent; transition: color .16s ease-out, border-color .16s ease-out; }
 .sc-catalog-status button[aria-pressed="true"] { background: transparent; color: var(--sc-primary-text); border-color: transparent; }
@@ -19,12 +23,19 @@
 .sc-catalog-summary { margin: 0; color: var(--sc-text); font-size: 13px; }
 .sc-catalog-card { position: relative; }
 .sc-catalog-card > .sc-home-preview-trigger { position: absolute; right: 8px; top: 8px; }
-.sc-catalog .sc-book-cover .sc-cover-placeholder { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding-top: 48px; padding-bottom: 48px; font-family: var(--sc-font); background: var(--sc-surface-subtle); box-shadow: none; overflow-wrap: anywhere; }
-.sc-catalog .sc-book-status { font-size: 12px; box-shadow: none; }
+.sc-catalog .sc-book-cover .sc-cover-placeholder { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 20px 14px; font-family: var(--sc-font); font-size: 15px; line-height: 1.45; text-align: center; background: var(--sc-surface-subtle); box-shadow: none; overflow: hidden; overflow-wrap: anywhere; }
+.sc-catalog .sc-book-status { font-size: 12px; border: 1px solid var(--sc-border); box-shadow: none; }
+.sc-catalog .sc-book-status[data-completed="true"] { color: var(--sc-success); background: var(--sc-success-bg); border-color: rgb(var(--sc-success-rgb) / .28); }
+.sc-catalog .sc-book-genre { color: var(--sc-text-muted); font-size: 12px; line-height: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sc-catalog-pagination { display: flex; justify-content: center; }
 .sc-catalog :is(button, a, input, select):focus-visible { outline: 2px solid var(--sc-focus-ring); outline-offset: 3px; }
 @media (max-width: 767px) { .sc-catalog-filter-row { grid-template-columns: minmax(0, 1fr); } }
-@media (pointer: coarse) { .sc-catalog-status button { min-height: 44px; } }
+@media (pointer: coarse) {
+  .sc-catalog-status button,
+  .sc-catalog-active .sc-filter-chips button,
+  .sc-catalog-active > .sc-button { min-width: 44px; min-height: 44px; }
+  .sc-catalog-search-clear { width: 36px; height: 36px; }
+}
 @media (prefers-reduced-motion: reduce) {
   .sc-catalog-status button,
   .sc-catalog-card {

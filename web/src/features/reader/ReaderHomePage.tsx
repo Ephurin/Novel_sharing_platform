@@ -20,6 +20,9 @@ const featureTabs = [
 ] as const;
 const statusLabels: Record<string, string> = { ONGOING: 'Đang ra', COMPLETED: 'Hoàn thành', HIATUS: 'Tạm ngưng' };
 const count = (value = 0) => value.toLocaleString('vi-VN');
+const primaryGenre = (novel: ReaderNovel) => novel.genres?.[0] || novel.genre || null;
+const isCompletedNovel = (novel: ReaderNovel) => (novel.serialStatus ?? novel.status) === 'COMPLETED';
+const novelStatusLabel = (novel: ReaderNovel) => statusLabels[novel.serialStatus ?? novel.status ?? ''] ?? 'Đang ra';
 
 function shuffled(items: ReaderNovel[], seed: number) {
   const result = [...items];
@@ -55,16 +58,30 @@ export function ReaderHomePage() {
   const [shuffleCount, setShuffleCount] = useState(0);
   const reduce = useReducedMotion();
   const featured = useQuery({ queryKey: ['reader-home-featured', featureSort], queryFn: () => searchPublishedNovels({ sort: featureSort, order: 'desc' }) });
-  const popular = useQuery({ queryKey: ['reader-home-featured', 'views'], queryFn: () => searchPublishedNovels({ sort: 'views', order: 'desc' }) });
+  const ranking = useQuery({ queryKey: ['reader-home-featured', 'likes'], queryFn: () => searchPublishedNovels({ sort: 'likes', order: 'desc' }) });
   const latest = useQuery({ queryKey: ['reader-home-featured', 'updatedAt'], queryFn: () => searchPublishedNovels({ sort: 'updatedAt', order: 'desc' }) });
   const completed = useQuery({ queryKey: ['reader-home-completed'], queryFn: () => searchPublishedNovels({ status: 'COMPLETED', sort: 'views', order: 'desc' }) });
   const filters = useQuery({ queryKey: ['reading-filters'], queryFn: getReadingFilters, staleTime: 60_000 });
-  const discovery = useQuery({ queryKey: ['reader-home-discovery', genre], queryFn: () => searchPublishedNovels({ genre, sort: 'updatedAt', order: 'desc' }) });
+  const discovery = useQuery({
+    queryKey: genre ? ['reader-home-discovery', genre] : ['reader-home-featured', 'updatedAt'],
+    queryFn: () => searchPublishedNovels({ genre, sort: 'updatedAt', order: 'desc' })
+  });
   useListScroll(!featured.isPending && !discovery.isPending);
   const suggestions = useMemo(() => shuffled(discovery.data ?? [], seed).slice(0, 6), [discovery.data, seed]);
   const featureNovels = (featured.data ?? []).slice(0, 8);
   const featurePages = Math.max(1, Math.ceil(featureNovels.length / 4));
   const currentPage = Math.min(featurePage, featurePages - 1);
+  const visibleFeatureSlice = featureNovels.slice(currentPage * 4, currentPage * 4 + 4);
+  const rankingNovels = useMemo(() => {
+    const list = ranking.data ?? [];
+    if (list.length <= 4) return list;
+    const heroIds = new Set(visibleFeatureSlice.map(novel => novel.novelId));
+    const overlapsHero = featureSort === 'views' && list.slice(0, 4).every(novel => heroIds.has(novel.novelId));
+    const ordered = overlapsHero
+      ? [...list.filter(novel => !heroIds.has(novel.novelId)), ...list.filter(novel => heroIds.has(novel.novelId))]
+      : list;
+    return ordered.slice(0, 5);
+  }, [ranking.data, featureSort, visibleFeatureSlice]);
   const changeFeaturePage = (page: number) => {
     setFeatureDirection(Math.sign(page - currentPage));
     homeFilters.update({ page: page + 1 });
@@ -93,14 +110,17 @@ export function ReaderHomePage() {
           <div id="home-feature-results" aria-busy={featured.isFetching}>
           <HomeSectionState query={featured} empty="Chưa có truyện nổi bật" variant="featured" />
           <HomeResults identity={`${featureSort}-${currentPage}-${featureNovels.map(novel => novel.novelId).join(',')}`} direction={featureDirection} className="sc-home-feature-grid">
-            {featureNovels.slice(currentPage * 4, currentPage * 4 + 4).map((novel, index) => <motion.article key={novel.novelId} className="sc-home-feature-card"
-              initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: reduce ? 0 : 0.22, delay: reduce ? 0 : index * 0.045, ease: [0.22, 1, 0.36, 1] }}>
-              <Link className="sc-home-feature-cover sc-cover-hover" to={novelPath(novel)} aria-label={`Đọc truyện: ${novel.title}`}>
-                <div className="sc-home-feature-artwork"><HomeCover novel={novel} /></div>
-                <div className="sc-home-feature-caption"><span>{statusLabels[novel.serialStatus ?? novel.status ?? ''] ?? 'Đang ra'}</span><h2>{novel.title}</h2></div>
-              </Link><NovelQuickPreview novel={novel} to={novelPath(novel)} />
-            </motion.article>)}
+            {visibleFeatureSlice.map((novel, index) => {
+              const genreName = primaryGenre(novel);
+              return <motion.article key={novel.novelId} className="sc-home-feature-card"
+                initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: reduce ? 0 : 0.22, delay: reduce ? 0 : index * 0.045, ease: [0.22, 1, 0.36, 1] }}>
+                <Link className="sc-home-feature-cover sc-cover-hover" to={novelPath(novel)} aria-label={`Đọc truyện: ${novel.title}`}>
+                  <div className="sc-home-feature-artwork"><HomeCover novel={novel} eager /></div>
+                  <div className="sc-home-feature-caption"><span data-completed={isCompletedNovel(novel) || undefined}>{novelStatusLabel(novel)}{genreName ? ` · ${genreName}` : ''}</span><h2>{novel.title}</h2></div>
+                </Link><NovelQuickPreview novel={novel} to={novelPath(novel)} />
+              </motion.article>;
+            })}
           </HomeResults>
           </div>
           {featureNovels.length > 4 && <div className="sc-home-carousel-controls">
@@ -111,13 +131,13 @@ export function ReaderHomePage() {
           </div>}
         </section>
 
-        <aside className="sc-home-ranking" aria-label="Bảng đọc nhiều">
-          <HomeHeading title="Đọc nhiều" icon="trending_up" />
-          <HomeSectionState query={popular} empty="Chưa có truyện trong bảng đọc nhiều" variant="ranking" />
+        <aside className="sc-home-ranking" aria-label="Bảng yêu thích">
+          <HomeHeading title="Yêu thích" icon="favorite" />
+          <HomeSectionState query={ranking} empty="Chưa có truyện trong bảng xếp hạng" variant="ranking" />
           <ol>
-            {(popular.data ?? []).slice(0, 5).map((novel, index) => <li key={novel.novelId}>
+            {rankingNovels.map((novel, index) => <li key={novel.novelId}>
               <span className="sc-home-rank" data-top={index < 3}>{String(index + 1).padStart(2, '0')}</span>
-              <Link to={novelPath(novel)}><h3>{novel.title}</h3><span><Icon name="visibility" />{count(novel.viewsCount)} lượt đọc</span></Link>
+              <Link to={novelPath(novel)}><h3>{novel.title}</h3><span>{(novel.likesCount ?? 0) > 0 ? <><Icon name="favorite" />{count(novel.likesCount)} lượt thích</> : <><Icon name="visibility" />{count(novel.viewsCount)} lượt đọc</>}</span></Link>
             </li>)}
           </ol>
         </aside>
@@ -146,7 +166,7 @@ export function ReaderHomePage() {
 
       <div className="sc-home-bottom">
         <section className="sc-home-panel" aria-label="Truyện mới cập nhật">
-          <HomeHeading title="Mới cập nhật" icon="update"><Link className="sc-home-more" to={catalogPath}>Tất cả truyện<Icon name="arrow_forward" /></Link></HomeHeading>
+          <HomeHeading title="Mới cập nhật" icon="update"><Link className="sc-home-more" to={`${catalogPath}?sort=updatedAt:desc`}>Xem thêm<Icon name="arrow_forward" /></Link></HomeHeading>
           <HomeSectionState query={latest} empty="Chưa có truyện cập nhật" variant="rows" />
           <div className="sc-home-updates">
             {(latest.data ?? []).slice(0, 10).map(novel => <article className="sc-home-update" key={novel.novelId}>
@@ -155,19 +175,18 @@ export function ReaderHomePage() {
                 <Link className="sc-home-novel-title" to={novelPath(novel)}>{novel.title}</Link>
                 {novel.latestChapter ? <Link className="sc-home-chapter" to={`${catalogPath}/chapters/${novel.latestChapter.chapterId}`}>{/^\s*(?:chương|chapter)\s*\d+/iu.test(novel.latestChapter.title) ? novel.latestChapter.title : `Chương ${novel.latestChapter.chapterNumber}: ${novel.latestChapter.title}`}</Link> : <span className="sc-home-chapter">{count(novel.chaptersCount)} chương</span>}
               </div>
-              <span className="sc-home-update-status">{statusLabels[novel.serialStatus ?? novel.status ?? ''] ?? 'Đang ra'}</span>
+              <span className="sc-home-update-status" data-completed={isCompletedNovel(novel) || undefined}>{novelStatusLabel(novel)}</span>
               <time className="sc-home-time" dateTime={novel.updatedAt} title={novel.updatedAt ? new Date(novel.updatedAt).toLocaleString('vi-VN') : undefined}>{relativeTime(novel.updatedAt)}</time>
             </article>)}
           </div>
         </section>
         <aside className="sc-home-panel sc-home-completed" aria-label="Truyện đã hoàn thành">
-          <HomeHeading title="Đã hoàn thành" icon="task_alt" />
+          <HomeHeading title="Đã hoàn thành" icon="task_alt"><Link className="sc-home-more" to={`${catalogPath}?status=COMPLETED`}>Xem thêm<Icon name="arrow_forward" /></Link></HomeHeading>
           <HomeSectionState query={completed} empty="Chưa có truyện hoàn thành" />
           <div className="sc-home-completed-list">{(completed.data ?? []).slice(0, 5).map(novel => <CompactNovel key={novel.novelId} novel={novel} to={novelPath(novel)} />)}</div>
-          <Link className="sc-home-more sc-home-completed-more" to={catalogPath}>Tìm thêm truyện<Icon name="arrow_forward" /></Link>
         </aside>
       </div>
-      <footer className="sc-home-footer"><Link to="/" className="sc-home-footer-brand">StoryCraft <span>Văn Hoa</span></Link><span>Mỗi câu chuyện mở ra một thế giới.</span><Link to={catalogPath}>Danh sách truyện<Icon name="arrow_forward" /></Link></footer>
+      <footer className="sc-home-footer"><Link to="/" className="sc-home-footer-brand">StoryCraft <span>Văn Hoa</span></Link><Link to={catalogPath}>Danh sách truyện<Icon name="arrow_forward" /></Link></footer>
     </main>
   </>;
 }
@@ -176,10 +195,10 @@ function Icon({ name }: { name: string }) {
   return <span className="material-symbols-outlined" aria-hidden="true">{name}</span>;
 }
 
-function HomeCover({ novel }: { novel: ReaderNovel }) {
+function HomeCover({ novel, eager = false }: { novel: ReaderNovel; eager?: boolean }) {
   const [failedUrl, setFailedUrl] = useState<string>();
   return novel.coverImageUrl && novel.coverImageUrl !== failedUrl
-    ? <img src={novel.coverImageUrl} alt={novel.title} loading="lazy" onError={() => setFailedUrl(novel.coverImageUrl ?? undefined)} />
+    ? <img src={novel.coverImageUrl} alt="" loading={eager ? 'eager' : 'lazy'} fetchPriority={eager ? 'high' : undefined} onError={() => setFailedUrl(novel.coverImageUrl ?? undefined)} />
     : <span className="sc-home-cover-placeholder" aria-hidden="true"><Icon name="auto_stories" /></span>;
 }
 
@@ -189,9 +208,14 @@ function HomeHeading({ title, icon, children }: { title: string; icon: string; c
 
 function CompactNovel({ novel, to, preview = false }: { novel: ReaderNovel; to: string; preview?: boolean }) {
   const reduce = useReducedMotion();
+  const genreName = primaryGenre(novel);
   return <motion.article layout={reduce ? false : 'position'} transition={{ duration: .2 }} className="sc-home-compact">
     <Link className="sc-home-compact-cover sc-cover-hover" to={to} aria-label={`Đọc truyện: ${novel.title}`}><HomeCover novel={novel} /></Link>
-    <div><Link className="sc-home-novel-title" to={to}>{novel.title}</Link><span className="sc-home-compact-status">{statusLabels[novel.serialStatus ?? novel.status ?? ''] ?? 'Đang ra'}</span><span className="sc-home-compact-metrics">{count(novel.chaptersCount)} chương<span>·</span>{count(novel.viewsCount)} lượt đọc</span></div>
+    <div>
+      <Link className="sc-home-novel-title" to={to}>{novel.title}</Link>
+      <span className="sc-home-compact-status"><span data-completed={isCompletedNovel(novel) || undefined}>{novelStatusLabel(novel)}</span>{genreName && <span className="sc-home-compact-genre" translate="no"> · {genreName}</span>}</span>
+      <span className="sc-home-compact-metrics">{count(novel.chaptersCount)} chương<span>·</span>{count(novel.viewsCount)} lượt đọc</span>
+    </div>
     {preview && <NovelQuickPreview novel={novel} to={to} />}
   </motion.article>;
 }

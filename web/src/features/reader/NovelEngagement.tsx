@@ -67,7 +67,7 @@ export function NovelEngagement({ novelId, authorId, onSaved }: { novelId: strin
         </div>
         <Textarea label="Nhận xét về tác phẩm" placeholder="Chia sẻ cảm nhận của bạn…" value={review}
           onChange={event => { setReview(event.currentTarget.value); setNotice(''); }} maxLength={2000}
-          autosize minRows={10} maxRows={24} disabled={rating.isPending} description="Tối đa 2.000 ký tự." />
+          autosize minRows={4} maxRows={16} disabled={rating.isPending} />
         <Text size="xs" c="dimmed" ta="right" aria-live="polite">{review.length.toLocaleString('vi-VN')}/2.000 ký tự</Text>
         <Group>
           <Button type="submit" disabled={!validScore || !dirty} loading={rating.isPending}>{stats.myRating === null ? 'Đăng đánh giá' : 'Lưu đánh giá'}</Button>

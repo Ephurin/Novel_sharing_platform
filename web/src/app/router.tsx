@@ -1,3 +1,5 @@
+import { ConnectionsPage, ReaderProfilePage } from '../features/reader/ConnectionsPage';
+import { FeedbackPage } from '../features/reader/PrivateComments';
 import { AdminAuditPage } from '../features/admin/AdminAuditPage';
 import { AdminAppealsPage } from '../features/admin/AdminAppealsPage';
 import { AdminUserDetailPage } from '../features/admin/AdminUserDetailPage';
@@ -25,6 +27,7 @@ import { AuthGate, OptionalSession, RoleGuard } from '../features/auth/AuthGate'
 import { ReaderHomePage } from '../features/reader/ReaderHomePage';
 import { ReaderNovelReviewsPage } from '../features/reader/ReaderNovelReviewsPage';
 import { ReadingBookmarksPage } from '../features/reader/ReadingBookmarksPage';
+import { ReaderCollectionsLayout } from '../features/reader/ReaderCollectionsLayout';
 import { NotificationsPage } from '../features/notifications/NotificationsPage';
 import { AuthorProfilePage, MyProfilePage } from '../features/profile/ProfilePage';
 import {
@@ -42,6 +45,7 @@ import { WalletPage } from '../features/wallet/WalletPage';
 import { ManuscriptImportPage } from '../features/manuscript-import/ManuscriptImportPage';
 
 export const router = createBrowserRouter([
+  { path: '/readers/:userId', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><ReaderProfilePage /></main></AuthorTheme></OptionalSession> },
   { path: '/public/bookmarks', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><ReadingBookmarksPage publicMode /></main></AuthorTheme></OptionalSession> },
   {
     path: '/',
@@ -212,6 +216,9 @@ export const router = createBrowserRouter([
       </AuthGate>
     ),
     children: [
+      { path: '/reader/connections', element: <ConnectionsPage /> },
+
+      { path: '/reader/feedback', element: <FeedbackPage /> },
       {
         path: '/reader',
         element: <ReaderPage />
@@ -229,13 +236,12 @@ export const router = createBrowserRouter([
         element: <ReaderChapterPage />
       },
       {
-        path: '/reader/library',
-        element: <ReaderLibraryPage />
-      },
-      { path: '/reader/bookmarks', element: <ReadingBookmarksPage /> },
-      {
-        path: '/reader/history',
-        element: <ReaderHistoryPage />
+        element: <ReaderCollectionsLayout />,
+        children: [
+          { path: '/reader/library', element: <ReaderLibraryPage /> },
+          { path: '/reader/bookmarks', element: <ReadingBookmarksPage /> },
+          { path: '/reader/history', element: <ReaderHistoryPage /> }
+        ]
       },
       {
         path: '/notifications',

@@ -1,3 +1,5 @@
+import { authorizeComment, privateComment, validateMentions } from './comment-privacy.js';
+import { createPrivate, updatePrivate, listPrivate, privateReplies } from './private-comments.service.js';
 import { isContentAdmin } from '../../core/security/auth-context.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
@@ -31,7 +33,7 @@ async function validateAttachment(input: { imageUrl?: string | null; gifId?: str
   if (input.imageUrl) throw new AppError(400, 'GIF_UPLOAD_DISABLED', 'Tạm ngưng GIF cá nhân. Hãy bỏ tệp và chọn GIF từ kho GIPHY.');
   if (input.gifId) await validateGiphyGif(input.gifId, userId);
 }
-async function moderateComment(comment: CommentDocument, userId: string, client: PoolClient) {
+export async function moderateComment(comment: CommentDocument, userId: string, client: PoolClient) {
   const result = await checkContent({ targetType: 'COMMENT', targetId: comment.commentId, content: comment.content, submittedBy: userId,
     forceReview: Boolean(comment.gifId),
     publicationSnapshot: comment.gifId ? { title: 'Bình luận kèm GIF', content: comment.content, wordCount: 0, gifId: comment.gifId } : undefined
@@ -41,9 +43,12 @@ async function moderateComment(comment: CommentDocument, userId: string, client:
 async function create(auth: AuthContext, id: string, kind: 'chapter' | 'novel', input: CreateCommentInput) {
   await activeAccount(auth);
   const target = await publishedTarget(id, kind);
+  if (input.audience && input.audience !== 'PUBLIC') return createPrivate(auth,target.novelId,target.chapterId,input);
+  if (input.anchor || input.recipientUserIds) throw new AppError(400,'COMMENT_SCOPE','Public comments cannot carry private scope');
+  const mentions = await validateMentions(auth.userId,input.content,input.mentions);
   await validateAttachment(input, auth.userId);
   const comment = await createCommentRow({ ...target, userId: auth.userId, paragraphOffset: kind === 'chapter' ? input.paragraphOffset : null,
-    content: input.content, isSpoiler: input.isSpoiler, imageUrl: input.imageUrl, gifId: input.gifId });
+    content: input.content, mentions, isSpoiler: input.isSpoiler, imageUrl: input.imageUrl, gifId: input.gifId });
   let moderated;
   try {
     moderated = await withCommentWriteLock(comment.commentId, client => moderateComment(comment, auth.userId, client));
@@ -58,6 +63,7 @@ export function createNovelComment(auth: AuthContext, novelId: string, input: Cr
 
 async function list(id: string, kind: 'chapter' | 'novel', input: ListCommentsInput & { scope?: 'NOVEL' | 'ALL' }, auth?: AuthContext) {
   const target = await publishedTarget(id, kind);
+  if (input.channel && input.channel !== 'PUBLIC') return listPrivate(auth,input,{novelId:target.novelId,...(kind==='chapter'?{chapterId:target.chapterId}:{})});
   const viewer = auth ? await findAuthUserById(auth.userId) : null;
   const allChapters = kind === 'novel' && input.scope === 'ALL';
   const published = allChapters ? await getPostgresPool().query("select chapter_id from chapters where novel_id = $1 and status = 'PUBLISHED' and deleted_at is null", [target.novelId]) : null;
@@ -71,7 +77,7 @@ async function list(id: string, kind: 'chapter' | 'novel', input: ListCommentsIn
 export function listComments(chapterId: string, input: ListCommentsInput, auth?: AuthContext) { return list(chapterId, 'chapter', input, auth); }
 export function listNovelComments(novelId: string, input: ListCommentsInput & { scope?: 'NOVEL' | 'ALL' }, auth?: AuthContext) { return list(novelId, 'novel', input, auth); }
 
-async function present(result: { items: CommentDocument[]; totalItems: number }, input: { page: number; limit: number }, auth: AuthContext | undefined, novel: { authorId: string; status: string }) {
+export async function present(result: { items: CommentDocument[]; totalItems: number }, input: { page: number; limit: number }, auth: AuthContext | undefined, novel: { authorId: string; status: string }) {
   const ids = [...new Set(result.items.flatMap(comment => [comment.userId, ...(comment.replyToUserId ? [comment.replyToUserId] : [])]))];
   const chapterIds = [...new Set(result.items.map(comment => comment.chapterId).filter((id): id is string => Boolean(id)))];
   const [profiles, chapters, counts, reactions] = await Promise.all([
@@ -88,7 +94,7 @@ async function present(result: { items: CommentDocument[]; totalItems: number },
   return {
     data: result.items.map(comment => {
       const chapter = comment.chapterId ? byChapter.get(comment.chapterId) : null;
-      return { commentId: comment.commentId, chapterId: comment.chapterId, novelId: comment.novelId, userId: comment.userId,
+      return { audience: comment.audience ?? 'PUBLIC', mentions: comment.mentions ?? [], commentId: comment.commentId, chapterId: comment.chapterId, novelId: comment.novelId, userId: comment.userId,
         parentCommentId: comment.parentCommentId ?? null, repliesCount: replyCounts.get(comment.commentId) ?? 0,
         replyToCommentId: comment.replyToCommentId ?? null,
         replyToUserId: comment.replyToUserId ?? null,
@@ -126,6 +132,9 @@ export async function listAuthorComments(auth: AuthContext, novelId: string, inp
 export async function createCommentReply(auth: AuthContext, parentId: string, input: UpdateCommentInput) {
   await activeAccount(auth);
   const target = await findCommentById(parentId);
+  if (target && privateComment(target)) return createPrivate(auth,target.novelId,target.chapterId,input,target.commentId);
+  if (input.audience !== undefined || input.recipientUserIds !== undefined || input.anchor !== undefined) throw new AppError(400,'COMMENT_SCOPE_IMMUTABLE','Reply inherits scope');
+  await validateMentions(auth.userId,input.content,input.mentions);
   if (!target || !isCommentPublic(target)) throw new AppError(404, 'CONTENT_001', 'Comment not found');
   const parent = target.parentCommentId ? await findCommentById(target.parentCommentId) : target;
   if (!parent || parent.parentCommentId || !isCommentPublic(parent) || parent.novelId !== target.novelId || parent.chapterId !== target.chapterId) throw new AppError(404, 'CONTENT_001', 'Comment not found');
@@ -133,7 +142,7 @@ export async function createCommentReply(auth: AuthContext, parentId: string, in
   await validateAttachment(input, auth.userId);
   const reply = await createCommentRow({ novelId: parent.novelId, chapterId: parent.chapterId, parentCommentId: parent.commentId, userId: auth.userId,
     replyToCommentId: target.commentId, replyToUserId: target.userId,
-    content: input.content, imageUrl: input.imageUrl, gifId: input.gifId, isSpoiler: Boolean(parent.isSpoiler || target.isSpoiler || input.isSpoiler) });
+    content: input.content, mentions: input.mentions, imageUrl: input.imageUrl, gifId: input.gifId, isSpoiler: Boolean(parent.isSpoiler || target.isSpoiler || input.isSpoiler) });
   if (!await findCommentById(parent.commentId) || !await findCommentById(target.commentId)) { await softDeleteComment(reply.commentId); throw new AppError(404, 'CONTENT_001', 'Comment not found'); }
   let moderated;
   try {
@@ -145,8 +154,9 @@ export async function createCommentReply(auth: AuthContext, parentId: string, in
   return { commentId: reply.commentId, parentCommentId: parent.commentId, status: moderated?.status ?? 'PENDING_MODERATION' };
 }
 
-export async function listCommentReplies(parentId: string, input: ListCommentsInput, auth?: AuthContext) {
+export async function listCommentReplies(parentId: string, input: ListCommentsInput, auth?: AuthContext, focus?: CommentDocument) {
   const parent = await findCommentById(parentId);
+  if (parent && privateComment(parent)) return privateReplies(parentId,input,auth,focus);
   if (!parent || parent.parentCommentId) throw new AppError(404, 'CONTENT_001', 'Comment not found');
   const viewer = auth ? await findAuthUserById(auth.userId) : null;
   const viewerAuth = viewer?.status === 'ACTIVE' && viewer.role === auth?.role ? auth : undefined;
@@ -155,8 +165,11 @@ export async function listCommentReplies(parentId: string, input: ListCommentsIn
   if (!manager) await publishedTarget(parent.chapterId ?? parent.novelId, parent.chapterId ? 'chapter' : 'novel');
   if (!novel) throw new AppError(404, 'CONTENT_001', 'Content not found');
   if (!isCommentPublic(parent) && parent.userId !== viewerAuth?.userId) throw new AppError(404, 'CONTENT_001', 'Comment not found');
-  const result = await listApprovedComments({ novelId: parent.novelId, chapterId: parent.chapterId, parentCommentId: parentId, viewerId: viewerAuth?.userId, page: input.page, limit: input.limit });
-  return present(result, input, viewerAuth, novel);
+  const filter = { novelId: parent.novelId, chapterId: parent.chapterId, parentCommentId: parentId, viewerId: viewerAuth?.userId, page: input.page, limit: input.limit };
+  if (focus) filter.page = await commentPage(focus, filter);
+  const result = await listApprovedComments(filter);
+  if (focus && !result.items.some(item => item.commentId === focus.commentId)) throw new AppError(404, 'CONTENT_001', 'Comment not found');
+  return present(result, filter, viewerAuth, novel);
 }
 
 export async function locateComment(commentId: string, input: CommentLocationInput, auth?: AuthContext) {
@@ -165,6 +178,7 @@ export async function locateComment(commentId: string, input: CommentLocationInp
   const viewerId = viewer?.status === 'ACTIVE' && viewer.role === auth?.role ? auth?.userId : undefined;
   const visible = (comment: CommentDocument | null) => comment && (isCommentPublic(comment) || comment.userId === viewerId);
   const comment = await findCommentById(commentId);
+  if (comment && privateComment(comment)) throw new AppError(404,'CONTENT_001','Use the authenticated thread endpoint');
   if (!visible(comment) || !comment || comment.novelId !== target.novelId || (input.kind === 'chapter' && comment.chapterId !== target.chapterId)) {
     throw new AppError(404, 'CONTENT_001', 'Bình luận không còn hiển thị.');
   }
@@ -184,6 +198,10 @@ export async function locateComment(commentId: string, input: CommentLocationInp
 
 export async function updateComment(auth: AuthContext, commentId: string, input: UpdateCommentInput) {
   await activeAccount(auth);
+  const existing = await findCommentById(commentId);
+  if (existing && privateComment(existing)) return updatePrivate(auth,existing,input);
+  if (input.audience !== undefined || input.recipientUserIds !== undefined || input.anchor !== undefined) throw new AppError(400,'COMMENT_SCOPE_IMMUTABLE','Cannot change scope');
+  await validateMentions(auth.userId,input.content,input.mentions);
   return withCommentWriteLock(commentId, async client => {
     const comment = await findCommentById(commentId);
     if (!comment) throw new AppError(404, 'CONTENT_001', 'Content not found');
@@ -193,7 +211,7 @@ export async function updateComment(auth: AuthContext, commentId: string, input:
     if (input.imageUrl) changes.gifId = null;
     if (input.gifId) changes.imageUrl = null;
     await validateAttachment({ ...comment, ...changes }, auth.userId);
-    if (comment.gifId || comment.imageUrl || changes.gifId || changes.imageUrl) {
+    { // Every edit supersedes pending review evidence, including text-only mentions.
       await client.query("update moderation_reviews set status='REVISION_REQUIRED',reason='Superseded by an edited comment',reviewed_at=now() where target_type='COMMENT' and target_id=$1 and source='KEYWORD_FILTER' and status='PENDING'", [commentId]);
     }
     const updated = await updateCommentContent(commentId, input.content, changes);
@@ -206,6 +224,11 @@ export async function deleteComment(auth: AuthContext, commentId: string) {
   await activeAccount(auth);
   const comment = await findCommentById(commentId);
   if (!comment) throw new AppError(404, 'CONTENT_001', 'Content not found');
+  if (privateComment(comment)) {
+    await authorizeComment(comment,auth);
+    if (comment.userId !== auth.userId) throw new AppError(403,'AUTH_008','Only the writer can delete');
+    await softDeleteComment(commentId); return;
+  }
   const novel = await findNovelById(comment.novelId);
   const ownsNovel = auth.role === 'AUTHOR' && novel?.authorId === auth.userId;
   if (comment.userId !== auth.userId && !isContentAdmin(auth) && !ownsNovel) throw new AppError(403, 'AUTH_008', 'Unauthorized action');
@@ -215,6 +238,12 @@ export async function deleteComment(auth: AuthContext, commentId: string) {
 export async function reactToComment(auth: AuthContext, commentId: string, reaction: CommentReaction | null) {
   await activeAccount(auth);
   const comment = await findCommentById(commentId);
+  if (comment && privateComment(comment)) {
+    await authorizeComment(comment,auth,true);
+    await setCommentReaction(commentId,auth.userId,reaction);
+    const [counts] = await commentReactionCounts([commentId],auth.userId);
+    return {likesCount:counts?.likesCount??0,dislikesCount:counts?.dislikesCount??0,myReaction:counts?.myReaction??null};
+  }
   if (!comment || !isCommentPublic(comment)) throw new AppError(404, 'CONTENT_001', 'Comment not found');
   if (comment.parentCommentId) {
     const parent = await findCommentById(comment.parentCommentId);

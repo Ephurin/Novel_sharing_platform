@@ -35,7 +35,11 @@ Stores autosaved and editable chapter drafts.
 
 ## 2. comments
 
-Stores chapter and inline comments.
+Stores novel, chapter and paragraph discussions. A missing `audience` on a legacy document means `PUBLIC`. Friend roots store the immutable recipient snapshot in `recipientUserIds`. Reads check both the snapshot and current mutual follow edges in PostgreSQL. Author feedback uses current novel ownership. Replies reference the root through `parentCommentId`.
+
+Paragraph anchors store the published content version, paragraph ID and index, quote and adjacent context. The API resolves the current paragraph or returns a detached anchor. Public structured mentions use UTF-16 offsets in trimmed content.
+
+Private list indexes cover `(audience, recipientUserIds, userId, createdAt desc)` and `(audience, novelId, chapterId, anchor.paragraphId)`. Access filters precede count and pagination.
 
 ```json
 {

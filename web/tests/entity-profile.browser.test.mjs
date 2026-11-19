@@ -76,7 +76,7 @@ test('AX02 mounted AuthorMemoryPanel profile component (MOCK HTTP ONLY)', { time
     catch { await context.close(); throw new Error('Fixture bootstrap failed: ' + consoleMessages.join(' | ').replaceAll('PRIVATE_SENTINEL', '[redacted]')); }
     const choose = async entity => {
       await page.getByRole('textbox', { name: 'Chọn entity theo UUID', exact: true }).click();
-      await page.getByRole('option', { name: new RegExp(entity) }).click();
+      await page.getByRole('option', { name: new RegExp('#' + entity.slice(-6)) }).click();
     };
     return { context, page, calls, records, profile, consoleMessages, choose, writes: () => writes,
       close: () => context.close() };

@@ -399,7 +399,7 @@ test('novel/chapter comments: permissions, moderation, pagination and isolation'
     assert.equal((await req('/comments/'+id,'PATCH',{content:'Clean edit'},readerToken)).body.data.status,'APPROVED');
     assert.equal((await req(n)).body.data[0].isSpoiler, true, 'Legacy edits preserve spoiler and attachment');
     assert.equal((await req(n)).body.data[0].imageUrl, null);
-    assert.equal((await req('/admin/moderation/reviews/'+review+'/resolve','POST',{decision:'REJECTED',reason:'Rejected by QA moderator'},adminToken)).status,200);assert.equal((await repo.findCommentById(id))?.status,'APPROVED');
+    assert.equal((await req('/admin/moderation/reviews/'+review+'/resolve','POST',{decision:'REJECTED',reason:'Rejected by QA moderator'},adminToken)).status,409, 'Edited content supersedes the old review');assert.equal((await repo.findCommentById(id))?.status,'APPROVED');
     await req(n,'POST',{content:'Second'},otherToken);
     const p1=await req(n+'?page=1&limit=1'),p2=await req(n+'?page=2&limit=1');assert.equal(p1.body.meta.totalPages,2);assert.notEqual(p1.body.data[0].commentId,p2.body.data[0].commentId);
     await pool.query("update users set status='LOCKED' where user_id=$1",[reader]);assert.equal((await req(n,'POST',{content:'locked'},readerToken)).status,403);assert.equal((await req('/comments/'+id,'DELETE',undefined,readerToken)).status,403);

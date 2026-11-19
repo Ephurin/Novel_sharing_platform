@@ -17,7 +17,7 @@ export function LoadingState({ label = 'Đang tải…', variant = 'detail' }: {
 }
 
 export function EmptyState({
-  title = 'Nothing here yet',
+  title,
   description,
   action
 }: {
@@ -28,8 +28,8 @@ export function EmptyState({
   return (
     <Paper p="lg" withBorder>
       <Stack gap="xs" align="flex-start">
-        <IconMoodEmpty size={24} />
-        <Title order={4}>{title}</Title>
+        <IconMoodEmpty size={24} aria-hidden="true" />
+        {title ? <Title order={4}>{title}</Title> : null}
         <Text c="dimmed">{description}</Text>
         {action}
       </Stack>
@@ -39,20 +39,22 @@ export function EmptyState({
 
 export function ErrorState({
   error,
-  title = 'Something went wrong',
+  title = 'Không thể tải dữ liệu',
+  retryLabel = 'Thử lại',
   onRetry
 }: {
   error: unknown;
   title?: string;
+  retryLabel?: string;
   onRetry?: () => void;
 }) {
   return (
-    <Alert color="red" icon={<IconAlertTriangle size={18} />} title={title}>
+    <Alert color="red" icon={<IconAlertTriangle size={18} aria-hidden="true" />} title={title}>
       <Stack gap="sm" align="flex-start">
         <Text size="sm">{getApiErrorMessage(error)}</Text>
         {onRetry ? (
           <Button size="xs" variant="light" color="red" onClick={onRetry}>
-            Retry
+            {retryLabel}
           </Button>
         ) : null}
       </Stack>
@@ -70,12 +72,12 @@ export function PermissionState({
   return (
     <Paper p="lg" withBorder>
       <Stack gap="xs" align="flex-start">
-        <IconLock size={24} />
-        <Title order={4}>Permission required</Title>
-        <Text c="dimmed">This screen requires: {requiredRole}.</Text>
+        <IconLock size={24} aria-hidden="true" />
+        <Title order={4}>Cần quyền truy cập</Title>
+        <Text c="dimmed">Trang này yêu cầu quyền: {requiredRole}.</Text>
         {onBack ? (
           <Button size="xs" variant="light" onClick={onBack}>
-            Go back
+            Quay lại
           </Button>
         ) : null}
       </Stack>

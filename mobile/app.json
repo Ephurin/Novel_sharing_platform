@@ -1,16 +1,21 @@
 {
   "expo": {
-    "name": "Ephurin Reader",
+    "name": "StoryCraft Văn Hoa",
     "slug": "ephurin-reader",
     "version": "0.1.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "dark",
-    "assetBundlePatterns": ["**/*"],
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "android": {
       "package": "com.ephurin.reader"
     },
     "extra": {
       "apiBaseUrl": "http://localhost:4000/api/v1"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

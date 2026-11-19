@@ -35,6 +35,7 @@ const optionalStringSchema = z.preprocess((value) => {
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  PRIVATE_COMMENTS_ENABLED: booleanStringSchema.default(false),
   PORT: z.coerce.number().int().positive().default(4000),
   API_PREFIX: z.string().default('/api/v1'),
   WEB_ORIGIN: z.string().url().default('http://localhost:5173'),

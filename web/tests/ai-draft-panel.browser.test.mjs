@@ -83,7 +83,7 @@ test('Starting a new draft retires the previous unaccepted one first', { timeout
   const accept = page.getByRole('button', { name: 'Chấp nhận bản thảo', exact: true });
   await accept.waitFor();
   await expect(page.locator('#studio-ai-panel')).toContainText('Bản nháp cũ.');
-  await page.getByRole('button', { name: '✍️ Viết tiếp', exact: true }).click();
+  await page.getByRole('button', { name: 'Viết tiếp', exact: true }).click();
   await expect(page.locator('#studio-ai-panel')).toContainText('Bản nháp mới.');
   assert.deepEqual(calls, ['dismiss job-old', 'start']);
 });

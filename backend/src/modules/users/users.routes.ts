@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { connectionsRoutes } from './connections.routes.js';
 import { optionalAuth, requireAuth } from '../../core/security/auth.middleware.js';
 import { validateRequest } from '../../core/validation/validate.js';
 import {
@@ -13,11 +14,12 @@ import { authorIdParamSchema, updateProfileSchema, updateSettingsSchema, userIdP
 
 export const usersRoutes = Router();
 export const authorsRoutes = Router();
+usersRoutes.use(connectionsRoutes);
 
 usersRoutes.get('/me/profile', requireAuth, getMyProfileController);
 usersRoutes.patch('/me/profile', requireAuth, validateRequest(updateProfileSchema), updateMyProfileController);
 usersRoutes.get('/me/settings', requireAuth, getMySettingsController);
 usersRoutes.patch('/me/settings', requireAuth, validateRequest(updateSettingsSchema), updateMySettingsController);
-usersRoutes.get('/:userId/profile', validateRequest(userIdParamSchema), getPublicProfileController);
+usersRoutes.get('/:userId/profile', optionalAuth, validateRequest(userIdParamSchema), getPublicProfileController);
 
 authorsRoutes.get('/authors/:authorId/profile', optionalAuth, validateRequest(authorIdParamSchema), getAuthorProfileController);

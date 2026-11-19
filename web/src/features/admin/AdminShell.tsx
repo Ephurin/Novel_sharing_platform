@@ -1,10 +1,11 @@
 import { SessionMarker } from '../../shared/components/AuthorTheme';
-import { useState } from 'react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { useEffect, useId, useState } from 'react';
+import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
+import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Button } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
 import { useAuthStore } from '../auth/useAuthStore';
-import { Navigate } from 'react-router-dom';
 import { useAdminAccess, scopeLabels, type Permission } from './admin-operations-api';
 import { LoadingState, ErrorState } from '../../shared/components/PageStates';
 import { NotificationBell } from '../notifications/NotificationBell';
@@ -19,7 +20,7 @@ const navigation = [
   ['/admin/taxonomy', 'sell', 'Thể loại & Tag'],
   ['/admin/moderation', 'fact_check', 'Kiểm duyệt'],
   ['/admin/reports', 'flag', 'Báo cáo người dùng'],
-  ['/admin/withdraws', 'payments', 'Yêu cầu rút tiền'],
+  ['/admin/withdraws', 'payments', 'Yêu cầu rút Xu'],
   ['/admin/appeals', 'forum', 'Khiếu nại'],
   ['/admin/audit', 'history', 'Nhật ký quản trị']
 ] as const;
@@ -36,7 +37,26 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
   const user = useAuthStore((state) => state.user);
   const location = useLocation();
   const [opened, setOpened] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 767px)');
+  const reduce = useReducedMotion();
+  const navGroupId = useId();
   const access = useAdminAccess();
+
+  useEffect(() => {
+    if (!isMobile && opened) setOpened(false);
+  }, [isMobile, opened]);
+
+  useEffect(() => {
+    if (!opened) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpened(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [opened]);
+
   const can = (path: string) => {
     const permissions = access.data?.permissions || [];
     const permission: Permission | undefined =
@@ -68,12 +88,14 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
           location.pathname === path ||
           (path !== '/admin' && location.pathname.startsWith(`${path}/`))
       )?.[2] ?? 'Bảng quản trị';
+
   return (
     <div className="admin-shell">
       {user && <SessionMarker role={user.role} username={user.username} />}
       <aside
         className={`admin-sidebar ${opened ? 'is-open' : ''}`}
         aria-label="Điều hướng quản trị"
+        inert={Boolean(isMobile && !opened)}
       >
         <Link className="admin-brand" to="/admin">
           <AdminIcon name="auto_stories" />
@@ -81,31 +103,48 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
           <span>Quản trị</span>
         </Link>
         <p className="admin-nav-label">Quản lý hệ thống</p>
-        <nav>
-          {navigation
-            .filter(([path]) => can(path))
-            .map(([path, icon, label]) => (
-              <NavLink
-                key={path}
-                to={path}
-                end={path === '/admin'}
-                onClick={() => setOpened(false)}
-              >
-                <AdminIcon name={icon} />
-                {label}
-              </NavLink>
-            ))}
-        </nav>
-        {access.data?.permissions.includes('content') && <div className="admin-sidebar-footer">
-          <Link to="/author">
-            <AdminIcon name="open_in_new" />
-            Xem trang tác giả
-            <AdminIcon name="arrow_forward" />
-          </Link>
-        </div>}
+        <LayoutGroup id={navGroupId}>
+          <nav>
+            {navigation
+              .filter(([path]) => can(path))
+              .map(([path, icon, label]) => (
+                <NavLink
+                  key={path}
+                  to={path}
+                  end={path === '/admin'}
+                  onClick={() => setOpened(false)}
+                >
+                  {({ isActive }) => (
+                    <>
+                      {isActive && (
+                        <motion.span
+                          layoutId="admin-sidebar-active-pill"
+                          className="admin-nav-pill"
+                          aria-hidden="true"
+                          transition={reduce ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                        />
+                      )}
+                      <AdminIcon name={icon} />
+                      <span>{label}</span>
+                    </>
+                  )}
+                </NavLink>
+              ))}
+          </nav>
+        </LayoutGroup>
+        {access.data?.permissions.includes('content') && (
+          <div className="admin-sidebar-footer">
+            <Link to="/author">
+              <AdminIcon name="open_in_new" />
+              Xem trang tác giả
+              <AdminIcon name="arrow_forward" />
+            </Link>
+          </div>
+        )}
       </aside>
       {opened && (
         <button
+          type="button"
           className="admin-nav-overlay"
           aria-label="Đóng điều hướng"
           onClick={() => setOpened(false)}
@@ -114,6 +153,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
       <header className="admin-topbar">
         <div className="admin-breadcrumb">
           <button
+            type="button"
             className="admin-mobile-toggle"
             aria-label="Mở điều hướng"
             aria-expanded={opened}
@@ -127,7 +167,15 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
           <strong>{title}</strong>
         </div>
         <div className="admin-account">
-          <WorkspaceCommands commands={access.data ? navigation.filter(([path]) => can(path)).map(([to, icon, label]) => ({ to, icon, label })) : []} />
+          <WorkspaceCommands
+            commands={
+              access.data
+                ? navigation
+                    .filter(([path]) => can(path))
+                    .map(([to, icon, label]) => ({ to, icon, label }))
+                : []
+            }
+          />
           <ThemeControl />
           <NotificationBell />
           <Menu position="bottom-end">
@@ -164,7 +212,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
         )}
         <footer className="admin-footer">
           <AdminIcon name="auto_stories" />
-          StoryCraft Publishing CMS <span>• Dành riêng cho Quản trị viên</span>
+          StoryCraft · Hệ thống quản trị xuất bản <span>• Dành riêng cho Quản trị viên</span>
         </footer>
       </main>
     </div>
