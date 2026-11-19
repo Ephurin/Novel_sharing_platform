@@ -9,9 +9,16 @@ const passwordSchema = z
 
 export const registerSchema = z.object({
   body: z.object({
-    email: z.string().email(),
+    email: z.string().email().max(255),
     username: z.string().min(3).max(50).regex(/^[a-zA-Z0-9_]+$/),
     password: passwordSchema
+  })
+});
+
+export const verifyRegistrationSchema = z.object({
+  body: z.object({
+    registrationId: z.string().uuid(),
+    code: z.string().regex(/^\d{8}$/)
   })
 });
 

@@ -30,6 +30,21 @@ docker-compose logs -f backend
 
 If your Docker installation supports the newer plugin command, `docker compose ...` is also valid.
 
+## Email confirmation
+
+Password registration sends an eight-digit code and creates the account after the code is confirmed. For local testing, set these values in the root `.env` file and start the `dev-mail` profile:
+
+```dotenv
+SMTP_URL=smtp://mailpit:1025
+SMTP_FROM="StoryCraft <no-reply@storycraft.test>"
+```
+
+```powershell
+docker compose --profile dev-mail up -d --build
+```
+
+Open the Mailpit inbox at `http://localhost:8026`. A backend running directly on the host can use `smtp://localhost:1026` instead. For real delivery, set `SMTP_URL` to the SMTP provider's connection URL and `SMTP_FROM` to its verified sender. Keep credentials in environment configuration. Authentication over `smtp://` requires STARTTLS when credentials are present. A provider using implicit TLS can use `smtps://`.
+
 ## Demo Seed
 
 The backend container automatically runs migrations and seed when these compose variables are enabled:

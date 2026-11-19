@@ -1,13 +1,20 @@
 import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
 import type { AuthSession, AuthUser } from './auth-types';
 
+export type PendingRegistration = { registrationId: string; email: string };
+
 export async function login(input: { identifier: string; password: string }) {
   const response = await apiClient.post<ApiEnvelope<AuthSession>>('/auth/login', input);
   return response.data.data;
 }
 
 export async function register(input: { email: string; username: string; password: string }) {
-  const response = await apiClient.post<ApiEnvelope<AuthSession>>('/auth/register', input);
+  const response = await apiClient.post<ApiEnvelope<PendingRegistration>>('/auth/register', input);
+  return response.data.data;
+}
+
+export async function verifyRegistration(registrationId: string, code: string) {
+  const response = await apiClient.post<ApiEnvelope<AuthSession>>('/auth/register/verify', { registrationId, code });
   return response.data.data;
 }
 

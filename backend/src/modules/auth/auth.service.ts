@@ -1,6 +1,6 @@
 import { promoteReaderToAuthor } from './auth.repository.js';
 import bcrypt from 'bcryptjs';
-import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { createHash, createHmac, randomBytes, randomInt, randomUUID, timingSafeEqual } from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import type { PoolClient } from 'pg';
 import { env } from '../../core/config/env.js';
@@ -11,17 +11,23 @@ import {
   consumeGoogleChallenge,
   createRefreshToken,
   createUserAccount,
+  deletePendingRegistration,
   findAuthUserByEmailOrUsername,
   findAuthUserById,
   findGoogleAccount,
   findValidRefreshToken,
   linkGoogleAccount,
+  lockPendingRegistration,
+  recordFailedRegistrationCode,
+  registrationConflicts,
   revokeRefreshToken,
+  savePendingRegistration,
   updateLastLoginAt,
   updatePasswordHash
 } from './auth.repository.js';
 import type { AuthUser, PublicAuthUser } from './auth.types.js';
 import type { ChangePasswordInput, LoginInput, RegisterInput } from './auth.schemas.js';
+import { sendRegistrationCode } from './registration-mail.js';
 
 const refreshTokenPayloadSchema = {
   issuer: 'ephurin-api',
@@ -103,41 +109,72 @@ async function issueTokenPair(user: AuthUser, client?: PoolClient) {
   };
 }
 
+const registrationCodeMinutes = 15;
+
+function registrationCodeHash(registrationId: string, code: string) {
+  return createHmac('sha256', env.JWT_REFRESH_SECRET).update(`registration:${registrationId}:${code}`).digest('hex');
+}
+
+async function assertRegistrationAvailable(email: string, username: string, client?: PoolClient) {
+  const conflicts = await registrationConflicts(email, username, client);
+  if (conflicts.email) throw new AppError(409, 'USER_005', 'Email này đã có tài khoản.');
+  if (conflicts.username) throw new AppError(409, 'USER_004', 'Tên người dùng đã được sử dụng.');
+}
+
 export async function register(input: RegisterInput) {
+  const email = input.email.toLowerCase();
+  await assertRegistrationAvailable(email, input.username);
+  const registrationId = randomUUID();
+  const code = randomInt(100_000_000).toString().padStart(8, '0');
   const passwordHash = await bcrypt.hash(input.password, 12);
+  const saved = await savePendingRegistration({
+    registrationId, email, username: input.username, passwordHash,
+    codeHash: registrationCodeHash(registrationId, code),
+    expiresAt: new Date(Date.now() + registrationCodeMinutes * 60_000)
+  });
+  if (!saved) throw new AppError(429, 'AUTH_EMAIL_RATE_LIMIT', 'Hãy đợi một phút trước khi yêu cầu mã mới.');
 
   try {
-    const user = await withPostgresTransaction(async (client) =>
-      createUserAccount(client, {
-        email: input.email,
-        username: input.username,
-        passwordHash
-      })
-    );
-    const tokens = await issueTokenPair(user);
-
-    return {
-      user: toPublicUser(user),
-      ...tokens
-    };
+    await sendRegistrationCode(email, code, registrationCodeMinutes);
   } catch (error) {
-    if (
-      typeof error === 'object' &&
-      error !== null &&
-      'code' in error &&
-      error.code === '23505'
-    ) {
-      const detail = 'detail' in error ? String(error.detail) : '';
+    await deletePendingRegistration(registrationId);
+    throw error;
+  }
 
-      if (detail.includes('email')) {
-        throw new AppError(409, 'USER_005', 'Email already exists');
+  return { registrationId, email };
+}
+
+export async function verifyRegistration(registrationId: string, code: string) {
+  try {
+    const session = await withPostgresTransaction(async (client) => {
+      const pending = await lockPendingRegistration(client, registrationId);
+      if (!pending) return null;
+      const hash = registrationCodeHash(registrationId, code);
+      if (!timingSafeEqual(Buffer.from(pending.code_hash, 'hex'), Buffer.from(hash, 'hex'))) {
+        await recordFailedRegistrationCode(client, registrationId);
+        return null;
       }
 
-      if (detail.includes('username')) {
-        throw new AppError(409, 'USER_004', 'Username already exists');
+      await assertRegistrationAvailable(pending.email, pending.username, client);
+      const user = await createUserAccount(client, {
+        email: pending.email,
+        username: pending.username,
+        passwordHash: pending.password_hash
+      });
+      await deletePendingRegistration(registrationId, client);
+      return { user: toPublicUser(user), ...await issueTokenPair(user, client) };
+    });
+    if (!session) throw new AppError(400, 'AUTH_EMAIL_CODE', 'Mã không đúng hoặc đã hết hiệu lực. Hãy kiểm tra lại hoặc yêu cầu mã mới.');
+    return session;
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'constraint' in error) {
+      if (error.constraint === 'users_email_key') {
+        throw new AppError(409, 'USER_005', 'Email này đã có tài khoản.');
+      }
+      if (error.constraint === 'users_username_key') {
+        throw new AppError(409, 'USER_004', 'Tên người dùng đã được sử dụng.');
       }
     }
-
     throw error;
   }
 }

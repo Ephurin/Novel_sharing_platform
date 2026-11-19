@@ -3,13 +3,15 @@ import { generateKeyPairSync } from 'node:crypto';
 import type { AddressInfo } from 'node:net';
 import { test } from 'node:test';
 import { OAuth2Client } from 'google-auth-library';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createApp } from '../../app.js';
 import { env } from '../../core/config/env.js';
 import { disconnectMongo, getMongoDatabase } from '../../core/database/mongo.js';
 import { disconnectPostgres, getPostgresPool } from '../../core/database/postgres.js';
 import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
-import { register } from './auth.service.js';
+import { withPostgresTransaction } from '../../core/database/transaction.js';
+import { createUserAccount } from './auth.repository.js';
 import type { PublicAuthUser } from './auth.types.js';
 
 type TestResponse = {
@@ -95,15 +97,18 @@ test('Google sign-in validates the web challenge and links only with the existin
   const locked = await challenge();
   assert.equal((await post('/google', { credential: credential(locked.nonce, 'google-new-user', email) }, locked.cookie)).response.status, 403);
 
-  const existing = await register({ email: 'password-google@example.test', username: 'google_existing_account', password: 'StrongPassword123!' });
+  const existing = await withPostgresTransaction(async (client) => createUserAccount(client, {
+    email: 'password-google@example.test', username: 'google_existing_account',
+    passwordHash: await bcrypt.hash('StrongPassword123!', 12)
+  }));
   const link = await challenge();
-  const linkToken = credential(link.nonce, 'google-existing-user', existing.user.email);
+  const linkToken = credential(link.nonce, 'google-existing-user', existing.email);
   assert.equal((await post('/google', { credential: linkToken }, link.cookie)).body.error.code, 'AUTH_GOOGLE_LINK_REQUIRED');
   assert.equal((await post('/google', { credential: linkToken, password: 'incorrect' }, link.cookie)).body.error.code, 'AUTH_GOOGLE_LINK_PASSWORD');
   const linked = await post('/google', { credential: linkToken, password: 'StrongPassword123!' }, link.cookie);
   assert.equal(linked.response.status, 200, JSON.stringify(linked.body));
-  assert.equal(linked.body.data.user.userId, existing.user.userId);
+  assert.equal(linked.body.data.user.userId, existing.userId);
   const linkedAgain = await challenge();
-  assert.equal((await post('/google', { credential: credential(linkedAgain.nonce, 'google-existing-user', existing.user.email) }, linkedAgain.cookie)).body.data.user.userId, existing.user.userId);
-  assert.equal((await post('/login', { identifier: existing.user.username, password: 'StrongPassword123!' })).body.data.user.userId, existing.user.userId);
+  assert.equal((await post('/google', { credential: credential(linkedAgain.nonce, 'google-existing-user', existing.email) }, linkedAgain.cookie)).body.data.user.userId, existing.userId);
+  assert.equal((await post('/login', { identifier: existing.username, password: 'StrongPassword123!' })).body.data.user.userId, existing.userId);
 });

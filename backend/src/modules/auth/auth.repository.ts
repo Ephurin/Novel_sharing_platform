@@ -48,6 +48,59 @@ export async function findAuthUserById(userId: string) {
   return result.rows[0] ? mapAuthUser(result.rows[0]) : null;
 }
 
+export async function registrationConflicts(email: string, username: string, client?: DbClient) {
+  const result = await (client ?? getPostgresPool()).query<{ email: boolean; username: boolean }>(
+    `select exists(select 1 from users where lower(email) = $1) as email,
+            exists(select 1 from users where username = $2) as username`,
+    [email, username]
+  );
+  return result.rows[0];
+}
+
+export async function savePendingRegistration(input: {
+  registrationId: string;
+  email: string;
+  username: string;
+  passwordHash: string;
+  codeHash: string;
+  expiresAt: Date;
+}) {
+  const pool = getPostgresPool();
+  await pool.query('delete from pending_email_registrations where expires_at <= now()');
+  const result = await pool.query(
+    `insert into pending_email_registrations (email, registration_id, username, password_hash, code_hash, expires_at)
+     values ($1, $2, $3, $4, $5, $6)
+     on conflict (email) do update
+     set registration_id = excluded.registration_id, username = excluded.username, password_hash = excluded.password_hash,
+         code_hash = excluded.code_hash, attempts = 0, requested_at = now(), expires_at = excluded.expires_at
+     where pending_email_registrations.requested_at <= now() - interval '60 seconds'`,
+    [input.email, input.registrationId, input.username, input.passwordHash, input.codeHash, input.expiresAt]
+  );
+  return result.rowCount === 1;
+}
+
+export async function lockPendingRegistration(client: DbClient, registrationId: string) {
+  const result = await client.query<{
+    email: string;
+    username: string;
+    password_hash: string;
+    code_hash: string;
+  }>(
+    `select email, username, password_hash, code_hash
+     from pending_email_registrations where registration_id = $1 and expires_at > now() and attempts < 5 for update`,
+    [registrationId]
+  );
+  return result.rows[0] ?? null;
+}
+
+export async function recordFailedRegistrationCode(client: DbClient, registrationId: string) {
+  await client.query('update pending_email_registrations set attempts = attempts + 1 where registration_id = $1', [registrationId]);
+}
+
+export async function deletePendingRegistration(registrationId: string, client?: DbClient) {
+  await (client ?? getPostgresPool()).query('delete from pending_email_registrations where registration_id = $1', [registrationId]);
+}
+
 export async function createUserAccount(
   client: DbClient,
   input: {

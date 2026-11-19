@@ -13,7 +13,8 @@ import {
   loginWithGoogle,
   logout,
   refreshAccessToken,
-  register
+  register,
+  verifyRegistration
 } from './auth.service.js';
 
 function setRefreshCookie(
@@ -42,9 +43,18 @@ function clearRefreshCookie(response: Parameters<RequestHandler>[1]) {
 export const registerController: RequestHandler = async (request, response, next) => {
   try {
     const result = await register(request.body);
+    response.set('Cache-Control', 'no-store').status(202).json(successResponse(result));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyRegistrationController: RequestHandler = async (request, response, next) => {
+  try {
+    const result = await verifyRegistration(request.body.registrationId, request.body.code);
     setRefreshCookie(response, result.refreshToken, result.refreshTokenMaxAgeMs);
 
-    response.status(201).json(
+    response.set('Cache-Control', 'no-store').status(201).json(
       successResponse({
         user: result.user,
         accessToken: result.accessToken

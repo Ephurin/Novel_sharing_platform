@@ -144,9 +144,24 @@ class Probe:
         name = self.project.replace("-", "_") + "_" + secrets.token_hex(3) + suffix
         password = "Core!" + secrets.token_hex(20)
         email = name + "@example.invalid"
-        result = self.api("POST", "/auth/register", {"username": name, "email": email,
-                         "password": password}, private=True)
-        user = result["user"]["userId"]
+        # These isolated pipeline fixtures have no SMTP service and exercise the author workflow.
+        provision = """
+import bcrypt from 'bcryptjs';
+import { readFileSync } from 'node:fs';
+import { disconnectPostgres } from './dist/core/database/postgres.js';
+import { withPostgresTransaction } from './dist/core/database/transaction.js';
+import { createUserAccount } from './dist/modules/auth/auth.repository.js';
+const { email, username, password } = JSON.parse(readFileSync(0, 'utf8'));
+try {
+  const passwordHash = await bcrypt.hash(password, 12);
+  const user = await withPostgresTransaction(client => createUserAccount(client, { email, username, passwordHash }));
+  console.log(user.userId);
+} finally {
+  await disconnectPostgres();
+}
+"""
+        user = self.command(self.compose + ["exec", "-T", "backend", "node", "--input-type=module", "-e", provision],
+                            stdin=json.dumps({"username": name, "email": email, "password": password})).splitlines()[0]
         uuid.UUID(user)
         # Infrastructure-only role assignment to the just-created unique account.
         query = ("update users set role='AUTHOR' where user_id='" + user +

@@ -12,6 +12,7 @@ export const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const requireBackend = createRequire(join(ROOT, 'backend/package.json'));
 const { Pool } = requireBackend('pg');
 const { MongoClient } = requireBackend('mongodb');
+const { hash: hashPassword } = requireBackend('bcryptjs');
 export const hash = value => createHash('sha256').update(typeof value === 'string' || ArrayBuffer.isView(value) ? value : JSON.stringify(value)).digest('hex');
 export async function until(fn, message, timeout = 30000) {
   const stop = Date.now() + timeout;
@@ -83,9 +84,15 @@ export async function createHarness() {
     const suffix = randomUUID().replaceAll('-', '').slice(0, 12);
     const email = `${role.toLowerCase()}-${suffix}@example.invalid`;
     const password = 'Local!' + randomUUID(); secrets.add(password);
-    const registration = await api('POST', '/auth/register', { username: 'p1_' + suffix, email, password });
-    const userId = registration.data.user.userId;
-    await sql('UPDATE users SET role=$1 WHERE user_id=$2', [role, userId]);
+    const username = 'p1_' + suffix;
+    const passwordHash = await hashPassword(password, 12);
+    secrets.add(passwordHash);
+    const [fixture] = await sql(`
+      with account as (insert into users(email, username, password_hash, role) values($1,$2,$3,$4) returning user_id),
+        profile as (insert into user_profiles(user_id, display_name) select user_id, $2 from account),
+        wallet as (insert into wallets(user_id) select user_id from account)
+      select user_id from account`, [email, username, passwordHash, role]);
+    const userId = fixture.user_id;
     // Admin requests also need an admin_access scope (migration 018), not only role=ADMIN.
     if (role === 'ADMIN') await sql("INSERT INTO admin_access(user_id,scope) VALUES($1,'SUPER_ADMIN')", [userId]);
     const login = await api('POST', '/auth/login', { identifier: email, password });

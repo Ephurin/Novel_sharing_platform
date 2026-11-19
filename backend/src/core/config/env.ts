@@ -48,6 +48,8 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRES_DAYS: z.coerce.number().int().positive().default(7),
   REFRESH_TOKEN_COOKIE_NAME: z.string().default('ephurin_refresh_token'),
   GOOGLE_OAUTH_CLIENT_ID: optionalStringSchema,
+  SMTP_URL: optionalUrlSchema.refine((value) => !value || /^smtps?:\/\//.test(value), 'Use an SMTP or SMTPS URL'),
+  SMTP_FROM: optionalStringSchema,
   AI_LLM_BASE_URL: optionalUrlSchema,
   AI_LLM_API_KEY: optionalStringSchema,
   AI_LLM_MODEL: z.string().default('local-model'),
