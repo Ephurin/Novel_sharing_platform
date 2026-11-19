@@ -1,7 +1,9 @@
 import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
 import type { AuthSession, AuthUser } from './auth-types';
 
-export type PendingRegistration = { registrationId: string; email: string; resendAfterSeconds: number };
+export type PendingRegistration = {
+  registrationId: string; email: string; expiresAt: string; resendAfterSeconds: number; resendsRemaining: number;
+};
 
 export async function login(input: { identifier: string; password: string }) {
   const response = await apiClient.post<ApiEnvelope<AuthSession>>('/auth/login', input);
@@ -15,6 +17,20 @@ export async function register(input: { email: string; username: string; passwor
 
 export async function resendRegistrationEmail(registrationId: string) {
   const response = await apiClient.post<ApiEnvelope<PendingRegistration>>('/auth/register/resend', { registrationId });
+  return response.data.data;
+}
+
+export async function getPendingRegistration() {
+  const response = await apiClient.post<ApiEnvelope<PendingRegistration | null>>('/auth/register/pending');
+  return response.data.data;
+}
+
+export async function cancelRegistration(registrationId: string) {
+  await apiClient.post('/auth/register/cancel', { registrationId });
+}
+
+export async function recoverRegistration(input: { token: string; username: string; password: string }) {
+  const response = await apiClient.post<ApiEnvelope<AuthSession>>('/auth/register/recover', input);
   return response.data.data;
 }
 

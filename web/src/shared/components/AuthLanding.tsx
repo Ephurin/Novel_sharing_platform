@@ -3,7 +3,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { login, register, resendRegistrationEmail, verifyRegistration, verifyRegistrationLink, type PendingRegistration } from '../../features/auth/auth-api';
+import {
+  cancelRegistration, getPendingRegistration, login, recoverRegistration, register,
+  resendRegistrationEmail, verifyRegistration, verifyRegistrationLink, type PendingRegistration
+} from '../../features/auth/auth-api';
 import type { AuthSession } from '../../features/auth/auth-types';
 import { GoogleSignIn } from '../../features/auth/GoogleSignIn';
 import { useAuthStore } from '../../features/auth/useAuthStore';
@@ -26,6 +29,8 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [showPasswordMismatch, setShowPasswordMismatch] = useState(false);
   const [registration, setRegistration] = useState<PendingRegistration | null>(null);
+  const [restoring, setRestoring] = useState(!confirmEmailFromLink);
+  const [cancelPrompt, setCancelPrompt] = useState(false);
   const [code, setCode] = useState('');
   const [showCode, setShowCode] = useState(false);
   const [emailResent, setEmailResent] = useState(false);
@@ -38,8 +43,30 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
   const fieldsRef = useStoryCraftAutoAnimate<HTMLDivElement>();
   const confirmationRef = useRef<HTMLInputElement>(null);
   const passwordMismatch = showPasswordMismatch && password !== passwordConfirmation;
-  const linkToken = confirmEmailFromLink ? new URLSearchParams(hash.slice(1)).get('token') ?? '' : '';
-  const invalidLink = confirmEmailFromLink && !/^[A-Za-z0-9_-]{43}$/.test(linkToken);
+  const linkParams = new URLSearchParams(confirmEmailFromLink ? hash.slice(1) : '');
+  const recoveryToken = linkParams.get('recovery');
+  const recovering = recoveryToken !== null;
+  const linkToken = linkParams.get('token') ?? '';
+  const invalidLink = confirmEmailFromLink && (recovering
+    ? !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(recoveryToken)
+    : !/^[A-Za-z0-9_-]{43}$/.test(linkToken));
+  const registering = mode === 'register' || recovering;
+
+  useEffect(() => {
+    if (confirmEmailFromLink || accessToken) return;
+    let active = true;
+    void getPendingRegistration().then(pending => {
+      if (!active || !pending?.registrationId) return;
+      setMode('register');
+      setEmail(pending.email);
+      setRegistration(pending);
+      setResendRemaining(pending.resendAfterSeconds);
+      setResendAt(Date.now() + pending.resendAfterSeconds * 1000);
+    }).catch(() => {
+      // The email link can still recover the signup if the status request is unavailable.
+    }).finally(() => { if (active) setRestoring(false); });
+    return () => { active = false; };
+  }, [confirmEmailFromLink, accessToken]);
 
   useEffect(() => {
     if (!resendAt) return;
@@ -65,6 +92,7 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
 
   const authMutation = useMutation({
     mutationFn: (): Promise<AuthSession | PendingRegistration> => {
+      if (recovering) return recoverRegistration({ token: recoveryToken, username, password });
       if (confirmEmailFromLink) return verifyRegistrationLink(linkToken);
       if (registration) return verifyRegistration(registration.registrationId, code);
       if (mode === 'login') return login({ identifier: email, password });
@@ -106,7 +134,15 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
     }
   });
 
-  const isBusy = authMutation.isPending || resendMutation.isPending || googleBusy;
+  const cancelMutation = useMutation({
+    mutationFn: cancelRegistration,
+    onSuccess: () => {
+      resetRegistration('register');
+    },
+    onError: (caughtError) => setError(getAuthErrorMessage(caughtError))
+  });
+
+  const isBusy = restoring || authMutation.isPending || resendMutation.isPending || cancelMutation.isPending || googleBusy;
   const registerMailFailed = !registration && mode === 'register' && authMutation.error instanceof ApiClientError
     && authMutation.error.code === 'AUTH_EMAIL_UNAVAILABLE';
 
@@ -114,10 +150,10 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
     return <Navigate to={getRoleHome(user.role)} replace />;
   }
 
-  const switchMode = (nextMode: 'login' | 'register') => {
-    if (isBusy) return;
+  const resetRegistration = (nextMode: 'login' | 'register') => {
     setMode(nextMode);
     setRegistration(null);
+    setCancelPrompt(false);
     setCode('');
     setShowCode(false);
     setEmailResent(false);
@@ -129,10 +165,14 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
     authMutation.reset();
   };
 
+  const switchMode = (nextMode: 'login' | 'register') => {
+    if (!isBusy) resetRegistration(nextMode);
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (isBusy || invalidLink || (registration && (!showCode || code.length !== 8))) return;
-    if (!registration && mode === 'register' && password !== passwordConfirmation) {
+    if (!registration && registering && password !== passwordConfirmation) {
       setError(null);
       setShowPasswordMismatch(true);
       confirmationRef.current?.focus();
@@ -155,14 +195,15 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
 
         <div className="mb-4">
           <h1 className="text-section-title m-0">
-            {confirmEmailFromLink || registration ? 'Xác nhận email' : mode === 'login' ? 'Chào mừng trở lại' : 'Tạo tài khoản mới'}
+            {recovering ? 'Khôi phục đăng ký' : confirmEmailFromLink || registration ? 'Xác nhận email'
+              : mode === 'login' ? 'Chào mừng trở lại' : 'Tạo tài khoản mới'}
           </h1>
           {!confirmEmailFromLink && !registration && <Text size="xs" c="dimmed" mt={2}>
             Không gian đọc truyện và sáng tác tiểu thuyết Việt
           </Text>}
         </div>
 
-        {!confirmEmailFromLink && !registration && <LayoutGroup id={tabGroupId}>
+        {!confirmEmailFromLink && !registration && !restoring && <LayoutGroup id={tabGroupId}>
           <div
             role="tablist"
             aria-label="Chế độ xác thực"
@@ -211,14 +252,14 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
           </div>
         </LayoutGroup>}
 
-        <form
+        {restoring ? <Text size="sm" role="status">Đang kiểm tra phiên đăng ký…</Text> : <form
           id={confirmEmailFromLink || registration ? undefined : `${tabGroupId}-panel`}
           role={confirmEmailFromLink || registration ? undefined : 'tabpanel'}
           aria-labelledby={confirmEmailFromLink || registration ? undefined : `${tabGroupId}-tab-${mode}`}
           onSubmit={handleSubmit}
         >
           <Stack gap="sm" ref={fieldsRef}>
-            {confirmEmailFromLink ? (
+            {confirmEmailFromLink && (!recovering || invalidLink) ? (
               <Text size="sm">
                 {invalidLink
                   ? 'Link xác nhận không hợp lệ. Hãy mở lại email hoặc dùng mã 8 số ở tab đăng ký.'
@@ -236,9 +277,9 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
                   Mở Gmail
                 </Button>
                 <Group gap="xs" justify="space-between">
-                  <Button type="button" variant="subtle" disabled={isBusy || resendRemaining > 0}
+                  <Button type="button" variant="subtle" disabled={isBusy || resendRemaining > 0 || registration.resendsRemaining === 0}
                     loading={resendMutation.isPending} onClick={() => resendMutation.mutate(registration.registrationId)}>
-                    Gửi lại email{resendRemaining > 0 ? ` (${resendRemaining} giây)` : ''}
+                    {registration.resendsRemaining === 0 ? 'Đã hết lượt gửi lại' : `Gửi lại email${resendRemaining > 0 ? ` (${resendRemaining} giây)` : ''}`}
                   </Button>
                   <Button type="button" variant="subtle" disabled={isBusy} aria-expanded={showCode}
                     onClick={() => setShowCode(!showCode)}>
@@ -261,7 +302,8 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
               </>
             ) : (
               <>
-                {mode === 'register' ? (
+                {recovering && <Text size="sm">Chọn username và mật khẩu của bạn để hoàn tất đăng ký bằng email đã xác nhận.</Text>}
+                {registering ? (
                   <TextInput
                     label="Username"
                     placeholder="Ví dụ: tacgia_vanhoa"
@@ -283,14 +325,14 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
                 <PasswordInput
                   label="Mật khẩu"
                   placeholder="Nhập mật khẩu của bạn"
-                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                  required={mode === 'register'}
+                  autoComplete={registering ? 'new-password' : 'current-password'}
+                  required={registering}
                   withAsterisk={false}
                   visibilityToggleButtonProps={{ 'aria-label': 'Hiện hoặc ẩn mật khẩu' }}
                   value={password}
                   onChange={(event) => setPassword(event.currentTarget.value)}
                 />
-                {mode === 'register' && (
+                {registering && (
                   <>
                     <PasswordInput
                       ref={confirmationRef}
@@ -305,7 +347,7 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
                       onChange={(event) => setPasswordConfirmation(event.currentTarget.value)}
                       error={passwordMismatch ? 'Hai mật khẩu chưa khớp.' : undefined}
                     />
-                    <TextInput
+                    {!recovering && <TextInput
                       label="Email"
                       placeholder="ban@gmail.com"
                       type="email"
@@ -314,7 +356,7 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
                       withAsterisk={false}
                       value={email}
                       onChange={(event) => setEmail(event.currentTarget.value)}
-                    />
+                    />}
                   </>
                 )}
               </>
@@ -322,21 +364,27 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
             {error ? <Alert color="red" role="alert">{error}</Alert> : null}
             {!invalidLink && (!registration || showCode) && (
               <Button type="submit" loading={authMutation.isPending}
-                disabled={resendMutation.isPending || googleBusy || Boolean(registration && code.length !== 8)} fullWidth mt={4}>
-                {confirmEmailFromLink ? 'Xác nhận tài khoản' : registration ? 'Xác nhận bằng mã' : mode === 'login'
+                disabled={resendMutation.isPending || cancelMutation.isPending || googleBusy || Boolean(registration && code.length !== 8)} fullWidth mt={4}>
+                {recovering ? 'Hoàn tất đăng ký' : confirmEmailFromLink ? 'Xác nhận tài khoản' : registration ? 'Xác nhận bằng mã' : mode === 'login'
                   ? 'Đăng nhập' : registerMailFailed ? 'Thử gửi lại email' : 'Tạo tài khoản'}
               </Button>
             )}
             {confirmEmailFromLink && (
               <Button component={Link} to="/login" variant="subtle">Về trang đăng nhập</Button>
             )}
-            {registration && <Button type="button" variant="subtle" disabled={isBusy} onClick={() => switchMode('register')}>
-              Quay lại đăng ký
-            </Button>}
+            {registration && (cancelPrompt ? (
+              <Group justify="space-between">
+                <Button type="button" variant="subtle" disabled={isBusy} onClick={() => setCancelPrompt(false)}>Giữ phiên đăng ký</Button>
+                <Button type="button" variant="outline" color="red" loading={cancelMutation.isPending}
+                  onClick={() => cancelMutation.mutate(registration.registrationId)}>Xác nhận hủy phiên</Button>
+              </Group>
+            ) : <Button type="button" variant="subtle" disabled={isBusy} onClick={() => setCancelPrompt(true)}>
+              Hủy để đăng ký lại
+            </Button>)}
           </Stack>
-        </form>
+        </form>}
 
-        {!confirmEmailFromLink && !registration && <GoogleSignIn blocked={authMutation.isPending} showSignupNote={mode === 'register'}
+        {!confirmEmailFromLink && !registration && !restoring && <GoogleSignIn blocked={authMutation.isPending}
           onBusyChange={setGoogleBusy} onSession={handleSession} />}
       </Paper>
     </AuthorTheme>

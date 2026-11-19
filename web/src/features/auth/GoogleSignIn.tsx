@@ -43,9 +43,8 @@ function loadGoogleIdentity() {
   return googleScript;
 }
 
-export function GoogleSignIn({ blocked, showSignupNote, onBusyChange, onSession }: {
+export function GoogleSignIn({ blocked, onBusyChange, onSession }: {
   blocked: boolean;
-  showSignupNote: boolean;
   onBusyChange: (busy: boolean) => void;
   onSession: (session: AuthSession) => void;
 }) {
@@ -142,7 +141,7 @@ export function GoogleSignIn({ blocked, showSignupNote, onBusyChange, onSession 
     <Stack gap="xs" mt="md">
       <Divider label="hoặc" />
       <div ref={button} hidden={Boolean(linkCredential) || scriptFailed} inert={busy || blocked} />
-      {showSignupNote && !linkCredential && (
+      {!linkCredential && (
         <Text size="xs" c="dimmed">Tài khoản tạo bằng Google dùng trên web. Nếu cần dùng ứng dụng di động, hãy đăng ký bằng email và mật khẩu.</Text>
       )}
       {scriptFailed && (

@@ -23,12 +23,12 @@ function escapeHtml(value: string) {
   return value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 }
 
-export function createRegistrationEmail(code: string, confirmationUrl: string | null, expiresInMinutes: number) {
+export function createRegistrationEmail(code: string, confirmationUrl: string | null, expiresInMinutes: number, recoveryUrl: string) {
   const expiry = `${confirmationUrl ? 'Link và mã' : 'Mã xác nhận'} có hiệu lực trong ${expiresInMinutes} phút.`;
   const steps = confirmationUrl
     ? `${confirmationUrl}\n${instruction}\n\n${fallback}\nMã dự phòng là ${code}.`
     : `${nativeInstruction}\n\nMã xác nhận là ${code}.`;
-  const text = `${subject}\n\n${steps}\n\n${expiry}\n${ignore}`;
+  const text = `${subject}\n\n${steps}\n\n${expiry}\n\nMất phiên đăng ký? Khôi phục đăng ký tại ${recoveryUrl}\n\n${ignore}`;
   const codeBox = `<div dir="ltr" class="sc-email-code" style="padding:8px 5px;background-color:#fff0e4;border:1px solid #e6a382;border-radius:12px;color:#8e3019;font-size:31px;line-height:37px;font-weight:800;letter-spacing:0.23em;white-space:nowrap;">${escapeHtml(code)}</div>`;
 
   // Inline the base styles so the email retains its layout in clients that strip <style>.
@@ -115,6 +115,7 @@ export function createRegistrationEmail(code: string, confirmationUrl: string | 
           <tr>
             <td align="center" class="sc-email-footer" style="padding:14px 22px 17px;background-color:#f8eadd;border-top:1px solid #fff7ef;border-radius:0 0 17px 17px;color:#633f32;font-size:14px;line-height:21px;">
               ${ignore}
+              <br>Mất phiên đăng ký? <a href="${escapeHtml(recoveryUrl)}" class="sc-email-muted" style="color:#773623;text-decoration:underline;">Khôi phục đăng ký</a>
             </td>
           </tr>
         </table>

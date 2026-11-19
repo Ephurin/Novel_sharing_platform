@@ -76,6 +76,17 @@ function createHarnessPlugin() {
       }));
       build.onResolve({ filter: /^react-native-safe-area-context$/ }, () => ({ path: 'rn-safe-area', namespace: 'rn-shim' }));
       build.onResolve({ filter: /^@react-native-async-storage\/async-storage$/ }, () => ({ path: 'async-storage', namespace: 'rn-shim' }));
+      build.onResolve({ filter: /^expo-secure-store$/ }, () => ({ path: 'secure-store', namespace: 'rn-shim' }));
+      build.onLoad({ filter: /^secure-store$/, namespace: 'rn-shim' }, () => ({
+        contents: `
+          export const WHEN_UNLOCKED_THIS_DEVICE_ONLY = 'device-only';
+          export const isAvailableAsync = async () => location.hostname === 'mobile-test.local';
+          export const getItemAsync = async key => localStorage.getItem(key);
+          export const setItemAsync = async (key, value) => localStorage.setItem(key, value);
+          export const deleteItemAsync = async key => localStorage.removeItem(key);
+        `,
+        loader: 'js'
+      }));
       build.onResolve({ filter: /^react-native-svg$/ }, () => ({ path: 'rn-svg', namespace: 'rn-shim' }));
 
       build.onLoad({ filter: /^rn-svg$/, namespace: 'rn-shim' }, () => ({
@@ -435,26 +446,36 @@ test('Mobile signup can retry an expired code without submitting the password ag
   try {
     const page = await browser.newPage();
     await page.clock.install();
-    await page.setContent('<!doctype html><div id="root"></div>');
-    await page.addScriptTag({ content: await buildBundle() });
-    await page.evaluate(registrationId => {
-      const pending = { registrationId, email: 'reader@gmail.com', resendToken: 'original-ticket', resendAfterSeconds: 60 };
-      let resends = 0;
-      window.__mockHandlers = {
-        'POST /auth/register/native': () => pending,
-        'POST /auth/register/verify': ({ code }) => {
-          if (code === '87654321') return { accessToken: 'reader-token', user: { userId: 'reader' } };
-          throw new window.__helpers.ApiClientError({ status: 400, code: 'AUTH_EMAIL_CODE', message: 'Mã đã hết hiệu lực.' });
-        },
-        'POST /auth/register/native/resend': () => {
-          if (++resends === 1) {
-            throw new window.__helpers.ApiClientError({ status: 503, code: 'AUTH_EMAIL_UNAVAILABLE', message: 'Chưa gửi được email.' });
+    const bundle = await buildBundle();
+    await page.route('http://mobile-test.local/', route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><div id="root"></div>' }));
+    const mount = async (restored) => {
+      await page.addScriptTag({ content: bundle });
+      await page.evaluate(({ registrationId, restored }) => {
+        const pending = {
+          registrationId, email: 'reader@gmail.com', expiresAt: new Date(Date.now() + 3_600_000).toISOString(),
+          resendToken: 'original-ticket', resendAfterSeconds: 60, resendsRemaining: 3
+        };
+        const { resendToken, ...status } = pending;
+        let resends = 0;
+        window.__mockHandlers = {
+          'POST /auth/register/native': () => pending,
+          'POST /auth/register/native/pending': () => restored ? status : null,
+          'POST /auth/register/verify': ({ code }) => {
+            if (code === '87654321') return { accessToken: 'reader-token', user: { userId: 'reader' } };
+            throw new window.__helpers.ApiClientError({ status: 400, code: 'AUTH_EMAIL_CODE', message: 'Mã đã hết hiệu lực.' });
+          },
+          'POST /auth/register/native/resend': () => {
+            if (++resends === 1) {
+              throw new window.__helpers.ApiClientError({ status: 503, code: 'AUTH_EMAIL_UNAVAILABLE', message: 'Chưa gửi được email.' });
+            }
+            return { ...pending, resendToken: 'renewed-ticket' };
           }
-          return { ...pending, resendToken: 'renewed-ticket' };
-        }
-      };
-      window.__mountAuth();
-    }, SESSION_UUID);
+        };
+        window.__mountAuth();
+      }, { registrationId: SESSION_UUID, restored });
+    };
+    await page.goto('http://mobile-test.local/');
+    await mount(false);
     await page.getByRole('tab', { name: 'Tạo tài khoản' }).click();
     await page.getByLabel('Email', { exact: true }).fill('reader@gmail.com');
     await page.getByLabel('Tên người dùng', { exact: true }).fill('reader_otp');
@@ -462,6 +483,12 @@ test('Mobile signup can retry an expired code without submitting the password ag
     await page.getByRole('button', { name: 'Tạo tài khoản', exact: true }).click();
     const resend = page.getByRole('button', { name: /^Gửi lại mã/ });
     await expect(resend).toBeDisabled();
+    await expect.poll(() => page.evaluate(() => Object.keys(
+      JSON.parse(localStorage.getItem('storycraft.pending-signup') || '{}')
+    ).sort())).toEqual(['expiresAt', 'registrationId', 'resendToken']);
+    await page.reload();
+    await mount(true);
+    await expect(page.getByLabel('Mã xác nhận', { exact: true })).toBeVisible();
     await page.getByLabel('Mã xác nhận', { exact: true }).fill('12345678');
     await page.getByRole('button', { name: 'Xác nhận email' }).click();
     await expect(page.getByText('Mã đã hết hiệu lực.')).toBeVisible();
@@ -476,12 +503,13 @@ test('Mobile signup can retry an expired code without submitting the password ag
     await page.getByRole('button', { name: 'Xác nhận email' }).click();
     const requests = await page.evaluate(() => window.__capturedRequests.map(({ url, body }) => ({ url, body })));
     assert.deepEqual(requests.map(request => request.url), [
-      '/auth/register/native', '/auth/register/verify', '/auth/register/native/resend', '/auth/register/native/resend', '/auth/register/verify'
+      '/auth/register/native/pending', '/auth/register/verify', '/auth/register/native/resend', '/auth/register/native/resend', '/auth/register/verify'
     ]);
     const resendBody = { registrationId: SESSION_UUID, resendToken: 'original-ticket' };
     assert.deepEqual(requests[2].body, resendBody);
     assert.deepEqual(requests[3].body, resendBody);
     assert.deepEqual(requests[4].body, { registrationId: SESSION_UUID, code: '87654321' });
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('storycraft.pending-signup'))).toBeNull();
   } finally {
     await browser.close();
   }

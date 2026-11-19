@@ -94,6 +94,7 @@ try {
         'authentication limits distinguish proxy clients and ignore forged direct headers',
         'password registration offers a browser-bound link and a one-time backup code',
         'native signup recovers an expired code with its original app ticket',
+        'signup deadlines and delivery budgets cannot block mailbox-owner recovery',
         'Google sign-in validates the web challenge and links only with the existing password',
         'clean novel requests are idempotent, private until approval and rechecked before publication',
         'chapter decisions apply only the submitted revision and keep the prior public version during review',

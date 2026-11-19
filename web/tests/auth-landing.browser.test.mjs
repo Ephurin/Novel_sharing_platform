@@ -19,8 +19,10 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
     const errors = [];
     let registrationRequests = 0;
     let resendRequests = 0;
+    let pending = false;
     const pendingRegistration = {
-      registrationId: '6e32f264-731c-445e-9965-5e1ff6a90062', email: 'reader@gmail.com', resendAfterSeconds: 60
+      registrationId: '6e32f264-731c-445e-9965-5e1ff6a90062', email: 'reader@gmail.com',
+      expiresAt: new Date(Date.now() + 3_600_000).toISOString(), resendAfterSeconds: 60, resendsRemaining: 3
     };
     page.on('pageerror', (err) => errors.push(err.message));
 
@@ -28,6 +30,16 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
       const url = new URL(route.request().url());
       if (url.pathname.endsWith('/auth/google/challenge')) {
         await route.fulfill({ json: { success: true, data: null } });
+        return;
+      }
+      if (url.pathname.endsWith('/auth/register/pending')) {
+        await route.fulfill({ json: { success: true, data: pending ? pendingRegistration : null } });
+        return;
+      }
+      if (url.pathname.endsWith('/auth/register/cancel')) {
+        assert.deepEqual(route.request().postDataJSON(), { registrationId: pendingRegistration.registrationId });
+        pending = false;
+        await route.fulfill({ status: 204 });
         return;
       }
       if (url.pathname.endsWith('/auth/register')) {
@@ -41,6 +53,7 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
           } } });
           return;
         }
+        pending = true;
         await route.fulfill({ status: 202, json: { success: true, data: pendingRegistration } });
         return;
       }
@@ -121,7 +134,14 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
     assert.equal(registrationRequests, 2);
     assert.equal(resendRequests, 1);
 
-    await page.getByRole('button', { name: 'Quay lại đăng ký', exact: true }).click();
+    await page.reload();
+    await expect(page.getByRole('heading', { name: 'Xác nhận email' })).toBeVisible();
+    await page.getByRole('button', { name: 'Dùng mã 8 số' }).click();
+    await expect(codeField).toBeVisible();
+    assert.equal(registrationRequests, 2);
+    await page.getByRole('button', { name: 'Hủy để đăng ký lại' }).click();
+    await page.getByRole('button', { name: 'Xác nhận hủy phiên' }).click();
+    await expect(registerTab).toHaveAttribute('aria-selected', 'true');
     await registerTab.focus();
     await page.keyboard.press('ArrowLeft');
     await expect(loginTab).toHaveAttribute('aria-selected', 'true');
@@ -171,6 +191,45 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
     await expect(linkPage).toHaveURL(`${base}/`);
     assert.equal(verificationRequests, 1);
     await linkContext.close();
+
+    const googleContext = await browser.newContext();
+    await googleContext.addInitScript(() => {
+      let finishSignIn;
+      window.google = { accounts: { id: {
+        initialize: ({ callback }) => { finishSignIn = callback; },
+        renderButton: (mount) => {
+          const button = document.createElement('button');
+          button.textContent = 'Tiếp tục bằng Google';
+          button.onclick = () => finishSignIn({ credential: 'first-time-google' });
+          mount.appendChild(button);
+        }
+      } } };
+    });
+    const googlePage = await googleContext.newPage();
+    let googleSignups = 0;
+    await googlePage.route('**/api/v1/**', async (route) => {
+      const pathname = new URL(route.request().url()).pathname;
+      let data = null;
+      if (pathname.endsWith('/auth/google/challenge')) data = { clientId: 'test.apps.googleusercontent.com', nonce: 'test-nonce' };
+      if (pathname.endsWith('/auth/google')) {
+        googleSignups++;
+        assert.deepEqual(route.request().postDataJSON(), { credential: 'first-time-google' });
+        data = { accessToken: 'google-test-token', user: { userId: 'google-reader', role: 'READER' } };
+      }
+      await route.fulfill({ json: { success: true, data } });
+    });
+    await googlePage.goto(`${base}/login`);
+    const warning = googlePage.getByText(/Tài khoản tạo bằng Google dùng trên web/);
+    const signInTab = googlePage.getByRole('tab', { name: 'Đăng nhập' });
+    await expect(signInTab).toHaveAttribute('aria-selected', 'true');
+    await expect(warning).toBeVisible();
+    await googlePage.getByRole('tab', { name: 'Tạo tài khoản' }).click();
+    await expect(warning).toBeVisible();
+    await signInTab.click();
+    await googlePage.getByRole('button', { name: 'Tiếp tục bằng Google' }).click();
+    await expect(googlePage).toHaveURL(`${base}/`);
+    assert.equal(googleSignups, 1);
+    await googleContext.close();
   } finally {
     await browser.close();
     await server.close();

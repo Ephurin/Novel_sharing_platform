@@ -6,12 +6,17 @@ import { requireAuth } from '../../core/security/auth.middleware.js';
 import { validateRequest } from '../../core/validation/validate.js';
 import { authRateLimit } from './auth-rate-limit.js';
 import {
+  cancelNativeRegistrationController,
+  cancelRegistrationController,
   changePasswordController,
   googleChallengeController,
   googleLoginController,
   loginController,
   logoutController,
   meController,
+  pendingNativeRegistrationController,
+  pendingRegistrationController,
+  recoverRegistrationController,
   refreshTokenController,
   registerController,
   registerNativeController,
@@ -21,7 +26,7 @@ import {
   verifyRegistrationController,
   verifyRegistrationLinkController
 } from './auth.controller.js';
-import { changePasswordSchema, googleLoginSchema, loginSchema, registerSchema, resendNativeRegistrationSchema, resendRegistrationSchema, verifyRegistrationLinkSchema, verifyRegistrationSchema } from './auth.schemas.js';
+import { changePasswordSchema, googleLoginSchema, loginSchema, recoverRegistrationSchema, registerSchema, resendNativeRegistrationSchema, resendRegistrationSchema, verifyRegistrationLinkSchema, verifyRegistrationSchema } from './auth.schemas.js';
 
 export const authRoutes = Router();
 
@@ -44,6 +49,11 @@ authRoutes.post('/register/native', limitRegistration,
   rejectInvalidEmail, validateRequest(registerSchema), registerNativeController);
 authRoutes.post('/register/resend', limitResend, validateRequest(resendRegistrationSchema), resendRegistrationController);
 authRoutes.post('/register/native/resend', limitResend, validateRequest(resendNativeRegistrationSchema), resendNativeRegistrationController);
+authRoutes.post('/register/pending', pendingRegistrationController);
+authRoutes.post('/register/cancel', validateRequest(resendRegistrationSchema), cancelRegistrationController);
+authRoutes.post('/register/native/pending', validateRequest(resendNativeRegistrationSchema), pendingNativeRegistrationController);
+authRoutes.post('/register/native/cancel', validateRequest(resendNativeRegistrationSchema), cancelNativeRegistrationController);
+authRoutes.post('/register/recover', limitRegistration, validateRequest(recoverRegistrationSchema), recoverRegistrationController);
 authRoutes.post('/register/verify', validateRequest(verifyRegistrationSchema), verifyRegistrationController);
 authRoutes.post('/register/verify-link', validateRequest(verifyRegistrationLinkSchema), verifyRegistrationLinkController);
 authRoutes.post('/login', validateRequest(loginSchema), loginController);

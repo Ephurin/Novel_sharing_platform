@@ -9,6 +9,7 @@ import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import {
   consumeGoogleChallenge,
+  clearEmailRegistration,
   createRefreshToken,
   createUserAccount,
   deletePendingRegistration,
@@ -18,11 +19,15 @@ import {
   findValidRefreshToken,
   linkGoogleAccount,
   lockPendingRegistration,
-  lockRegistrationForResend,
+  findRegistrationContext,
+  pruneExpiredRegistrationData,
   recordFailedRegistrationCode,
   registrationConflicts,
   REGISTRATION_RESEND_SECONDS,
+  REGISTRATION_RECOVERY_MINUTES,
+  REGISTRATION_MAX_RESENDS,
   replaceRegistrationProofs,
+  reserveRegistrationDelivery,
   revokeRefreshToken,
   savePendingRegistration,
   updateLastLoginAt,
@@ -114,6 +119,27 @@ async function issueTokenPair(user: AuthUser, client?: PoolClient) {
 }
 
 export const REGISTRATION_EXPIRY_MINUTES = 15;
+const registrationRecoveryAudience = 'storycraft-mailbox-registration-recovery';
+
+function describeRegistration(registrationId: string, email: string, deadline: Date, resendAfterSeconds: number, resendsUsed: number) {
+  return { registrationId, email, expiresAt: deadline.toISOString(), resendAfterSeconds, resendsRemaining: REGISTRATION_MAX_RESENDS - resendsUsed };
+}
+
+function recoveryUrl(email: string) {
+  const url = new URL('/verify-email', env.WEB_ORIGIN);
+  const token = jwt.sign({ email }, env.JWT_REFRESH_SECRET, {
+    algorithm: 'HS256', audience: registrationRecoveryAudience, expiresIn: REGISTRATION_RECOVERY_MINUTES * 60
+  });
+  url.hash = new URLSearchParams({ recovery: token }).toString();
+  return url.href;
+}
+
+async function sendSignupEmail(client: PoolClient, email: string, code: string, confirmationUrl: string | null, minutes: number) {
+  if (!await reserveRegistrationDelivery(client, email)) {
+    throw new AppError(429, 'AUTH_EMAIL_DELIVERY_LIMIT', 'Địa chỉ này đã đạt giới hạn gửi email. Hãy dùng email đã nhận hoặc thử lại sau.');
+  }
+  await sendRegistrationEmail(email, code, confirmationUrl, minutes, recoveryUrl(email));
+}
 
 function registrationCodeHash(registrationId: string, code: string) {
   return createHmac('sha256', env.JWT_REFRESH_SECRET).update(`registration:${registrationId}:${code}`).digest('hex');
@@ -146,34 +172,35 @@ async function assertRegistrationAvailable(email: string, username: string, clie
   if (conflicts.username) throw new AppError(409, 'USER_004', 'Tên người dùng đã được sử dụng.');
 }
 
-export async function register(input: RegisterInput, channel: RegistrationChannel = 'web'): Promise<{ registrationId: string; email: string; resendAfterSeconds: number }> {
+export async function register(input: RegisterInput, channel: RegistrationChannel = 'web') {
   const email = input.email.toLowerCase();
   await assertRegistrationAvailable(email, input.username);
   const registrationId = randomUUID();
   const { code, codeHash, confirmationUrl, linkTokenHash } = createRegistrationProofs(registrationId, channel);
   const passwordHash = await bcrypt.hash(input.password, 12);
-  const saved = await savePendingRegistration({
-    registrationId, email, username: input.username, passwordHash,
-    codeHash, linkTokenHash, channel,
-    expiresAt: new Date(Date.now() + REGISTRATION_EXPIRY_MINUTES * 60_000)
+  await pruneExpiredRegistrationData();
+  return withPostgresTransaction(async (client) => {
+    const saved = await savePendingRegistration(client, {
+      registrationId, email, username: input.username, passwordHash,
+      codeHash, linkTokenHash, channel, expiryMinutes: REGISTRATION_EXPIRY_MINUTES
+    });
+    if (!saved) {
+      throw new AppError(429, 'AUTH_EMAIL_RATE_LIMIT', 'Email đang chờ xác nhận. Hãy dùng phiên đăng ký trước hoặc mở link khôi phục trong email đã nhận.');
+    }
+    await assertRegistrationAvailable(email, input.username, client);
+    await sendSignupEmail(client, email, code, confirmationUrl, REGISTRATION_EXPIRY_MINUTES);
+    return describeRegistration(registrationId, email, saved.deadline_at, REGISTRATION_RESEND_SECONDS, 0);
   });
-  if (!saved) {
-    throw new AppError(429, 'AUTH_EMAIL_RATE_LIMIT', 'Email này đang chờ xác nhận. Hãy dùng email đã gửi hoặc yêu cầu gửi lại từ phiên đăng ký trước.');
-  }
+}
 
-  try {
-    await sendRegistrationEmail(email, code, confirmationUrl, REGISTRATION_EXPIRY_MINUTES);
-  } catch (error) {
-    await deletePendingRegistration(registrationId);
-    throw error;
-  }
-
-  return { registrationId, email, resendAfterSeconds: REGISTRATION_RESEND_SECONDS };
+export async function getPendingRegistration(registrationId: string, channel: RegistrationChannel) {
+  const pending = await findRegistrationContext(registrationId, channel);
+  return pending && describeRegistration(registrationId, pending.email, pending.deadline_at, pending.retry_after_seconds, pending.resends_used);
 }
 
 export async function resendRegistrationEmail(registrationId: string, channel: RegistrationChannel = 'web') {
   return withPostgresTransaction(async (client) => {
-    const pending = await lockRegistrationForResend(client, registrationId, channel);
+    const pending = await findRegistrationContext(registrationId, channel, client);
     if (!pending) {
       throw new AppError(400, 'AUTH_EMAIL_REGISTRATION_EXPIRED', 'Phiên đăng ký đã hết hạn. Hãy quay lại để đăng ký lại.');
     }
@@ -182,13 +209,40 @@ export async function resendRegistrationEmail(registrationId: string, channel: R
         retryAfterSeconds: pending.retry_after_seconds
       });
     }
+    if (pending.resends_used >= REGISTRATION_MAX_RESENDS) {
+      throw new AppError(429, 'AUTH_EMAIL_RESEND_LIMIT', 'Phiên này đã hết lượt gửi lại. Hãy dùng email đã nhận hoặc hủy phiên để đăng ký lại.');
+    }
     await assertRegistrationAvailable(pending.email, pending.username, client);
     const { code, codeHash, confirmationUrl, linkTokenHash } = createRegistrationProofs(registrationId, channel, pending.code_hash);
     // Keep the existing link and code valid if the SMTP provider rejects the resend.
-    await sendRegistrationEmail(pending.email, code, confirmationUrl, REGISTRATION_EXPIRY_MINUTES);
+    const minutes = Math.min(REGISTRATION_EXPIRY_MINUTES, Math.ceil((pending.deadline_at.getTime() - Date.now()) / 60_000));
+    await sendSignupEmail(client, pending.email, code, confirmationUrl, minutes);
     await replaceRegistrationProofs(client, registrationId, { codeHash, linkTokenHash, expiryMinutes: REGISTRATION_EXPIRY_MINUTES });
-    return { registrationId, email: pending.email, resendAfterSeconds: REGISTRATION_RESEND_SECONDS };
+    return describeRegistration(registrationId, pending.email, pending.deadline_at, REGISTRATION_RESEND_SECONDS, pending.resends_used + 1);
   });
+}
+
+export async function recoverRegistration(input: { token: string; username: string; password: string }) {
+  let email: string;
+  try {
+    const claims = jwt.verify(input.token, env.JWT_REFRESH_SECRET, { algorithms: ['HS256'], audience: registrationRecoveryAudience });
+    if (typeof claims === 'string' || typeof claims.email !== 'string' || !isGmailAddress(claims.email)) throw new Error('Invalid email claim');
+    email = claims.email;
+  } catch {
+    throw new AppError(400, 'AUTH_EMAIL_RECOVERY', 'Link khôi phục không hợp lệ hoặc đã hết hạn. Hãy mở link trong email mới nhất.');
+  }
+  await assertRegistrationAvailable(email, input.username);
+  const passwordHash = await bcrypt.hash(input.password, 12);
+  try {
+    return await withPostgresTransaction(async (client) => {
+      await clearEmailRegistration(client, email);
+      await assertRegistrationAvailable(email, input.username, client);
+      const user = await createUserAccount(client, { email, username: input.username, passwordHash });
+      return { user: toPublicUser(user), ...await issueTokenPair(user, client) };
+    });
+  } catch (error) {
+    throwRegistrationConflict(error);
+  }
 }
 
 type RegistrationProof = { code: string } | { linkToken: string };
@@ -228,16 +282,16 @@ export async function verifyRegistration(registrationId: string, proof: Registra
     }
     return session;
   } catch (error) {
-    if (typeof error === 'object' && error !== null && 'constraint' in error) {
-      if (error.constraint === 'users_email_key') {
-        throw new AppError(409, 'USER_005', 'Email này đã có tài khoản.');
-      }
-      if (error.constraint === 'users_username_key') {
-        throw new AppError(409, 'USER_004', 'Tên người dùng đã được sử dụng.');
-      }
-    }
-    throw error;
+    throwRegistrationConflict(error);
   }
+}
+
+function throwRegistrationConflict(error: unknown): never {
+  if (typeof error === 'object' && error !== null && 'constraint' in error) {
+    if (error.constraint === 'users_email_key') throw new AppError(409, 'USER_005', 'Email này đã có tài khoản.');
+    if (error.constraint === 'users_username_key') throw new AppError(409, 'USER_004', 'Tên người dùng đã được sử dụng.');
+  }
+  throw error;
 }
 
 export async function login(input: LoginInput) {

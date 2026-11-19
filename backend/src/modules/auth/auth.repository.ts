@@ -59,9 +59,18 @@ export async function registrationConflicts(email: string, username: string, cli
 
 export const REGISTRATION_RESEND_SECONDS = 60;
 export const REGISTRATION_RECOVERY_MINUTES = 60;
+export const REGISTRATION_MAX_RESENDS = 3;
+const REGISTRATION_MAX_DELIVERIES_PER_ADDRESS = 5;
 export type RegistrationChannel = 'web' | 'native';
 
-export async function savePendingRegistration(input: {
+export async function pruneExpiredRegistrationData() {
+  await getPostgresPool().query('delete from pending_email_registrations where deadline_at <= clock_timestamp()');
+  await getPostgresPool().query(
+    "delete from registration_email_delivery_budget where window_started_at <= clock_timestamp() - interval '1 hour'"
+  );
+}
+
+export async function savePendingRegistration(client: DbClient, input: {
   registrationId: string;
   email: string;
   username: string;
@@ -69,35 +78,49 @@ export async function savePendingRegistration(input: {
   codeHash: string;
   linkTokenHash: string | null;
   channel: RegistrationChannel;
-  expiresAt: Date;
+  expiryMinutes: number;
 }) {
-  const pool = getPostgresPool();
-  await pool.query(
-    "delete from pending_email_registrations where requested_at <= now() - $1 * interval '1 minute'",
-    [REGISTRATION_RECOVERY_MINUTES]
-  );
-  const result = await pool.query(
-    `insert into pending_email_registrations (email, registration_id, username, password_hash, code_hash, link_token_hash, expires_at, channel)
-     values ($1, $2, $3, $4, $5, $6, $7, $8)
+  const result = await client.query<{ deadline_at: Date }>(
+    `insert into pending_email_registrations (email, registration_id, username, password_hash, code_hash, link_token_hash, expires_at, channel, deadline_at)
+     values ($1, $2, $3, $4, $5, $6, now() + $7 * interval '1 minute', $8, now() + $9 * interval '1 minute')
      on conflict (email) do update
      set registration_id = excluded.registration_id, username = excluded.username, password_hash = excluded.password_hash,
-         code_hash = excluded.code_hash, link_token_hash = excluded.link_token_hash,
-         attempts = 0, requested_at = now(), expires_at = excluded.expires_at, channel = excluded.channel
-     where pending_email_registrations.expires_at <= clock_timestamp()
-       and pending_email_registrations.requested_at <= clock_timestamp() - $9 * interval '1 second'`,
+         code_hash = excluded.code_hash, link_token_hash = excluded.link_token_hash, attempts = 0, resends_used = 0,
+         requested_at = now(), expires_at = excluded.expires_at, channel = excluded.channel, deadline_at = excluded.deadline_at
+     where pending_email_registrations.deadline_at <= clock_timestamp()
+     returning deadline_at`,
     [input.email, input.registrationId, input.username, input.passwordHash, input.codeHash, input.linkTokenHash,
-      input.expiresAt, input.channel, REGISTRATION_RESEND_SECONDS]
+      input.expiryMinutes, input.channel, REGISTRATION_RECOVERY_MINUTES]
+  );
+  return result.rows[0] ?? null;
+}
+
+export async function reserveRegistrationDelivery(client: DbClient, email: string) {
+  const result = await client.query(
+    `insert into registration_email_delivery_budget (email, window_started_at, sent_count)
+     values ($1, clock_timestamp(), 1)
+     on conflict (email) do update set sent_count = case
+       when registration_email_delivery_budget.window_started_at <= clock_timestamp() - interval '1 hour' then 1
+       else registration_email_delivery_budget.sent_count + 1 end,
+       window_started_at = case
+         when registration_email_delivery_budget.window_started_at <= clock_timestamp() - interval '1 hour' then clock_timestamp()
+         else registration_email_delivery_budget.window_started_at end
+     where registration_email_delivery_budget.sent_count < $2
+       or registration_email_delivery_budget.window_started_at <= clock_timestamp() - interval '1 hour'`,
+    [email, REGISTRATION_MAX_DELIVERIES_PER_ADDRESS]
   );
   return result.rowCount === 1;
 }
 
-export async function lockRegistrationForResend(client: DbClient, registrationId: string, channel: RegistrationChannel) {
-  const result = await client.query<{ email: string; username: string; code_hash: string; retry_after_seconds: number }>(
-    `select email, username, code_hash,
+export async function findRegistrationContext(registrationId: string, channel: RegistrationChannel, client?: DbClient) {
+  const result = await (client ?? getPostgresPool()).query<{
+    email: string; username: string; code_hash: string; deadline_at: Date; resends_used: number; retry_after_seconds: number;
+  }>(
+    `select email, username, code_hash, deadline_at, resends_used,
             greatest(0, ceil(extract(epoch from requested_at + $2 * interval '1 second' - clock_timestamp())))::int as retry_after_seconds
      from pending_email_registrations
-     where registration_id = $1 and requested_at > clock_timestamp() - $3 * interval '1 minute' and channel = $4 for update`,
-    [registrationId, REGISTRATION_RESEND_SECONDS, REGISTRATION_RECOVERY_MINUTES, channel]
+     where registration_id = $1 and deadline_at > clock_timestamp() and channel = $3 ${client ? 'for update' : ''}`,
+    [registrationId, REGISTRATION_RESEND_SECONDS, channel]
   );
   return result.rows[0] ?? null;
 }
@@ -109,8 +132,8 @@ export async function replaceRegistrationProofs(client: DbClient, registrationId
 }) {
   await client.query(
     `update pending_email_registrations
-     set code_hash = $2, link_token_hash = $3, attempts = 0,
-         requested_at = clock_timestamp(), expires_at = clock_timestamp() + $4 * interval '1 minute'
+     set code_hash = $2, link_token_hash = $3, attempts = 0, resends_used = resends_used + 1,
+         requested_at = clock_timestamp(), expires_at = least(deadline_at, clock_timestamp() + $4 * interval '1 minute')
      where registration_id = $1`,
     [registrationId, proof.codeHash, proof.linkTokenHash, proof.expiryMinutes]
   );
@@ -126,7 +149,8 @@ export async function lockPendingRegistration(client: DbClient, registrationId: 
     attempts: number;
   }>(
     `select email, username, password_hash, code_hash, link_token_hash, attempts
-     from pending_email_registrations where registration_id = $1 and expires_at > now() for update`,
+     from pending_email_registrations
+     where registration_id = $1 and expires_at > clock_timestamp() and deadline_at > clock_timestamp() for update`,
     [registrationId]
   );
   return result.rows[0] ?? null;
@@ -138,6 +162,15 @@ export async function recordFailedRegistrationCode(client: DbClient, registratio
 
 export async function deletePendingRegistration(registrationId: string, client?: DbClient) {
   await (client ?? getPostgresPool()).query('delete from pending_email_registrations where registration_id = $1', [registrationId]);
+}
+
+export async function cancelPendingRegistration(registrationId: string, channel: RegistrationChannel) {
+  await getPostgresPool().query('delete from pending_email_registrations where registration_id = $1 and channel = $2', [registrationId, channel]);
+}
+
+export async function clearEmailRegistration(client: DbClient, email: string) {
+  // Lock and remove any conflicting signup before writing the verified account.
+  await client.query('delete from pending_email_registrations where email = $1', [email]);
 }
 
 export async function createUserAccount(

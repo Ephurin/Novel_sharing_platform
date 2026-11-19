@@ -14,7 +14,7 @@ Related SRS: `docs/SRS/auth-service.md`
 
 ### POST /auth/register
 
-Request a confirmation email for an `@gmail.com` address. It contains a confirmation link and an eight-digit backup code. A `202 Accepted` response returns `registrationId`, `email`, and `resendAfterSeconds` and sets an HTTP-only browser cookie for link verification and resend. The account and login session are created after confirmation.
+Request a confirmation email for an `@gmail.com` address. It contains a confirmation link, an eight-digit backup code and an email-ownership recovery link. A `202 Accepted` response sets an HTTP-only browser cookie and returns the signup status. The account and login session are created after confirmation.
 
 **Auth:** Optional  
 **Roles:** Guest
@@ -37,7 +37,9 @@ Request a confirmation email for an `@gmail.com` address. It contains a confirma
   "data": {
     "registrationId": "6e32f264-731c-445e-9965-5e1ff6a90062",
     "email": "reader@gmail.com",
-    "resendAfterSeconds": 60
+    "expiresAt": "2026-11-19T16:00:00.000Z",
+    "resendAfterSeconds": 60,
+    "resendsRemaining": 3
   },
   "error": null,
   "meta": {}
@@ -51,18 +53,21 @@ Request a confirmation email for an `@gmail.com` address. It contains a confirma
 | `VALIDATION_001` | 400 | Missing or weak password. |
 | `USER_004` | 409 | Username already exists. |
 | `USER_005` | 409 | Email already exists. |
-| `AUTH_EMAIL_RATE_LIMIT` | 429 | The existing registration still has a valid link or code, or the delivery cooldown is active. Use the original signup session to resend. |
+| `AUTH_EMAIL_RATE_LIMIT` | 429 | The address already has an active signup session. Resume that session or use the recovery link from the mailbox. |
+| `AUTH_EMAIL_DELIVERY_LIMIT` | 429 | Five deliveries for this address have already been accepted within the current one-hour window. |
 | `AUTH_EMAIL_UNAVAILABLE` | 503 | Email delivery is unavailable. |
 
 ### POST /auth/register/resend
 
-Submit `registrationId` from the signup browser with the registration cookie and the configured web origin. Resend is available one minute after the last send, for up to one hour. A successful resend returns the same `202 Accepted` response as signup and replaces the old link and backup code. The new pair is valid for 15 minutes. A failed send preserves the previous pair.
+Submit `registrationId` from the signup browser with the registration cookie and the configured web origin. There is a one-minute cooldown and a maximum of three successful resends per registration. The signup deadline is one hour after creation. It does not move when resending. A successful resend replaces both proofs and returns the updated signup status. The new pair is valid for up to 15 minutes within the absolute deadline. A failed send preserves the previous pair and does not consume a delivery.
 
 | Code | HTTP | Condition |
 | :--- | :---: | :--- |
 | `AUTH_EMAIL_BROWSER` | 403 | The registration cookie or origin is invalid. |
 | `AUTH_EMAIL_REGISTRATION_EXPIRED` | 400 | The pending registration expired or was consumed. |
 | `AUTH_EMAIL_RATE_LIMIT` | 429 | The resend cooldown is active. |
+| `AUTH_EMAIL_RESEND_LIMIT` | 429 | All three resends have been used. |
+| `AUTH_EMAIL_DELIVERY_LIMIT` | 429 | The address has reached its hourly delivery limit. |
 | `AUTH_EMAIL_UNAVAILABLE` | 503 | Email delivery is unavailable. |
 
 ### POST /auth/register/verify
@@ -111,7 +116,15 @@ The link opens `/verify-email#token=…` on the configured `WEB_ORIGIN`. Only pr
 
 `POST /auth/register/native` accepts the same fields as web registration and sends an eight-digit code for the StoryCraft app. Its `202` response includes a signed `resendToken` bound to the pending registration. Submit `registrationId` and `code` to `POST /auth/register/verify` to finish signup.
 
-`POST /auth/register/native/resend` requires `registrationId` and the app's `resendToken`. It accepts pending native signup sessions for up to one hour after the last successful send, including when the previous code is expired or exhausted. The same one-minute resend cooldown applies. A successful send restarts the code's 15-minute lifetime, clears verification attempts and returns a renewed resend ticket. Web resend and link verification still require the web origin and browser cookie.
+`POST /auth/register/native/resend` requires `registrationId` and the app's `resendToken`. The signed token expires at the original signup deadline. The same delivery and resend limits apply, including when the previous code is expired or exhausted. On Android and iOS the app keeps the token, registration ID and deadline in secure storage until verification, cancellation or expiry.
+
+### Pending registration and cancellation
+
+`POST /auth/register/pending` returns the current signup status or `null` using the original web origin and HTTP-only cookie. `POST /auth/register/cancel` requires the same cookie, origin and `registrationId`. Native clients send `registrationId` and `resendToken` to `POST /auth/register/native/pending` or `POST /auth/register/native/cancel`. Cancellation returns `204` and releases the signup without resetting the address's delivery budget.
+
+### POST /auth/register/recover
+
+Submit the recovery `token` from the email with a fresh `username` and `password` from the configured web origin. The token proves ownership of an email address for one hour from delivery and works independently of a browser cookie or native signup ticket. Recovery creates the account using the new credentials and atomically clears any previous signup for that address. It cannot change an existing account's password.
 
 ### Google sign-in availability
 

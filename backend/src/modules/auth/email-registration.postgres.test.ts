@@ -7,9 +7,10 @@ import { env } from '../../core/config/env.js';
 import { disconnectMongo, getMongoDatabase } from '../../core/database/mongo.js';
 import { disconnectPostgres, getPostgresPool } from '../../core/database/postgres.js';
 import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
+import { resendRegistrationEmail } from './auth.service.js';
 
 type RegistrationResponse = {
-  data: { registrationId: string; email: string; resendAfterSeconds: number; resendToken?: string; accessToken?: string; user?: { userId: string; role: string } };
+  data: { registrationId: string; email: string; expiresAt: string; resendsRemaining: number; resendAfterSeconds: number; resendToken?: string; accessToken?: string; user?: { userId: string; role: string } };
   error: { code: string };
 };
 
@@ -55,7 +56,7 @@ test('password registration offers a browser-bound link and a one-time backup co
     const response = await fetch(`${base}${path}`, {
       method: 'POST', headers: { 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(body)
     });
-    return { response, body: await response.json() as RegistrationResponse };
+    return { response, body: (response.status === 204 ? null : await response.json()) as RegistrationResponse };
   };
   const details = { username: 'verify_reader', email: 'verify-reader@gmail.com', password: 'StrongPassword123!' };
   assert.equal((await post('/register', { ...details, email: 'verify-reader@gmail.com.example.test' })).body.error.code, 'AUTH_EMAIL_DOMAIN');
@@ -106,6 +107,8 @@ test('password registration offers a browser-bound link and a one-time backup co
   const linkUrl = new URL(link);
   const token = new URLSearchParams(linkUrl.hash.slice(1)).get('token');
   const headers = { Origin: linkUrl.origin, Cookie: linkCookie };
+  assert.equal((await post('/register/pending', {}, headers)).body.data.registrationId, linkPending.body.data.registrationId);
+  assert.equal((await post('/register/pending', {}, { Origin: linkUrl.origin })).body.data, null);
   await pool.query("update pending_email_registrations set requested_at=now() - interval '2 minutes' where registration_id=$1", [linkPending.body.data.registrationId]);
   // A different browser has no cookie or access to the pending link, even after the delivery cooldown.
   const duplicate = await post('/register', { ...linkDetails, username: 'other_browser', password: 'AnotherPassword456!' });
@@ -174,7 +177,14 @@ test('password registration offers a browser-bound link and a one-time backup co
     const originalCode = originalMail?.match(/Mã xác nhận là (\d{8})/)?.[1];
     assert.ok(originalCode);
     assert.match(originalMail ?? '', /ứng dụng StoryCraft/);
-    assert.doesNotMatch(originalMail ?? '', /verify-email/);
+    assert.doesNotMatch(originalMail ?? '', /#token=/);
+    assert.match(originalMail ?? '', /#recovery=/);
+    const context = { registrationId, resendToken };
+    const restored = await post('/register/native/pending', context);
+    assert.equal(restored.body.data.registrationId, registrationId);
+    assert.equal(restored.body.data.expiresAt, signup.body.data.expiresAt);
+    assert.equal(restored.body.data.resendToken, undefined);
+    assert.equal((await post('/register/native/cancel', { registrationId, resendToken: 'invalid-ticket' })).response.status, 403);
 
     await pool.query("update pending_email_registrations set requested_at=now() - interval '16 minutes', expires_at=now(), attempts=5 where registration_id=$1", [registrationId]);
     assert.equal((await post('/register/verify', { registrationId, code: originalCode })).body.error.code, 'AUTH_EMAIL_CODE');
@@ -194,5 +204,45 @@ test('password registration offers a browser-bound link and a one-time backup co
     assert.equal((await post('/register/verify', { registrationId, code: originalCode })).body.error.code, 'AUTH_EMAIL_CODE');
     assert.equal((await post('/register/verify', { registrationId, code: newCode })).response.status, 201);
     assert.equal((await post('/login', { identifier: nativeDetails.email, password: nativeDetails.password })).response.status, 200);
+  });
+
+  await t.test('signup deadlines and delivery budgets cannot block mailbox-owner recovery', async () => {
+    const held = { email: 'verify-held@gmail.com', username: 'verify_held', password: 'InitialPassword123!' };
+    const signup = await post('/register', held);
+    assert.equal(signup.response.status, 202);
+    const { registrationId, expiresAt } = signup.body.data;
+    const firstRecovery = inbox.get(held.email)?.match(/#recovery=([A-Za-z0-9_.-]+)/)?.[1];
+    assert.ok(firstRecovery);
+    await pool.query("update pending_email_registrations set deadline_at = now() + interval '3 minutes' where registration_id = $1", [registrationId]);
+    const deadline = (await pool.query('select deadline_at from pending_email_registrations where registration_id = $1', [registrationId])).rows[0].deadline_at as Date;
+    assert.ok(deadline.getTime() < Date.parse(expiresAt));
+    for (const remaining of [2, 1, 0]) {
+      await pool.query("update pending_email_registrations set requested_at = now() - interval '2 minutes' where registration_id = $1", [registrationId]);
+      const renewed = await resendRegistrationEmail(registrationId);
+      assert.equal(renewed.expiresAt, deadline.toISOString());
+      assert.equal(renewed.resendsRemaining, remaining);
+      const row = (await pool.query('select expires_at <= deadline_at as bounded from pending_email_registrations where registration_id = $1', [registrationId])).rows[0];
+      assert.equal(row.bounded, true);
+    }
+    await pool.query("update pending_email_registrations set requested_at = now() - interval '2 minutes' where registration_id = $1", [registrationId]);
+    await assert.rejects(resendRegistrationEmail(registrationId), { code: 'AUTH_EMAIL_RESEND_LIMIT' });
+    await pool.query("update pending_email_registrations set deadline_at = now() - interval '1 second' where registration_id = $1", [registrationId]);
+    await assert.rejects(resendRegistrationEmail(registrationId), { code: 'AUTH_EMAIL_REGISTRATION_EXPIRED' });
+
+    const replacement = await post('/register', held);
+    assert.equal(replacement.response.status, 202);
+    const activeId = replacement.body.data.registrationId;
+    const cancelHeaders = { Origin: linkUrl.origin, Cookie: replacement.response.headers.get('set-cookie')?.split(';')[0] ?? '' };
+    assert.equal((await post('/register/cancel', { registrationId: activeId }, { Origin: linkUrl.origin })).response.status, 403);
+    assert.equal((await post('/register/cancel', { registrationId: activeId }, cancelHeaders)).response.status, 204);
+    assert.equal((await post('/register', held)).body.error.code, 'AUTH_EMAIL_DELIVERY_LIMIT');
+
+    const owned = { token: firstRecovery, username: 'email_owner', password: 'MailboxOwner123!' };
+    assert.equal((await post('/register/recover', { ...owned, token: 'invalid' }, { Origin: linkUrl.origin })).body.error.code, 'AUTH_EMAIL_RECOVERY');
+    const recovered = await post('/register/recover', owned, { Origin: linkUrl.origin });
+    assert.equal(recovered.response.status, 201);
+    assert.equal((await post('/login', { identifier: held.email, password: held.password })).response.status, 401);
+    assert.equal((await post('/login', { identifier: held.email, password: owned.password })).response.status, 200);
+    assert.equal((await post('/register/recover', owned, { Origin: linkUrl.origin })).body.error.code, 'USER_005');
   });
 });

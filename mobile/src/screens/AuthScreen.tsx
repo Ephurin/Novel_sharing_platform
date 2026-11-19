@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ApiClientError, getApiErrorMessage } from '../api/api-client';
-import { login, register, resendRegistration, verifyRegistration, type PendingRegistration } from '../api/auth-api';
+import {
+  cancelRegistration, getPendingRegistration, login, register, resendRegistration,
+  verifyRegistration, type PendingRegistration
+} from '../api/auth-api';
 import type { CurrentUser } from '../api/types';
 import { Field } from '../components/Form';
 import { AppIcon } from '../components/Icons';
 import { Card, PrimaryButton, Screen, Section, useScreenStyles } from '../components/Screen';
 import { persistSession } from '../state/session';
+import { clearPendingRegistration, readPendingRegistration, savePendingRegistration } from '../state/pending-registration';
 import { resolveStoryCraftFontFamily, useStoryCraftTheme } from '../theme/ThemeProvider';
 
 export function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: CurrentUser) => void }) {
@@ -19,16 +23,51 @@ export function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: Curren
   const [registration, setRegistration] = useState<PendingRegistration | null>(null);
   const [code, setCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [action, setAction] = useState<'submit' | 'resend' | null>(null);
+  const [action, setAction] = useState<'submit' | 'resend' | 'cancel' | null>(null);
+  const [restoring, setRestoring] = useState(true);
+  const [restoreFailed, setRestoreFailed] = useState(false);
+  const [restoreAttempt, setRestoreAttempt] = useState(0);
+  const [cancelPrompt, setCancelPrompt] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resent, setResent] = useState(false);
   const [resendAt, setResendAt] = useState(0);
   const [resendSeconds, setResendSeconds] = useState(0);
 
-  const loading = action !== null;
+  const loading = restoring || action !== null;
   const canSubmit = !loading && (registration ? code.length === 8
     : identifier.trim().length > 0 && password.length > 0 && (mode === 'login' || username.trim().length > 0));
   const submitLabel = registration ? 'Xác nhận email' : mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản';
+
+  useEffect(() => {
+    let active = true;
+    void (async () => {
+      try {
+        const context = await readPendingRegistration();
+        if (!active || !context) return;
+        const pending = await getPendingRegistration(context);
+        if (!active) return;
+        if (!pending) {
+          await clearPendingRegistration();
+          return;
+        }
+        setMode('register');
+        setIdentifier(pending.email);
+        setRegistration({ ...pending, resendToken: context.resendToken });
+        setResendSeconds(pending.resendAfterSeconds);
+        setResendAt(Date.now() + pending.resendAfterSeconds * 1000);
+      } catch (caught) {
+        if (!active) return;
+        if (caught instanceof ApiClientError && caught.code === 'AUTH_EMAIL_REGISTRATION_EXPIRED') {
+          await clearPendingRegistration().catch(() => {});
+        } else {
+          setRestoreFailed(true);
+        }
+      } finally {
+        if (active) setRestoring(false);
+      }
+    })();
+    return () => { active = false; };
+  }, [restoreAttempt]);
 
   useEffect(() => {
     if (!resendAt) return;
@@ -52,6 +91,7 @@ export function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: Curren
     setCode('');
     setError(null);
     setResent(false);
+    setCancelPrompt(false);
     setResendAt(0);
     setResendSeconds(0);
   };
@@ -67,12 +107,16 @@ export function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: Curren
         setRegistration(pending);
         setPassword('');
         startResendCooldown(pending.resendAfterSeconds);
+        await savePendingRegistration(pending).catch(() => {
+          setError('Không lưu được phiên trên thiết bị. Nếu thoát ứng dụng, hãy dùng link khôi phục trong email.');
+        });
         return;
       }
       const session = registration
         ? await verifyRegistration(registration.registrationId, code)
         : await login({ identifier: identifier.trim(), password });
       await persistSession(session.accessToken);
+      if (registration) await clearPendingRegistration().catch(() => {});
       onAuthenticated(session.user);
     } catch (caughtError) {
       setError(getAuthErrorMessage(caughtError));
@@ -92,6 +136,7 @@ export function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: Curren
       setCode('');
       setResent(true);
       startResendCooldown(pending.resendAfterSeconds);
+      await savePendingRegistration(pending).catch(() => {});
     } catch (caughtError) {
       setError(getAuthErrorMessage(caughtError));
       if (caughtError instanceof ApiClientError && caughtError.status === 429) {
@@ -103,11 +148,31 @@ export function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: Curren
     }
   };
 
+  const cancel = async () => {
+    if (!registration || loading) return;
+    setAction('cancel');
+    setError(null);
+    try {
+      await cancelRegistration(registration);
+      await clearPendingRegistration().catch(() => {});
+      switchMode('register');
+    } catch (caught) {
+      if (caught instanceof ApiClientError && caught.code === 'AUTH_EMAIL_REGISTRATION_EXPIRED') {
+        await clearPendingRegistration().catch(() => {});
+        switchMode('register');
+      } else {
+        setError(getAuthErrorMessage(caught));
+      }
+    } finally {
+      setAction(null);
+    }
+  };
+
   return (
     <Screen>
       <Section subtitle="Đọc truyện và đồng bộ tủ sách cá nhân trên mọi thiết bị.">
         <Card>
-          <View
+          {!registration && <View
             accessibilityRole="tablist"
             style={[
               authStyles.tabBar,
@@ -146,7 +211,16 @@ export function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: Curren
                 </Pressable>
               );
             })}
-          </View>
+          </View>}
+
+          {restoreFailed && <Pressable accessibilityRole="button" disabled={loading || Boolean(registration)} style={authStyles.tab}
+            onPress={() => {
+              setRestoring(true);
+              setRestoreFailed(false);
+              setRestoreAttempt(value => value + 1);
+            }}>
+            <Text style={[themed.body, { color: palette.primaryMuted }]}>Thử khôi phục phiên đăng ký</Text>
+          </Pressable>}
 
           {registration ? (
             <>
@@ -243,16 +317,26 @@ export function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: Curren
           />
           {registration && (
             <>
-              <Pressable accessibilityRole="button" disabled={loading || resendSeconds > 0}
-                accessibilityState={{ disabled: loading || resendSeconds > 0, busy: action === 'resend' }}
+              <Pressable accessibilityRole="button" disabled={loading || resendSeconds > 0 || registration.resendsRemaining === 0}
+                accessibilityState={{ disabled: loading || resendSeconds > 0 || registration.resendsRemaining === 0, busy: action === 'resend' }}
                 onPress={() => void resend()} style={authStyles.tab}>
                 <Text style={[themed.body, { color: loading || resendSeconds > 0 ? palette.textMuted : palette.primaryMuted }]}>
-                  {action === 'resend' ? 'Đang gửi...' : resendSeconds > 0 ? `Gửi lại mã (${resendSeconds} giây)` : 'Gửi lại mã'}
+                  {action === 'resend' ? 'Đang gửi...' : registration.resendsRemaining === 0 ? 'Đã hết lượt gửi lại'
+                    : resendSeconds > 0 ? `Gửi lại mã (${resendSeconds} giây)` : 'Gửi lại mã'}
                 </Text>
               </Pressable>
-              <Pressable accessibilityRole="button" disabled={loading} onPress={() => switchMode('register')} style={authStyles.tab}>
-                <Text style={[themed.body, { color: palette.primaryMuted }]}>Quay lại đăng ký</Text>
-              </Pressable>
+              {cancelPrompt ? (
+                <>
+                  <Pressable accessibilityRole="button" disabled={loading} onPress={() => setCancelPrompt(false)} style={authStyles.tab}>
+                    <Text style={[themed.body, { color: palette.primaryMuted }]}>Giữ phiên đăng ký</Text>
+                  </Pressable>
+                  <Pressable accessibilityRole="button" disabled={loading} onPress={() => void cancel()} style={authStyles.tab}>
+                    <Text style={themed.error}>Xác nhận hủy phiên</Text>
+                  </Pressable>
+                </>
+              ) : <Pressable accessibilityRole="button" disabled={loading} onPress={() => setCancelPrompt(true)} style={authStyles.tab}>
+                <Text style={[themed.body, { color: palette.primaryMuted }]}>Hủy để đăng ký lại</Text>
+              </Pressable>}
             </>
           )}
         </Card>
