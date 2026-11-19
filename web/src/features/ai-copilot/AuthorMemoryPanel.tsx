@@ -42,6 +42,7 @@ import { createChapterSnapshot, listChapterRevisions } from './ai-copilot-api';
 import { AuthorMemoryRepair } from './AuthorMemoryRepair';
 import { usePendingMemoryReviews } from './pending-memory-reviews';
 import { EntityMergeControl } from './EntityMergeControl';
+import { EntityRetireControl, FactCorrectionControl } from './MemoryCleanupControls';
 import { brainStatusLabel, entityName, entityOptionLabel, eventTypeLabel, factKeyLabel, stateValueLabel } from './event-labels';
 import { fullAutoBlockReason } from './full-auto-gate';
 import {
@@ -438,8 +439,18 @@ function ScopedAuthorMemoryPanel({
     grouped.set(key, [...(grouped.get(key) ?? []), p]);
   }
 
-  const category = (types: string[]) =>
-    memory.data?.entities.filter(e => types.includes(e.entity_type.toLowerCase())) ?? [];
+  // Demo walkthrough 2026-11-18: entities the author removed stay in the data for history and for
+  // events that still name them, but lists and pickers no longer offer them.
+  const liveEntities = (memory.data?.entities ?? []).filter(e => !e.is_retired);
+  const category = (types: string[]) => liveEntities.filter(e => types.includes(e.entity_type.toLowerCase()));
+  const retiredIds = new Set((memory.data?.entities ?? []).filter(e => e.is_retired).map(e => e.entity_id));
+  const activeEvents = (memory.data?.events ?? []).filter(
+    e => !e.metadata?.is_retired && !(memory.data?.events ?? []).some(other => other.metadata?.supersedes_id === e.event_id));
+  const eventsNaming = (entityId: string) => activeEvents.filter(e => e.participants.includes(entityId)).length;
+  const flaggedEvents = activeEvents.filter(e => e.participants.some(p => retiredIds.has(p))
+    || (memory.data?.transitions ?? []).some(t => t.event_id === e.event_id && retiredIds.has(t.entity_id))).length;
+  const retireButton = (e: MemoryEntity) => <EntityRetireControl novelId={novelId} version={currentBrainVersion} entity={e}
+    eventCount={eventsNaming(e.entity_id)} disabled={pending} perform={perform} />;
 
   const currentBrainVersion = memory.data?.brain_version ?? brain.data?.brain_version ?? 1;
   const autoBlock = auto.data?.status === 'running' ? null
@@ -525,7 +536,7 @@ function ScopedAuthorMemoryPanel({
                     <AuthorMemoryRepair
                       novelId={novelId}
                       version={currentBrainVersion}
-                      entities={memory.data?.entities ?? []}
+                      entities={liveEntities}
                       disabled={pending}
                       perform={perform}
                     />
@@ -649,7 +660,7 @@ function ScopedAuthorMemoryPanel({
                           key={p.proposal_id}
                           proposal={p}
                           editedPayload={edits[p.proposal_id]}
-                          entities={memory.data?.entities ?? []}
+                          entities={liveEntities}
                           disabled={pending}
                           rejectAsGroup={proposals.length > 1 && !p.can_reject_individually}
                           onEdit={newPayload => setEdits(prev => ({ ...prev, [p.proposal_id]: newPayload }))}
@@ -726,7 +737,7 @@ function ScopedAuthorMemoryPanel({
           </Tabs.Panel>
 
           <Tabs.Panel value="profiles" pt="md">
-            <EntityProfileEditor novelId={novelId} entities={memory.data?.entities ?? []}
+            <EntityProfileEditor novelId={novelId} entities={liveEntities}
               active={opened && profileTabOpened} onSaved={refresh} />
           </Tabs.Panel>
 
@@ -735,7 +746,7 @@ function ScopedAuthorMemoryPanel({
              ────────────────────────────────────────── */}
           <Tabs.Panel value="characters" pt="md">
             <Stack ref={charactersListRef} gap="xs">
-              <EntityMergeControl novelId={novelId} version={currentBrainVersion} entities={memory.data?.entities ?? []} disabled={pending} />
+              <EntityMergeControl novelId={novelId} version={currentBrainVersion} entities={liveEntities} disabled={pending} />
               {category(['character', 'per', 'person']).map(e => (
                 <Card withBorder key={e.entity_id} p="xs">
                   <Group justify="space-between">
@@ -750,6 +761,7 @@ function ScopedAuthorMemoryPanel({
                         Tên khác: {(memory.data?.aliases ?? []).filter(a => a.entity_id === e.entity_id).map(a => a.alias).join(', ')}
                       </Text>}
                     </div>
+                    {retireButton(e)}
                   </Group>
                 </Card>
               ))}
@@ -768,7 +780,7 @@ function ScopedAuthorMemoryPanel({
             <AuthorRelationshipLocks
               novelId={novelId}
               brainVersion={currentBrainVersion}
-              entities={memory.data?.entities ?? []}
+              entities={liveEntities}
               relations={memory.data?.relations ?? []}
               disabled={pending}
               perform={perform}
@@ -801,6 +813,8 @@ function ScopedAuthorMemoryPanel({
                   <Text size="xs" c="dimmed">
                     {fact.chapter_number ? `Chương ${String(fact.chapter_number)}` : 'Thiết lập ban đầu'} · {entityName(memory.data?.entities ?? [], fact.subject_entity_id)}
                   </Text>
+                  <FactCorrectionControl novelId={novelId} version={currentBrainVersion} fact={fact}
+                    entities={memory.data?.entities ?? []} disabled={pending} perform={perform} />
                 </Card>
               ))}
               {!memory.data?.facts?.length && (
@@ -842,6 +856,13 @@ function ScopedAuthorMemoryPanel({
                 </Alert>
               )}
 
+              {flaggedEvents > 0 && (
+                <Alert color="red" icon={<IconAlertTriangle size={16} />} data-testid="retired-entity-events">
+                  {flaggedEvents} sự kiện còn nhắc tới thực thể đã gỡ khỏi bộ nhớ (tên đánh dấu đỏ). Hãy mở “Đề xuất chỉnh sửa”
+                  ở từng sự kiện để bỏ hoặc thay thực thể đó.
+                </Alert>
+              )}
+
               {(memory.data?.events ?? [])
                 .filter(
                   e =>
@@ -875,12 +896,17 @@ function ScopedAuthorMemoryPanel({
             <Stack gap="xs">
               {category(['location', 'loc', 'place']).map(e => (
                 <Card withBorder key={e.entity_id} p="xs">
-                  <Text fw={600} size="sm">
-                    {e.name}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {entityStatusLabel(e.status)} · {entityPlaceLabel(e)}
-                  </Text>
+                  <Group justify="space-between" align="flex-start">
+                    <div>
+                      <Text fw={600} size="sm">
+                        {e.name}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {entityStatusLabel(e.status)} · {entityPlaceLabel(e)}
+                      </Text>
+                    </div>
+                    {retireButton(e)}
+                  </Group>
                 </Card>
               ))}
               {!category(['location', 'loc', 'place']).length && (
@@ -898,12 +924,17 @@ function ScopedAuthorMemoryPanel({
             <Stack gap="xs">
               {category(['item', 'object', 'obj']).map(e => (
                 <Card withBorder key={e.entity_id} p="xs">
-                  <Text fw={600} size="sm">
-                    {e.name}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {entityStatusLabel(e.status)} · {entityPlaceLabel(e)}
-                  </Text>
+                  <Group justify="space-between" align="flex-start">
+                    <div>
+                      <Text fw={600} size="sm">
+                        {e.name}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {entityStatusLabel(e.status)} · {entityPlaceLabel(e)}
+                      </Text>
+                    </div>
+                    {retireButton(e)}
+                  </Group>
                 </Card>
               ))}
               {!category(['item', 'object', 'obj']).length && (
@@ -1452,10 +1483,17 @@ function EventItem({
       }))
   );
 
-  const entityOptions = entities.map(e => ({
-    value: e.entity_id,
-    label: entityOptionLabel(e, entities)
-  }));
+  const entityOptions = entities
+    .filter(e => !e.is_retired || initialParticipantUuids.includes(e.entity_id))
+    .map(e => ({
+      value: e.entity_id,
+      label: e.is_retired ? `${entityOptionLabel(e, entities)} · đã gỡ khỏi bộ nhớ` : entityOptionLabel(e, entities)
+    }));
+  // Demo walkthrough 2026-11-18: this event still names an entity the author removed from memory.
+  const retiredNames = [...new Set([...event.participants, ...eventTransitions.map(t => t.entity_id)])]
+    .map(id => entities.find(e => e.entity_id === id))
+    .filter((e): e is MemoryEntity => Boolean(e?.is_retired))
+    .map(e => e.name);
 
   // Fail closed if any legacy participant remains unresolved (FE-08, FE-12)
   const allLegacyResolved =
@@ -1574,8 +1612,10 @@ function EventItem({
             {event.participants.map((p, i) => {
               const matchedEntity = entities.find(e => e.entity_id === p);
               return matchedEntity ? (
-                <Badge key={i} size="xs" variant="light" color="teal">
-                  {matchedEntity.name}
+                <Badge key={i} size="xs" variant={matchedEntity.is_retired ? 'filled' : 'light'}
+                  color={matchedEntity.is_retired ? 'red' : 'teal'}
+                  title={matchedEntity.is_retired ? 'Đã gỡ khỏi bộ nhớ' : undefined}>
+                  {matchedEntity.name}{matchedEntity.is_retired ? ' · đã gỡ' : ''}
                 </Badge>
               ) : (
                 <Badge key={i} size="xs" variant="filled" color="red">
@@ -1584,6 +1624,15 @@ function EventItem({
               );
             })}
           </Group>
+        )}
+
+        {retiredNames.length > 0 && (
+          <Alert color="red" icon={<IconAlertTriangle size={14} />} p="xs" data-testid={`retired-entity-warning-${event.event_id}`}>
+            <Text size="xs">
+              Sự kiện này nhắc tới {retiredNames.map(n => `“${n}”`).join(', ')} — đã gỡ khỏi bộ nhớ. Bấm “Đề xuất chỉnh sửa” để
+              bỏ hoặc thay thực thể này.
+            </Text>
+          </Alert>
         )}
 
         {/* Display linked transitions */}
@@ -1596,8 +1645,8 @@ function EventItem({
               {eventTransitions.map((t, idx) => {
                 const entity = entities.find(e => e.entity_id === t.entity_id);
                 return (
-                  <Text key={idx} size="xs">
-                    • {entity ? entity.name : entityName(entities, t.entity_id)} → {factKeyLabel(t.attribute_key)}:{' '}
+                  <Text key={idx} size="xs" c={entity?.is_retired ? 'red' : undefined}>
+                    • {entity ? entity.name : entityName(entities, t.entity_id)}{entity?.is_retired ? ' (đã gỡ)' : ''} → {factKeyLabel(t.attribute_key)}:{' '}
                     {stateValueLabel(entities, t.new_value)}
                   </Text>
                 );

@@ -140,6 +140,8 @@ export interface MemoryEntity {
   location_chapter?: number;
   mentions?: number;
   is_locked?: boolean;
+  /** Removed from memory by the author; kept only so events that still name it can be flagged. */
+  is_retired?: boolean;
   approved_profile?: Partial<EntityProfileFields> & { effective_from_chapter?: number };
 }
 
@@ -593,6 +595,23 @@ export async function continueEntityReview(novelId: string, runId: string): Prom
 export async function correctMemoryEvent(novelId: string, eventId: string, correction: EventCorrection): Promise<unknown> {
   return memoryPost(`/ai/story-brains/${novelId}/events/${eventId}/corrections`, correction);
 }
+
+/** Demo walkthrough 2026-11-18: remove a wrong entity from memory (history and events are kept). */
+export async function retireMemoryEntity(novelId: string, entityId: string, expectedBrainVersion: number, reason?: string) {
+  return memoryPost<{ entity_id: string; brain_version: number; status: 'retired' }>(
+    `/ai/story-brains/${novelId}/entities/${entityId}/retire`,
+    { expected_brain_version: expectedBrainVersion, ...(reason?.trim() ? { reason: reason.trim() } : {}) });
+}
+
+/** Demo walkthrough 2026-11-18: replace a fact's value, or remove the fact; the old one stays in history. */
+export async function correctMemoryFact(novelId: string, factId: string, expectedBrainVersion: number,
+  change: { fact_value: string } | { retire: true }) {
+  return memoryPost<{ fact_id: string; brain_version: number; status: 'corrected' | 'removed' }>(
+    `/ai/story-brains/${novelId}/facts/${factId}/corrections`, { expected_brain_version: expectedBrainVersion, ...change });
+}
+
+/** Entities the author has not removed: what lists and pickers offer. */
+export const activeEntities = <T extends { is_retired?: boolean }>(entities: T[]) => entities.filter(e => !e.is_retired);
 
 export async function lockRelationship(novelId: string, payload: RelationshipLock): Promise<{ status: string; relation: string; locked: boolean; brain_version: number; subject_entity_id: string; object_entity_id: string }> {
   return memoryPost(`/ai/story-brains/${novelId}/relationship-locks`, payload);

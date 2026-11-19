@@ -89,6 +89,16 @@ describe('Story Brain approved memory -> editable Story Bible', { concurrency: f
     assert.deepEqual((await listTimelineEventsByNovelId(novel)).map(e => e.summary), ['Corrected event', 'An author planned event']);
   });
 
+  test('a character the author removed from memory leaves the Story Bible (demo walkthrough 2026-11-18)', async () => {
+    const data = memory();
+    await applyApprovedMemoryToBible(novel, user, data);
+    assert.equal((await listCharactersByNovelId(novel)).length, 2);
+    const retired = { ...data, brain_version: 3, relations: [],
+      entities: data.entities.map(e => e.name === 'Mahiru' ? { ...e, is_retired: true } : e) };
+    await applyApprovedMemoryToBible(novel, user, retired);
+    assert.deepEqual((await listCharactersByNovelId(novel)).map(c => c.name), ['Amane']);
+  });
+
   test('untouched projected characters and events retract and reappear under their original Bible IDs', async () => {
     const data = memory();
     await applyApprovedMemoryToBible(novel, user, data);

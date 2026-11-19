@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from contextlib import nullcontext
+from datetime import datetime, timezone
 import hashlib
 import json
 import logging
@@ -1999,6 +2000,92 @@ class PostgresNarrativeRepository:
                 "status": "merged",
             }
 
+    def retire_entity(self, story_id: str, entity_id: str, expected_brain_version: int,
+                      reason: str | None = None) -> dict[str, Any]:
+        """Author removes a wrong entity from memory (demo walkthrough 2026-11-18).
+
+        The record, its history and every event that names it are kept; the entity is only flagged
+        ``is_retired`` so lists, pickers, entity review and the writing context skip it, while events
+        that still reference it are shown with a warning for the author to fix."""
+        novel_id = self._novel_id(story_id)
+        with session_scope(self._session_factory) as session:
+            brain = session.scalar(select(StoryBrainRecord).where(
+                *self._scope(StoryBrainRecord, novel_id)).with_for_update())
+            if brain is None:
+                raise KeyError(story_id)
+            if brain.brain_version != expected_brain_version:
+                raise OptimisticLockError(story_id)
+            entity = session.scalar(select(EntityRecord).where(
+                EntityRecord.id == self._stable_uuid("entity", entity_id), *self._scope(EntityRecord, novel_id)))
+            if entity is None:
+                raise KeyError(entity_id)
+            attributes = dict(entity.static_attributes or {})
+            if attributes.get("is_retired"):
+                raise ValueError("Entity is already removed from memory")
+            if entity.is_locked:
+                raise ValueError("Unlock the entity before removing it")
+            attributes.update(is_retired=True, retired_reason=(reason or "").strip()[:500] or None,
+                              retired_by=str(self._actor_id) if self._actor_id else None,
+                              retired_at=datetime.now(timezone.utc).isoformat())
+            entity.static_attributes = attributes
+            session.flush()
+            brain.brain_version += 1
+            self._persist_projection(session, brain, novel_id)
+            return {"entity_id": entity_id, "brain_version": brain.brain_version, "status": "retired"}
+
+    def correct_fact(self, story_id: str, fact_id: str, expected_brain_version: int, *,
+                     fact_value: Any = None, retire: bool = False, reason: str | None = None) -> dict[str, Any]:
+        """Author replaces or removes an approved fact (demo walkthrough 2026-11-18).
+
+        A new fact supersedes the old one (``supersedes_id``), so history is kept and the projection
+        hides the old fact and its state change. ``retire`` marks the successor ``is_retired`` so the
+        fact disappears altogether."""
+        novel_id = self._novel_id(story_id)
+        if not retire and (fact_value is None or (isinstance(fact_value, str) and not fact_value.strip())):
+            raise ValueError("Provide the corrected value or remove the fact")
+        with session_scope(self._session_factory) as session:
+            brain = session.scalar(select(StoryBrainRecord).where(
+                *self._scope(StoryBrainRecord, novel_id)).with_for_update())
+            if brain is None:
+                raise KeyError(story_id)
+            if brain.brain_version != expected_brain_version:
+                raise OptimisticLockError(story_id)
+            original = session.scalar(select(FactRecord).where(
+                FactRecord.id == self._stable_uuid("fact", fact_id), *self._scope(FactRecord, novel_id)))
+            if original is None:
+                raise KeyError(fact_id)
+            if original.fact_type == "world_rule" and original.subject_entity_id is None:
+                raise ValueError("Change a world rule through the world-rule amendment screen")
+            if original.is_retired or session.scalar(select(FactRecord.id).where(
+                    FactRecord.supersedes_id == original.id, *self._scope(FactRecord, novel_id))):
+                raise ValueError("This fact has already been replaced")
+            if original.is_locked:
+                raise ValueError("Unlock the fact before changing it")
+            value = original.fact_value if retire else (
+                fact_value.strip() if isinstance(fact_value, str) else fact_value)
+            successor = FactRecord(
+                story_brain_id=brain.id, tenant_id=self._tenant_id, novel_id=novel_id,
+                subject_entity_id=original.subject_entity_id, fact_type=original.fact_type,
+                fact_key=original.fact_key, fact_value=value, chapter_number=original.chapter_number,
+                source_type="author", confirmation_status="confirmed", confidence=1,
+                priority=original.priority, source_revision_id=original.source_revision_id,
+                source_start=original.source_start, source_end=original.source_end,
+                created_by=self._actor_id, supersedes_id=original.id, is_retired=bool(retire))
+            session.add(successor)
+            session.flush()
+            if not retire and successor.subject_entity_id:
+                transitions = self._load_transitions(session, novel_id)
+                session.add(StateTransitionRecord(
+                    id=uuid.uuid5(uuid.NAMESPACE_URL, f"initial:{successor.id}"), story_brain_id=brain.id,
+                    tenant_id=self._tenant_id, novel_id=novel_id, entity_id=successor.subject_entity_id,
+                    fact_id=successor.id, attribute_key=successor.fact_key, new_value=successor.fact_value,
+                    sequence=len(transitions) + 1))
+                session.flush()
+            brain.brain_version += 1
+            self._persist_projection(session, brain, novel_id)
+            return {"fact_id": str(successor.id), "supersedes_id": fact_id, "is_retired": bool(retire),
+                    "brain_version": brain.brain_version, "status": "removed" if retire else "corrected"}
+
     def _get_or_create_brain(
         self, session: Session, novel_id: uuid.UUID
     ) -> StoryBrainRecord:
@@ -2093,6 +2180,7 @@ class PostgresNarrativeRepository:
             location=str(attributes.get("location", "Unknown")),
             mentions=int(attributes.get("mentions", 1)),
             is_locked=record.is_locked,
+            is_retired=bool(attributes.get("is_retired", False)),
             approved_profile={k: v for k, v in (record.author_profile or {}).items() if k in ("description", "appearance", "personality", "background", "effective_from_chapter")},
         )
 
@@ -2668,8 +2756,9 @@ class PostgresNarrativeRepository:
             base_overhead = 300
             locked_rules_cost = len(locked_rules) * 35
 
+            # Entities the author removed from memory never reach the writing context.
             sorted_entities = sorted(
-                entities,
+                (e for e in entities if not (e.static_attributes or {}).get("is_retired")),
                 key=lambda e: (
                     0 if e.is_locked else 1,
                     0 if (
@@ -3350,9 +3439,12 @@ class PostgresNarrativeRepository:
         with session_scope(self._session_factory) as session:
             brain = session.scalar(select(StoryBrainRecord).where(
                 *self._scope(StoryBrainRecord, novel_id)).with_for_update(read=True))
-            entities = session.execute(select(EntityRecord.id, EntityRecord.canonical_name,
-                EntityRecord.entity_type).where(*self._scope(EntityRecord, novel_id),
+            # Entities the author removed from memory are not offered to entity review.
+            entities = [e for e in session.execute(select(EntityRecord.id, EntityRecord.canonical_name,
+                EntityRecord.entity_type, EntityRecord.static_attributes).where(*self._scope(EntityRecord, novel_id),
                     EntityRecord.confirmation_status == 'confirmed')).all()
+                if not (e.static_attributes or {}).get('is_retired')]
+            kept = {e.id for e in entities}
             aliases = session.execute(select(EntityAliasRecord.alias, EntityAliasRecord.entity_id)
                 .join(EntityRecord, EntityRecord.id == EntityAliasRecord.entity_id)
                 .where(*self._scope(EntityRecord, novel_id), EntityRecord.confirmation_status == 'confirmed',
@@ -3360,7 +3452,8 @@ class PostgresNarrativeRepository:
             return {'brain_version': brain.brain_version if brain else 1,
                     'entities': [{'entity_id': str(e.id), 'name': e.canonical_name,
                                   'entity_type': e.entity_type} for e in entities],
-                    'aliases': [{'alias': a.alias, 'entity_id': str(a.entity_id)} for a in aliases]}
+                    'aliases': [{'alias': a.alias, 'entity_id': str(a.entity_id)} for a in aliases
+                                if a.entity_id in kept]}
 
     def _persist_reviewed_mentions(self, session, brain, audit, frozen):
         request = audit['request']

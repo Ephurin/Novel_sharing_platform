@@ -652,6 +652,59 @@ class InMemoryNarrativeRepository:
             }
 
 
+    def retire_entity(self, story_id: str, entity_id: str, expected_brain_version: int,
+                      reason: str | None = None) -> dict[str, Any]:
+        """Same contract as the PostgreSQL repository: flag the entity, keep it for history."""
+        brain = self.get_story_brain(story_id)
+        version = int(brain.metadata.get("brain_version", "1"))
+        if version != expected_brain_version:
+            raise OptimisticLockError(story_id)
+        entity = next((e for e in brain.entities if e.entity_id == entity_id), None)
+        if entity is None:
+            raise KeyError(entity_id)
+        if entity.is_retired:
+            raise ValueError("Entity is already removed from memory")
+        if entity.is_locked:
+            raise ValueError("Unlock the entity before removing it")
+        entities = tuple(replace(e, is_retired=True) if e.entity_id == entity_id else e for e in brain.entities)
+        self._brains[story_id] = replace(brain, entities=entities,
+            metadata={**brain.metadata, "brain_version": str(version + 1)})
+        return {"entity_id": entity_id, "brain_version": version + 1, "status": "retired"}
+
+    def correct_fact(self, story_id: str, fact_id: str, expected_brain_version: int, *,
+                     fact_value: Any = None, retire: bool = False, reason: str | None = None) -> dict[str, Any]:
+        """Same contract as the PostgreSQL repository: a superseding fact, optionally retired."""
+        if not retire and (fact_value is None or (isinstance(fact_value, str) and not fact_value.strip())):
+            raise ValueError("Provide the corrected value or remove the fact")
+        brain = self.get_story_brain(story_id)
+        version = int(brain.metadata.get("brain_version", "1"))
+        if version != expected_brain_version:
+            raise OptimisticLockError(story_id)
+        original = next((f for f in brain.facts if f.get("fact_id") == fact_id), None)
+        if original is None:
+            raise KeyError(fact_id)
+        if original.get("fact_type") == "world_rule" and not original.get("subject_entity_id"):
+            raise ValueError("Change a world rule through the world-rule amendment screen")
+        if original.get("is_retired") or any(f.get("supersedes_id") == fact_id for f in brain.facts):
+            raise ValueError("This fact has already been replaced")
+        if original.get("is_locked"):
+            raise ValueError("Unlock the fact before changing it")
+        new_id = str(uuid.uuid4())
+        value = original.get("fact_value") if retire else (
+            fact_value.strip() if isinstance(fact_value, str) else fact_value)
+        successor = {**original, "fact_id": new_id, "fact_value": value, "source_type": "author",
+                     "supersedes_id": fact_id, "is_retired": bool(retire)}
+        facts = [*brain.facts, successor]
+        transitions = list(brain.transitions)
+        if not retire and successor.get("subject_entity_id"):
+            transitions.append({"transition_id": str(uuid.uuid5(uuid.NAMESPACE_URL, f"initial:{new_id}")),
+                                "entity_id": successor["subject_entity_id"], "event_id": None, "fact_id": new_id,
+                                "attribute_key": successor["fact_key"], "new_value": value})
+        self._brains[story_id] = replace(brain, facts=tuple(facts), transitions=tuple(transitions),
+            metadata={**brain.metadata, "brain_version": str(version + 1)})
+        return {"fact_id": new_id, "supersedes_id": fact_id, "is_retired": bool(retire),
+                "brain_version": version + 1, "status": "removed" if retire else "corrected"}
+
     def merge_entities(
         self,
         story_id: str,
@@ -1187,9 +1240,11 @@ class InMemoryNarrativeRepository:
 
     def get_entity_registry(self, story_id: str) -> dict:
         brain = self.get_story_brain(story_id)
+        kept = [e for e in brain.entities if not e.is_retired]  # removed by the author
+        ids = {e.entity_id for e in kept}
         return {'entities': [{'entity_id': e.entity_id, 'name': e.name, 'entity_type': e.entity_type}
-                             for e in brain.entities],
-                'aliases': [{'alias': a.alias, 'entity_id': a.entity_id} for a in brain.aliases]}
+                             for e in kept],
+                'aliases': [{'alias': a.alias, 'entity_id': a.entity_id} for a in brain.aliases if a.entity_id in ids]}
 
     def discard_chapter_analysis(self, story_id: str, chapter_id: str, reason: str,
                                  actor_id: str | None = None) -> dict:
