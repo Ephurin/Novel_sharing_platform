@@ -9,7 +9,7 @@ import { disconnectPostgres, getPostgresPool } from '../../core/database/postgre
 import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
 
 type RegistrationResponse = {
-  data: { registrationId: string; email: string; resendAfterSeconds: number; accessToken?: string; user?: { userId: string; role: string } };
+  data: { registrationId: string; email: string; resendAfterSeconds: number; resendToken?: string; accessToken?: string; user?: { userId: string; role: string } };
   error: { code: string };
 };
 
@@ -106,6 +106,12 @@ test('password registration offers a browser-bound link and a one-time backup co
   const linkUrl = new URL(link);
   const token = new URLSearchParams(linkUrl.hash.slice(1)).get('token');
   const headers = { Origin: linkUrl.origin, Cookie: linkCookie };
+  await pool.query("update pending_email_registrations set requested_at=now() - interval '2 minutes' where registration_id=$1", [linkPending.body.data.registrationId]);
+  // A different browser has no cookie or access to the pending link, even after the delivery cooldown.
+  const duplicate = await post('/register', { ...linkDetails, username: 'other_browser', password: 'AnotherPassword456!' });
+  assert.equal(duplicate.body.error.code, 'AUTH_EMAIL_RATE_LIMIT');
+  assert.equal(duplicate.response.headers.get('set-cookie'), null);
+  assert.equal(inbox.get(linkDetails.email), linkMail);
   assert.equal((await post('/register/verify-link', { token }, { Origin: linkUrl.origin })).body.error.code, 'AUTH_EMAIL_BROWSER');
   assert.equal((await post('/register/verify-link', { token }, { ...headers, Origin: 'http://localhost:9999' })).body.error.code, 'AUTH_EMAIL_BROWSER');
   assert.equal((await post('/register/verify-link', { token: 'Z'.repeat(43) }, headers)).body.error.code, 'AUTH_EMAIL_LINK');
@@ -113,6 +119,7 @@ test('password registration offers a browser-bound link and a one-time backup co
   const linked = await post('/register/verify-link', { token }, headers);
   assert.equal(linked.response.status, 201);
   assert.equal(linked.body.data.user?.role, 'READER');
+  assert.equal((await post('/login', { identifier: linkDetails.email, password: linkDetails.password })).response.status, 200);
   assert.equal((await post('/register/verify-link', { token }, headers)).body.error.code, 'AUTH_EMAIL_LINK');
   assert.equal((await post('/register/verify', { registrationId: linkPending.body.data.registrationId, code: backupCode })).body.error.code, 'AUTH_EMAIL_CODE');
 
@@ -155,4 +162,37 @@ test('password registration offers a browser-bound link and a one-time backup co
   assert.equal((await post('/register/verify', { registrationId: resendId, code: oldCode })).body.error.code, 'AUTH_EMAIL_CODE');
   assert.equal((await post('/register/verify', { registrationId: resendId, code: newCode })).response.status, 201);
   assert.equal((await post('/register/resend', resendBody, resendHeaders)).body.error.code, 'AUTH_EMAIL_REGISTRATION_EXPIRED');
+
+  await t.test('native signup recovers an expired code with its original app ticket', async () => {
+    const nativeDetails = { ...details, email: 'verify-native@gmail.com', username: 'verify_native' };
+    const signup = await post('/register/native', nativeDetails);
+    assert.equal(signup.response.status, 202);
+    assert.equal(signup.response.headers.get('set-cookie'), null);
+    const { registrationId, resendToken } = signup.body.data;
+    assert.ok(resendToken);
+    const originalMail = inbox.get(nativeDetails.email);
+    const originalCode = originalMail?.match(/Mã xác nhận là (\d{8})/)?.[1];
+    assert.ok(originalCode);
+    assert.match(originalMail ?? '', /ứng dụng StoryCraft/);
+    assert.doesNotMatch(originalMail ?? '', /verify-email/);
+
+    await pool.query("update pending_email_registrations set requested_at=now() - interval '16 minutes', expires_at=now(), attempts=5 where registration_id=$1", [registrationId]);
+    assert.equal((await post('/register/verify', { registrationId, code: originalCode })).body.error.code, 'AUTH_EMAIL_CODE');
+    const path = '/register/native/resend';
+    assert.equal((await post(path, { registrationId, resendToken: 'invalid-ticket' })).response.status, 403);
+    const request = { registrationId, resendToken };
+    smtpUnavailable = true;
+    assert.equal((await post(path, request)).response.status, 503);
+    assert.equal(inbox.get(nativeDetails.email), originalMail);
+    smtpUnavailable = false;
+    const renewed = await post(path, request);
+    assert.equal(renewed.response.status, 202);
+    assert.equal(renewed.body.data.registrationId, registrationId);
+    assert.ok(renewed.body.data.resendToken);
+    const newCode = inbox.get(nativeDetails.email)?.match(/Mã xác nhận là (\d{8})/)?.[1];
+    assert.ok(newCode && newCode !== originalCode);
+    assert.equal((await post('/register/verify', { registrationId, code: originalCode })).body.error.code, 'AUTH_EMAIL_CODE');
+    assert.equal((await post('/register/verify', { registrationId, code: newCode })).response.status, 201);
+    assert.equal((await post('/login', { identifier: nativeDetails.email, password: nativeDetails.password })).response.status, 200);
+  });
 });

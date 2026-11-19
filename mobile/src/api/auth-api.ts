@@ -7,7 +7,7 @@ export type AuthSession = {
   user: CurrentUser;
 };
 
-export type PendingRegistration = { registrationId: string; email: string };
+export type PendingRegistration = { registrationId: string; email: string; resendToken: string; resendAfterSeconds: number };
 
 export async function login(input: { identifier: string; password: string }) {
   const response = await apiClient.post<ApiEnvelope<AuthSession>>('/auth/login', input);
@@ -15,7 +15,13 @@ export async function login(input: { identifier: string; password: string }) {
 }
 
 export async function register(input: { email: string; username: string; password: string }) {
-  const response = await apiClient.post<ApiEnvelope<PendingRegistration>>('/auth/register', input);
+  const response = await apiClient.post<ApiEnvelope<PendingRegistration>>('/auth/register/native', input);
+  return response.data.data;
+}
+
+export async function resendRegistration(registration: PendingRegistration) {
+  const { registrationId, resendToken } = registration;
+  const response = await apiClient.post<ApiEnvelope<PendingRegistration>>('/auth/register/native/resend', { registrationId, resendToken });
   return response.data.data;
 }
 

@@ -336,7 +336,8 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
           </Stack>
         </form>
 
-        {!confirmEmailFromLink && !registration && <GoogleSignIn blocked={authMutation.isPending} onBusyChange={setGoogleBusy} onSession={handleSession} />}
+        {!confirmEmailFromLink && !registration && <GoogleSignIn blocked={authMutation.isPending} showSignupNote={mode === 'register'}
+          onBusyChange={setGoogleBusy} onSession={handleSession} />}
       </Paper>
     </AuthorTheme>
   );

@@ -26,7 +26,8 @@ import {
   revokeRefreshToken,
   savePendingRegistration,
   updateLastLoginAt,
-  updatePasswordHash
+  updatePasswordHash,
+  type RegistrationChannel
 } from './auth.repository.js';
 import type { AuthUser, PublicAuthUser } from './auth.types.js';
 import type { ChangePasswordInput, LoginInput, RegisterInput } from './auth.schemas.js';
@@ -118,13 +119,14 @@ function registrationCodeHash(registrationId: string, code: string) {
   return createHmac('sha256', env.JWT_REFRESH_SECRET).update(`registration:${registrationId}:${code}`).digest('hex');
 }
 
-function createRegistrationProofs(registrationId: string, previousCodeHash?: string) {
+function createRegistrationProofs(registrationId: string, channel: RegistrationChannel, previousCodeHash?: string) {
   let code: string;
   let codeHash: string;
   do {
     code = randomInt(100_000_000).toString().padStart(8, '0');
     codeHash = registrationCodeHash(registrationId, code);
   } while (codeHash === previousCodeHash);
+  if (channel === 'native') return { code, codeHash, confirmationUrl: null, linkTokenHash: null };
   const linkToken = randomBytes(32).toString('base64url');
   const confirmationUrl = new URL('/verify-email', env.WEB_ORIGIN);
   confirmationUrl.hash = `token=${linkToken}`;
@@ -144,18 +146,20 @@ async function assertRegistrationAvailable(email: string, username: string, clie
   if (conflicts.username) throw new AppError(409, 'USER_004', 'Tên người dùng đã được sử dụng.');
 }
 
-export async function register(input: RegisterInput): Promise<{ registrationId: string; email: string; resendAfterSeconds: number }> {
+export async function register(input: RegisterInput, channel: RegistrationChannel = 'web'): Promise<{ registrationId: string; email: string; resendAfterSeconds: number }> {
   const email = input.email.toLowerCase();
   await assertRegistrationAvailable(email, input.username);
   const registrationId = randomUUID();
-  const { code, codeHash, confirmationUrl, linkTokenHash } = createRegistrationProofs(registrationId);
+  const { code, codeHash, confirmationUrl, linkTokenHash } = createRegistrationProofs(registrationId, channel);
   const passwordHash = await bcrypt.hash(input.password, 12);
   const saved = await savePendingRegistration({
     registrationId, email, username: input.username, passwordHash,
-    codeHash, linkTokenHash,
+    codeHash, linkTokenHash, channel,
     expiresAt: new Date(Date.now() + REGISTRATION_EXPIRY_MINUTES * 60_000)
   });
-  if (!saved) throw new AppError(429, 'AUTH_EMAIL_RATE_LIMIT', 'Hãy đợi một phút trước khi yêu cầu email mới.');
+  if (!saved) {
+    throw new AppError(429, 'AUTH_EMAIL_RATE_LIMIT', 'Email này đang chờ xác nhận. Hãy dùng email đã gửi hoặc yêu cầu gửi lại từ phiên đăng ký trước.');
+  }
 
   try {
     await sendRegistrationEmail(email, code, confirmationUrl, REGISTRATION_EXPIRY_MINUTES);
@@ -167,9 +171,9 @@ export async function register(input: RegisterInput): Promise<{ registrationId: 
   return { registrationId, email, resendAfterSeconds: REGISTRATION_RESEND_SECONDS };
 }
 
-export async function resendRegistrationEmail(registrationId: string) {
+export async function resendRegistrationEmail(registrationId: string, channel: RegistrationChannel = 'web') {
   return withPostgresTransaction(async (client) => {
-    const pending = await lockRegistrationForResend(client, registrationId);
+    const pending = await lockRegistrationForResend(client, registrationId, channel);
     if (!pending) {
       throw new AppError(400, 'AUTH_EMAIL_REGISTRATION_EXPIRED', 'Phiên đăng ký đã hết hạn. Hãy quay lại để đăng ký lại.');
     }
@@ -179,7 +183,7 @@ export async function resendRegistrationEmail(registrationId: string) {
       });
     }
     await assertRegistrationAvailable(pending.email, pending.username, client);
-    const { code, codeHash, confirmationUrl, linkTokenHash } = createRegistrationProofs(registrationId, pending.code_hash);
+    const { code, codeHash, confirmationUrl, linkTokenHash } = createRegistrationProofs(registrationId, channel, pending.code_hash);
     // Keep the existing link and code valid if the SMTP provider rejects the resend.
     await sendRegistrationEmail(pending.email, code, confirmationUrl, REGISTRATION_EXPIRY_MINUTES);
     await replaceRegistrationProofs(client, registrationId, { codeHash, linkTokenHash, expiryMinutes: REGISTRATION_EXPIRY_MINUTES });

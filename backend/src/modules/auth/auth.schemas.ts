@@ -21,6 +21,10 @@ export const resendRegistrationSchema = z.object({
   body: z.object({ registrationId: registrationIdSchema })
 });
 
+export const resendNativeRegistrationSchema = z.object({
+  body: resendRegistrationSchema.shape.body.extend({ resendToken: z.string().min(1).max(1024) })
+});
+
 export const verifyRegistrationSchema = z.object({
   body: z.object({
     registrationId: registrationIdSchema,

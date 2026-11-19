@@ -94,6 +94,8 @@ test('Google sign-in validates the web challenge and links only with the existin
   const returning = await challenge();
   const changedEmailToken = credential(returning.nonce, 'google-new-user', 'changed-google-email@example.test');
   assert.equal((await post('/google', { credential: changedEmailToken }, returning.cookie)).body.data.user.userId, userId);
+  // Google-only registration is web-only. An existing password account keeps password access after linking.
+  assert.equal((await post('/login', { identifier: email, password: 'UnrelatedPassword123!' })).response.status, 401);
   await pool.query("update users set status='LOCKED' where user_id=$1", [userId]);
   const locked = await challenge();
   assert.equal((await post('/google', { credential: credential(locked.nonce, 'google-new-user', email) }, locked.cookie)).response.status, 403);

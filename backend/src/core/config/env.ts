@@ -48,6 +48,7 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRES_DAYS: z.coerce.number().int().positive().default(7),
   REFRESH_TOKEN_COOKIE_NAME: z.string().default('ephurin_refresh_token'),
   GOOGLE_OAUTH_CLIENT_ID: optionalStringSchema,
+  AUTH_TRUSTED_PROXY_HOST: optionalStringSchema,
   SMTP_URL: optionalUrlSchema.refine((value) => !value || /^smtps?:\/\//.test(value), 'Use an SMTP or SMTPS URL'),
   SMTP_HOST: optionalStringSchema,
   SMTP_PORT: z.preprocess((value) => value === '' ? undefined : value, z.coerce.number().int().min(1).max(65535).optional()),

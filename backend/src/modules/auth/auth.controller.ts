@@ -82,6 +82,45 @@ export const resendRegistrationController: RequestHandler = async (request, resp
   }
 };
 
+const nativeRegistrationAudience = 'storycraft-native-registration-resend';
+
+function sendNativePendingRegistration(response: Parameters<RequestHandler>[1], result: Awaited<ReturnType<typeof register>>) {
+  const resendToken = jwt.sign({}, env.JWT_REFRESH_SECRET, {
+    algorithm: 'HS256',
+    audience: nativeRegistrationAudience,
+    subject: result.registrationId,
+    expiresIn: REGISTRATION_RECOVERY_MINUTES * 60
+  });
+  response.set('Cache-Control', 'no-store').status(202).json(successResponse({ ...result, resendToken }));
+}
+
+export const registerNativeController: RequestHandler = async (request, response, next) => {
+  try {
+    sendNativePendingRegistration(response, await register(request.body, 'native'));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resendNativeRegistrationController: RequestHandler = async (request, response, next) => {
+  try {
+    response.set('Cache-Control', 'no-store');
+    const { registrationId, resendToken } = request.body;
+    try {
+      jwt.verify(resendToken, env.JWT_REFRESH_SECRET, {
+        algorithms: ['HS256'],
+        audience: nativeRegistrationAudience,
+        subject: registrationId
+      });
+    } catch {
+      throw new AppError(403, 'AUTH_EMAIL_REGISTRATION_EXPIRED', 'Phiên đăng ký không còn hiệu lực. Hãy quay lại để đăng ký lại.');
+    }
+    sendNativePendingRegistration(response, await resendRegistrationEmail(registrationId, 'native'));
+  } catch (error) {
+    next(error);
+  }
+};
+
 function sendVerifiedRegistration(response: Parameters<RequestHandler>[1], session: Awaited<ReturnType<typeof verifyRegistration>>) {
   setRefreshCookie(response, session.refreshToken, session.refreshTokenMaxAgeMs);
   response.set('Cache-Control', 'no-store').status(201).json(successResponse({

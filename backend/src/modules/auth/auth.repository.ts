@@ -59,6 +59,7 @@ export async function registrationConflicts(email: string, username: string, cli
 
 export const REGISTRATION_RESEND_SECONDS = 60;
 export const REGISTRATION_RECOVERY_MINUTES = 60;
+export type RegistrationChannel = 'web' | 'native';
 
 export async function savePendingRegistration(input: {
   registrationId: string;
@@ -66,7 +67,8 @@ export async function savePendingRegistration(input: {
   username: string;
   passwordHash: string;
   codeHash: string;
-  linkTokenHash: string;
+  linkTokenHash: string | null;
+  channel: RegistrationChannel;
   expiresAt: Date;
 }) {
   const pool = getPostgresPool();
@@ -75,32 +77,34 @@ export async function savePendingRegistration(input: {
     [REGISTRATION_RECOVERY_MINUTES]
   );
   const result = await pool.query(
-    `insert into pending_email_registrations (email, registration_id, username, password_hash, code_hash, link_token_hash, expires_at)
-     values ($1, $2, $3, $4, $5, $6, $7)
+    `insert into pending_email_registrations (email, registration_id, username, password_hash, code_hash, link_token_hash, expires_at, channel)
+     values ($1, $2, $3, $4, $5, $6, $7, $8)
      on conflict (email) do update
      set registration_id = excluded.registration_id, username = excluded.username, password_hash = excluded.password_hash,
          code_hash = excluded.code_hash, link_token_hash = excluded.link_token_hash,
-         attempts = 0, requested_at = now(), expires_at = excluded.expires_at
-     where pending_email_registrations.requested_at <= now() - $8 * interval '1 second'`,
-    [input.email, input.registrationId, input.username, input.passwordHash, input.codeHash, input.linkTokenHash, input.expiresAt, REGISTRATION_RESEND_SECONDS]
+         attempts = 0, requested_at = now(), expires_at = excluded.expires_at, channel = excluded.channel
+     where pending_email_registrations.expires_at <= clock_timestamp()
+       and pending_email_registrations.requested_at <= clock_timestamp() - $9 * interval '1 second'`,
+    [input.email, input.registrationId, input.username, input.passwordHash, input.codeHash, input.linkTokenHash,
+      input.expiresAt, input.channel, REGISTRATION_RESEND_SECONDS]
   );
   return result.rowCount === 1;
 }
 
-export async function lockRegistrationForResend(client: DbClient, registrationId: string) {
+export async function lockRegistrationForResend(client: DbClient, registrationId: string, channel: RegistrationChannel) {
   const result = await client.query<{ email: string; username: string; code_hash: string; retry_after_seconds: number }>(
     `select email, username, code_hash,
             greatest(0, ceil(extract(epoch from requested_at + $2 * interval '1 second' - clock_timestamp())))::int as retry_after_seconds
      from pending_email_registrations
-     where registration_id = $1 and requested_at > now() - $3 * interval '1 minute' for update`,
-    [registrationId, REGISTRATION_RESEND_SECONDS, REGISTRATION_RECOVERY_MINUTES]
+     where registration_id = $1 and requested_at > clock_timestamp() - $3 * interval '1 minute' and channel = $4 for update`,
+    [registrationId, REGISTRATION_RESEND_SECONDS, REGISTRATION_RECOVERY_MINUTES, channel]
   );
   return result.rows[0] ?? null;
 }
 
 export async function replaceRegistrationProofs(client: DbClient, registrationId: string, proof: {
   codeHash: string;
-  linkTokenHash: string;
+  linkTokenHash: string | null;
   expiryMinutes: number;
 }) {
   await client.query(

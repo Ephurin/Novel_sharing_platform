@@ -3,8 +3,8 @@ import { Router, type RequestHandler } from 'express';
 import { z } from 'zod';
 import { AppError } from '../../core/errors/app-error.js';
 import { requireAuth } from '../../core/security/auth.middleware.js';
-import { rateLimit } from '../../core/security/rate-limit.js';
 import { validateRequest } from '../../core/validation/validate.js';
+import { authRateLimit } from './auth-rate-limit.js';
 import {
   changePasswordController,
   googleChallengeController,
@@ -14,12 +14,14 @@ import {
   meController,
   refreshTokenController,
   registerController,
+  registerNativeController,
   requireGoogleOrigin,
+  resendNativeRegistrationController,
   resendRegistrationController,
   verifyRegistrationController,
   verifyRegistrationLinkController
 } from './auth.controller.js';
-import { changePasswordSchema, googleLoginSchema, loginSchema, registerSchema, resendRegistrationSchema, verifyRegistrationLinkSchema, verifyRegistrationSchema } from './auth.schemas.js';
+import { changePasswordSchema, googleLoginSchema, loginSchema, registerSchema, resendNativeRegistrationSchema, resendRegistrationSchema, verifyRegistrationLinkSchema, verifyRegistrationSchema } from './auth.schemas.js';
 
 export const authRoutes = Router();
 
@@ -33,16 +35,21 @@ const rejectInvalidEmail: RequestHandler = (request, _response, next) => {
   next();
 };
 
-authRoutes.post('/register', rateLimit({ scope: 'email-registration', max: 30, windowMs: 60000 }),
+const limitRegistration = authRateLimit({ scope: 'email-registration', max: 30, windowMs: 60_000 });
+const limitResend = authRateLimit({ scope: 'email-registration-resend', max: 10, windowMs: 60_000 });
+
+authRoutes.post('/register', limitRegistration,
   rejectInvalidEmail, validateRequest(registerSchema), registerController);
-authRoutes.post('/register/resend', rateLimit({ scope: 'email-registration-resend', max: 10, windowMs: 60000 }),
-  validateRequest(resendRegistrationSchema), resendRegistrationController);
+authRoutes.post('/register/native', limitRegistration,
+  rejectInvalidEmail, validateRequest(registerSchema), registerNativeController);
+authRoutes.post('/register/resend', limitResend, validateRequest(resendRegistrationSchema), resendRegistrationController);
+authRoutes.post('/register/native/resend', limitResend, validateRequest(resendNativeRegistrationSchema), resendNativeRegistrationController);
 authRoutes.post('/register/verify', validateRequest(verifyRegistrationSchema), verifyRegistrationController);
 authRoutes.post('/register/verify-link', validateRequest(verifyRegistrationLinkSchema), verifyRegistrationLinkController);
 authRoutes.post('/login', validateRequest(loginSchema), loginController);
 authRoutes.post('/google/challenge', requireGoogleOrigin, googleChallengeController);
 authRoutes.post('/google', requireGoogleOrigin,
-  rateLimit({ scope: 'google-login', max: 60, windowMs: 60000 }),
+  authRateLimit({ scope: 'google-login', max: 60, windowMs: 60_000 }),
   validateRequest(googleLoginSchema), googleLoginController);
 authRoutes.post('/refresh-token', refreshTokenController);
 authRoutes.post('/logout', requireAuth, logoutController);

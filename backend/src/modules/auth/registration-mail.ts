@@ -32,7 +32,7 @@ function getRegistrationTransport() {
   return transporter;
 }
 
-export async function sendRegistrationEmail(email: string, code: string, confirmationUrl: string, expiresInMinutes: number) {
+export async function sendRegistrationEmail(email: string, code: string, confirmationUrl: string | null, expiresInMinutes: number) {
   const mail = getRegistrationTransport();
   if (!mail || !env.SMTP_FROM) {
     throw new AppError(503, 'AUTH_EMAIL_UNAVAILABLE', 'StoryCraft chưa thể gửi email xác nhận. Vui lòng thử lại sau.');

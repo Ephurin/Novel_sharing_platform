@@ -4,6 +4,7 @@ const subject = 'Xác nhận tài khoản StoryCraft';
 const action = 'Xác nhận tài khoản';
 const instruction = 'Mở link bằng trình duyệt bạn đã dùng để đăng ký StoryCraft.';
 const fallback = 'Nếu không mở được link, hãy chọn Dùng mã 8 số ở tab đăng ký.';
+const nativeInstruction = 'Nhập mã 8 số bên dưới vào màn hình đăng ký trong ứng dụng StoryCraft.';
 const ignore = 'Nếu bạn không yêu cầu tạo tài khoản, bạn có thể bỏ qua email này.';
 
 function inlineImage(filename: string) {
@@ -22,9 +23,13 @@ function escapeHtml(value: string) {
   return value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 }
 
-export function createRegistrationEmail(code: string, confirmationUrl: string, expiresInMinutes: number) {
-  const expiry = `Link và mã có hiệu lực trong ${expiresInMinutes} phút.`;
-  const text = `${subject}\n\n${confirmationUrl}\n${instruction}\n\n${fallback}\nMã dự phòng là ${code}.\n\n${expiry}\n${ignore}`;
+export function createRegistrationEmail(code: string, confirmationUrl: string | null, expiresInMinutes: number) {
+  const expiry = `${confirmationUrl ? 'Link và mã' : 'Mã xác nhận'} có hiệu lực trong ${expiresInMinutes} phút.`;
+  const steps = confirmationUrl
+    ? `${confirmationUrl}\n${instruction}\n\n${fallback}\nMã dự phòng là ${code}.`
+    : `${nativeInstruction}\n\nMã xác nhận là ${code}.`;
+  const text = `${subject}\n\n${steps}\n\n${expiry}\n${ignore}`;
+  const codeBox = `<div dir="ltr" class="sc-email-code" style="padding:8px 5px;background-color:#fff0e4;border:1px solid #e6a382;border-radius:12px;color:#8e3019;font-size:31px;line-height:37px;font-weight:800;letter-spacing:0.23em;white-space:nowrap;">${escapeHtml(code)}</div>`;
 
   // Inline the base styles so the email retains its layout in clients that strip <style>.
   const html = `<!doctype html>
@@ -75,7 +80,8 @@ export function createRegistrationEmail(code: string, confirmationUrl: string, e
           <tr>
             <td align="center" class="sc-email-content" style="padding:15px 39px 27px;background-color:#fcf8f3;color:#4b2015;">
               <h1 class="sc-email-title" style="margin:0 0 8px;font-size:30px;line-height:38px;font-weight:800;">Xác nhận email của bạn</h1>
-              <p class="sc-email-muted" style="margin:0 0 21px;color:#633f32;font-size:15px;line-height:23px;">${instruction}</p>
+              <p class="sc-email-muted" style="margin:0 0 21px;color:#633f32;font-size:15px;line-height:23px;">${confirmationUrl ? instruction : nativeInstruction}</p>
+              ${confirmationUrl ? `
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="83%" align="center" class="sc-email-button-table">
                 <tr>
                   <td align="center">
@@ -99,10 +105,11 @@ export function createRegistrationEmail(code: string, confirmationUrl: string, e
                       </tr>
                     </table>
                     <p class="sc-email-muted" style="margin:0 0 15px;color:#633f32;font-size:14px;line-height:21px;">${fallback}</p>
-                    <div dir="ltr" class="sc-email-code" style="padding:8px 5px;background-color:#fff0e4;border:1px solid #e6a382;border-radius:12px;color:#8e3019;font-size:31px;line-height:37px;font-weight:800;letter-spacing:0.23em;white-space:nowrap;">${escapeHtml(code)}</div>
+                    ${codeBox}
                   </td>
                 </tr>
               </table>
+              ` : `${codeBox}<p class="sc-email-muted" style="margin:10px 0 0;color:#633f32;font-size:14px;line-height:21px;">${expiry}</p>`}
             </td>
           </tr>
           <tr>

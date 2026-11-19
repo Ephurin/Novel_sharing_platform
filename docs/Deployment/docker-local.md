@@ -45,6 +45,8 @@ docker compose --profile dev-mail up -d --build
 
 Open the Mailpit inbox at `http://localhost:8026`. A backend running directly on the host can use `smtp://localhost:1026` instead. For real delivery, set `SMTP_FROM` to the verified sender. Use `SMTP_URL` or leave it empty and set `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, and `SMTP_PASS` separately. Keep credentials in environment configuration. SMTP authentication requires TLS. Use port 465 with implicit TLS or port 587 with STARTTLS for Gmail.
 
+The bundled Compose stack trusts the private `web` service for authentication rate-limit addresses. Nginx replaces client-supplied `X-Real-IP` with the connection address. For a custom deployment, set `AUTH_TRUSTED_PROXY_HOST` to the dedicated proxy's private hostname or exact IP address if it applies the same header policy. Leave it empty for direct API traffic.
+
 ## Demo Seed
 
 The backend container automatically runs migrations and seed when these compose variables are enabled:

@@ -21,6 +21,7 @@ const env = { ...process.env, READER_EVIDENCE_DIR: output,
   ADMIN_TEST_MONGO_URL: process.env.ADMIN_TEST_MONGO_URL || 'mongodb://127.0.0.1:27017' };
 for (const key of Object.keys(env)) if (/(?:API_KEY|PROVIDER_TOKEN)$/.test(key)) env[key] = '';
 const requiredBrowsers = [
+  'auth-landing.browser.test.mjs',
   'comment-notification-links.browser.test.mjs',
   'reader-bookmark-regressions.browser.test.mjs',
   'reader-chapter-workspace.browser.test.mjs',
@@ -31,7 +32,8 @@ const requiredBrowsers = [
   'reader-home-accessibility.browser.test.mjs', 'reader-home-personalization.browser.test.mjs',
   'reader-home-recovery.browser.test.mjs', 'reader-home.browser.test.mjs'
 ];
-const browserFiles = (await readdir(path.join(root, 'web/tests'))).filter(name => /^reader-.*\.browser\.test\.mjs$/.test(name) || name === 'comment-notification-links.browser.test.mjs').sort();
+const browserFiles = (await readdir(path.join(root, 'web/tests')))
+  .filter(name => /^reader-.*\.browser\.test\.mjs$/.test(name) || requiredBrowsers.includes(name)).sort();
 for (const name of requiredBrowsers) assert.ok(browserFiles.includes(name), `Missing Reader suite: ${name}`);
 const manifest = { testedSha: sha, sourceTree: git(['rev-parse', 'HEAD^{tree}']), cleanSource: true,
   startedAt: new Date().toISOString(), node: process.version, provider: 'fake; no live credentials', browserFiles, steps: [] };
@@ -65,6 +67,8 @@ const steps = [
   ['reader-postgres', 'backend', process.execPath, ['scripts/run-isolated-tests.mjs',
     'src/modules/reading/chapter-reads.postgres.test.ts', 'src/modules/reading/reader-discovery.postgres.test.ts', 'src/modules/reading/reading-lifecycle.postgres.test.ts', 'src/modules/reading/reader-workspace.postgres.test.ts',
     'src/modules/reading/reading-bookmark-entries.postgres.test.ts',
+    'src/modules/auth/auth-rate-limit.test.ts', 'src/modules/auth/email-registration.postgres.test.ts',
+    'src/modules/auth/google-login.postgres.test.ts', 'src/modules/novels/srs-backend-rules.postgres.test.ts',
     'src/modules/interactions/comments.integration.test.ts', 'src/modules/interactions/private-comments.integration.test.ts',
     'src/modules/users/connections.integration.test.ts', 'src/modules/media/media.test.ts']],
   ['reader-browsers', 'web', process.execPath, ['--test', '--test-concurrency=1', ...browserFiles.map(name => `tests/${name}`)]],
@@ -84,7 +88,25 @@ try {
     await writeFile(path.join(output, `${name}.log`), log);
     manifest.steps.push({ name, command: [command, ...args], exit, durationMs: Date.now() - started });
     await saveManifest();
-    if (name === 'reader-postgres') await verifyCleanup(log);
+    if (name === 'reader-postgres') {
+      await verifyCleanup(log);
+      const requiredBackendTests = [
+        'authentication limits distinguish proxy clients and ignore forged direct headers',
+        'password registration offers a browser-bound link and a one-time backup code',
+        'native signup recovers an expired code with its original app ticket',
+        'Google sign-in validates the web challenge and links only with the existing password',
+        'clean novel requests are idempotent, private until approval and rechecked before publication',
+        'chapter decisions apply only the submitted revision and keep the prior public version during review',
+        'a due chapter waits for admin approval and the schedule tracks the same review'
+      ];
+      const completed = new Set(log.split(/\r?\n/).flatMap(line => {
+        const result = line.match(/^\s*ok \d+ - ([^#]+)$/);
+        return result ? [result[1].trim()] : [];
+      }));
+      for (const testName of requiredBackendTests) {
+        assert.ok(completed.has(testName), `Required auth/publication regression did not pass: ${testName}`);
+      }
+    }
     assert.equal(exit, 0, `${name} failed; see ${output}`);
   }
   manifest.passed = true;

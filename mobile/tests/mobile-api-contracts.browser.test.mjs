@@ -430,6 +430,63 @@ const NOVEL_UUID = '11111111-1111-4111-8111-111111111111';
 const CHAPTER_UUID = '22222222-2222-4222-8222-222222222222';
 const SESSION_UUID = '33333333-3333-4333-8333-333333333333';
 
+test('Mobile signup can retry an expired code without submitting the password again', { timeout: 30000 }, async () => {
+  const browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL || undefined });
+  try {
+    const page = await browser.newPage();
+    await page.clock.install();
+    await page.setContent('<!doctype html><div id="root"></div>');
+    await page.addScriptTag({ content: await buildBundle() });
+    await page.evaluate(registrationId => {
+      const pending = { registrationId, email: 'reader@gmail.com', resendToken: 'original-ticket', resendAfterSeconds: 60 };
+      let resends = 0;
+      window.__mockHandlers = {
+        'POST /auth/register/native': () => pending,
+        'POST /auth/register/verify': ({ code }) => {
+          if (code === '87654321') return { accessToken: 'reader-token', user: { userId: 'reader' } };
+          throw new window.__helpers.ApiClientError({ status: 400, code: 'AUTH_EMAIL_CODE', message: 'Mã đã hết hiệu lực.' });
+        },
+        'POST /auth/register/native/resend': () => {
+          if (++resends === 1) {
+            throw new window.__helpers.ApiClientError({ status: 503, code: 'AUTH_EMAIL_UNAVAILABLE', message: 'Chưa gửi được email.' });
+          }
+          return { ...pending, resendToken: 'renewed-ticket' };
+        }
+      };
+      window.__mountAuth();
+    }, SESSION_UUID);
+    await page.getByRole('tab', { name: 'Tạo tài khoản' }).click();
+    await page.getByLabel('Email', { exact: true }).fill('reader@gmail.com');
+    await page.getByLabel('Tên người dùng', { exact: true }).fill('reader_otp');
+    await page.getByLabel('Mật khẩu', { exact: true }).fill('StrongPassword123!');
+    await page.getByRole('button', { name: 'Tạo tài khoản', exact: true }).click();
+    const resend = page.getByRole('button', { name: /^Gửi lại mã/ });
+    await expect(resend).toBeDisabled();
+    await page.getByLabel('Mã xác nhận', { exact: true }).fill('12345678');
+    await page.getByRole('button', { name: 'Xác nhận email' }).click();
+    await expect(page.getByText('Mã đã hết hiệu lực.')).toBeVisible();
+    await page.clock.fastForward(61_000);
+    await resend.click();
+    await expect(page.getByText('Chưa gửi được email.')).toBeVisible();
+    await resend.click();
+    await expect(page.getByText(/Đã gửi mã mới đến/)).toBeVisible();
+    await expect(page.getByLabel('Mã xác nhận', { exact: true })).toHaveValue('');
+    await expect(resend).toBeDisabled();
+    await page.getByLabel('Mã xác nhận', { exact: true }).fill('87654321');
+    await page.getByRole('button', { name: 'Xác nhận email' }).click();
+    const requests = await page.evaluate(() => window.__capturedRequests.map(({ url, body }) => ({ url, body })));
+    assert.deepEqual(requests.map(request => request.url), [
+      '/auth/register/native', '/auth/register/verify', '/auth/register/native/resend', '/auth/register/native/resend', '/auth/register/verify'
+    ]);
+    const resendBody = { registrationId: SESSION_UUID, resendToken: 'original-ticket' };
+    assert.deepEqual(requests[2].body, resendBody);
+    assert.deepEqual(requests[3].body, resendBody);
+    assert.deepEqual(requests[4].body, { registrationId: SESSION_UUID, code: '87654321' });
+  } finally {
+    await browser.close();
+  }
+});
+
 test('Mobile Reader, Wallet, Profile, and Notifications screens satisfy backend Zod contracts and cross-platform UI rules', { timeout: 60000 }, async () => {
   const [schemas, bundleJs] = await Promise.all([loadBackendSchemas(), buildBundle()]);
   const browser = await chromium.launch({

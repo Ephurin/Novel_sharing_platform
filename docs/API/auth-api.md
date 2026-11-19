@@ -51,7 +51,7 @@ Request a confirmation email for an `@gmail.com` address. It contains a confirma
 | `VALIDATION_001` | 400 | Missing or weak password. |
 | `USER_004` | 409 | Username already exists. |
 | `USER_005` | 409 | Email already exists. |
-| `AUTH_EMAIL_RATE_LIMIT` | 429 | A confirmation email was requested less than a minute ago. |
+| `AUTH_EMAIL_RATE_LIMIT` | 429 | The existing registration still has a valid link or code, or the delivery cooldown is active. Use the original signup session to resend. |
 | `AUTH_EMAIL_UNAVAILABLE` | 503 | Email delivery is unavailable. |
 
 ### POST /auth/register/resend
@@ -106,6 +106,16 @@ The link opens `/verify-email#token=…` on the configured `WEB_ORIGIN`. Only pr
 | :--- | :---: | :--- |
 | `AUTH_EMAIL_BROWSER` | 403 | The request is missing the signup browser cookie or comes from another origin. Use the code in the signup tab. |
 | `AUTH_EMAIL_LINK` | 400 | The link is invalid, expired, or used. |
+
+### Native email registration
+
+`POST /auth/register/native` accepts the same fields as web registration and sends an eight-digit code for the StoryCraft app. Its `202` response includes a signed `resendToken` bound to the pending registration. Submit `registrationId` and `code` to `POST /auth/register/verify` to finish signup.
+
+`POST /auth/register/native/resend` requires `registrationId` and the app's `resendToken`. It accepts pending native signup sessions for up to one hour after the last successful send, including when the previous code is expired or exhausted. The same one-minute resend cooldown applies. A successful send restarts the code's 15-minute lifetime, clears verification attempts and returns a renewed resend ticket. Web resend and link verification still require the web origin and browser cookie.
+
+### Google sign-in availability
+
+Google Identity Services is supported on the website. Android and iOS use password login. An account first created through Google sign-in can continue on the website with Google. Linking Google to an existing password account preserves password access in the mobile app.
 
 ### POST /auth/login
 
