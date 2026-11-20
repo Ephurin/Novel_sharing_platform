@@ -84,6 +84,8 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
     await page.clock.install();
     await page.goto(`${base}/login`);
     await expect(page.locator('.sc-author-theme.auth-shell')).toBeVisible();
+    await expect(page.locator('.auth-story-panel')).toBeVisible();
+    await expect(page.getByRole('link', { name: /Khám phá thư viện truyện/ })).toHaveAttribute('href', '/public');
     await expect(page.getByText('Ephurin Web')).toHaveCount(0);
     await expect(page.getByText(/OAuth callback/i)).toHaveCount(0);
 
@@ -157,8 +159,10 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
     await expect(identifierInput).toHaveValue('tacgia@vidu.vn');
     await expect(passwordInput).toHaveValue('MatKhauAnToan123!');
 
-    // Check mobile viewport overflow
+    // The illustration is desktop-only; the form stays usable without horizontal scrolling.
     await page.setViewportSize({ width: 375, height: 812 });
+    await expect(page.locator('.auth-story-panel')).toBeHidden();
+    await expect(page.locator('.auth-card')).toBeVisible();
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
 
     // Submit login using the exact single submit button role
