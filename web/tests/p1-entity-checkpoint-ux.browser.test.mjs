@@ -73,7 +73,7 @@ test('Identity checkpoint UX: type, bulk, CAS and isolation', { timeout: 180000 
     async function assign(id = 'loc-1') {
       await page.getByPlaceholder('Tên nhóm mới (ví dụ: minh-bac-si)', { exact: true }).fill('con-van');
       await page.getByRole('button', { name: '+ Thêm nhóm', exact: true }).click();
-      await card(id).getByLabel('Gán nhóm danh tính mới', { exact: true }).click();
+      await card(id).getByRole('textbox', { name: 'Gán nhóm danh tính mới', exact: true }).click();
       await page.getByRole('option', { name: 'con-van', exact: true }).click();
     }
     async function save() {
@@ -106,14 +106,14 @@ test('Identity checkpoint UX: type, bulk, CAS and isolation', { timeout: 180000 
         await h.page.getByRole('button', { name: '2', exact: true }).waitFor();
         await h.assign();
         await h.card('loc-1').getByRole('button', { name: 'Sửa thuộc tính', exact: true }).click();
-        await h.card('loc-1').getByLabel('Loại thực thể', { exact: true }).click();
+        await h.card('loc-1').getByRole('textbox', { name: 'Loại thực thể', exact: true }).click();
         await h.page.getByRole('option', { name: 'Địa điểm', exact: true }).click();
         await h.page.getByRole('button', { name: '2', exact: true }).click();
         await h.page.getByRole('button', { name: '1', exact: true }).click();
         await h.save();
         assert.equal(h.state.requests.at(-1).body.decisions.find(d => d.candidate_id === 'loc-1').entity_type, 'LOC');
         await h.page.reload(); await h.card('loc-1').getByRole('button', { name: 'Sửa thuộc tính', exact: true }).click();
-        await expect(h.card('loc-1').getByLabel('Loại thực thể', { exact: true })).toHaveValue('Địa điểm');
+        await expect(h.card('loc-1').getByRole('textbox', { name: 'Loại thực thể', exact: true })).toHaveValue('Địa điểm');
       } finally { await h.page.close(); }
     });
     await t.test('bulk cancel is inert; confirm targets exact matching eligible IDs, preserves other UUID, save/reload/freeze', async () => {
@@ -123,7 +123,7 @@ test('Identity checkpoint UX: type, bulk, CAS and isolation', { timeout: 180000 
         const bulk = h.card('loc-1').getByRole('button', { name: /Áp dụng quyết định này/ });
         await bulk.click();
         await h.card('loc-1').getByRole('button', { name: 'Hủy', exact: true }).click();
-        await expect(h.card('loc-2').getByLabel('Gán nhóm danh tính mới', { exact: true })).toHaveValue('');
+        await expect(h.card('loc-2').getByRole('textbox', { name: 'Gán nhóm danh tính mới', exact: true })).toHaveValue('');
         assert.equal(h.state.requests.length, 0);
         await bulk.click(); await h.card('loc-1').getByRole('button', { name: 'Xác nhận gán toàn bộ', exact: true }).click();
         await h.save();
@@ -131,7 +131,7 @@ test('Identity checkpoint UX: type, bulk, CAS and isolation', { timeout: 180000 
         assert.deepEqual(ds.filter(d => d.provisional_identity_key).map(d => d.candidate_id).sort(), ['loc-1', 'loc-2']);
         assert.equal(ds.find(d => d.candidate_id === 'loc-other').canonical_entity_id, 'uuid-other');
         await h.page.reload();
-        await expect(h.card('loc-2').getByLabel('Gán nhóm danh tính mới', { exact: true })).toHaveValue('con-van');
+        await expect(h.card('loc-2').getByRole('textbox', { name: 'Gán nhóm danh tính mới', exact: true })).toHaveValue('con-van');
         await h.page.getByRole('button', { name: /Chốt danh sách tên/ }).click();
         await expect.poll(() => h.state.requests.filter(r => r.body.finalize).length).toBe(1);
         assert.ok(h.state.requests.at(-1).body.decisions.every(d => d.entity_type === 'LOC'));
@@ -183,7 +183,7 @@ test('Identity checkpoint UX: type, bulk, CAS and isolation', { timeout: 180000 
         await h.page.evaluate(() => window.__queryClient.invalidateQueries({ queryKey: ['entity-reviews'] }));
         await h.page.getByRole('button', { name: '2', exact: true }).waitFor();
         await h.assign();
-        await h.card('loc-2').getByLabel('Gán nhóm danh tính mới', { exact: true }).click();
+        await h.card('loc-2').getByRole('textbox', { name: 'Gán nhóm danh tính mới', exact: true }).click();
         await h.page.getByRole('option', { name: 'con-van', exact: true }).click();
         for (const id of ['loc-1', 'loc-2']) {
           const inputs = await fields(id); await inputs[0].fill(quotes[id][0]); await inputs[1].fill(quotes[id][1]);
@@ -216,7 +216,7 @@ test('Identity checkpoint UX: type, bulk, CAS and isolation', { timeout: 180000 
         await h.page.evaluate(() => window.__queryClient.invalidateQueries({ queryKey: ['entity-reviews'] }));
         await h.page.getByText('v2', { exact: true }).waitFor();
         for (const [id, uuid] of [['loc-1', 'uuid-first'], ['loc-2', 'uuid-other']]) {
-          await h.card(id).getByLabel('Là nhân vật hoặc địa danh đã có', { exact: true }).click();
+          await h.card(id).getByRole('textbox', { name: 'Là nhân vật hoặc địa danh đã có', exact: true }).click();
           await h.page.getByRole('option', { name: new RegExp('#' + uuid.slice(-6)) }).click();
         }
         await h.card('loc-1').getByRole('button', { name: /Áp dụng quyết định này/ }).click();
@@ -231,10 +231,10 @@ test('Identity checkpoint UX: type, bulk, CAS and isolation', { timeout: 180000 
       const h = await setup('LOC');
       try {
         await h.assign();
-        await h.card('loc-2').getByLabel('Gán nhóm danh tính mới', { exact: true }).click();
+        await h.card('loc-2').getByRole('textbox', { name: 'Gán nhóm danh tính mới', exact: true }).click();
         await h.page.getByRole('option', { name: 'con-van', exact: true }).click();
         await h.card('loc-2').getByRole('button', { name: 'Sửa thuộc tính', exact: true }).click();
-        await h.card('loc-2').getByLabel('Loại thực thể', { exact: true }).click();
+        await h.card('loc-2').getByRole('textbox', { name: 'Loại thực thể', exact: true }).click();
         await h.page.getByRole('option', { name: 'Nhân vật', exact: true }).click();
         await expect(h.page.getByTestId('entity-freeze-summary')).toContainText('Cồn Vân (Nhân vật)');
         await expect(h.page.getByRole('button', { name: /Chốt danh sách tên/ })).toBeDisabled();
@@ -266,7 +266,7 @@ test('Identity checkpoint UX: type, bulk, CAS and isolation', { timeout: 180000 
         await h.page.getByRole('button', { name: 'Novel 2', exact: true }).click();
         // The old novel's card stays for its leave animation; check once it is gone.
         await expect(h.page.getByTestId('entity-checkpoint-run-ux')).toHaveCount(0);
-        await expect(h.card('loc-1').getByLabel('Gán nhóm danh tính mới', { exact: true })).toHaveValue('');
+        await expect(h.card('loc-1').getByRole('textbox', { name: 'Gán nhóm danh tính mới', exact: true })).toHaveValue('');
         await expect(h.page.getByRole('button', { name: /^Lưu quyết định một phần/ })).toBeDisabled();
       } finally { await h.page.close(); }
     });

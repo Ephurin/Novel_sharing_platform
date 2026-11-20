@@ -306,7 +306,8 @@ test('P2-06B BUI-01..04 regressions against contract-enforcing mocks', { timeout
       await expect.poll(() => brainstorms.length, { timeout: 5000 }).toBeGreaterThan(beforeRetry);
       await expect(page.getByTestId('brainstorm-rule-card-0')).toBeVisible({ timeout: 5000 });
       assert.equal(brainstorms.at(-1).idempotency_key, k1);
-      assert.equal(brainstorms.at(-1).instruction, 'Hệ thống tu luyện A');
+      // N2 (30297ed7): the setup idea now leads the direction, so only its end is the typed text.
+      assert.ok(brainstorms.at(-1).instruction.endsWith('Định hướng: Hệ thống tu luyện A'), brainstorms.at(-1).instruction);
 
       // changed input: retry is refused, fresh request gets a fresh key
       state.fail = { status: 429, code: 'RATE_LIMIT_EXCEEDED' };
@@ -322,7 +323,7 @@ test('P2-06B BUI-01..04 regressions against contract-enforcing mocks', { timeout
       await page.getByTestId('brainstorm-submit-btn').click();
       await expect.poll(() => brainstorms.length, { timeout: 5000 }).toBe(before + 1);
       await expect(page.getByTestId('brainstorm-rule-card-0')).toBeVisible({ timeout: 5000 });
-      assert.equal(brainstorms.at(-1).instruction, 'Hệ thống tu luyện B');
+      assert.ok(brainstorms.at(-1).instruction.endsWith('Định hướng: Hệ thống tu luyện B'), brainstorms.at(-1).instruction);
       assert.notEqual(brainstorms.at(-1).idempotency_key, k2, 'Changed payload must use a new key');
 
       // 409 CAS: no blind retry, reload then a fresh request succeeds
