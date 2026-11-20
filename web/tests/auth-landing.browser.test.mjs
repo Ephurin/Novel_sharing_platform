@@ -100,9 +100,9 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
     const form = page.getByRole('tabpanel');
     assert.deepEqual(await form.locator('input').evaluateAll(inputs => inputs.map(input =>
       input.labels[0]?.textContent?.replace(/\s*\*\s*$/, '').trim()
-    )), ['Username', 'Mật khẩu', 'Nhập lại mật khẩu', 'Email']);
+    )), ['Tên đăng nhập', 'Mật khẩu', 'Nhập lại mật khẩu', 'Email']);
     const confirmation = form.getByLabel('Nhập lại mật khẩu', { exact: true });
-    await form.getByLabel('Username', { exact: true }).fill('reader_test');
+    await form.getByLabel('Tên đăng nhập', { exact: true }).fill('reader_test');
     await form.locator('input[autocomplete="new-password"]').first().fill('MatKhauAnToan123!');
     await confirmation.fill('MatKhauSai123!');
     await form.getByLabel('Email', { exact: true }).fill('reader@gmail.com');
@@ -146,13 +146,21 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
     await page.keyboard.press('ArrowLeft');
     await expect(loginTab).toHaveAttribute('aria-selected', 'true');
 
+    // Verify Remember me & Forgot password dialog on Login tab
+    const rememberBox = page.getByLabel('Ghi nhớ đăng nhập', { exact: true });
+    await expect(rememberBox).toBeVisible();
+    await rememberBox.check();
+    await page.getByRole('button', { name: 'Quên mật khẩu?', exact: true }).click();
+    await expect(page.getByRole('dialog')).toContainText('chưa được máy chủ hỗ trợ');
+    await page.getByRole('button', { name: 'Đã hiểu', exact: true }).click();
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+
     // Fill fields and verify theme switch does not clear form input
     const identifierInput = page.getByLabel('Email hoặc tên đăng nhập', { exact: true });
     await identifierInput.fill('tacgia@vidu.vn');
     await passwordInput.fill('MatKhauAnToan123!');
 
-    await page.getByRole('button', { name: 'Giao diện', exact: true }).click();
-    await page.getByRole('menuitem', { name: 'Tối', exact: true }).click();
+    await page.getByRole('button', { name: 'Giao diện tối', exact: true }).click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     await expect(identifierInput).toHaveValue('tacgia@vidu.vn');
     await expect(passwordInput).toHaveValue('MatKhauAnToan123!');
@@ -161,9 +169,11 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
     await page.setViewportSize({ width: 375, height: 812 });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
 
-    // Submit login using the exact single submit button role
+    // Submit login using the exact single submit button role; verify remembered identifier without plaintext password
     await page.getByRole('button', { name: 'Đăng nhập', exact: true }).click();
     await expect(page).toHaveURL(/\/author$/);
+    assert.equal(await page.evaluate(() => localStorage.getItem('storycraft_remember_identifier')), 'tacgia@vidu.vn');
+    assert.equal(await page.evaluate(() => JSON.stringify(localStorage).includes('MatKhauAnToan123!')), false);
     assert.deepEqual(errors, []);
     await context.close();
 
@@ -219,12 +229,12 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
       await route.fulfill({ json: { success: true, data } });
     });
     await googlePage.goto(`${base}/login`);
-    const warning = googlePage.getByText(/Tài khoản tạo bằng Google dùng trên web/);
+    await expect(googlePage.getByText(/Tài khoản tạo bằng Google dùng trên web/)).toHaveCount(0);
     const signInTab = googlePage.getByRole('tab', { name: 'Đăng nhập' });
     await expect(signInTab).toHaveAttribute('aria-selected', 'true');
-    await expect(warning).toBeVisible();
+    await expect(googlePage.getByText('Đăng nhập với Google')).toBeVisible();
     await googlePage.getByRole('tab', { name: 'Tạo tài khoản' }).click();
-    await expect(warning).toBeVisible();
+    await expect(googlePage.getByText('Đăng ký với Google')).toBeVisible();
     await signInTab.click();
     await googlePage.getByRole('button', { name: 'Tiếp tục bằng Google' }).click();
     await expect(googlePage).toHaveURL(`${base}/`);

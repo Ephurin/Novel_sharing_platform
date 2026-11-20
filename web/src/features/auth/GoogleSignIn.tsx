@@ -1,4 +1,4 @@
-import { Alert, Button, Divider, Group, PasswordInput, Stack, Text, useComputedColorScheme } from '@mantine/core';
+import { Alert, Button, Group, PasswordInput, Stack, Text, useComputedColorScheme } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { ApiClientError } from '../../shared/api/api-client';
@@ -43,8 +43,9 @@ function loadGoogleIdentity() {
   return googleScript;
 }
 
-export function GoogleSignIn({ blocked, onBusyChange, onSession }: {
+export function GoogleSignIn({ blocked, mode = 'login', onBusyChange, onSession }: {
   blocked: boolean;
+  mode?: 'login' | 'register';
   onBusyChange: (busy: boolean) => void;
   onSession: (session: AuthSession) => void;
 }) {
@@ -136,13 +137,42 @@ export function GoogleSignIn({ blocked, onBusyChange, onSession }: {
     };
   }, [challenge, theme, attempt]);
 
-  if (!challenge) return null;
+  const [notConfiguredNotice, setNotConfiguredNotice] = useState(false);
+
+  const googleLabel = mode === 'register' ? 'Đăng ký với Google' : 'Đăng nhập với Google';
+
+  if (!challenge) {
+    return (
+      <div className="sc-auth-google-section">
+        <div className="sc-auth-divider"><span>hoặc</span></div>
+        <button
+          type="button"
+          className="sc-auth-google-btn"
+          disabled={blocked}
+          onClick={() => setNotConfiguredNotice(true)}
+        >
+          <span className="sc-auth-google-g" aria-hidden="true">G</span>
+          <span>{googleLabel}</span>
+        </button>
+        {notConfiguredNotice && (
+          <Text size="xs" c="dimmed" ta="center" mt={6} role="status">
+            Đăng nhập Google chưa được cấu hình trên môi trường này (thiếu GOOGLE_OAUTH_CLIENT_ID).
+          </Text>
+        )}
+      </div>
+    );
+  }
   return (
-    <Stack gap="xs" mt="md">
-      <Divider label="hoặc" />
-      <div ref={button} hidden={Boolean(linkCredential) || scriptFailed} inert={busy || blocked} />
-      {!linkCredential && (
-        <Text size="xs" c="dimmed">Tài khoản tạo bằng Google dùng trên web. Nếu cần dùng ứng dụng di động, hãy đăng ký bằng email và mật khẩu.</Text>
+    <Stack gap={6} mt={12} className="sc-auth-google-section">
+      <div className="sc-auth-divider"><span>hoặc</span></div>
+      {!linkCredential && !scriptFailed && (
+        <div className="sc-auth-google-wrap" data-busy={busy || blocked ? 'true' : undefined}>
+          <div className="sc-auth-google-btn sc-auth-google-visual" aria-hidden="true">
+            <span className="sc-auth-google-g">G</span>
+            <span>{googleLabel}</span>
+          </div>
+          <div ref={button} className="sc-auth-google-gis-overlay" inert={busy || blocked} />
+        </div>
       )}
       {scriptFailed && (
         <Button variant="default" onClick={() => { setScriptFailed(false); setAttempt(attempt + 1); }}>

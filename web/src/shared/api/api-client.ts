@@ -32,7 +32,9 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use((config) => {
   let accessToken: string | null = null;
-  try { accessToken = localStorage.getItem('ephurin_access_token'); } catch { /* Continue as guest if storage is blocked. */ }
+  try {
+    accessToken = localStorage.getItem('ephurin_access_token') ?? sessionStorage.getItem('ephurin_access_token');
+  } catch { /* Continue as guest if storage is blocked. */ }
 
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
