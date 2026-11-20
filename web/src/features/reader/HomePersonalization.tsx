@@ -61,15 +61,20 @@ export function ContinueReading() {
   const position = index >= 0 && chapters.length > 0 ? (index + 1) / chapters.length * 100 : null;
   const canContinue = index >= 0 || (hasVerifiedRead && detail.isPending);
   return <section className="sc-home-resume" aria-label="Đọc tiếp">
-    <div><h2>Đọc tiếp</h2><Link className="sc-home-novel-title" to={`/reader/novels/${item.novelId}`}>{item.novel.title}</Link>
-      <p>{/^\s*(?:chương|chapter)\s*\d+/iu.test(item.chapter.title) ? item.chapter.title : `Chương ${item.chapter.chapterNumber}: ${item.chapter.title}`}</p>
-      {position !== null ? <AnimatedProgress value={position} label={`Vị trí chương ${index + 1} / ${chapters.length}`} />
-        : hasVerifiedRead && detail.isPending ? <div className="sc-home-resume-progress-placeholder" aria-hidden="true"><span className="sc-skeleton-block sc-home-resume-progress-label-skeleton" /><span className="sc-skeleton-block sc-home-resume-progress-track-skeleton" /></div> : null}
+    <div className="sc-home-resume-main">
+      <div className="sc-home-resume-head">
+        <span className="sc-home-resume-badge"><span className="material-symbols-outlined" aria-hidden="true">menu_book</span><h2>Đọc tiếp</h2></span>
+        <Link className="sc-home-novel-title" to={`/reader/novels/${item.novelId}`}>{item.novel.title}</Link>
+        <p className="sc-home-resume-chapter">{/^\s*(?:chương|chapter)\s*\d+/iu.test(item.chapter.title) ? item.chapter.title : `Chương ${item.chapter.chapterNumber}: ${item.chapter.title}`}</p>
+      </div>
       {detail.isError && <button type="button" className="sc-home-resume-retry" onClick={() => void detail.refetch()}>Tải lại thông tin chương</button>}
-      {detail.isSuccess && publishedIndex < 0 && <p>Chương đọc gần đây không còn khả dụng.</p>}
+      {detail.isSuccess && publishedIndex < 0 && <p className="sc-home-resume-note">Chương đọc gần đây không còn khả dụng.</p>}
     </div>
-    <Link className="sc-home-preview-link" to={canContinue ? `/reader/chapters/${item.chapterId}` : `/reader/novels/${item.novelId}`}>
+    {position !== null ? <div className="sc-home-resume-progress"><AnimatedProgress value={position} label={`Vị trí chương ${index + 1} / ${chapters.length}`} /></div>
+      : hasVerifiedRead && detail.isPending ? <div className="sc-home-resume-progress sc-home-resume-progress-placeholder" aria-hidden="true"><span className="sc-skeleton-block sc-home-resume-progress-label-skeleton" /><span className="sc-skeleton-block sc-home-resume-progress-track-skeleton" /></div> : null}
+    <Link className="sc-home-preview-link sc-home-resume-cta" to={canContinue ? `/reader/chapters/${item.chapterId}` : `/reader/novels/${item.novelId}`}>
       {canContinue ? 'Đọc tiếp' : 'Xem truyện'}
+      <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
     </Link>
   </section>;
 }

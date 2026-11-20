@@ -11,6 +11,9 @@ import { useListScroll, useUrlFilters } from '../../shared/components/WorkspaceP
 import { HomeSearch } from './HomeSearch';
 import { HomeGenres } from './HomeGenres';
 import { ContinueReading } from './HomePersonalization';
+import { AuthorSpotlight, CuratedShelves, GenreShowcase, WritingStudioBanner } from './HomeDiscoverySections';
+import { HomeNovelCover } from './HomeNovelCover';
+import booksTeaArt from '../../assets/home-books-tea.png';
 import './reader-home.css';
 
 const featureTabs = [
@@ -86,6 +89,19 @@ export function ReaderHomePage() {
     setFeatureDirection(Math.sign(page - currentPage));
     homeFilters.update({ page: page + 1 });
   };
+  const completedNovels = (completed.data ?? []).slice(0, 5);
+  const completedLayout = !completed.isPending && completedNovels.length >= 4 ? 'grid' : 'aside';
+  const catalogNovels = useMemo(() => {
+    const byId = new Map<string, ReaderNovel>();
+    for (const list of [latest.data, featured.data, ranking.data, completed.data]) {
+      for (const novel of list ?? []) {
+        if (!byId.has(novel.novelId)) byId.set(novel.novelId, novel);
+      }
+    }
+    return [...byId.values()];
+  }, [latest.data, featured.data, ranking.data, completed.data]);
+  const featuredExcludeIds = useMemo(() => new Set(visibleFeatureSlice.map(novel => novel.novelId)), [visibleFeatureSlice]);
+  const isWriter = user?.role === 'AUTHOR' || user?.role === 'ADMIN';
   const novelPath = (novel: ReaderNovel) => `${catalogPath}/novels/${novel.novelId}`;
 
   return <>
@@ -93,8 +109,15 @@ export function ReaderHomePage() {
     <AuthorNavbar />
     <main id="home-main" tabIndex={-1} className="sc-shell-content sc-reader-home">
       <header className="sc-home-intro">
-        <h1 className="text-page-title">Góc đọc truyện</h1>
-        <HomeSearch catalogPath={catalogPath} />
+        <div className="sc-home-intro-copy">
+          <span className="sc-home-eyebrow">Không gian đọc StoryCraft</span>
+          <h1 className="text-page-title">Góc đọc truyện</h1>
+          <p className="sc-home-intro-subtitle">Tìm một câu chuyện để say mê và một khoảnh khắc đọc thật riêng cho mình.</p>
+          <HomeSearch catalogPath={catalogPath} />
+        </div>
+        <div className="sc-home-intro-art" aria-hidden="true">
+          <img src={booksTeaArt} alt="" loading="eager" />
+        </div>
       </header>
 
       <ContinueReading />
@@ -116,8 +139,18 @@ export function ReaderHomePage() {
                 initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: reduce ? 0 : 0.22, delay: reduce ? 0 : index * 0.045, ease: [0.22, 1, 0.36, 1] }}>
                 <Link className="sc-home-feature-cover sc-cover-hover" to={novelPath(novel)} aria-label={`Đọc truyện: ${novel.title}`}>
-                  <div className="sc-home-feature-artwork"><HomeCover novel={novel} eager /></div>
-                  <div className="sc-home-feature-caption"><span data-completed={isCompletedNovel(novel) || undefined}>{novelStatusLabel(novel)}{genreName ? ` · ${genreName}` : ''}</span><h2>{novel.title}</h2></div>
+                  <div className="sc-home-feature-artwork"><HomeCover novel={novel} eager size="card" /></div>
+                  <div className="sc-home-feature-caption">
+                    <span data-completed={isCompletedNovel(novel) || undefined}>
+                      <span className="sc-home-status-pill" data-completed={isCompletedNovel(novel) || undefined}>{novelStatusLabel(novel)}</span>
+                      {genreName ? <span className="sc-home-feature-genre" translate="no"> · {genreName}</span> : null}
+                    </span>
+                    <h2>{novel.title}</h2>
+                    <div className="sc-home-feature-stats">
+                      <span><Icon name="menu_book" />{count(novel.chaptersCount)} chương</span>
+                      <span><Icon name="visibility" />{count(novel.viewsCount)} lượt đọc</span>
+                    </div>
+                  </div>
                 </Link><NovelQuickPreview novel={novel} to={novelPath(novel)} />
               </motion.article>;
             })}
@@ -164,13 +197,17 @@ export function ReaderHomePage() {
         {genre && <Link className="sc-home-genre-link" to={`${catalogPath}?genre=${encodeURIComponent(genre)}`}>Tất cả truyện {genre}<Icon name="arrow_forward" /></Link>}
       </section>
 
-      <div className="sc-home-bottom">
-        <section className="sc-home-panel" aria-label="Truyện mới cập nhật">
+      <GenreShowcase genres={filters.data?.genres ?? []} catalogNovels={catalogNovels} catalogPath={catalogPath} />
+
+      <CuratedShelves catalogNovels={catalogNovels} excludeIds={featuredExcludeIds} catalogPath={catalogPath} />
+
+      <div className="sc-home-bottom" data-completed-layout={completedLayout}>
+        <section className="sc-home-panel sc-home-updates-panel" aria-label="Truyện mới cập nhật">
           <HomeHeading title="Mới cập nhật" icon="update"><Link className="sc-home-more" to={`${catalogPath}?sort=updatedAt:desc`}>Xem thêm<Icon name="arrow_forward" /></Link></HomeHeading>
           <HomeSectionState query={latest} empty="Chưa có truyện cập nhật" variant="rows" />
           <div className="sc-home-updates">
-            {(latest.data ?? []).slice(0, 10).map(novel => <article className="sc-home-update" key={novel.novelId}>
-              <Link className="sc-home-update-cover" to={novelPath(novel)} aria-label={`Đọc truyện: ${novel.title}`}><HomeCover novel={novel} /></Link>
+            {(latest.data ?? []).slice(0, 6).map(novel => <article className="sc-home-update" key={novel.novelId}>
+              <Link className="sc-home-update-cover" to={novelPath(novel)} aria-label={`Đọc truyện: ${novel.title}`}><HomeCover novel={novel} size="thumb" /></Link>
               <div className="sc-home-update-info">
                 <Link className="sc-home-novel-title" to={novelPath(novel)}>{novel.title}</Link>
                 {novel.latestChapter ? <Link className="sc-home-chapter" to={`${catalogPath}/chapters/${novel.latestChapter.chapterId}`}>{/^\s*(?:chương|chapter)\s*\d+/iu.test(novel.latestChapter.title) ? novel.latestChapter.title : `Chương ${novel.latestChapter.chapterNumber}: ${novel.latestChapter.title}`}</Link> : <span className="sc-home-chapter">{count(novel.chaptersCount)} chương</span>}
@@ -180,13 +217,28 @@ export function ReaderHomePage() {
             </article>)}
           </div>
         </section>
-        <aside className="sc-home-panel sc-home-completed" aria-label="Truyện đã hoàn thành">
+        <section className="sc-home-panel sc-home-completed" data-layout={completedLayout} data-count={completedNovels.length} aria-label="Truyện đã hoàn thành">
           <HomeHeading title="Đã hoàn thành" icon="task_alt"><Link className="sc-home-more" to={`${catalogPath}?status=COMPLETED`}>Xem thêm<Icon name="arrow_forward" /></Link></HomeHeading>
-          <HomeSectionState query={completed} empty="Chưa có truyện hoàn thành" />
-          <div className="sc-home-completed-list">{(completed.data ?? []).slice(0, 5).map(novel => <CompactNovel key={novel.novelId} novel={novel} to={novelPath(novel)} />)}</div>
-        </aside>
+          <HomeSectionState query={completed} empty="Chưa có truyện hoàn thành" variant={completedLayout === 'grid' ? 'completed' : 'compact'} />
+          <div className="sc-home-completed-list">{completedNovels.map(novel => <CompactNovel key={novel.novelId} novel={novel} to={novelPath(novel)} coverSize={completedLayout === 'grid' ? 'card' : 'thumb'} />)}</div>
+          {completedLayout === 'aside' && completedNovels.length > 0 && <div className="sc-home-completed-foot">
+            <span>Đọc trọn bộ không cần chờ chương mới.</span>
+            <Link className="sc-home-more" to={`${catalogPath}?status=COMPLETED`}>Tất cả truyện hoàn thành<Icon name="arrow_forward" /></Link>
+          </div>}
+        </section>
       </div>
-      <footer className="sc-home-footer"><Link to="/" className="sc-home-footer-brand">StoryCraft <span>Văn Hoa</span></Link><Link to={catalogPath}>Danh sách truyện<Icon name="arrow_forward" /></Link></footer>
+
+      <AuthorSpotlight catalogNovels={catalogNovels} />
+
+      <WritingStudioBanner isWriter={isWriter} isSignedIn={Boolean(user)} catalogPath={catalogPath} />
+
+      <footer className="sc-home-footer">
+        <div className="sc-home-footer-identity">
+          <Link to="/" className="sc-home-footer-brand">StoryCraft <span>Văn Hoa</span></Link>
+          <span className="sc-home-footer-tagline">Nơi những câu chuyện bắt đầu và tiếp nối.</span>
+        </div>
+        <Link to={catalogPath}>Danh sách truyện<Icon name="arrow_forward" /></Link>
+      </footer>
     </main>
   </>;
 }
@@ -195,22 +247,19 @@ function Icon({ name }: { name: string }) {
   return <span className="material-symbols-outlined" aria-hidden="true">{name}</span>;
 }
 
-function HomeCover({ novel, eager = false }: { novel: ReaderNovel; eager?: boolean }) {
-  const [failedUrl, setFailedUrl] = useState<string>();
-  return novel.coverImageUrl && novel.coverImageUrl !== failedUrl
-    ? <img src={novel.coverImageUrl} alt="" loading={eager ? 'eager' : 'lazy'} fetchPriority={eager ? 'high' : undefined} onError={() => setFailedUrl(novel.coverImageUrl ?? undefined)} />
-    : <span className="sc-home-cover-placeholder" aria-hidden="true"><Icon name="auto_stories" /></span>;
+function HomeCover({ novel, eager = false, size = 'thumb' }: { novel: ReaderNovel; eager?: boolean; size?: 'card' | 'thumb' }) {
+  return <HomeNovelCover novel={novel} eager={eager} size={size} />;
 }
 
 function HomeHeading({ title, icon, children }: { title: string; icon: string; children?: ReactNode }) {
   return <div className="sc-home-section-heading"><h2><Icon name={icon} />{title}</h2>{children}</div>;
 }
 
-function CompactNovel({ novel, to, preview = false }: { novel: ReaderNovel; to: string; preview?: boolean }) {
+function CompactNovel({ novel, to, preview = false, coverSize = 'thumb' }: { novel: ReaderNovel; to: string; preview?: boolean; coverSize?: 'card' | 'thumb' }) {
   const reduce = useReducedMotion();
   const genreName = primaryGenre(novel);
   return <motion.article layout={reduce ? false : 'position'} transition={{ duration: .2 }} className="sc-home-compact">
-    <Link className="sc-home-compact-cover sc-cover-hover" to={to} aria-label={`Đọc truyện: ${novel.title}`}><HomeCover novel={novel} /></Link>
+    <Link className="sc-home-compact-cover sc-cover-hover" to={to} aria-label={`Đọc truyện: ${novel.title}`}><HomeCover novel={novel} size={coverSize} /></Link>
     <div>
       <Link className="sc-home-novel-title" to={to}>{novel.title}</Link>
       <span className="sc-home-compact-status"><span data-completed={isCompletedNovel(novel) || undefined}>{novelStatusLabel(novel)}</span>{genreName && <span className="sc-home-compact-genre" translate="no"> · {genreName}</span>}</span>
