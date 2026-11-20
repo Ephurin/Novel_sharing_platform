@@ -2,8 +2,8 @@
 -- Novel search compares text with the Vietnamese accents (and đ) removed on both sides.
 create extension if not exists unaccent;
 
--- unaccent() is only STABLE; this wrapper pins the dictionary so it can be IMMUTABLE and used in
--- indexes later if search needs one.
+-- Not schema-qualified: the extension lands in the first schema of the search path, which is not
+-- always public (isolated test schemas use "search_path=<schema>,public").
 create or replace function f_unaccent(value text) returns text
-  language sql immutable parallel safe strict
-  as $$ select public.unaccent('public.unaccent'::regdictionary, value) $$;
+  language sql stable parallel safe strict
+  as $$ select unaccent(value) $$;
