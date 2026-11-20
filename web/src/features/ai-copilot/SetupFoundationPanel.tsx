@@ -5,6 +5,15 @@ import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client'
 import { usePlanningDraft, usePlanningScope } from './planning-draft';
 import { getSetup, submitSetup, reviewSetup, getSetupM0Readiness, activateSetupM0, type SetupM0Readiness, type SetupReviewDecision, type SetupDeclaration, type SetupSnapshot, type SetupSource } from './setup-api';
 import { WorldRuleAmendmentManager } from './WorldRuleAmendmentManager';
+
+const SETUP_SOURCE: Record<string, string> = { world_rules: 'quy tắc thế giới', characters: 'nhân vật', idea: 'ý tưởng', premise: 'ý tưởng', locations: 'địa danh', items: 'vật phẩm' };
+/** Demo runbook 2026-11-20: show "/setup/world_rules/1" as "Thiết lập · quy tắc thế giới 2". */
+export function setupSourceLabel(path: unknown): string {
+  const m = /^\/setup\/([a-z_]+)(?:\/(\d+))?/.exec(String(path ?? ''));
+  if (!m) return path ? String(path) : 'gợi ý';
+  const part = SETUP_SOURCE[m[1]] ?? 'thiết lập';
+  return `Thiết lập · ${part}${m[2] !== undefined ? ` ${Number(m[2]) + 1}` : ''}`;
+}
 import { BrainstormingModal } from './BrainstormingModal';
 import type { BrainstormTarget } from './brainstorm-api';
 import type { FutureEventAdopter } from './StoryPlanEditor';
@@ -54,13 +63,13 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
  return <Stack gap="sm">
   <Group justify="space-between" align="center">
    <Text fw={600}>Thiết lập thế giới trước khi viết</Text>
-   <AnimatedDisclosure summary="Quy tắc duyệt Canon"><Text size="xs" c="dimmed" pt={4}>Ý tưởng và dàn ý là dự định tương lai. Nhân vật và quy tắc chỉ vào Canon sau khi bạn duyệt; diễn biến chương qua quy trình duyệt riêng.</Text></AnimatedDisclosure>
+   <AnimatedDisclosure summary="Khi nào nội dung vào bộ nhớ truyện"><Text size="xs" c="dimmed" pt={4}>Ý tưởng và dàn ý là dự định tương lai. Nhân vật và quy tắc chỉ vào bộ nhớ truyện sau khi bạn duyệt; diễn biến chương qua quy trình duyệt riêng.</Text></AnimatedDisclosure>
   </Group>
   {!loaded&&<Text>Đang đọc thiết lập được cấp quyền…</Text>}
   {loaded&&local.backup&&<Alert color="orange" title="Có bản sửa thiết lập trên thiết bị"><Group><Button onClick={local.recover}>Khôi phục thiết lập</Button><Button variant="default" onClick={local.clear}>Bỏ bản dự phòng thiết lập</Button></Group></Alert>}
   {local.error&&<Alert color="red">{local.error}</Alert>}{local.notice&&<Alert color="yellow" data-testid="planning-cross-tab-notice">{local.notice}</Alert>}
   <div hidden={!idea}><Stack>
-   <Textarea label={allowOfflineBlueprint?"Dàn ý tương lai (có thể bỏ trống)":"Ý tưởng & hướng đi (tương lai)"} value={outline} disabled={!loaded||locked} onChange={e=>local.edit({outline:e.currentTarget.value})} minRows={5} description="Có thể bắt đầu bằng vài câu; chưa tự trích xuất vào Canon."/>
+   <Textarea label={allowOfflineBlueprint?"Dàn ý tương lai (có thể bỏ trống)":"Ý tưởng & hướng đi (tương lai)"} value={outline} disabled={!loaded||locked} onChange={e=>local.edit({outline:e.currentTarget.value})} minRows={5} description="Có thể bắt đầu bằng vài câu; chưa tự đưa vào bộ nhớ truyện."/>
    <Button disabled={!loaded||locked} variant="light" onClick={()=>setBrainstormTarget('all')} data-testid="brainstorm-open-idea-btn">AI gợi ý ý tưởng & thiết lập</Button>
    {allowOfflineBlueprint&&<><Select label="Cách xử lý" value={mode} onChange={v=>local.edit({mode:v as Draft['mode']})} data={['extract','blueprint']} allowDeselect={false}/><Textarea label="Thiết lập rõ ràng (tùy chọn)" value={text} onChange={e=>local.edit({text:e.currentTarget.value})} description="Chỉ môi trường thử nghiệm offline; không bật trong IDE."/></>}
    {!allowOfflineBlueprint&&text&&<Card withBorder><Text size="sm">Nguồn đã nhập (chỉ đọc)</Text><Text style={{whiteSpace:'pre-wrap'}}>{text}</Text></Card>}
@@ -72,7 +81,7 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
   </Stack></div>
   <div hidden={!people}><Stack>
    <Text fw={600}>Nhân vật & địa danh</Text>
-   {declarations.some(d=>characterNotes.notes[d.declaration_id])&&<Alert color="yellow" data-testid="character-note-warning">Ghi chú nhân vật (vai trò, mô tả, bí danh do AI gợi ý) chỉ lưu trên thiết bị này. Thiết lập setup-v1 chưa có trường cho các thông tin này nên chúng không được gửi lên máy chủ, không vào Canon và không gửi cho AI. Xóa dữ liệu trình duyệt hoặc đổi thiết bị sẽ mất ghi chú.</Alert>}
+   {declarations.some(d=>characterNotes.notes[d.declaration_id])&&<Alert color="yellow" data-testid="character-note-warning">Ghi chú nhân vật (vai trò, mô tả, bí danh do AI gợi ý) chỉ lưu trên thiết bị này. Thiết lập setup-v1 chưa có trường cho các thông tin này nên chúng không được gửi lên máy chủ, không vào bộ nhớ truyện và không gửi cho AI. Xóa dữ liệu trình duyệt hoặc đổi thiết bị sẽ mất ghi chú.</Alert>}
    {characterNotes.error&&<Alert color="red">{characterNotes.error}</Alert>}
    {declarations.map((d,i)=><Card withBorder key={d.declaration_id}><Stack><TextInput label={allowOfflineBlueprint?"Tên":`Tên ${i+1}`} value={d.display_name} disabled={!loaded||locked} onChange={e=>{const name=e.currentTarget.value;local.edit(old=>({...old,declarations:old.declarations.map(x=>x.declaration_id===d.declaration_id?{...x,display_name:name}:x)}));}}/>
     <Select label={`Loại ${i+1}`} value={d.entity_type} disabled={locked} allowDeselect={false} data={[{value:'character',label:'Nhân vật'},{value:'location',label:'Địa danh'}]} onChange={v=>local.edit(old=>({...old,declarations:old.declarations.map(x=>x.declaration_id===d.declaration_id?{...x,entity_type:v as SetupDeclaration['entity_type']}:x)}))}/>
@@ -89,7 +98,7 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
   {snapshot&&<><Text size="sm">Bản {snapshot.setup_version} · {snapshot.review?'Đã lưu quyết định':snapshot.job_status==='waiting_review'?'Chờ duyệt':snapshot.job_status} · {snapshot.proposals.length} đề xuất</Text>
    <div hidden={!(world || people)}><SetupReviewGroup key={`${snapshot.snapshot_id}:${snapshot.review_version}`} snapshot={snapshot} onReload={async()=>{await reload();}}/></div>
    {snapshot.review&&<SetupM0Activation key={`${snapshot.snapshot_id}:${snapshot.brain_version}`} snapshot={snapshot} onReload={async()=>{await reload();}}/>}
-   {snapshot.proposals.filter(c=>!planningStep||(world?c.card_type==='world_rule':people?c.card_type!=='world_rule':false)).map(c=><Card withBorder key={c.proposal_id}><Group><Badge>{c.origin==='author_declared'?'Tác giả khai báo':c.origin==='extracted_explicit'?'Từ nguồn rõ ràng':'AI đề xuất'}</Badge><Badge>{c.unresolved?'Chưa hỗ trợ':c.status==='accepted'?'Đã duyệt':c.status==='rejected'?'Đã loại':'Chờ duyệt'}</Badge></Group><Text>{String(c.reviewed_payload?.canonical_name??c.reviewed_payload?.fact_value??c.payload.canonical_name??c.payload.fact_value??'')}</Text><Text size="sm" c="dimmed">Ban đầu: {String(c.payload.canonical_name??c.payload.fact_value??c.payload.attribute_key??"")}</Text><Text size="xs">Nguồn: {c.source_refs.map(r=>String(r.field_path??'gợi ý')).join(', ')}</Text></Card>)}</>}
+   {snapshot.proposals.filter(c=>!planningStep||(world?c.card_type==='world_rule':people?c.card_type!=='world_rule':false)).map(c=><Card withBorder key={c.proposal_id}><Group><Badge>{c.origin==='author_declared'?'Tác giả khai báo':c.origin==='extracted_explicit'?'Từ nguồn rõ ràng':'AI đề xuất'}</Badge><Badge>{c.unresolved?'Chưa hỗ trợ':c.status==='accepted'?'Đã duyệt':c.status==='rejected'?'Đã loại':'Chờ duyệt'}</Badge></Group><Text>{String(c.reviewed_payload?.canonical_name??c.reviewed_payload?.fact_value??c.payload.canonical_name??c.payload.fact_value??'')}</Text><Text size="sm" c="dimmed">Ban đầu: {String(c.payload.canonical_name??c.payload.fact_value??c.payload.attribute_key??"")}</Text><Text size="xs">Nguồn: {c.source_refs.map(r=>setupSourceLabel(r.field_path)).join(', ')}</Text></Card>)}</>}
   <div hidden={!world}>
     <Divider my="md" label="Hiệu chỉnh Quy tắc Thế giới" labelPosition="center" />
     <WorldRuleAmendmentManager

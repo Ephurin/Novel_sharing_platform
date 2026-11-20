@@ -65,9 +65,10 @@ Each step lists what to click, what should appear, and the point to make.
 | 4 | Tab "Nhân vật" | Trần Vũ, Lam Yên, Mạc Độc …, each with status and last-seen place, for example "Còn sống · … (xuất hiện gần nhất, chương …)" | Character state is tracked chapter by chapter |
 | 5 | Tab "Sự kiện" | 47 events by chapter, with the event type in Vietnamese and "Liên quan:" entities | The event timeline that feeds consistency checks |
 | 6 | Tab "Dữ kiện" | World rules from the setup, then per-character facts such as "Sống/chết: Còn sống · Chương 9 · Trần Vũ" | Facts come from approved chapters, with the source chapter |
-| 7 | Tab "Hồ sơ Codex" | Entity profiles and "Gộp hai tên trùng" | The author can edit profiles and merge duplicate names |
+| 7 | Tab "Hồ sơ Codex", then tab "Nhân vật" → "Gộp hai tên trùng" (then "Hủy") | Pick a name to see and edit its profile. The merge dialog lists names with their type, for example "Lôi Sơn · địa danh" | The author can edit profiles and merge two names for the same person or place |
 | 8 | Author control after approval (show, then cancel):<br>• "Dữ kiện" → "Sửa" on a status fact: a list Còn sống / Đã chết / Bất tỉnh … → "Hủy"<br>• "Nhân vật" → "Gỡ khỏi bộ nhớ" on a character: the dialog says how many events name it (Trần Vũ: 33) → "Hủy"<br>• "Sự kiện" → "Đề xuất chỉnh sửa" on an event: the summary, the participants and the status updates can be edited → "Hủy" | The author stays in control even after approval. Nothing is deleted: a correction replaces the old record and keeps the history. Events that name a removed entity are kept and flagged in red |
-| 9 | Close the drawer, then "Lập kế hoạch" | Planning Studio: setup, story plan, and the "AI gợi ý sự kiện tương lai" button | The future plan is kept apart from the written canon |
+| 9 | Close the drawer, then "Lập kế hoạch" → "2. Thế giới" | The approved world rules, and below them "Quản lý quy tắc thế giới" with "Lịch sử & Phả hệ" and "Đề xuất sửa quy tắc" for each rule | World rules set at the start can still be changed, through a proposal the author approves, and the history is kept |
+| 10 | "4. Dàn ý chương" | The story plan and the "AI gợi ý sự kiện tương lai" button | The future plan is kept apart from the written canon |
 
 Do not press the confirm buttons in step 8 during the defense unless you will restore a snapshot afterwards.
 
@@ -101,8 +102,6 @@ Restore the snapshot after a rehearsal of this segment, since it changes the cha
 |---|---|
 | The "Full auto" tab | It is P3 and out of scope for this defense |
 | "Trích xuất" → "Bổ sung dữ liệu" | An advanced form that still shows raw keys ("status, hearing …") |
-| The world-rule amendment screen | Still shows "Brain v" and "Mã Fact" |
-| The merge dialog in "Hồ sơ Codex" | Still shows a short raw ID after a name (for example `· e04b6672`) |
 | Confirming "Gỡ khỏi bộ nhớ" on a main character | 33 events would turn red, and the UI cannot undo it |
 | The browser console | A 404 on `/story-plans/by-novel/…/active` is normal ("no active plan"), but it looks like an error |
 
@@ -134,3 +133,15 @@ The stack was rebuilt from `main` @ `04b26100` with live off (no model calls). A
 **Fixed in this change.** In #196, the "Sửa" field of a status fact was prefilled with the label ("Còn sống") instead of the stored value (`Alive`). Saving it unchanged would have stored the label as the status. A place given as an entity ID had the same problem: it was prefilled with the place name instead of its ID. Now a status is chosen from a list of stored values shown in Vietnamese, a place is chosen from the entity list, and other values are edited as text. The mocked browser test now covers the status case.
 
 **Seen, not fixed (pre-existing on `main`).** `tests/p1-hitl-interactions.browser.test.mjs` fails 2 of 13 on `main` itself, in the participant-picker step (`Element is not visible` when picking a second option). The same picker works on live data. This suite is not in CI, and it passed on the #196 branch before the merge with the UI-polish changes.
+
+## 8. Check on 2026-11-20
+
+The stack was rebuilt from `main` @ `dc983ae3` (after #200 and #202) with live off, and the same script ran again. Every step passed with no page errors. This check also covered the merge dialog and the world-rule screen, and found three more places with developer wording, now fixed:
+
+| Where | Before | After |
+|---|---|---|
+| "Hồ sơ Codex" | "Hồ sơ entity đã xác nhận", "Chọn entity theo UUID", "Chọn hồ sơ trong Canon", "Private Author Notes", "phiên bản server" | "Hồ sơ nhân vật, địa danh và vật phẩm đã duyệt", "Chọn mục cần xem hồ sơ", "Ghi chú riêng của tác giả", "phiên bản trên máy chủ" |
+| "Quản lý quy tắc thế giới" | Each rule titled with its generated key (`Quy tắc 1: setup_rule_rule_8a0e…`); "Nội dung Canon đang hiệu lực" | "Quy tắc 1"; "Nội dung đang dùng" |
+| "Lập kế hoạch" → "2. Thế giới" | "Nguồn: /setup/world_rules/1"; "Quy tắc duyệt Canon" and other "Canon" wording | "Nguồn: Thiết lập · quy tắc thế giới 2"; "bộ nhớ truyện" |
+
+The merge dialog now lists "Trần Vũ · nhân vật", "Lôi Sơn · địa danh" … with no ID.

@@ -521,7 +521,7 @@ export function WorldRuleAmendmentManager({
                   <div>
                     <Group gap="xs">
                       <Text fw={700}>
-                        Quy tắc {idx + 1}: {rule.fact_key}
+                        Quy tắc {idx + 1}
                       </Text>
                       {rule.is_locked ? (
                         <Badge color="red" variant="filled" data-testid={`lock-badge-locked-${rule.fact_id}`}>
@@ -735,7 +735,7 @@ export function WorldRuleAmendmentManager({
                 {/* Canon Content */}
                 <Card withBorder p="sm" bg="var(--sc-surface-subtle)">
                   <Text size="xs" fw={600} c="dimmed" mb={4}>
-                    NỘI DUNG CANON ĐANG HIỆU LỰC:
+                    NỘI DUNG ĐANG DÙNG:
                   </Text>
                   <Text
                     size="sm"
@@ -1207,7 +1207,7 @@ function ProposeAmendmentForm({
         setIs503Uncertain(false);
         setHasEditedDraftConflict(false);
         onSuccess(
-          `Đã tạo đề xuất chỉnh sửa quy tắc ${rule.fact_key}. Vui lòng đối chiếu và xác nhận phê duyệt bên dưới.`
+          `Đã tạo đề xuất chỉnh sửa quy tắc. Vui lòng đối chiếu và xác nhận phê duyệt bên dưới.`
         );
       }
     } catch (e) {
@@ -1285,7 +1285,7 @@ function ProposeAmendmentForm({
         draft.clear();
         lastSubmittedRef.current = null;
         onSuccess(
-          `Đã tạo đề xuất chỉnh sửa quy tắc ${rule.fact_key}. Vui lòng đối chiếu và xác nhận phê duyệt bên dưới.`
+          `Đã tạo đề xuất chỉnh sửa quy tắc. Vui lòng đối chiếu và xác nhận phê duyệt bên dưới.`
         );
       }
     } catch (e) {
@@ -1313,7 +1313,7 @@ function ProposeAmendmentForm({
       <Stack gap="sm">
         <Group justify="space-between">
           <Text fw={700} c="var(--sc-primary-text)">
-            Đề xuất chỉnh sửa quy tắc: {rule.fact_key}
+            Đề xuất chỉnh sửa quy tắc
           </Text>
           <Badge size="xs" variant="outline">
             Bộ nhớ v{currentExpectedVersion}
@@ -1809,12 +1809,12 @@ function PendingProposalDecisionView({
         if (resp.decision === 'accept') {
           onDecided(
             'accept',
-            `Đã chấp thuận đề xuất sửa đổi quy tắc ${rule.fact_key}. Nội dung mới đã vào bộ nhớ (v${resp.brain_version}).`
+            `Đã chấp thuận đề xuất. Nội dung mới đã vào bộ nhớ (v${resp.brain_version}).`
           );
         } else {
           onDecided(
             'reject',
-            `Đã từ chối đề xuất sửa đổi. Quy tắc ${rule.fact_key} giữ nguyên nội dung đang dùng.`
+            `Đã từ chối đề xuất sửa đổi. Quy tắc giữ nguyên nội dung đang dùng.`
           );
         }
       }

@@ -28,12 +28,12 @@ function ProfileSelection({ novelId, entities, onSaved }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const entity = entities.find(e => e.entity_id === selected);
   return <Stack gap="sm">
-    <Text fw={600}>Hồ sơ entity đã xác nhận</Text>
-    <Text size="xs" c="dimmed">Đổi entity, truyện hoặc phiên tài khoản sẽ xóa bản nhập riêng tư chưa lưu.</Text>
-    <Select label="Chọn entity theo UUID" placeholder="Chọn hồ sơ trong Canon" searchable clearable
+    <Text fw={600}>Hồ sơ nhân vật, địa danh và vật phẩm đã duyệt</Text>
+    <Text size="xs" c="dimmed">Chọn mục khác, đổi truyện hoặc tài khoản sẽ bỏ phần đang nhập chưa lưu.</Text>
+    <Select label="Chọn mục cần xem hồ sơ" placeholder="Chọn một tên đã duyệt" searchable clearable
       data={entities.map(e => ({ value: e.entity_id, label: entityOptionLabel(e, entities) }))}
       value={entity?.entity_id ?? null} onChange={setSelected} />
-    {!entities.length && <Text size="sm" c="dimmed">Chưa có entity đã duyệt để chỉnh hồ sơ.</Text>}
+    {!entities.length && <Text size="sm" c="dimmed">Chưa có mục nào đã duyệt để chỉnh hồ sơ.</Text>}
     {entity && <PrivateProfileForm key={entity.entity_id} novelId={novelId} entity={entity} onSaved={onSaved} />}
   </Stack>;
 }
@@ -76,7 +76,7 @@ function PrivateProfileForm({ novelId, entity, onSaved }: { novelId: string; ent
     } else if (status === 422 || status === 404) {
       intent.current = null; setPhase('ready');
     } else setPhase('retry');
-    setMessage(status === 409 ? 'Xung đột phiên bản (409). Bản nhập của bạn được giữ nguyên; tải phiên bản server để đối chiếu trước khi lưu lại.' : profileError(error));
+    setMessage(status === 409 ? 'Xung đột phiên bản (409). Bản nhập của bạn được giữ nguyên; tải phiên bản trên máy chủ để đối chiếu trước khi lưu lại.' : profileError(error));
   }
 
   async function load(mode: 'replace' | 'reconcile' = 'replace') {
@@ -88,7 +88,7 @@ function PrivateProfileForm({ novelId, entity, onSaved }: { novelId: string; ent
       setBase(current); intent.current = null;
       if (mode === 'replace') setDraft(profileDraft(current));
       setPhase(mode === 'reconcile' ? 'reconcile' : 'ready');
-      if (mode === 'reconcile') setMessage('Đã tải phiên bản server. Bản nhập vẫn được giữ; đối chiếu trước khi xác nhận lưu.');
+      if (mode === 'reconcile') setMessage('Đã tải phiên bản trên máy chủ. Bản nhập vẫn được giữ; đối chiếu trước khi xác nhận lưu.');
       else if (phase === 'readback-error') { setSuccess(true); setMessage('Đã đọc lại hồ sơ hiện tại từ máy chủ sau lưu.'); }
     } catch (error) { if (isCurrent()) {
       const status = error instanceof ApiClientError ? error.status : 0;
@@ -138,37 +138,37 @@ function PrivateProfileForm({ novelId, entity, onSaved }: { novelId: string; ent
   return <Stack gap="sm" data-testid="entity-profile-editor">
     <Group justify="space-between" align="center" wrap="wrap">
       <Group gap="xs"><Text fw={600}>{entity.name} · {entityTypeLabel(entity.entity_type)}</Text>{base && <Badge>Profile v{base.version} · Brain v{base.brain_version}</Badge>}</Group>
-      <CopyTextButton value={entity.entity_id} label="Sao chép UUID" />
+      <CopyTextButton value={entity.entity_id} label="Sao chép mã" />
     </Group>
-    <AnimatedDisclosure summary="Xem mã định danh UUID">
+    <AnimatedDisclosure summary="Xem mã định danh">
       <Text size="xs" ff="monospace" c="dimmed" pt={4}>{entity.entity_id}</Text>
     </AnimatedDisclosure>
     {message && <Paper withBorder p="sm" role={success ? 'status' : 'alert'} aria-live={success ? 'polite' : 'assertive'}><Text size="sm" c={success ? 'teal' : 'orange'}>{message}</Text></Paper>}
     {phase === 'loading' && <Text role="status">Đang tải hồ sơ riêng tư…</Text>}
     {phase === 'load-error' && <Button variant="light" onClick={() => void load()}>Tải lại hồ sơ</Button>}
     {base && <>
-      <Text size="sm" fw={600}>Hồ sơ Canon</Text>
+      <Text size="sm" fw={600}>Hồ sơ đã duyệt</Text>
       {PROFILE_FIELDS.map(key => <Textarea key={key} label={LABELS[key]} autoComplete="off" autosize minRows={2} maxRows={8}
         value={draft[key]} disabled={!editing} onChange={e => change(key, e.currentTarget.value)}
         description={`${codePointCount(draft[key])}/4.000 ký tự Unicode`} />)}
       <TextInput label="Chương bắt đầu có hiệu lực" type="number" inputMode="numeric" min={1} max={1000000} step={1}
         value={draft.cutoff} disabled={!editing || !canonicalChanged(base, draft)} onChange={e => change('cutoff', e.currentTarget.value)} />
       <Divider />
-      <Textarea label="Private Author Notes — ghi chú riêng" autoComplete="off" autosize minRows={3} maxRows={10} value={draft.author_notes}
+      <Textarea label="Ghi chú riêng của tác giả" autoComplete="off" autosize minRows={3} maxRows={10} value={draft.author_notes}
         disabled={!editing} onChange={e => change('author_notes', e.currentTarget.value)}
-        description={`${codePointCount(draft.author_notes)}/8.000 ký tự Unicode · Không đưa vào AI context hoặc approved memory.`} />
+        description={`${codePointCount(draft.author_notes)}/8.000 ký tự · AI không đọc ghi chú này và nó không vào bộ nhớ truyện.`} />
       <AnimatedDisclosure summary="Quy tắc áp dụng chương hiệu lực & phạm vi hồ sơ">
         <Stack gap={4} pt={4}>
-          <Text size="xs" c="dimmed">Có thể được chọn vào AI context khi phù hợp. Chương hiệu lực áp dụng cho toàn bộ snapshot hiện tại mà không tạo sự kiện lịch sử.</Text>
-          <Text size="xs" c="dimmed">Thay đổi diễn ra trong truyện dùng Duyệt Canon; dự định tương lai dùng Định hướng.</Text>
+          <Text size="xs" c="dimmed">AI có thể dùng hồ sơ này khi viết. Chương hiệu lực áp dụng cho hồ sơ hiện tại và không tạo sự kiện mới.</Text>
+          <Text size="xs" c="dimmed">Thay đổi xảy ra trong truyện được ghi qua bước duyệt; dự định tương lai ghi ở Định hướng.</Text>
         </Stack>
       </AnimatedDisclosure>
       {phase === 'reconcile' && <Paper withBorder p="sm" data-testid="profile-server-comparison">
-        <Text fw={600}>Phiên bản server để đối chiếu</Text>
+        <Text fw={600}>Phiên bản trên máy chủ để đối chiếu</Text>
         {PROFILE_FIELDS.map(key => <Text key={key} size="sm" style={{ whiteSpace: 'pre-wrap' }}>{LABELS[key]}: {base.profile[key] || '(trống)'}</Text>)}
         <Text size="sm">Chương hiệu lực: {base.effective_from_chapter ?? 'chưa đặt'}</Text>
-        <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>Ghi chú riêng trên server: {base.author_notes || '(trống)'}</Text>
-        <Button size="xs" variant="light" mt="xs" onClick={() => { setDraft(profileDraft(base)); setPhase('ready'); setMessage('Đã chọn phiên bản server; chưa gửi thay đổi mới.'); }}>Dùng phiên bản server</Button>
+        <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>Ghi chú riêng trên máy chủ: {base.author_notes || '(trống)'}</Text>
+        <Button size="xs" variant="light" mt="xs" onClick={() => { setDraft(profileDraft(base)); setPhase('ready'); setMessage('Đã chọn phiên bản trên máy chủ; chưa gửi thay đổi mới.'); }}>Dùng phiên bản trên máy chủ</Button>
       </Paper>}
       {result.error && <Text c="red" size="sm" role="alert">{result.error}</Text>}
       <Group>
@@ -176,7 +176,7 @@ function PrivateProfileForm({ novelId, entity, onSaved }: { novelId: string; ent
           {phase === 'reconcile' ? 'Lưu bản đã đối chiếu' : 'Lưu thay đổi'}
         </Button>
         {phase === 'retry' && <Button variant="light" onClick={() => void save(true)}>Thử lại đúng yêu cầu cũ</Button>}
-        {phase === 'conflict' && <Button variant="light" onClick={() => void load('reconcile')}>Tải phiên bản server để đối chiếu</Button>}
+        {phase === 'conflict' && <Button variant="light" onClick={() => void load('reconcile')}>Tải phiên bản trên máy chủ để đối chiếu</Button>}
         {phase === 'readback-error' && <Button variant="light" onClick={() => void load()}>Đọc lại sau lưu</Button>}
         {editing && <Button variant="subtle" onClick={() => { setDraft(profileDraft(base)); intent.current = null; setSuccess(false); setMessage('Đã hoàn tác bản nhập.'); if (phase === 'retry') setPhase('ready'); }}>Hoàn tác bản nhập</Button>}
       </Group>
