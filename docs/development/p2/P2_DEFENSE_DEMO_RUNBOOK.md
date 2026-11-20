@@ -40,13 +40,13 @@ $C start ai-service backend web
 
 Two errors from `psql` are expected and harmless: "current user cannot be dropped" and "role … already exists".
 
-A snapshot of the clean demo state (memory v29) was taken on 2026-11-19 in `.eval-private/p2-live/snapshots/demo-20261119-2252/`.
+A snapshot of the clean demo state (memory v29, novel renamed) was taken on 2026-11-20 in `.eval-private/p2-live/snapshots/demo-20261120-1607/`. The earlier one (`demo-20261119-2252`) still has the old title.
 
 ### Checklist
 
 | Item | State on 2026-11-19 | Action |
 |---|---|---|
-| Demo novel title | "Kiếm Ấn Lôi Sơn — kiểm thử live 2026-11-15" | Rename it to "Kiếm Ấn Lôi Sơn" under "Quản lý" before the defense (owner decision) |
+| Demo novel title | Renamed on 2026-11-20 from "Kiếm Ấn Lôi Sơn — kiểm thử live 2026-11-15" to "Kiếm Ấn Lôi Sơn" | Nothing to do |
 | Other novels on the account | 16 test novels ("PT-CV-001 live …", "Kịch bản A …", "Hạm Đội Sao Băng …") | Hide or delete them, or say they are test runs. Deleting cannot be undone, so take a snapshot first |
 | Chapter 1 title | The draft reads "Chương 1", but the published copy and the chapter list still read "Chương 1: Bản thảo mới" | Republishing runs AI analysis, so it needs the live model. Otherwise leave it as is |
 | Memory state | v29, nothing pending; 5 characters, 32 facts, 47 events | Nothing to do |
