@@ -2,6 +2,8 @@
 
 Bộ kịch bản này dành cho người kiểm thử thủ công. Mỗi kịch bản tương ứng một use case chính. Người kiểm thử dùng app như người dùng thật, đi theo các bước, so với kết quả mong đợi, rồi ghi **Đạt / Không đạt / Bị chặn**.
 
+Bản này đã cập nhật theo lượt chạy đầu tiên (`docs/development/uat-runs/UAT_RUN_2026-11-20.md`, PR #205) và các bản sửa lỗi #203, #206. Mỗi lượt chạy mới ghi báo cáo vào `docs/development/uat-runs/UAT_RUN_<ngày>.md`.
+
 Phạm vi: toàn bộ hệ thống web, gồm Khách, Độc giả, Tác giả, Quản trị và AI. Use case lấy từ `docs/SRA_doc/phase_3/Final_SRS_v1.md` (chương II và IV) và `docs/SRA_doc/Phase_2/05_Usecase_UserStory_Specification.md` (UC1–UC9). Tên nút và màn hình theo giao diện trên `main` ngày 2026-11-20.
 
 ## 1. Chuẩn bị
@@ -77,12 +79,12 @@ Các mục dưới đây không có kịch bản. Nhóm cần ghi rõ chúng tro
 
 ### UAT-01 Đăng ký tài khoản (UC1, 4.1.1)
 - **Vai trò:** Khách.
-- **Điều kiện:** chưa đăng nhập; có một email thử nghiệm nhận được thư.
+- **Điều kiện:** chưa đăng nhập; có một địa chỉ **@gmail.com** nhận được thư. Hệ thống chỉ cho đăng ký bằng Gmail (cố ý, mã lỗi `AUTH_EMAIL_DOMAIN`).
 
 | # | Bước | Kết quả mong đợi |
 |---|---|---|
-| 1 | Mở trang đăng nhập, chuyển sang chế độ đăng ký | Có các ô Email, Tên người dùng, Mật khẩu; chữ trên trang là tiếng Việt |
-| 2 | Gửi form với email sai định dạng, rồi với mật khẩu quá ngắn | Mỗi lần có thông báo lỗi rõ ràng; không tạo tài khoản |
+| 1 | Mở trang đăng nhập, chọn "Tạo tài khoản" | Có các ô Tên đăng nhập, Mật khẩu, Nhập lại mật khẩu, Email; chữ trên trang là tiếng Việt |
+| 2 | Gửi form với email sai định dạng; với một địa chỉ không phải Gmail; rồi với địa chỉ Gmail hợp lệ nhưng mật khẩu quá ngắn | Mỗi lần có thông báo lỗi rõ ràng bằng tiếng Việt ("Bạn cần dùng địa chỉ @gmail.com…" cho trường hợp thứ hai); không tạo tài khoản |
 | 3 | Đăng ký bằng email và tên người dùng mới hợp lệ | Có thông báo hướng dẫn xác minh email |
 | 4 | Mở thư xác minh, bấm liên kết | Trang xác minh báo thành công; đăng nhập được bằng tài khoản mới |
 | 5 | Đăng ký lại với tên người dùng ở bước 3 | Báo tên đã tồn tại |
@@ -94,7 +96,7 @@ Ghi chú: bước 4 cần cấu hình gửi thư. Nếu môi trường không g�
 
 | # | Bước | Kết quả mong đợi |
 |---|---|---|
-| 1 | Nhập sai mật khẩu, nhấn Enter | Báo sai thông tin; không lộ chi tiết kiểu "email tồn tại" |
+| 1 | Nhập sai mật khẩu, nhấn Enter | Báo "Email, tên đăng nhập hoặc mật khẩu không đúng."; không lộ việc tài khoản có tồn tại hay không |
 | 2 | Nhập đúng, nhấn Enter (không bấm nút) | Đăng nhập thành công, vào trang dành cho độc giả |
 | 3 | Tải lại trang | Vẫn đăng nhập |
 | 4 | Đăng xuất | Về trạng thái khách; mở lại một trang cần đăng nhập thì được chuyển tới trang đăng nhập |
@@ -120,7 +122,7 @@ Ghi chú: bước 4 cần cấu hình gửi thư. Nếu môi trường không g�
 | 2 | Bấm "Xem tất cả kết quả" | Trang danh sách truyện hiện kết quả khớp từ khoá |
 | 3 | Lọc theo một thể loại, rồi đổi cách sắp xếp | Danh sách thay đổi đúng; URL giữ bộ lọc, tải lại trang không mất bộ lọc |
 | 4 | Tìm bằng một từ không có kết quả | Có thông báo "không có kết quả", không phải trang lỗi |
-| 5 | Tìm có dấu và không dấu (ví dụ "kiem" và "kiếm") | Ghi lại kết quả của cả hai cách. Nếu tìm không dấu không ra kết quả thì ghi lỗi mức Trung bình |
+| 5 | Tìm có dấu và không dấu (ví dụ "kiem" và "kiếm", "dao" và "đạo") | Hai cách cho cùng kết quả |
 
 ### UAT-05 Xem truyện và đọc chương miễn phí (UC3)
 - **Vai trò:** Khách.
@@ -130,7 +132,7 @@ Ghi chú: bước 4 cần cấu hình gửi thư. Nếu môi trường không g�
 | 1 | Mở trang một truyện đã xuất bản | Thấy ảnh bìa, giới thiệu, thể loại, tác giả, danh sách chương, đánh giá |
 | 2 | Bấm "Đọc chương đầu" | Mở chương 1; nội dung hiển thị đầy đủ |
 | 3 | Dùng "Chương sau" và "Chương trước" | Chuyển đúng chương |
-| 4 | Mở một chương VIP | Thấy "Chương VIP đang khóa" và nút "Đăng nhập để mở khóa"; không lộ nội dung |
+| 4 | Mở một chương VIP (trong danh sách chương, xem cột **Quyền đọc**; tên chương không có chữ VIP) | Thấy "Chương VIP đang khóa" và nút "Đăng nhập để mở khóa"; không lộ nội dung |
 
 ### UAT-06 Tuỳ chỉnh giao diện đọc (UC3, 4.4.1)
 - **Vai trò:** Độc giả A.
@@ -140,7 +142,7 @@ Ghi chú: bước 4 cần cấu hình gửi thư. Nếu môi trường không g�
 | 1 | Trong một chương, mở công cụ đọc | Có các tuỳ chọn phông chữ, cỡ chữ, căn lề, giãn dòng, màu nền |
 | 2 | Đổi phông (ví dụ Literata), cỡ chữ, căn đều, nền tối | Văn bản đổi ngay theo lựa chọn |
 | 3 | Sang chương khác, rồi tải lại trang | Các tuỳ chỉnh vẫn giữ |
-| 4 | Dùng phím mũi tên lên/xuống và Escape | Cuộn trang và đóng công cụ hoạt động; không bị kẹt focus |
+| 4 | Bấm vào phần nội dung rồi dùng phím mũi tên lên/xuống; bấm ra ngoài nội dung rồi dùng lại; nhấn Escape khi công cụ đang mở | Khi focus trong nội dung: chuyển giữa các đoạn. Khi focus ở ngoài: cuộn trang. Escape đóng công cụ; không bị kẹt focus |
 
 ### UAT-07 Bookmark, lịch sử đọc và thư viện (UC3, 4.5.2)
 - **Vai trò:** Độc giả A.
@@ -148,7 +150,7 @@ Ghi chú: bước 4 cần cấu hình gửi thư. Nếu môi trường không g�
 | # | Bước | Kết quả mong đợi |
 |---|---|---|
 | 1 | Đọc giữa chừng một chương, đặt bookmark tại đoạn đang đọc | Có xác nhận đã đánh dấu |
-| 2 | Mở "Thư viện của tôi" → mục bookmark | Bookmark có mặt; bấm vào thì mở đúng chương, đúng đoạn |
+| 2 | Mở "Thư viện của tôi" → mục bookmark, mở nhóm theo tên truyện | Bookmark có mặt trong nhóm; bấm vào thì mở đúng chương, đúng đoạn |
 | 3 | Mở "Lịch sử đọc" | Truyện và chương vừa đọc đứng đầu |
 | 4 | Ở trang truyện, bấm "Đọc tiếp" | Mở đúng chương đọc gần nhất |
 | 5 | Xoá bookmark | Bookmark biến mất khỏi thư viện |
@@ -162,6 +164,7 @@ Ghi chú: bước 4 cần cấu hình gửi thư. Nếu môi trường không g�
 | 2 | Chấm điểm (1–10) và viết nhận xét, gửi | Đánh giá xuất hiện ở mục "Đánh giá độc giả"; điểm trung bình của truyện cập nhật |
 | 3 | Sửa điểm, rồi "Xóa đánh giá" | Điểm trung bình cập nhật theo từng lần |
 | 4 | Thử chấm 0 hoặc 11 | Không cho gửi, có hướng dẫn "từ 1 đến 10" |
+| 5 | Chấm lại một đánh giá mới (để UAT-20 dùng) | Đánh giá hiện lại; điểm trung bình cập nhật |
 
 ### UAT-09 Bình luận chương và đoạn văn (4.5.1)
 - **Vai trò:** Độc giả A và Độc giả B.
@@ -170,8 +173,9 @@ Ghi chú: bước 4 cần cấu hình gửi thư. Nếu môi trường không g�
 |---|---|---|
 | 1 | Độc giả A viết bình luận ở cuối chương, có emoji | Bình luận hiện ngay với tên và giờ |
 | 2 | Độc giả B trả lời bình luận của A, có nhắc tên (@) | Câu trả lời nằm dưới bình luận gốc; A nhận thông báo |
-| 3 | A sửa rồi xoá bình luận của mình | Sửa: nội dung đổi. Xoá: bình luận biến mất hoặc ghi "đã xoá" |
-| 4 | B thử sửa bình luận của A | Không có nút sửa |
+| 3 | B thử sửa bình luận của A | Không có nút sửa |
+| 4 | A sửa bình luận của mình | Nội dung đổi |
+| 5 | A viết thêm một bình luận thứ hai, rồi xoá bình luận thứ hai | Bình luận thứ hai biến mất. Bình luận đầu tiên và câu trả lời của B được giữ lại để UAT-20 dùng |
 
 ### UAT-10 Góp ý riêng cho tác giả, gắn với đoạn văn (4.5.1)
 
@@ -187,15 +191,18 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 
 ### UAT-11 Nạp xu và mở khoá chương VIP (UC4)
 - **Vai trò:** Độc giả A.
+- **Điều kiện:** dùng một chương VIP thuộc truyện của tác giả `reader03`, để UAT-21 thấy được khoản thu.
+- Theo SRS (UC4), bấm mở khoá là trừ xu ngay, không có hộp xác nhận. Vì vậy giá phải hiện trên nút trước khi bấm.
 
 | # | Bước | Kết quả mong đợi |
 |---|---|---|
 | 1 | Mở ví, ghi lại số dư | Thấy số dư và lịch sử giao dịch |
 | 2 | "Nạp Xu thử nghiệm": chọn một gói | Có thông báo rõ đây là cổng thử nghiệm; số dư tăng đúng số xu của gói; có giao dịch mới |
-| 3 | Mở một chương VIP, chọn mở khoá | Hộp xác nhận ghi giá xu; sau khi xác nhận thì đọc được nội dung |
+| 3 | Mở chương VIP | Thấy "Mở khóa chương này với N xu", số dư hiện tại, và nút "Mở khóa · N xu" |
+| 3b | Bấm "Mở khóa · N xu" | Đọc được nội dung ngay |
 | 4 | Kiểm tra ví | Số dư giảm đúng giá chương; có giao dịch mở khoá |
 | 5 | Mở lại chương đó | Không bị trừ xu lần nữa |
-| 6 | Với số dư nhỏ hơn giá chương (dùng tài khoản mới), thử mở khoá | Báo không đủ xu, có đường dẫn "Đến ví xu"; không trừ tiền |
+| 6 | Với số dư nhỏ hơn giá chương (dùng tài khoản mới), mở một chương VIP | Ghi "chưa đủ để mở khóa chương này"; nút mở khoá bị vô hiệu; có nút "Nạp thêm xu"; không trừ tiền |
 
 ### UAT-12 Ủng hộ tác giả
 - **Vai trò:** Độc giả A.
@@ -232,7 +239,7 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 | # | Bước | Kết quả mong đợi |
 |---|---|---|
 | 1 | Ở "Tác phẩm", bấm "Tạo tác phẩm mới"; nhập tên, giới thiệu, thể loại | Tác phẩm mới ở trạng thái Bản nháp |
-| 2 | Mở trang quản lý tác phẩm, sửa giới thiệu, thể loại, độ tuổi, lời tác giả, ảnh bìa; "Lưu thay đổi" | Tải lại trang vẫn giữ giá trị mới |
+| 2 | Mở trang quản lý tác phẩm → "Chỉnh sửa thông tin"; sửa giới thiệu, thể loại, Độ tuổi (Mọi lứa tuổi / 16+ / 18+), lời tác giả, ảnh bìa; lưu | Tải lại trang vẫn giữ giá trị mới; nhãn độ tuổi trên thẻ tác phẩm đổi theo |
 | 3 | Tìm, lọc và sắp xếp ở trang "Tác phẩm"; ghim một tác phẩm | Danh sách đúng; tác phẩm đã ghim đứng đầu |
 | 4 | Lưu với tên trống | Báo lỗi, không lưu |
 
@@ -241,8 +248,8 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 
 | # | Bước | Kết quả mong đợi |
 |---|---|---|
-| 1 | Mở tác phẩm bằng "Viết tiếp", rồi "Thêm chương mới" | Chương mới đúng số thứ tự, mở trong trình soạn thảo |
-| 2 | Gõ khoảng 200 chữ, dùng in đậm và in nghiêng | Thanh trên cùng hiện "Đã lưu · giờ"; số chữ cập nhật |
+| 1 | Mở tác phẩm bằng "Viết tiếp", rồi "Thêm chương mới" → "Tạo & Viết ngay" | Chương mới đúng số thứ tự, mở trong trình soạn thảo |
+| 2 | Ở chế độ "Soạn thảo", gõ khoảng 200 chữ, dùng in đậm và in nghiêng; xem lại ở chế độ "Ký hiệu định dạng" | Thanh trên cùng hiện "Đã lưu · giờ"; số chữ cập nhật; hai chế độ hiển thị cùng nội dung |
 | 3 | Tải lại trang | Nội dung còn nguyên |
 | 4 | Ngắt mạng (DevTools → Offline), gõ thêm, rồi bật mạng lại | Báo lưu lỗi trong lúc offline; khi có mạng thì tự lưu lại, không mất chữ |
 | 5 | Mở "Lịch sử bản thảo", so sánh hai phiên bản, khôi phục bản cũ | So sánh hiển thị khác biệt; khôi phục đúng nội dung |
@@ -252,7 +259,7 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 
 | # | Bước | Kết quả mong đợi |
 |---|---|---|
-| 1 | Mở "Nhập bản thảo", chọn một tệp .txt có 3 chương (mỗi chương bắt đầu bằng "Chương N") | Có danh sách chương tách tự động, kèm tiêu đề và số chữ |
+| 1 | Mở "Nhập bản thảo", chọn một tệp .txt có 3 chương (mỗi chương bắt đầu bằng "Chương N") | Chuyển thẳng sang bước xem trước: danh sách chương tách tự động, kèm tiêu đề, số chữ và trạng thái "Sẵn sàng" |
 | 2 | Sửa tiêu đề một chương, bỏ chọn một chương | Danh sách cập nhật |
 | 3 | "Lưu chương ở trạng thái bản nháp" | Các chương đã chọn xuất hiện trong tác phẩm ở trạng thái Bản nháp |
 | 4 | Nhập một tệp rỗng | Báo "Nội dung chương trống", không tạo chương |
@@ -263,7 +270,7 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 | # | Bước | Kết quả mong đợi |
 |---|---|---|
 | 1 | Ở "Quyền đọc & giá xu", đặt một chương là "Chương VIP" và nhập giá xu | Giá được lưu |
-| 2 | "Gửi duyệt chương" | Chương chuyển sang "Chờ duyệt"; xuất hiện ở hàng đợi kiểm duyệt (UAT-27) |
+| 2 | "Gửi duyệt chương", xác nhận | Chương chuyển sang "Chờ duyệt". Bên quản trị mở hàng đợi kiểm duyệt và **thấy đúng chương này** (ghi lại tên chương và giờ gửi). Lượt chạy đầu chưa xác nhận được bước này, nên chạy nó trước tiên |
 | 3 | Với một chương khác, "Lên lịch xuất bản" cho vài phút sau | Hiện "Lịch đăng đang chờ duyệt"; đến giờ thì chương được gửi cho quản trị |
 | 4 | Sau khi quản trị duyệt (UAT-27) | Chương thành "Đã đăng"; độc giả theo dõi truyện nhận thông báo chương mới |
 | 5 | Sửa một chương đã đăng, rồi gửi duyệt lại | Hiện "Phiên bản mới đang chờ duyệt"; độc giả vẫn đọc bản đã duyệt cũ cho tới khi bản mới được duyệt |
@@ -282,16 +289,16 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 
 | # | Bước | Kết quả mong đợi |
 |---|---|---|
-| 1 | Mở trang bình luận của truyện | Thấy bình luận từ UAT-09, lọc được theo chương |
+| 1 | Mở trang bình luận của truyện | Thấy bình luận đầu tiên và câu trả lời giữ lại từ UAT-09; lọc được theo chương |
 | 2 | Trả lời một bình luận; xoá một bình luận vi phạm | Độc giả thấy câu trả lời. Có hộp xác nhận xoá; bình luận bị xoá, kèm các trả lời của nó, không còn hiện |
-| 3 | Mở trang đánh giá | Thấy đánh giá từ UAT-08 và điểm trung bình |
+| 3 | Mở trang đánh giá | Thấy đánh giá chấm lại ở UAT-08 bước 5, và điểm trung bình |
 
 ### UAT-21 Doanh thu và rút xu (UC6)
 - **Vai trò:** tác giả `reader03`, sau đó Quản trị.
 
 | # | Bước | Kết quả mong đợi |
 |---|---|---|
-| 1 | Mở ví → doanh thu | Thấy biểu đồ "Doanh thu theo thời gian"; đổi được kỳ 30 / 60 / 365 ngày; có khoản mở khoá từ UAT-11 và khoản ủng hộ từ UAT-12 |
+| 1 | Mở ví → doanh thu | Thấy biểu đồ "Doanh thu theo thời gian"; đổi được kỳ 7 / 30 / 365 ngày; có khoản mở khoá từ UAT-11 (chương VIP của chính tác giả này) và khoản ủng hộ từ UAT-12 |
 | 2 | "Rút Xu": nhập số xu và thông tin nhận tiền, gửi | Yêu cầu ở trạng thái chờ; "Dự kiến sau rút" tính đúng |
 | 3 | Rút nhiều hơn số dư | Bị từ chối |
 | 4 | Sau khi quản trị duyệt (UAT-32) | Trạng thái là Hoàn tất; số dư giảm đúng |
@@ -303,7 +310,7 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
   - mở các hộp sửa dữ kiện, gỡ thực thể, đề xuất chỉnh sửa sự kiện, rồi bấm "Hủy".
 - **Kết quả mong đợi:**
   - Mọi tab đều tải được.
-  - Chữ trên giao diện là tiếng Việt; không còn mã thô (UUID) hay chữ kỹ thuật (Canon, Brain v, Fact).
+  - Chữ trên giao diện là tiếng Việt; không còn mã thô (UUID) hay chữ kỹ thuật (entity, Canon, Brain v, Fact), kể cả ở tab Hồ sơ Codex (sửa trong #203).
   - Hộp gỡ thực thể cho biết bao nhiêu sự kiện đang nhắc tới thực thể đó.
   - Ô sửa dữ kiện Sống/chết là một danh sách để chọn.
 
@@ -376,7 +383,8 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 | 5 | "Thay đổi vai trò & quyền" (ví dụ thành tác giả) | Quyền thay đổi ngay sau khi người dùng đăng nhập lại |
 
 ### UAT-30 Khiếu nại quyết định
-- **Vai trò:** tài khoản bị khoá ở UAT-29, sau đó Quản trị.
+- **Vai trò:** một tài khoản phụ, sau đó Quản trị.
+- **Điều kiện:** UAT-29 đã mở khoá tài khoản của nó, nên trước khi bắt đầu, quản trị **khoá lại** tài khoản phụ (kèm lý do). Cần hai lần khoá cho bước 3 và bước 4.
 
 | # | Bước | Kết quả mong đợi |
 |---|---|---|
@@ -403,7 +411,7 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 | 1 | Mở "Yêu cầu rút Xu" | Thấy yêu cầu từ UAT-21, kèm người yêu cầu, số xu, tài khoản nhận |
 | 2 | Duyệt yêu cầu | Trạng thái Hoàn tất; số dư tác giả giảm đúng |
 | 3 | Từ chối một yêu cầu khác | Xu được hoàn về ví tác giả |
-| 4 | Mở chi tiết một yêu cầu đã xử lý (trang đối soát) | Lịch sử đối soát ghi đúng người duyệt, thời gian và số xu |
+| 4 | Mở chi tiết yêu cầu đã duyệt (trang đối soát), nhập và lưu một bản ghi đối soát thủ công (mã giao dịch mô phỏng) | Duyệt và đối soát là hai thao tác riêng. Sau khi lưu, lịch sử đối soát ghi đúng người làm, thời gian và số xu |
 
 ### UAT-33 Thể loại, tag và nhật ký audit
 - **Vai trò:** Quản trị.
@@ -424,7 +432,7 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 | 1 | Tác giả viết một chương mới, đặt là VIP giá 10 xu, gửi duyệt | Chương ở trạng thái Chờ duyệt |
 | 2 | Quản trị duyệt xuất bản | Chương thành Đã đăng |
 | 3 | Độc giả A mở thông báo | Có thông báo chương mới; bấm vào thì tới chương |
-| 4 | Độc giả A mở khoá chương | Đọc được; ví giảm 10 xu |
+| 4 | Độc giả A bấm "Mở khóa · 10 xu" | Đọc được; ví giảm 10 xu |
 | 5 | Tác giả mở doanh thu | Có khoản thu từ chương này |
 | 6 | Quản trị mở Tổng quan | Số liệu cập nhật |
 
@@ -456,6 +464,8 @@ Các kịch bản tạo dữ liệu cho nhau, nên chạy theo thứ tự sau:
 4. **Quản trị:** UAT-26 → UAT-33
 5. **Xuyên suốt và chung:** UAT-34 → UAT-36
 6. **AI:** UAT-22 → UAT-25. Chạy riêng, vì các kịch bản [LIVE] cần chủ dự án bật live.
+
+**Ưu tiên cho lượt chạy tới:** lượt 2026-11-20 chưa xác nhận được chuỗi xuất bản. Hãy chạy UAT-18 → UAT-27 → UAT-34 trước tiên (một tác giả và một quản trị cùng làm), sau đó mới đến các kịch bản còn "Chưa hoàn tất" hoặc "Chưa chạy" trong báo cáo đó.
 
 Có thể chia việc cho nhiều người kiểm thử theo vai trò. Kịch bản UAT-18, UAT-21 và UAT-34 cần hai người phối hợp: một bên tác giả và một bên quản trị.
 
