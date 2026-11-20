@@ -447,15 +447,16 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
       const submitBtn = page.locator('[data-testid="btn-submit-correction-ev-test-1"]');
       assert.equal(await submitBtn.isDisabled(), true, 'Submit button must be blocked when legacy participant is unresolved');
 
+      // Closed dropdowns stay mounted since the UI polish, so options are picked only when visible.
       // Step 1: Explicitly resolve "Minh" by selecting "ent-minh-a" (Bác sĩ Minh) from dropdown
       const legacySelect = page.locator('[data-testid="select-resolve-legacy-Minh"]');
       await legacySelect.click();
-      await page.locator('[role="option"]:has-text("#minh-a"), .mantine-Select-option:has-text("#minh-a")').first().click({ force: true });
+      await page.locator('[role=\"option\"]:visible:has-text(\"#minh-a\")').first().click({ force: true });
       assert.equal(await submitBtn.isDisabled(), false, 'Submit button must be enabled after resolving legacy participant to Minh-A');
 
       // Step 2 (FE-12): Change mapping from Minh-A to Minh-B
       await legacySelect.click();
-      await page.locator('[role="option"]:has-text("#minh-b"), .mantine-Select-option:has-text("#minh-b")').first().click({ force: true });
+      await page.locator('[role=\"option\"]:visible:has-text(\"#minh-b\")').first().click({ force: true });
       assert.equal(await submitBtn.isDisabled(), false, 'Submit button must be enabled after changing to Minh-B');
 
       // Step 3 (FE-12): Test Clear functionality -> must immediately fail closed
@@ -465,7 +466,7 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
 
       // Step 4 (FE-12): Select Minh-B after clear
       await legacySelect.click();
-      await page.locator('[role="option"]:has-text("#minh-b"), .mantine-Select-option:has-text("#minh-b")').first().click({ force: true });
+      await page.locator('[role=\"option\"]:visible:has-text(\"#minh-b\")').first().click({ force: true });
       assert.equal(await submitBtn.isDisabled(), false, 'Selecting Minh-B re-enables submit');
 
       // Step 5: Submit correction and verify network payload contains ONLY Thai and Minh-B (no ghost Minh-A!)

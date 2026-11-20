@@ -38,7 +38,9 @@ export function EntityMergeControl({ novelId, version, entities, disabled = fals
   });
   if (characters.length < 2 && !notice) return null;
   const options = characters.map(e => ({ value: e.entity_id, type: entityKind(e.entity_type),
-    label: `${e.name} · ${TYPE_LABEL[entityKind(e.entity_type)] ?? e.entity_type} · ${e.entity_id.slice(0, 8)}` }));
+    // Demo runbook 2026-11-20: an ID is shown only to tell apart two entries with the same name.
+    label: `${e.name} · ${TYPE_LABEL[entityKind(e.entity_type)] ?? e.entity_type}${characters.some(o => o.entity_id !== e.entity_id
+      && o.name.trim().toLowerCase() === e.name.trim().toLowerCase()) ? ` · #${e.entity_id.slice(-6)}` : ''}` }));
   const sameType = (o: { type: string }, other: MemoryEntity | undefined) => !other || o.type === entityKind(other.entity_type);
   return <Stack gap="xs">
     <Button size="xs" variant="light" disabled={disabled || characters.length < 2} onClick={() => { merge.reset(); setOpened(true); }}>
