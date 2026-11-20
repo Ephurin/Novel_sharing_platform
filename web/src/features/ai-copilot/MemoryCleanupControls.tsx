@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Alert, Button, Group, Modal, Stack, Text, TextInput } from '@mantine/core';
+import { Alert, Button, Group, Modal, Select, Stack, Text, TextInput } from '@mantine/core';
 import { getApiErrorMessage } from '../../shared/api/api-client';
 import { correctMemoryFact, retireMemoryEntity, type MemoryEntity, type MemoryFact } from './author-memory-api';
-import { entityTypeLabel, factKeyLabel, stateValueLabel } from './event-labels';
+import { entityOptionLabel, entityTypeLabel, factKeyLabel, isEntityIdValue, isStatusValue, stateValueLabel, statusValueOptions } from './event-labels';
 
 // Demo walkthrough 2026-11-18: once approved, a wrong entity (an idiom read as a place) or a wrong fact
 // (an English value) could not be fixed by the author. These controls remove an entity or correct /
@@ -50,7 +50,17 @@ export function FactCorrectionControl({ novelId, version, fact, entities, disabl
   const [editing, setEditing] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState(false);
   const shown = typeof fact.fact_value === 'string' ? stateValueLabel(entities, fact.fact_value) : JSON.stringify(fact.fact_value);
-  const [value, setValue] = useState(shown);
+  // The edit field keeps the stored value: a status stays a status word (Alive, not "Còn sống") and a
+  // place stays an entity ID, so the author picks those from a list. Other values are edited as text.
+  const raw = typeof fact.fact_value === 'string' ? fact.fact_value : JSON.stringify(fact.fact_value);
+  const kind = fact.fact_key === 'status' || isStatusValue(fact.fact_value) ? 'status'
+    : isEntityIdValue(fact.fact_value) ? 'entity' : 'text';
+  const statusOptions = statusValueOptions.some(o => o.value.toLowerCase() === raw.trim().toLowerCase())
+    ? statusValueOptions : [{ value: raw, label: stateValueLabel(entities, raw) }, ...statusValueOptions];
+  const initial = kind === 'status' ? (statusOptions.find(o => o.value.toLowerCase() === raw.trim().toLowerCase())?.value ?? raw) : raw;
+  const entityOptions = entities.filter(e => !e.is_retired || e.entity_id === raw)
+    .map(e => ({ value: e.entity_id, label: entityOptionLabel(e, entities) }));
+  const [value, setValue] = useState(initial);
   const [error, setError] = useState('');
   const factId = String(fact.fact_id ?? '');
   // Global world rules change through the world-rule amendment screen; locked facts stay as they are.
@@ -63,14 +73,18 @@ export function FactCorrectionControl({ novelId, version, fact, entities, disabl
   return <Stack gap={4}>
     {!editing && <Group gap={4}>
       <Button size="compact-xs" variant="subtle" disabled={disabled} data-testid={`btn-edit-fact-${factId}`}
-        onClick={() => { setValue(shown); setEditing(true); }}>Sửa</Button>
+        onClick={() => { setValue(initial); setEditing(true); }}>Sửa</Button>
       <Button size="compact-xs" variant="subtle" color="red" disabled={disabled} data-testid={`btn-remove-fact-${factId}`}
         onClick={() => setConfirmRemove(true)}>Gỡ</Button>
     </Group>}
     {editing && <Group gap={4} align="flex-end">
-      <TextInput size="xs" label={`${factKeyLabel(String(fact.fact_key))} — giá trị mới`} value={value} maxLength={2000}
+      {kind === 'text' ? <TextInput size="xs" label={`${factKeyLabel(String(fact.fact_key))} — giá trị mới`} value={value} maxLength={2000}
         error={error || undefined} onChange={e => setValue(e.currentTarget.value)} style={{ flex: 1 }}
         data-testid={`input-fact-${factId}`} />
+        : <Select size="xs" label={`${factKeyLabel(String(fact.fact_key))} — giá trị mới`} value={value} searchable
+          data={kind === 'status' ? statusOptions : entityOptions} allowDeselect={false} error={error || undefined}
+          onChange={v => setValue(v ?? '')} style={{ flex: 1 }} data-testid={`input-fact-${factId}`}
+          comboboxProps={{ withinPortal: true, zIndex: 400 }} />}
       <Button size="xs" disabled={disabled} onClick={save} data-testid={`btn-save-fact-${factId}`}>Lưu</Button>
       <Button size="xs" variant="default" onClick={() => { setEditing(false); setError(''); }}>Hủy</Button>
     </Group>}

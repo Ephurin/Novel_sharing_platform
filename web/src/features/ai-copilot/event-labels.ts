@@ -71,6 +71,11 @@ const statusValues: Record<string, string> = {
   alive: 'Còn sống', dead: 'Đã chết', deceased: 'Đã chết', unknown: 'Chưa rõ', unconscious: 'Bất tỉnh',
   injured: 'Bị thương', wounded: 'Bị thương', missing: 'Mất tích', captured: 'Bị bắt', imprisoned: 'Bị giam'
 };
+/** Stored status words (the canonical English value) with their label, for pickers that must keep the stored value. */
+export const statusValueOptions = ['Alive', 'Dead', 'Unknown', 'Unconscious', 'Injured', 'Missing', 'Captured', 'Imprisoned']
+  .map(value => ({ value, label: statusValues[value.toLowerCase()] }));
+export const isStatusValue = (value: unknown) => typeof value === 'string' && value.trim().toLowerCase() in statusValues;
+export const isEntityIdValue = (value: unknown) => typeof value === 'string' && UUID.test(value);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 /** A state value that is an entity ID (for example a location) is shown as that entity's name. */
 export const stateValueLabel = (entities: { entity_id: string; name: string }[], value: unknown) =>
