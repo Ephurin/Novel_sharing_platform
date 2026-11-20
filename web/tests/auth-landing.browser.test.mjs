@@ -100,9 +100,9 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
     const form = page.getByRole('tabpanel');
     assert.deepEqual(await form.locator('input').evaluateAll(inputs => inputs.map(input =>
       input.labels[0]?.textContent?.replace(/\s*\*\s*$/, '').trim()
-    )), ['Username', 'Mật khẩu', 'Nhập lại mật khẩu', 'Email']);
+    )), ['Tên đăng nhập', 'Mật khẩu', 'Nhập lại mật khẩu', 'Email']);
     const confirmation = form.getByLabel('Nhập lại mật khẩu', { exact: true });
-    await form.getByLabel('Username', { exact: true }).fill('reader_test');
+    await form.getByLabel('Tên đăng nhập', { exact: true }).fill('reader_test');
     await form.locator('input[autocomplete="new-password"]').first().fill('MatKhauAnToan123!');
     await confirmation.fill('MatKhauSai123!');
     await form.getByLabel('Email', { exact: true }).fill('reader@gmail.com');
