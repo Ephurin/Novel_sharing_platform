@@ -14,6 +14,7 @@ import { ApiClientError, getApiErrorMessage } from '../api/api-client';
 import { useStoryCraftAutoAnimate } from '../hooks/useStoryCraftAutoAnimate';
 import { AuthorTheme } from './AuthorTheme';
 import { ThemeControl } from './ThemeControl';
+import './auth-landing.css';
 
 export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFromLink?: boolean }) {
   const navigate = useNavigate();
@@ -183,7 +184,45 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
 
   return (
     <AuthorTheme className="auth-shell">
-      <Paper p="xl" withBorder className="auth-card">
+      <div className="auth-layout">
+        <aside className="auth-story-panel" aria-label="Giới thiệu StoryCraft">
+          <div className="auth-story-topline">
+            <span className="auth-story-mark">
+              <span className="material-symbols-outlined" aria-hidden="true">auto_stories</span>
+              Cộng đồng yêu truyện Việt
+            </span>
+            <span className="auth-story-volume">VĂN HOA / 01</span>
+          </div>
+
+          <div className="auth-story-content">
+            <p className="auth-story-kicker">MỖI TRANG SÁCH, MỘT CHÂN TRỜI</p>
+            <h2 className="auth-story-heading">
+              Đắm mình trong câu chuyện.
+              <span>Viết nên thế giới của riêng bạn.</span>
+            </h2>
+            <p className="auth-story-description">
+              Từ những chương truyện yêu thích đến ý tưởng đầu tiên của bạn — tất cả bắt đầu tại đây.
+            </p>
+
+            <div className="auth-book-scene" aria-hidden="true">
+              <div className="auth-book-pages" />
+              <div className="auth-book-cover">
+                <span className="auth-book-overline">STORYCRAFT <span>·</span> VĂN HOA</span>
+                <span className="auth-book-symbol material-symbols-outlined">auto_stories</span>
+                <strong>Những câu chuyện<br />chờ được kể</strong>
+                <span className="auth-book-rule" />
+                <span className="auth-book-edition">LỜI MỞ ĐẦU</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="auth-story-bottom">
+            <span>Một câu chuyện hay luôn có trang đầu tiên.</span>
+            <span>ĐỌC · VIẾT · CHIA SẺ</span>
+          </div>
+        </aside>
+
+        <Paper p="xl" withBorder className="auth-card">
         <Group justify="space-between" align="center" mb="md">
           <Link to="/" className="sc-brand" aria-label="StoryCraft — Trang chủ">
             <span className="material-symbols-outlined" aria-hidden="true">menu_book</span>
@@ -193,13 +232,15 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
           <ThemeControl />
         </Group>
 
-        <div className="mb-4">
-          <h1 className="text-section-title m-0">
+        <div className="auth-form-intro">
+          <h1 className="text-section-title auth-form-title m-0">
             {recovering ? 'Khôi phục đăng ký' : confirmEmailFromLink || registration ? 'Xác nhận email'
               : mode === 'login' ? 'Chào mừng trở lại' : 'Tạo tài khoản mới'}
           </h1>
-          {!confirmEmailFromLink && !registration && <Text size="xs" c="dimmed" mt={2}>
-            Không gian đọc truyện và sáng tác tiểu thuyết Việt
+          {!confirmEmailFromLink && !registration && <Text size="sm" c="dimmed" mt={6}>
+            {mode === 'login'
+              ? 'Tiếp tục hành trình đọc, viết và khám phá của bạn.'
+              : 'Gia nhập StoryCraft và bắt đầu hành trình của riêng bạn.'}
           </Text>}
         </div>
 
@@ -207,7 +248,7 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
           <div
             role="tablist"
             aria-label="Chế độ xác thực"
-            className="grid grid-cols-2 p-1 mb-4 rounded-lg border border-stone-200 bg-surface-subtle"
+            className="auth-tabs grid grid-cols-2 p-1 mb-4 rounded-lg border"
           >
             {([
               { id: 'login', label: 'Đăng nhập' },
@@ -233,7 +274,7 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
                       buttons?.[next === 'login' ? 0 : 1]?.focus();
                     }
                   }}
-                  className={`relative z-10 py-1.5 px-3 rounded-md text-meta font-semibold transition-colors ${
+                  className={`auth-tab relative z-10 py-1.5 px-3 rounded-md text-meta font-semibold transition-colors ${
                     active ? 'text-primary-800' : 'text-stone-600 hover:text-stone-900'
                   }`}
                 >
@@ -258,7 +299,7 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
           aria-labelledby={confirmEmailFromLink || registration ? undefined : `${tabGroupId}-tab-${mode}`}
           onSubmit={handleSubmit}
         >
-          <Stack gap="sm" ref={fieldsRef}>
+          <Stack gap="sm" className="auth-fields" ref={fieldsRef}>
             {confirmEmailFromLink && (!recovering || invalidLink) ? (
               <Text size="sm">
                 {invalidLink
@@ -363,7 +404,7 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
             )}
             {error ? <Alert color="red" role="alert">{error}</Alert> : null}
             {!invalidLink && (!registration || showCode) && (
-              <Button type="submit" loading={authMutation.isPending}
+              <Button type="submit" className="auth-submit" loading={authMutation.isPending}
                 disabled={resendMutation.isPending || cancelMutation.isPending || googleBusy || Boolean(registration && code.length !== 8)} fullWidth mt={4}>
                 {recovering ? 'Hoàn tất đăng ký' : confirmEmailFromLink ? 'Xác nhận tài khoản' : registration ? 'Xác nhận bằng mã' : mode === 'login'
                   ? 'Đăng nhập' : registerMailFailed ? 'Thử gửi lại email' : 'Tạo tài khoản'}
@@ -386,7 +427,14 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
 
         {!confirmEmailFromLink && !registration && !restoring && <GoogleSignIn blocked={authMutation.isPending}
           onBusyChange={setGoogleBusy} onSession={handleSession} />}
-      </Paper>
+
+        {!confirmEmailFromLink && !registration && <p className="auth-explore-link">
+          Chưa muốn đăng nhập? <Link to="/public">Khám phá thư viện truyện
+            <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+          </Link>
+        </p>}
+        </Paper>
+      </div>
     </AuthorTheme>
   );
 }
