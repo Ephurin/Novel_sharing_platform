@@ -307,7 +307,7 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
             >
               {([
                 { id: 'login', label: 'Đăng nhập' },
-                { id: 'register', label: 'Tạo tài khoản' }
+                { id: 'register', label: 'Đăng ký' }
               ] as const).map((tab) => {
                 const active = mode === tab.id;
                 return (

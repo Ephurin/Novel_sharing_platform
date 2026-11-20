@@ -91,9 +91,9 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
     const passwordInput = page.locator('input[autocomplete="current-password"]');
     await expect(passwordInput).toHaveValue('');
 
-    // Keyboard tab switch: Đăng nhập <-> Tạo tài khoản
+    // Keyboard tab switch: Đăng nhập <-> Đăng ký
     const loginTab = page.getByRole('tab', { name: 'Đăng nhập', exact: true });
-    const registerTab = page.getByRole('tab', { name: 'Tạo tài khoản', exact: true });
+    const registerTab = page.getByRole('tab', { name: 'Đăng ký', exact: true });
     await loginTab.focus();
     await page.keyboard.press('ArrowRight');
     await expect(registerTab).toHaveAttribute('aria-selected', 'true');
@@ -232,9 +232,9 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
     await expect(googlePage.getByText(/Tài khoản tạo bằng Google dùng trên web/)).toHaveCount(0);
     const signInTab = googlePage.getByRole('tab', { name: 'Đăng nhập' });
     await expect(signInTab).toHaveAttribute('aria-selected', 'true');
-    await expect(googlePage.getByText('Đăng nhập với Google')).toBeVisible();
-    await googlePage.getByRole('tab', { name: 'Tạo tài khoản' }).click();
-    await expect(googlePage.getByText('Đăng ký với Google')).toBeVisible();
+    await expect(googlePage.getByText('Đăng nhập / Đăng ký với Google')).toBeVisible();
+    await googlePage.getByRole('tab', { name: 'Đăng ký' }).click();
+    await expect(googlePage.getByText('Đăng nhập / Đăng ký với Google')).toBeVisible();
     await signInTab.click();
     await googlePage.getByRole('button', { name: 'Tiếp tục bằng Google' }).click();
     await expect(googlePage).toHaveURL(`${base}/`);

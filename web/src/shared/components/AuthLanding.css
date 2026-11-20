@@ -326,13 +326,14 @@ body:has(.sc-auth-shell) {
   color: var(--auth-muted);
 }
 
-/* Segmented Tabs (44px) */
+/* Segmented Tabs (symmetric 4px inset on top, bottom, left, right) */
 .sc-auth-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  align-items: stretch;
   padding: 4px;
   gap: 4px;
-  height: 44px;
+  height: auto;
   background: var(--auth-paper-2);
   border: 1px solid var(--auth-border);
   border-radius: 14px;
@@ -342,13 +343,19 @@ body:has(.sc-auth-shell) {
 .sc-author-theme.sc-auth-shell .sc-auth-inner button.sc-auth-tab {
   position: relative;
   z-index: 1;
-  min-height: 34px;
-  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 0 12px;
   border: 0;
   background: transparent;
   color: var(--auth-muted);
   font-weight: 700;
   font-size: 13.5px;
+  line-height: 1;
   border-radius: 10px;
   cursor: pointer;
   transition: color 0.16s ease;
@@ -369,7 +376,7 @@ body:has(.sc-auth-shell) {
   border-radius: 10px;
   background: var(--auth-tab-active);
   border: 1px solid var(--auth-border-strong);
-  box-shadow: var(--auth-shadow-sm);
+  box-shadow: 0 1px 4px rgba(120, 67, 42, 0.08);
 }
 
 /* Mantine Input Styling (wins cleanly over global theme rules via specificity) */
@@ -638,7 +645,7 @@ body:has(.sc-auth-shell) {
   justify-content: center;
   border-radius: 14px;
   overflow: hidden;
-  opacity: 0.005;
+  opacity: 0.001;
   cursor: pointer;
 }
 
@@ -708,8 +715,12 @@ body:has(.sc-auth-shell) {
     font-size: 13.5px;
   }
   .sc-auth-tabs {
-    height: 40px;
+    height: auto;
     margin-bottom: 12px;
+  }
+  .sc-author-theme.sc-auth-shell .sc-auth-inner button.sc-auth-tab {
+    min-height: 34px;
+    height: 34px;
   }
   .sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-TextInput-input,
   .sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-PasswordInput-input {

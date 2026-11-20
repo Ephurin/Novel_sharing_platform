@@ -139,7 +139,7 @@ export function GoogleSignIn({ blocked, mode = 'login', onBusyChange, onSession 
 
   const [notConfiguredNotice, setNotConfiguredNotice] = useState(false);
 
-  const googleLabel = mode === 'register' ? 'Đăng ký với Google' : 'Đăng nhập với Google';
+  const googleLabel = 'Đăng nhập / Đăng ký với Google';
 
   if (!challenge) {
     return (
