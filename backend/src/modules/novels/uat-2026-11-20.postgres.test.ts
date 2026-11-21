@@ -10,7 +10,7 @@ const isolated = expected.startsWith('ephurin_test_') && process.env.EPHURIN_ALL
 // and BUG-003 (the author could not change the age rating).
 test('paywall carries the price, search ignores accents, the author sets the age rating', { skip: !isolated }, async () => {
   const { getPostgresPool, disconnectPostgres } = await import('../../core/database/postgres.js');
-  const { getReaderChapter } = await import('../reading/reading.service.js');
+  const { getReaderChapter, getReaderNovel } = await import('../reading/reading.service.js');
   const { listNovels } = await import('./novels.repository.js');
   const { updateNovel } = await import('./novels.service.js');
   const { listNovelsSchema } = await import('./novels.schemas.js');
@@ -46,6 +46,8 @@ test('paywall carries the price, search ignores accents, the author sets the age
     const row = (await pool.query('select age_rating, title from novels where novel_id = $1', [novel])).rows[0];
     assert.equal(row.age_rating, 'MATURE');
     assert.equal(row.title, `Kiếm Đạo ${marker}`);
+    // BUG-007 (round 3): the reader novel page reads /reading/novels/:id, which must carry it too.
+    assert.equal((await getReaderNovel(novel) as { ageRating?: string }).ageRating, 'MATURE');
   } finally {
     await pool.query('delete from chapters where novel_id = $1', [novel]);
     await pool.query('delete from novels where novel_id = $1', [novel]);
