@@ -33,6 +33,8 @@ function mapNovelSummary(row: QueryResultRow) {
     genre: row.genre_name,
     tags: row.tags ?? [],
     status: row.serial_status,
+    // UAT 2026-11-21 round 3 (BUG-007): the reader novel page reads this summary, not /novels/:id.
+    ageRating: row.age_rating,
     likesCount: row.likes_count,
     viewsCount: row.views_count,
     chaptersCount: row.chapters_count,
