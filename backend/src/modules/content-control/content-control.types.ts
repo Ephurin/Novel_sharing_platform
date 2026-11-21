@@ -1,4 +1,6 @@
-export type ModerationTargetType = 'NOVEL' | 'CHAPTER' | 'COMMENT' | 'USER';
+import type { DiscussionTargetKind } from '../discussions/discussions.types.js';
+
+export type ModerationTargetType = 'NOVEL' | 'CHAPTER' | 'COMMENT' | 'USER' | DiscussionTargetKind;
 export type ModerationSource = 'KEYWORD_FILTER' | 'PUBLICATION_REQUEST' | 'USER_REPORT';
 export type ModerationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'REVISION_REQUIRED';
 

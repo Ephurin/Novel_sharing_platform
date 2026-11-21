@@ -7,6 +7,7 @@ import { findNovelById } from '../novels/novels.repository.js';
 import { findChapterById } from '../novels/chapters.repository.js';
 import { logger } from '../../core/logger/logger.js';
 import { approvedCommentFilter } from './comments.repository.js';
+import { isPublicDiscussionTarget } from '../discussions/discussions.read.js';
 let running = false;
 // Pending flags live with the originating records. Idempotent IDs allow retry after crashes.
 export async function deliverDomainNotifications() {
@@ -20,6 +21,14 @@ export async function deliverDomainNotifications() {
     const pool = getPostgresPool();
     const events = await pool.query('select * from notification_events where delivered_at is null order by created_at limit 100');
     for (const event of events.rows) {
+      if (event.type === 'DISCUSSION_REPLY') {
+        const commentId = event.payload?.commentId;
+        const visible = typeof commentId === 'string' && await isPublicDiscussionTarget('DISCUSSION_COMMENT', commentId);
+        if (!visible) {
+          await pool.query('update notification_events set delivered_at = now() where event_key = $1', [event.event_key]);
+          continue;
+        }
+      }
       if (event.type === 'NOVEL_CHAPTER_PUBLISHED') {
         const eligible = await pool.query(`select 1 from novel_notification_subscriptions s
           join users u on u.user_id=s.user_id join novels n on n.novel_id=s.novel_id

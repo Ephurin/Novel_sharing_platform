@@ -17,6 +17,8 @@ import {
   contentControlRoutes,
   reportsRoutes
 } from './modules/content-control/content-control.routes.js';
+import { discussionsRoutes } from './modules/discussions/discussions.routes.js';
+import { discussionAdminRoutes } from './modules/discussions/discussions.admin.js';
 import { commentsRoutes } from './modules/interactions/comments.routes.js';
 import { notificationRoutes } from './modules/interactions/notifications.routes.js';
 import { socialRoutes } from './modules/interactions/social.routes.js';
@@ -77,6 +79,8 @@ export function createApp() {
   app.use(`${env.API_PREFIX}/admin/moderation`, adminModerationRoutes);
   app.use(`${env.API_PREFIX}`, authorsRoutes);
   app.use(`${env.API_PREFIX}`, commentsRoutes);
+  app.use(env.API_PREFIX, discussionsRoutes);
+  app.use(env.API_PREFIX, discussionAdminRoutes);
   app.use(`${env.API_PREFIX}`, notificationRoutes);
   app.use(`${env.API_PREFIX}`, socialRoutes);
   app.use(`${env.API_PREFIX}`, novelEngagementRoutes);

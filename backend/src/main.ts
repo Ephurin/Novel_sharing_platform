@@ -1,6 +1,7 @@
 import { publishDueChapters } from './modules/novels/chapter-schedules.js';
 import { drainAdminJobs } from './modules/admin/admin-jobs.js';
 import { deliverDomainNotifications } from './modules/interactions/domain-notifications.js';
+import { pruneDiscussionViewKeys } from './modules/discussions/discussions.write.js';
 import { createApp } from './app.js';
 import { env } from './core/config/env.js';
 import { connectDatabases, disconnectDatabases } from './core/database/database.js';
@@ -11,6 +12,11 @@ const app = createApp();
 let scheduleTimer: ReturnType<typeof setInterval> | undefined;
 let notificationTimer: ReturnType<typeof setInterval> | undefined;
 let adminTimer: ReturnType<typeof setInterval> | undefined;
+let discussionRetentionTimer: ReturnType<typeof setInterval> | undefined;
+
+const pruneViewKeys = () => {
+  void pruneDiscussionViewKeys().catch(error => logger.error({ err: error }, 'Could not prune discussion view keys'));
+};
 
 if (env.DB_CONNECT_ON_START) {
   await connectDatabases();
@@ -21,6 +27,8 @@ if (env.DB_CONNECT_ON_START) {
   void publishDueChapters();
   notificationTimer = setInterval(() => void deliverDomainNotifications(), 5000);
   void deliverDomainNotifications();
+  discussionRetentionTimer = setInterval(pruneViewKeys, 86_400_000);
+  pruneViewKeys();
 }
 
 const server = app.listen(env.PORT, () => {
@@ -33,6 +41,7 @@ async function shutdown(signal: string) {
   if (scheduleTimer) clearInterval(scheduleTimer);
   if (notificationTimer) clearInterval(notificationTimer);
   if (adminTimer) clearInterval(adminTimer);
+  if (discussionRetentionTimer) clearInterval(discussionRetentionTimer);
 
   server.close(async () => {
     await disconnectDatabases();

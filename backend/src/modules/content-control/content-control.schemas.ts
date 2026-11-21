@@ -1,10 +1,11 @@
 import { z } from 'zod';
 
-export const moderationTargetTypeSchema = z.enum(['NOVEL', 'CHAPTER', 'COMMENT', 'USER']);
+const legacyTargetTypes = ['NOVEL', 'CHAPTER', 'COMMENT', 'USER'] as const;
+export const moderationTargetTypeSchema = z.enum([...legacyTargetTypes, 'DISCUSSION', 'DISCUSSION_COMMENT']);
 
 export const contentControlCheckSchema = z.object({
   body: z.object({
-    targetType: moderationTargetTypeSchema,
+    targetType: z.enum(legacyTargetTypes),
     targetId: z.string().min(1),
     content: z.string().min(1),
     submittedBy: z.string().uuid()

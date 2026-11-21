@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { requireAdminPermission } from '../admin/admin-access.js';
 import { requireAuth, requireRoles } from '../../core/security/auth.middleware.js';
 import { validateRequest } from '../../core/validation/validate.js';
+import { rateLimit } from '../../core/security/rate-limit.js';
+import { isDiscussionTarget } from '../discussions/discussions.admin.js';
 import {
   checkContentController,
   createReportController,
@@ -31,7 +33,14 @@ contentControlRoutes.post(
   checkContentController
 );
 
-reportsRoutes.post('/', requireAuth, validateRequest(createReportSchema), createReportController);
+const discussionReportLimit = rateLimit({ scope: 'discussion.report', max: 10, windowMs: 86_400_000 });
+reportsRoutes.post('/', requireAuth, validateRequest(createReportSchema), (request, response, next) => {
+  if (isDiscussionTarget(request.body.targetType)) {
+    discussionReportLimit(request, response, next);
+    return;
+  }
+  next();
+}, createReportController);
 
 adminModerationRoutes.get(
   '/reviews',

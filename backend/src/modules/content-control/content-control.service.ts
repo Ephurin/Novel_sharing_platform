@@ -3,6 +3,7 @@ import { assertAdminPermission, audit } from '../admin/admin-access.js';
 import { resolveUserReport } from './report-resolution.js';
 import type { PoolClient } from 'pg';
 import { getAdminReviewTarget } from './admin-target.repository.js';
+import { assertDiscussionReportable, isDiscussionTarget } from '../discussions/discussions.admin.js';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
@@ -247,6 +248,9 @@ export async function createUserReport(auth: AuthContext, input: CreateReportInp
       ).rows[0];
       if (lockedReview.status !== 'PENDING')
         throw new AppError(409, 'REPORT_RETRY', 'Review was resolved. Please submit again.');
+      if (isDiscussionTarget(input.targetType)) {
+        await assertDiscussionReportable(client, input.targetType, input.targetId, auth.userId);
+      }
       const report = await createReportRow(
         {
           ...input,
