@@ -27,6 +27,7 @@ test('navigation enhancements: filters, reorder, highlights, images, reactions a
             import { ThemeControl } from '/src/shared/components/ThemeControl.tsx';
             import { ChapterOrder } from '/src/features/author-projects/ChapterActions.tsx';
             import { NovelEngagement } from '/src/features/reader/NovelEngagement.tsx';
+            import { NovelOverview } from '/src/features/reader/ReaderNovelOverview.tsx';
             import { ReaderChapterPage, PublicReaderChapterPage } from '/src/features/reader/ReaderPage.tsx';
             import { useAuthStore } from '/src/features/auth/useAuthStore.ts';
             import '@fontsource/be-vietnam-pro/400.css'; import '@fontsource/be-vietnam-pro/500.css';
@@ -46,6 +47,8 @@ test('navigation enhancements: filters, reorder, highlights, images, reactions a
                 h(Button,{onClick:()=>setCount(2)},'Chọn hai chương'),h(SelectionToolbar,{count,onClear:()=>setCount(0)}),
                 h(Button,{onClick:()=>setOrder(true)},'Sắp xếp chương'),order&&h(ChapterOrder,{novelId:'novel-test',chapters,onClose:()=>setOrder(false)}),
                 h('div',{style:{width:100,height:150,marginTop:20}},h(ImageLightbox,{src:image,alt:'Bìa thử nghiệm',className:'sc-cover-hover sc-image-preview-fill'},h('img',{src:image,alt:'Bìa thử nghiệm',style:{width:'100%',height:'100%'}}))),
+                // The follow toggle moved from NovelEngagement to the novel overview (UI phase 4).
+                h(NovelOverview,{novel:{novelId:'novel-test',authorId:'different-author',title:'Truyện thử'},chapters:[]}),
                 h(NovelEngagement,{novelId:'novel-test',authorId:'different-author'}),
                 h('div',{style:{height:1800}},'Nội dung dài'));
             }
@@ -121,7 +124,7 @@ test('navigation enhancements: filters, reorder, highlights, images, reactions a
         await page.keyboard.press('Escape');await expect(image).toBeFocused();
 
         const follow=page.getByRole('button',{name:'Theo dõi truyện',exact:true});await follow.click();
-        await expect(page.getByRole('alert')).toContainText('Không có quyền thao tác');await expect(follow).toBeVisible();assert.equal(await follow.locator('.sc-reaction-icon').getAttribute('data-active'),null);
+        await expect(page.locator('.sc-toast-message').filter({hasText:'Không có quyền thao tác'})).toBeVisible();await expect(follow).toBeVisible();assert.equal(await follow.locator('.sc-reaction-icon').getAttribute('data-active'),null);
         failFollow=false;await follow.click();await expect(page.getByRole('button',{name:'Bỏ theo dõi truyện'})).toBeVisible();await expect(page.locator('.sc-reaction-icon[data-active]')).toHaveCount(1);
         await page.getByRole('button',{name:'Giao diện',exact:true}).click();await page.getByRole('menuitem',{name:mobile?'Sáng':'Tối',exact:true}).click();
         await expect(page.locator('html')).toHaveAttribute('data-theme',mobile?'light':'dark');await expect(page.locator('.sc-theme-icon > span')).toHaveCount(1);
@@ -131,23 +134,29 @@ test('navigation enhancements: filters, reorder, highlights, images, reactions a
         await page.screenshot({path:path.join(output,`${mobile?'mobile':'desktop'}-widgets.png`)});
 
         await page.goto(base+'/reader');
-        await page.getByRole('button',{name:'Mục lục',exact:true}).click();
+        // On phones the reader tool rail is hidden until opened (tap, or the keyboard toggle used here),
+        // and a closing panel keeps the rest of the page aria-hidden until it is gone.
+        const tool=async name=>{await expect(page.getByRole('dialog')).toHaveCount(0);const rail=page.locator('#chapter-reader-tools');if(mobile&&await rail.getAttribute('data-open')!=='true'){await page.locator('.sc-reader-tools-toggle').focus();await page.keyboard.press('Enter');}await expect(rail).not.toHaveAttribute('aria-hidden','true');await rail.getByRole('button',{name,exact:true}).click();};
+        await tool('Mục lục');
         const toc=page.getByRole('dialog',{name:'Mục lục chương'});await expect(toc.locator('[aria-current="page"]')).toContainText('Chương 1');
-        await toc.getByRole('link',{name:/2\. Chương 2/}).click();await expect(toc).toHaveCount(0);
-        await page.getByRole('button',{name:'Mục lục',exact:true}).click();await expect(toc.locator('[aria-current="page"]')).toContainText('Chương 2');await page.keyboard.press('Escape');
-        await page.getByRole('button',{name:'Tùy chỉnh đọc',exact:true}).click();
+        await toc.getByRole('link',{name:'Chương 2',exact:true}).click();await expect(toc).toHaveCount(0);
+        await tool('Mục lục');await expect(toc.locator('[aria-current="page"]')).toContainText('Chương 2');await page.keyboard.press('Escape');
+        await tool('Tùy chỉnh đọc');
         const settings=page.getByRole('dialog',{name:'Tùy chỉnh đọc',exact:true});await expect(settings).toBeVisible();
         await expect.poll(()=>settings.evaluate(el=>el.contains(document.activeElement))).toBe(true);
         await settings.getByRole('textbox',{name:'Cỡ chữ',exact:true}).fill('22');
         await page.keyboard.press('Escape');await expect(settings).not.toBeVisible();
-        await page.getByRole('button',{name:'Tùy chỉnh đọc',exact:true}).click();await expect(settings.getByRole('textbox',{name:'Cỡ chữ',exact:true})).toHaveValue('22');
-        await settings.getByRole('button',{name:'Lưu tùy chỉnh',exact:true}).click();await expect.poll(()=>preferences.fontSize).toBe(22);
-        const bounds=await settings.boundingBox();assert.ok(bounds.x>=0&&bounds.x+bounds.width<=page.viewportSize().width);
+        await tool('Tùy chỉnh đọc');await expect(settings.getByRole('textbox',{name:'Cỡ chữ',exact:true})).toHaveValue('22');
+        // Reading preferences now save automatically (useChapterReadingPreferences, 350 ms debounce).
+        await expect.poll(()=>preferences.fontSize).toBe(22);
+        // Measure once the drawer has finished sliding in; there is no save click to wait on any more.
         await expect.poll(()=>settings.evaluate(el=>getComputedStyle(el).opacity)).toBe('1');
-        assert.equal(await page.locator('.chapter-prose').evaluate(el=>getComputedStyle(el).color),'rgb(17, 24, 39)','a light reading surface must retain dark text even in the dark app theme');
+        await expect.poll(async()=>{const b=await settings.boundingBox();return b.x>=0&&b.x+b.width<=page.viewportSize().width;}).toBe(true);
+        const prose=(await page.locator('.chapter-prose').evaluate(el=>getComputedStyle(el).color)).match(/\d+/g).slice(0,3).map(Number);
+        assert.ok(Math.max(...prose)<80,`a light reading surface must retain dark text even in the dark app theme (got rgb ${prose})`);
         await page.screenshot({path:path.join(output,`${mobile?'mobile':'desktop'}-reader.png`)});
-        await page.goto(base+'/publicreader');await page.getByRole('button',{name:'Mục lục',exact:true}).click();
-        await expect(page.getByRole('dialog',{name:'Mục lục chương'}).getByRole('link',{name:/2\. Chương 2/})).toHaveAttribute('href','/public/chapters/c-2');
+        await page.goto(base+'/publicreader');await tool('Mục lục');
+        await expect(page.getByRole('dialog',{name:'Mục lục chương'}).getByRole('link',{name:'Chương 2',exact:true})).toHaveAttribute('href','/public/chapters/c-2');
         assert.deepEqual(errors,[]);
       }finally{await context.close();}
     }

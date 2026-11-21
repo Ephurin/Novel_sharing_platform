@@ -84,10 +84,13 @@ export function AnimatedModal({ opened, onClose, title, children, size = 'md', c
   };
 
   if (side === 'right' && mobile) {
-    return <Drawer.Root open={opened} onOpenChange={(open) => { if (!open) onClose(); }} direction="bottom" dismissible={closeOnClickOutside || closeOnEscape} noBodyStyles>
+    return <Drawer.Root open={opened} onOpenChange={(open) => { if (!open) onClose(); }} direction="bottom" dismissible={closeOnClickOutside || closeOnEscape} noBodyStyles autoFocus>
       <Drawer.Portal>
         <Drawer.Overlay className="sc-animated-modal-overlay sc-vaul-overlay" />
         <Drawer.Content className={`sc-vaul-sheet ${className}`} aria-describedby={undefined}
+          // vaul 1.1 leaves focus behind the sheet unless autoFocus is set. Focus the sheet
+          // itself rather than its first field, so a phone keyboard does not pop up on open.
+          onOpenAutoFocus={(event) => { event.preventDefault(); (event.currentTarget as HTMLElement).focus({ preventScroll: true }); }}
           onEscapeKeyDown={(event) => {
             if (!closeOnEscape || isListboxOpen(event.target)) event.preventDefault();
           }}
