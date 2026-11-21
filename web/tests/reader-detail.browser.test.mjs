@@ -50,7 +50,7 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
   const base = `http://127.0.0.1:${server.httpServer.address().port}`;
   const cover = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="300"><rect width="200" height="300" fill="#775f55"/><circle cx="100" cy="100" r="60" fill="#e9c899"/><text x="100" y="225" text-anchor="middle" fill="white" font-size="20">StoryCraft</text></svg>');
   const chapters = Array.from({ length: 7 }, (_, index) => ({ chapterId: `chapter-${index + 1}`, novelId: 'novel-1', chapterNumber: index + 1, title: `Chương ${index + 1}: Ngày nắng trở về`, wordCount: 100, isVip: index === 1, priceCoins: index === 1 ? 10 : 0, publishedAt: '2026-10-20T12:00:00Z' }));
-  const novel = { novelId: 'novel-1', authorId: 'author-1', authorName: 'Người kể chuyện', title: 'Hành Trình Qua Những Mùa Gió', synopsis: Array.from({ length: 12 }, () => 'Câu chuyện về những người trẻ trên hành trình tìm lại ký ức và những lời hẹn chưa thành.').join('\n\n'), authorNote: 'Cảm ơn bạn đã ghé qua.', genres: ['Fantasy', 'Đời thường'], tags: ['Adventure'], status: 'ONGOING', coverImageUrl: cover, chaptersCount: 99, viewsCount: 18, lastUpdatedAt: '2026-10-20T12:00:00Z', chapters };
+  const novel = { novelId: 'novel-1', authorId: 'author-1', authorName: 'Người kể chuyện', title: 'Hành Trình Qua Những Mùa Gió', synopsis: Array.from({ length: 12 }, () => 'Câu chuyện về những người trẻ trên hành trình tìm lại ký ức và những lời hẹn chưa thành.').join('\n\n'), authorNote: 'Cảm ơn bạn đã ghé qua.', genres: ['Fantasy', 'Đời thường'], tags: ['Adventure'], status: 'ONGOING', ageRating: 'MATURE', coverImageUrl: cover, chaptersCount: 99, viewsCount: 18, lastUpdatedAt: '2026-10-20T12:00:00Z', chapters };
   try {
     for (const role of ['GUEST', 'READER']) for (const width of [1440, 650, 390]) for (const theme of ['light', 'dark']) {
       const context = await browser.newContext({ viewport: { width, height: 1000 } });
@@ -128,6 +128,8 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
         await expect(page.locator('.mantine-MultiSelect-pill').filter({ hasText: 'Fantasy' })).toBeVisible();
         await expect.poll(() => searchParams?.get('genres')).toBe('Fantasy');
         await page.goto(detail);
+        // UAT 2026-11-21 (BUG-007): the saved age rating is visible to readers.
+        await expect(page.getByTestId('reader-age-rating')).toHaveText('18+');
         await page.locator('.sc-reader-status').click();
         await expect(page).toHaveURL(`${base}${prefix}?status=ONGOING`);
         if (width < 768) await page.getByRole('button', { name: 'Bộ lọc', exact: true }).click();

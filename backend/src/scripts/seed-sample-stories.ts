@@ -94,6 +94,24 @@ const demoUsers = [
     role: 'READER',
     displayName: 'Reader 05 Reader',
     walletCoins: 1000
+  },
+  // UAT 2026-11-21: dedicated accounts so testers never have to drain a wallet or
+  // promote a shared account. reader06 always starts below a VIP chapter price;
+  // reader07 is the spare account for lock, appeal and role-change checks.
+  {
+    email: 'reader06@example.com',
+    username: 'reader06',
+    role: 'READER',
+    displayName: 'Reader 06 Low Balance',
+    walletCoins: 5,
+    resetWallet: true
+  },
+  {
+    email: 'reader07@example.com',
+    username: 'reader07',
+    role: 'READER',
+    displayName: 'Reader 07 Spare',
+    walletCoins: 0
   }
 ] as const;
 
@@ -190,10 +208,10 @@ async function ensureDemoUsers() {
         insert into wallets (user_id, coins_balance)
         values ($1, $2)
         on conflict (user_id) do update
-        set coins_balance = greatest(wallets.coins_balance, excluded.coins_balance),
+        set coins_balance = case when $3 then excluded.coins_balance else greatest(wallets.coins_balance, excluded.coins_balance) end,
             updated_at = now()
       `,
-      [userId, user.walletCoins]
+      [userId, user.walletCoins, 'resetWallet' in user && user.resetWallet]
     );
 
     if (user.username === 'reader03') {

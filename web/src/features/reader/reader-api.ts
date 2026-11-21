@@ -14,6 +14,7 @@ export type ReaderNovel = {
   tags?: string[];
   status?: string;
   serialStatus?: string;
+  ageRating?: 'EVERYONE' | 'TEEN' | 'MATURE';
   likesCount?: number;
   viewsCount?: number;
   chaptersCount?: number;

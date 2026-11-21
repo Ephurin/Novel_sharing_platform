@@ -339,6 +339,14 @@ export function ManuscriptImportPage() {
     };
     reader.onload = (event) => {
       const content = event.target?.result;
+      // UAT 2026-11-21 (BUG-009): an empty file used to "succeed" with 0 characters.
+      if (typeof content === 'string' && !content.trim()) {
+        setIsReadingFile(false);
+        setFileReadProgress(null);
+        setFileName('');
+        showToast(`Tệp "${file.name}" không có nội dung. Hãy chọn tệp có văn bản chương.`, 'error');
+        return;
+      }
       if (typeof content === 'string') {
         setIsReadingFile(false);
         setFileReadProgress(100);

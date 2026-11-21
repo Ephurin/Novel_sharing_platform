@@ -24,6 +24,8 @@ Phạm vi: toàn bộ hệ thống web, gồm Khách, Độc giả, Tác giả, 
 | Tác giả (AI) | tài khoản tác giả thử nghiệm của stack p2live | Có truyện "Kiếm Ấn Lôi Sơn" với bộ nhớ đã duyệt |
 | Độc giả A | `reader04` | Ví 1.000 xu |
 | Độc giả B | `reader05` | Ví 1.000 xu, dùng cho tương tác giữa hai độc giả |
+| Độc giả ít xu | `reader06` | Ví 5 xu, nhỏ hơn giá mọi chương VIP mẫu. Mỗi lần chạy seed, ví về lại 5 xu. Dùng cho UAT-11 bước 6 |
+| Tài khoản phụ | `reader07` | Độc giả, ví 0 xu. Dùng để thử khoá, khiếu nại và đổi vai trò (UAT-29, UAT-30). Chạy seed lại thì vai trò về Độc giả |
 
 Mật khẩu của các tài khoản seed nằm trong script seed (`backend/src/scripts/seed-sample-stories.ts`). Mật khẩu tài khoản tác giả AI nằm trong thư mục riêng `.eval-private/` và được chủ dự án cung cấp riêng. Không ghi mật khẩu vào biên bản kiểm thử.
 
@@ -129,7 +131,7 @@ Ghi chú: bước 4 cần cấu hình gửi thư. Nếu môi trường không g�
 
 | # | Bước | Kết quả mong đợi |
 |---|---|---|
-| 1 | Mở trang một truyện đã xuất bản | Thấy ảnh bìa, giới thiệu, thể loại, tác giả, danh sách chương, đánh giá |
+| 1 | Mở trang một truyện đã xuất bản | Thấy ảnh bìa, giới thiệu, thể loại, tác giả, danh sách chương, đánh giá. Truyện mẫu không có ảnh bìa thì hiện bìa thay thế mang tên truyện; như vậy vẫn tính là đúng. Truyện đặt độ tuổi 16+ hoặc 18+ thì có nhãn tương ứng cạnh trạng thái |
 | 2 | Bấm "Đọc chương đầu" | Mở chương 1; nội dung hiển thị đầy đủ |
 | 3 | Dùng "Chương sau" và "Chương trước" | Chuyển đúng chương |
 | 4 | Mở một chương VIP (trong danh sách chương, xem cột **Quyền đọc**; tên chương không có chữ VIP) | Thấy "Chương VIP đang khóa" và nút "Đăng nhập để mở khóa"; không lộ nội dung |
@@ -181,6 +183,8 @@ Ghi chú: bước 4 cần cấu hình gửi thư. Nếu môi trường không g�
 
 Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riêng cho tác giả. Bình luận công khai chỉ gắn với cả chương.
 
+- **Điều kiện:** góp ý riêng chỉ hoạt động khi backend bật `PRIVATE_COMMENTS_ENABLED=true`. Mặc định cờ này tắt. Khi cờ tắt, mở "Nhắn riêng cho tác giả" phải thấy dòng "Góp ý riêng đang tạm tắt…" và không có ô soạn; ghi bước 1–3 là "Bị chặn: tính năng tắt" và chỉ kiểm tra dòng thông báo đó.
+
 - **Vai trò:** Độc giả A, sau đó tác giả `reader03`.
 
 | # | Bước | Kết quả mong đợi |
@@ -202,7 +206,7 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 | 3b | Bấm "Mở khóa · N xu" | Đọc được nội dung ngay |
 | 4 | Kiểm tra ví | Số dư giảm đúng giá chương; có giao dịch mở khoá |
 | 5 | Mở lại chương đó | Không bị trừ xu lần nữa |
-| 6 | Với số dư nhỏ hơn giá chương (dùng tài khoản mới), mở một chương VIP | Ghi "chưa đủ để mở khóa chương này"; nút mở khoá bị vô hiệu; có nút "Nạp thêm xu"; không trừ tiền |
+| 6 | Đăng nhập `reader06` (ví 5 xu), mở một chương VIP chưa mở khoá | Ghi "chưa đủ để mở khóa chương này"; nút mở khoá bị vô hiệu; có nút "Nạp thêm xu"; không trừ tiền |
 
 ### UAT-12 Ủng hộ tác giả
 - **Vai trò:** Độc giả A.
@@ -239,7 +243,7 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 | # | Bước | Kết quả mong đợi |
 |---|---|---|
 | 1 | Ở "Tác phẩm", bấm "Tạo tác phẩm mới"; nhập tên, giới thiệu, thể loại | Tác phẩm mới ở trạng thái Bản nháp |
-| 2 | Mở trang quản lý tác phẩm → "Chỉnh sửa thông tin"; sửa giới thiệu, thể loại, Độ tuổi (Mọi lứa tuổi / 16+ / 18+), lời tác giả, ảnh bìa; lưu | Tải lại trang vẫn giữ giá trị mới; nhãn độ tuổi trên thẻ tác phẩm đổi theo |
+| 2 | Mở trang quản lý tác phẩm → "Chỉnh sửa thông tin"; sửa giới thiệu, thể loại, Độ tuổi (Mọi lứa tuổi / 16+ / 18+), lời tác giả, ảnh bìa; lưu | Tải lại trang vẫn giữ giá trị mới; nhãn độ tuổi trên thẻ tác phẩm đổi theo. Trang truyện phía độc giả hiện nhãn 16+ hoặc 18+ ("Mọi lứa tuổi" thì không có nhãn) |
 | 3 | Tìm, lọc và sắp xếp ở trang "Tác phẩm"; ghim một tác phẩm | Danh sách đúng; tác phẩm đã ghim đứng đầu |
 | 4 | Lưu với tên trống | Báo lỗi, không lưu |
 
@@ -262,7 +266,7 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 | 1 | Mở "Nhập bản thảo", chọn một tệp .txt có 3 chương (mỗi chương bắt đầu bằng "Chương N") | Chuyển thẳng sang bước xem trước: danh sách chương tách tự động, kèm tiêu đề, số chữ và trạng thái "Sẵn sàng" |
 | 2 | Sửa tiêu đề một chương, bỏ chọn một chương | Danh sách cập nhật |
 | 3 | "Lưu chương ở trạng thái bản nháp" | Các chương đã chọn xuất hiện trong tác phẩm ở trạng thái Bản nháp |
-| 4 | Nhập một tệp rỗng | Báo "Nội dung chương trống", không tạo chương |
+| 4 | Nhập một tệp rỗng (0 byte hoặc chỉ có khoảng trắng) | Báo "Tệp … không có nội dung", vẫn ở bước chọn tệp, không tạo chương |
 
 ### UAT-18 Gửi duyệt, chương VIP và lên lịch xuất bản (UC5, 4.2.2)
 - **Vai trò:** tác giả `reader03`, sau đó Quản trị.
@@ -271,16 +275,18 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 |---|---|---|
 | 1 | Ở "Quyền đọc & giá xu", đặt một chương là "Chương VIP" và nhập giá xu | Giá được lưu |
 | 2 | "Gửi duyệt chương", xác nhận | Chương chuyển sang "Chờ duyệt". Bên quản trị mở hàng đợi kiểm duyệt và **thấy đúng chương này** (ghi lại tên chương và giờ gửi). Lượt chạy đầu chưa xác nhận được bước này, nên chạy nó trước tiên |
-| 3 | Với một chương khác, "Lên lịch xuất bản" cho vài phút sau | Hiện "Lịch đăng đang chờ duyệt"; đến giờ thì chương được gửi cho quản trị |
-| 4 | Sau khi quản trị duyệt (UAT-27) | Chương thành "Đã đăng"; độc giả theo dõi truyện nhận thông báo chương mới |
+| 3 | Với một chương khác, "Lên lịch xuất bản" cho vài phút sau | Hiện "Lịch đăng đang chờ duyệt"; đến giờ thì chương được gửi cho quản trị. Hàng đợi hẹn giờ có độ trễ: chờ thêm khoảng một phút rồi tải lại trang quản trị trước khi kết luận |
+| 4 | Sau khi quản trị duyệt (UAT-27) | Chương thành "Đã đăng"; độc giả theo dõi truyện **và** đã bật chuông thông báo nhận thông báo chương mới (tải lại danh sách thông báo nếu chưa thấy) |
 | 5 | Sửa một chương đã đăng, rồi gửi duyệt lại | Hiện "Phiên bản mới đang chờ duyệt"; độc giả vẫn đọc bản đã duyệt cũ cho tới khi bản mới được duyệt |
 
 ### UAT-19 Sắp xếp, lưu trữ và xoá chương
 - **Vai trò:** tác giả `reader03`.
+- Đổi thứ tự chỉ áp dụng cho bản thảo **chưa phát hành gì**: truyện chưa có chương nào đã đăng, đang chờ duyệt hay đã lưu trữ, và chưa có dữ liệu Story Brain. Quy tắc này giữ cho số chương mà độc giả và bộ nhớ AI đang tham chiếu không bị xê dịch.
 
 | # | Bước | Kết quả mong đợi |
 |---|---|---|
-| 1 | "Sắp xếp chương": kéo, hoặc dùng mũi tên, để đổi chỗ hai chương; "Lưu thứ tự" | Thứ tự mới hiển thị cả ở trang đọc |
+| 1 | Ở một truyện đã có chương phát hành (ví dụ Ashenhold), xem nút "Sắp xếp chương" | Nút bị vô hiệu, rê chuột thấy giải thích "Chỉ sắp xếp được khi truyện chưa có chương nào phát hành…" |
+| 1b | Tạo một tác phẩm mới, thêm hai chương bản nháp; "Sắp xếp chương": kéo, hoặc dùng mũi tên, đổi chỗ hai chương; "Lưu thứ tự" | Lưu được; danh sách chương của tác phẩm hiện thứ tự mới |
 | 2 | "Lưu trữ chương" một chương bản nháp, rồi khôi phục | Chương ẩn rồi xuất hiện lại |
 | 3 | "Xóa chương" một chương bản nháp | Có hộp xác nhận; chương biến mất. Chương tạo sau đó không nhảy số |
 
@@ -372,7 +378,7 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 | 4 | Thử "Cảnh báo, giữ nguyên nội dung" | Nội dung giữ nguyên; có ghi nhận cảnh báo ở hồ sơ người dùng |
 
 ### UAT-29 Quản lý người dùng (UC9)
-- **Vai trò:** Quản trị. Dùng một tài khoản phụ (ví dụ tài khoản tạo ở UAT-01) để thử khoá.
+- **Vai trò:** Quản trị. Dùng tài khoản phụ `reader07` để thử khoá và đổi vai trò. Không đổi vai trò của `reader04`/`reader05`, vì các kịch bản khác dùng chúng.
 
 | # | Bước | Kết quả mong đợi |
 |---|---|---|
@@ -380,10 +386,10 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 | 2 | Mở chi tiết người dùng | Thấy vai trò, ngày tạo, lần đăng nhập gần nhất, truyện, lịch sử quyết định |
 | 3 | "Khóa tài khoản" kèm lý do | Tài khoản đó không đăng nhập được, và được báo bị khoá |
 | 4 | "Mở khóa" | Đăng nhập lại được |
-| 5 | "Thay đổi vai trò & quyền" (ví dụ thành tác giả) | Quyền thay đổi ngay sau khi người dùng đăng nhập lại |
+| 5 | "Thay đổi vai trò & quyền" của `reader07` thành tác giả | Quyền thay đổi ngay sau khi người dùng đăng nhập lại (có mục "Tác phẩm"). Chạy seed lại sẽ đưa `reader07` về Độc giả |
 
 ### UAT-30 Khiếu nại quyết định
-- **Vai trò:** một tài khoản phụ, sau đó Quản trị.
+- **Vai trò:** tài khoản phụ `reader07`, sau đó Quản trị.
 - **Điều kiện:** UAT-29 đã mở khoá tài khoản của nó, nên trước khi bắt đầu, quản trị **khoá lại** tài khoản phụ (kèm lý do). Cần hai lần khoá cho bước 3 và bước 4.
 
 | # | Bước | Kết quả mong đợi |
@@ -398,7 +404,7 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 
 | # | Bước | Kết quả mong đợi |
 |---|---|---|
-| 1 | Mở danh sách truyện, lọc theo trạng thái | Danh sách đúng |
+| 1 | Mở danh sách truyện, lọc theo trạng thái (bộ lọc ghi "Xuất bản") | Danh sách đúng |
 | 2 | Mở chi tiết một truyện | Thấy thông tin, email tác giả, danh sách chương, quyền đọc |
 | 3 | "Gỡ truyện" kèm xác nhận | Độc giả không còn tìm thấy và không mở được truyện |
 | 4 | "Khôi phục truyện" | Truyện hiển thị lại như cũ |
@@ -452,7 +458,7 @@ Bình luận theo đoạn (SRS 4.5.1) được làm dưới dạng góp ý riên
 |---|---|---|
 | 1 | Khách mở trực tiếp `/author/projects`, `/wallet`, `/admin` | Được chuyển tới trang đăng nhập |
 | 2 | Độc giả mở `/author/projects` và `/admin` | Bị từ chối, hoặc được gợi ý "Trở thành tác giả" |
-| 3 | Tác giả A mở trang quản lý truyện của tác giả B (đổi `novelId` trên URL) | Bị từ chối; không xem được bản nháp của người khác |
+| 3 | Tác giả A mở trang quản lý truyện của tác giả B (đổi `novelId` trên URL) | Sau khi trang tải xong (chờ hết trạng thái đang tải), hiện "Không tìm thấy tác phẩm" hoặc báo không có quyền; không xem được bản nháp của người khác |
 
 ## 8. Thứ tự chạy gợi ý
 
@@ -465,7 +471,9 @@ Các kịch bản tạo dữ liệu cho nhau, nên chạy theo thứ tự sau:
 5. **Xuyên suốt và chung:** UAT-34 → UAT-36
 6. **AI:** UAT-22 → UAT-25. Chạy riêng, vì các kịch bản [LIVE] cần chủ dự án bật live.
 
-**Ưu tiên cho lượt chạy tới:** lượt 2026-11-20 chưa xác nhận được chuỗi xuất bản. Hãy chạy UAT-18 → UAT-27 → UAT-34 trước tiên (một tác giả và một quản trị cùng làm), sau đó mới đến các kịch bản còn "Chưa hoàn tất" hoặc "Chưa chạy" trong báo cáo đó.
+**Trước mỗi lượt chạy:** dựng lại stack từ đúng commit sẽ ghi trong báo cáo (`up -d --build`), vì image cũ có thể chưa có bản sửa mới nhất. Lượt 2026-11-21 chạy trên image cũ hơn commit ghi trong báo cáo, nên BUG-006 bị ghi "Còn" dù đã sửa.
+
+**Ưu tiên cho lượt chạy tới:** chuỗi xuất bản UAT-18 → UAT-27 → UAT-34 đã Đạt ở lượt 2026-11-21. Lượt tới chạy lại UAT-10 (nếu bật góp ý riêng), UAT-11 bước 6 với `reader06`, UAT-15, UAT-17, UAT-19, UAT-29 với `reader07`, và các kịch bản còn "Chưa hoàn tất" (UAT-13, UAT-14, UAT-20, UAT-33).
 
 Có thể chia việc cho nhiều người kiểm thử theo vai trò. Kịch bản UAT-18, UAT-21 và UAT-34 cần hai người phối hợp: một bên tác giả và một bên quản trị.
 
