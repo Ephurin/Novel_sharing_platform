@@ -5,6 +5,18 @@ export type CursorPage<T> = {
   nextCursor: string | null;
 };
 
+/** Public aggregate counters; identical for guests and members. */
+export type CommunityStats = {
+  memberCount: number;
+  topicCount: number;
+  commentCount: number;
+};
+
+export type CommunityOverview = {
+  stats: CommunityStats;
+  trending: Topic[];
+};
+
 export type DiscussionStatus = 'VISIBLE' | 'HIDDEN' | 'DELETED';
 
 export type DiscussionTargetKind = 'DISCUSSION' | 'DISCUSSION_COMMENT';
@@ -89,8 +101,7 @@ export type TopicDraft = {
 
 };
 
-export type TopicListParams = {
-  /** Category slug. */
+export type TopicListParams = {  /** Category slug. */
   category?: string;
 
   q?: string;
@@ -121,8 +132,12 @@ export async function listCategories(): Promise<Category[]> {
   return unwrap(response.data);
 }
 
-export async function listTopics(params: TopicListParams = {}): Promise<CursorPage<Topic>> {
-  const response = await apiClient.get<ApiEnvelope<CursorPage<Topic>>>('/discussions', {
+export async function getCommunity(): Promise<CommunityOverview> {
+  const response = await apiClient.get<ApiEnvelope<CommunityOverview>>('/discussions/community');
+  return unwrap(response.data);
+}
+
+export async function listTopics(params: TopicListParams = {}): Promise<CursorPage<Topic>> {  const response = await apiClient.get<ApiEnvelope<CursorPage<Topic>>>('/discussions', {
     params: dropEmpty({
       category: params.category,
 

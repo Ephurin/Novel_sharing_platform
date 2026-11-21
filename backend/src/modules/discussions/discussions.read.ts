@@ -2,7 +2,8 @@ import type { PoolClient } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type {
-  Category, Comment, CommentListInput, CommentLocation, CursorPage, DiscussionTargetKind, Topic, TopicListInput, TopicSort
+  Category, Comment, CommentListInput, CommentLocation, CommunityOverview, CursorPage,
+  DiscussionTargetKind, Topic, TopicListInput, TopicSort
 } from './discussions.types.js';
 
 const topicVisible = "t.status = 'VISIBLE' and cat.is_active";
@@ -101,6 +102,47 @@ const topicOrder: Record<TopicSort, string> = {
   replies: 't.reply_count'
 };
 
+/**
+ * Aggregate counters plus the busiest topics for the community sidebar.
+ * Only public content is counted: hidden/deleted topics, hidden comments and
+ * comments under a hidden root are excluded by the same predicates the list
+ * endpoints use. Nothing here is viewer-specific.
+ */
+export async function getCommunityOverview(): Promise<CommunityOverview> {
+  const pool = getPostgresPool();
+  const [statsResult, trendingResult] = await Promise.all([
+    pool.query<{ member_count: number; topic_count: number; comment_count: number }>(
+      `select
+         (select count(*)::int from users u
+           where u.status = 'ACTIVE' and u.deleted_at is null) as member_count,
+         (select count(*)::int from discussion_topics t join discussion_categories cat using (category_id)
+           where ${topicVisible}) as topic_count,
+         (select count(*)::int from discussion_comments c
+           join discussion_topics t using (topic_id) join discussion_categories cat using (category_id)
+           left join discussion_comments root on root.comment_id = c.root_id
+           where ${topicVisible} and ${visibleComment}) as comment_count`
+    ),
+    // `$1` is the optional viewer used by `topicFrom` for viewer_liked; anonymous here.
+    pool.query<{ item: Topic }>(
+      `select ${topicDto} as item ${topicFrom}
+       where ${topicVisible} and t.reply_count > 0
+         and t.last_activity_at > now() - interval '30 days'
+       order by t.reply_count desc, t.last_activity_at desc, t.topic_id desc
+       limit 3`,
+      [null]
+    )
+  ]);
+  const stats = statsResult.rows[0];
+  return {
+    stats: {
+      memberCount: Number(stats?.member_count ?? 0),
+      topicCount: Number(stats?.topic_count ?? 0),
+      commentCount: Number(stats?.comment_count ?? 0)
+    },
+    trending: trendingResult.rows.map(row => row.item)
+  };
+}
+
 export async function listTopics(input: TopicListInput, viewerId?: string): Promise<CursorPage<Topic>> {
   const scope = JSON.stringify(['topics', input.sort, input.category, null, input.q]);
   const cursor = parseCursor(input.cursor, scope, input.sort === 'replies');
@@ -119,8 +161,7 @@ export async function listTopics(input: TopicListInput, viewerId?: string): Prom
   return page(rows, input.limit, scope);
 }
 
-export async function getTopic(topicId: string, viewerId?: string): Promise<Topic> {
-  const { rows } = await getPostgresPool().query<{ item: Topic }>(
+export async function getTopic(topicId: string, viewerId?: string): Promise<Topic> {  const { rows } = await getPostgresPool().query<{ item: Topic }>(
     `select ${topicDto} as item ${topicFrom} where ${topicVisible} and t.topic_id = $2`, [viewerId ?? null, topicId]
   );
   if (!rows[0]) throw notFound();

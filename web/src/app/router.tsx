@@ -48,6 +48,8 @@ import { DiscussionEditorPage, DiscussionListPage, MyDiscussionsPage } from '../
 import { DiscussionTopicPage } from '../features/discussions/DiscussionTopicPage';
 import { AdminDiscussionsPage } from '../features/discussions/AdminDiscussionsPage';
 import '../features/discussions/discussions.css';
+// Self-hosted display face for community headings (subset-scoped woff2).
+import '@fontsource/literata/600.css';
 
 export const router = createBrowserRouter([
   {

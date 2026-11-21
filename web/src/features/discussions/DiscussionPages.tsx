@@ -1,8 +1,7 @@
-import { Alert, Avatar, Button, Group, Select, Stack, Text, TextInput, Title, UnstyledButton } from '@mantine/core';
+import { Alert, Avatar, Button, Group, Select, Stack, Text, TextInput, Title } from '@mantine/core';
 import {
-  IconArrowLeft, IconArrowRight, IconFeather, IconChevronDown, IconChevronRight, IconEye, IconHelp,
-  IconLayoutList, IconLock, IconMessage2, IconMessages, IconPencil, IconPin, IconSearch, IconSpeakerphone,
-  IconThumbUp
+  IconArrowLeft, IconArrowRight, IconFeather, IconHelp, IconLayoutList, IconLock, IconMessage2,
+  IconMessages, IconPencil, IconPin, IconSearch, IconSpeakerphone, IconThumbUp
 } from '@tabler/icons-react';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -13,8 +12,8 @@ import { useAuthStore } from '../auth/useAuthStore';
 import { EmptyState, ErrorState, LoadingState, PermissionState } from '../../shared/components/PageStates';
 import { DiscussionComposer } from './DiscussionComposer';
 import {
-  createTopic, getTopic, listCategories, listOwnTopics, listTopics, updateTopic,
-  type Category, type Topic, type TopicDraft, type TopicSort
+  createTopic, getCommunity, getTopic, listCategories, listOwnTopics, listTopics, updateTopic,
+  type Topic, type Category, type TopicDraft, type TopicSort
 } from './discussion-api';
 
 const SORTS: Array<{ value: TopicSort; label: string }> = [
@@ -24,6 +23,7 @@ const SORTS: Array<{ value: TopicSort; label: string }> = [
 ];
 const TITLE_MIN = 3, TITLE_MAX = 200, BODY_MAX = 20000;
 const RELATIVE = new Intl.RelativeTimeFormat('vi-VN', { numeric: 'auto' });
+const NUMBER = new Intl.NumberFormat('vi-VN');
 const UNITS: Array<[Intl.RelativeTimeFormatUnit, number]> = [['year', 31536000], ['month', 2592000], ['week', 604800], ['day', 86400], ['hour', 3600], ['minute', 60]];
 
 /** Icon + one-line explanation for a category, resolved from the live category list. */
@@ -63,7 +63,7 @@ function relTime(value: string) {
 }
 function authorName(a: { displayName: string | null } | null) { return a?.displayName?.trim() || 'Ẩn danh'; }
 
-/** Collapse markdown/whitespace into a single plain line for the compact preview. */
+/** Collapse markdown/whitespace into a single plain line for compact previews. */
 function plainPreview(body: string) {
   const text = body
     .replace(/```[\s\S]*?```/g, ' ')
@@ -78,64 +78,217 @@ function plainPreview(body: string) {
   return text;
 }
 
+/* ── Illustrations ───────────────────────────────────────────────────────────
+ * Original, decorative SVG scenes drawn for this page (no stock imagery, no
+ * uploaded photos, nothing that could be mistaken for user content). Fills come
+ * from the `--forum-art-*` tokens in discussions.css so both themes stay warm.
+ */
+
+/** Community banner: a sunlit reading nook with a flowered window and books. */
+function HeroArt() {
+  return (
+    <svg className="forum-hero-art" viewBox="0 0 420 240" aria-hidden="true" focusable="false"
+      preserveAspectRatio="xMaxYMax slice">
+      <rect className="fa-sky" width="420" height="240" />
+      <circle className="fa-glow" cx="330" cy="66" r="66" />
+      <g className="fa-window">
+        <rect className="fa-glass" x="196" y="14" width="208" height="180" rx="8" />
+        <rect className="fa-line" x="196" y="14" width="208" height="180" rx="8" fill="none" strokeWidth="4" />
+        <path className="fa-line" d="M300 16v176M198 104h204" strokeWidth="3.4" fill="none" />
+        <path className="fa-beam" d="M214 40 92 208h96L322 40Z" />
+        <path className="fa-beam fa-beam-soft" d="M330 40 236 208h64L386 40Z" />
+      </g>
+      <g className="fa-sill">
+        <rect x="176" y="192" width="244" height="9" rx="4" />
+      </g>
+      <g className="fa-books">
+        <rect className="fa-book-1" x="206" y="160" width="15" height="32" rx="2.5" />
+        <rect className="fa-book-2" x="223" y="152" width="13" height="40" rx="2.5" />
+        <rect className="fa-book-3" x="238" y="166" width="17" height="26" rx="2.5" />
+        <rect className="fa-book-4" x="258" y="171" width="40" height="8" rx="2.5" />
+        <rect className="fa-book-2" x="264" y="164" width="34" height="7" rx="2.5" />
+        <rect className="fa-book-1" x="262" y="158" width="30" height="6" rx="2.5" />
+      </g>
+      <g className="fa-mug">
+        <rect x="312" y="158" width="30" height="34" rx="5" />
+        <path className="fa-line" d="M342 168h6a9 9 0 0 1 0 18h-6" strokeWidth="3.2" fill="none" />
+        <path className="fa-steam" d="M320 148c6-6-6-9 0-15M330 150c6-6-6-9 0-15" strokeWidth="2.4" fill="none" />
+      </g>
+      <g className="fa-branch">
+        <path className="fa-line" d="M84 14c22 24 30 52 30 84" strokeWidth="2.4" fill="none" />
+        <ellipse className="fa-leaf" cx="76" cy="34" rx="11" ry="6" transform="rotate(-24 76 34)" />
+        <ellipse className="fa-leaf" cx="104" cy="42" rx="11" ry="6" transform="rotate(22 104 42)" />
+        <ellipse className="fa-leaf" cx="70" cy="62" rx="10" ry="5.5" transform="rotate(-30 70 62)" />
+        <ellipse className="fa-leaf fa-leaf-soft" cx="106" cy="72" rx="10" ry="5.5" transform="rotate(26 106 72)" />
+        <circle className="fa-blossom" cx="92" cy="24" r="5" />
+        <circle className="fa-blossom" cx="66" cy="48" r="4" />
+        <circle className="fa-blossom" cx="112" cy="60" r="4.5" />
+      </g>
+      <g className="fa-petals">
+        <ellipse cx="150" cy="118" rx="5" ry="3" transform="rotate(24 150 118)" />
+        <ellipse cx="44" cy="150" rx="4" ry="2.6" transform="rotate(-18 44 150)" />
+        <ellipse cx="118" cy="196" rx="5" ry="3" transform="rotate(38 118 196)" />
+        <ellipse cx="30" cy="204" rx="4" ry="2.4" transform="rotate(-32 30 204)" />
+      </g>
+    </svg>
+  );
+}
+
+/**
+ * Featured card art: a reader on a hill at golden hour. Cropped bottom-anchored
+ * (`xMidYMax`) so the wide, short box on phones keeps the hills and the reader
+ * instead of cutting them in half.
+ */
+function FeatureArt() {
+  return (
+    <svg className="forum-feature-art" viewBox="0 0 300 220" aria-hidden="true" focusable="false"
+      preserveAspectRatio="xMidYMax slice">
+      <defs>
+        <linearGradient id="forum-feature-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" className="fa-sky-stop-1" />
+          <stop offset=".62" className="fa-sky-stop-2" />
+          <stop offset="1" className="fa-sky-stop-3" />
+        </linearGradient>
+      </defs>
+      <rect width="300" height="220" fill="url(#forum-feature-sky)" />
+      <circle className="fa-sun" cx="196" cy="104" r="26" />
+      <path className="fa-hill-far" d="M0 150c46-22 88-20 132-4 40 14 74 12 168-8v82H0Z" />
+      <path className="fa-hill-mid" d="M0 178c54-16 96-8 138 6 44 14 96 10 162-14v50H0Z" />
+      <path className="fa-hill-near" d="M0 210c60-6 96-18 140-30 40-11 92-12 160 4v36H0Z" />
+      <g className="fa-reader">
+        <circle cx="120" cy="148" r="7" />
+        <path d="M120 156c-9 0-16 7-16 16v18h32v-18c0-9-7-16-16-16Z" />
+        <path className="fa-book" d="M104 172h32l-4 10h-24Z" />
+      </g>
+      <g className="fa-birds">
+        <path d="M60 62c4-4 7-4 11 0 4-4 7-4 11 0" strokeWidth="2" fill="none" />
+        <path d="M232 46c3-3 5-3 8 0 3-3 5-3 8 0" strokeWidth="1.7" fill="none" />
+      </g>
+    </svg>
+  );
+}
+
+/** Sidebar art: a small book stack with a leafy sprig. */
+function AboutArt() {
+  return (
+    <svg className="forum-about-art" viewBox="0 0 120 84" aria-hidden="true" focusable="false">
+      <g className="fa-books">
+        <rect className="fa-book-1" x="18" y="58" width="62" height="9" rx="3" />
+        <rect className="fa-book-2" x="24" y="47" width="56" height="9" rx="3" />
+        <rect className="fa-book-3" x="20" y="36" width="58" height="9" rx="3" />
+      </g>
+      <g className="fa-branch">
+        <path className="fa-line" d="M96 16c-10 10-14 24-16 40" strokeWidth="2.2" fill="none" />
+        <ellipse className="fa-leaf" cx="92" cy="26" rx="9" ry="5" transform="rotate(-30 92 26)" />
+        <ellipse className="fa-leaf fa-leaf-soft" cx="104" cy="40" rx="9" ry="5" transform="rotate(20 104 40)" />
+        <ellipse className="fa-leaf" cx="84" cy="52" rx="8" ry="4.6" transform="rotate(-24 84 52)" />
+        <circle className="fa-blossom" cx="100" cy="14" r="4" />
+      </g>
+    </svg>
+  );
+}
+
+/* ── Shared bits ─────────────────────────────────────────────────────────── */
+
+function CategoryTabs({ categories, active, onSelect }: {
+  categories: Category[]; active?: string; onSelect: (slug?: string) => void;
+}) {
+  const items: Array<{ slug?: string; name: string; icon: ReactNode; accent?: string }> = [
+    { name: 'Tất cả', icon: <IconLayoutList size={16} aria-hidden="true" /> },
+    ...categories.map(category => ({
+      slug: category.slug,
+      name: category.name,
+      icon: guideFor(category).icon,
+      accent: category.postAdminOnly ? 'announce' : undefined
+    }))
+  ];
+  return (
+    <nav className="forum-tabs" aria-label="Chuyên mục thảo luận">
+      <ul>
+        {items.map(item => (
+          <li key={item.slug ?? 'all'}>
+            <button type="button" className="forum-tab" aria-pressed={active === item.slug}
+              data-category={item.slug} data-announce={item.accent}
+              onClick={() => onSelect(item.slug)}>
+              <span className="forum-tab-icon" aria-hidden="true">{item.icon}</span>
+              <span className="forum-tab-label">{item.name}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+function Pager({ hasPrev, hasNext, onPrev, onNext }: { hasPrev: boolean; hasNext: boolean; onPrev: () => void; onNext: () => void }) {
+  return (
+    <nav className="forum-pagination" aria-label="Phân trang chủ đề">
+      <Button variant="default" size="xs" leftSection={<IconArrowLeft size={14} aria-hidden="true" />} disabled={!hasPrev} onClick={onPrev}>Trước</Button>
+      <Button variant="default" size="xs" rightSection={<IconArrowRight size={14} aria-hidden="true" />} disabled={!hasNext} onClick={onNext}>Sau</Button>
+    </nav>
+  );
+}
+
 function TopicRow({ topic }: { topic: Topic }) {
   const author = authorName(topic.author);
-  const preview = plainPreview(topic.body);
   const hidden = topic.status !== 'VISIBLE';
-  const lastUser = topic.lastActivityUser ? authorName(topic.lastActivityUser) : null;
   const className = ['forum-row', hidden ? 'forum-row-static' : ''].filter(Boolean).join(' ');
+  const isAuthor = topic.author?.role === 'AUTHOR';
 
+  // Three levels only: the title leads, category + author sit in one quiet meta
+  // line, and the reply count closes the row. Views, likes and the trailing
+  // chevron live on the topic page so rows stay scannable.
   const inner = (
     <>
-      <Avatar src={topic.author?.avatarUrl ?? undefined} name={author} size={40} radius="xl"
-        className="forum-row-avatar" data-role={topic.author?.role === 'AUTHOR' ? 'author' : undefined}
-        aria-hidden="true" />
+      <Avatar src={topic.author?.avatarUrl ?? undefined} name={author} size={36} radius="xl"
+        className="forum-row-avatar" data-role={isAuthor ? 'author' : undefined} aria-hidden="true" />
       <span className="forum-row-main">
         <span className="forum-row-title">
           {topic.title}
-          {topic.isPinned ? <span className="forum-badge" data-tone="accent"><IconPin size={11} aria-hidden="true" /> Ghim</span> : null}
-          {topic.isLocked ? <span className="forum-badge" data-tone="muted"><IconLock size={11} aria-hidden="true" /> Đã khóa</span> : null}
-          {hidden ? <span className="forum-badge" data-tone="muted">{topic.status === 'HIDDEN' ? 'Đã ẩn' : 'Đã xóa'}</span> : null}
+          {topic.isPinned ? (
+            <span className="forum-row-flag" title="Đã ghim">
+              <IconPin size={12} aria-hidden="true" /><span className="forum-visually-hidden">Đã ghim</span>
+            </span>
+          ) : null}
+          {topic.isLocked ? (
+            <span className="forum-row-flag" title="Đã khóa">
+              <IconLock size={12} aria-hidden="true" /><span className="forum-visually-hidden">Đã khóa</span>
+            </span>
+          ) : null}
+          {hidden ? (
+            <span className="forum-row-flag-text">{topic.status === 'HIDDEN' ? 'Đã ẩn' : 'Đã xóa'}</span>
+          ) : null}
         </span>
-        {preview ? <span className="forum-preview">{preview}</span> : null}
         <span className="forum-row-meta">
+          <span className="forum-row-cat" data-category={topic.category.slug}>{topic.category.name}</span>
+          <span className="forum-row-sep" aria-hidden="true">·</span>
           <span className="forum-row-author">{author}</span>
-          <span className="forum-row-cat forum-badge" data-category={topic.category.slug}>
-            {topic.category.name}
-          </span>
-          <span className="forum-row-stats">
-            <span title={`${topic.viewCount} lượt xem`}><IconEye size={13} aria-hidden="true" />
-              <span className="forum-visually-hidden">Lượt xem: </span>{topic.viewCount}</span>
-            <span title={`${topic.replyCount} trả lời`}><IconMessage2 size={13} aria-hidden="true" />
-              <span className="forum-visually-hidden">Trả lời: </span>{topic.replyCount}</span>
-            <span title={`${topic.likeCount} lượt thích`}><IconThumbUp size={13} aria-hidden="true" />
-              <span className="forum-visually-hidden">Thích: </span>{topic.likeCount}</span>
-          </span>
-        </span>
-      </span>
-      <span className="forum-row-side">
-        <span className="forum-row-side-text">
-          <time dateTime={validDate(topic.lastActivityAt)?.toISOString()} title={fmtTime(topic.lastActivityAt)}>
+          <span className="forum-row-sep" aria-hidden="true">·</span>
+          <time className="forum-row-time" dateTime={validDate(topic.lastActivityAt)?.toISOString()}
+            title={fmtTime(topic.lastActivityAt)}>
             {relTime(topic.lastActivityAt)}
           </time>
-          {lastUser && lastUser !== author ? <span className="forum-row-side-user">bởi {lastUser}</span> : null}
         </span>
-        {hidden ? null : <IconChevronRight size={16} className="forum-row-chevron" aria-hidden="true" />}
+      </span>
+      <span className="forum-row-replies" data-empty={topic.replyCount === 0 || undefined}>
+        <span className="forum-row-replies-count">
+          <IconMessage2 size={15} aria-hidden="true" />{NUMBER.format(topic.replyCount)}
+        </span>
+        <span className="forum-row-replies-label">trả lời</span>
       </span>
     </>
   );
 
   if (hidden) {
     return (
-      <div className={className} data-pinned={topic.isPinned || undefined}
-        data-category={topic.category.slug} data-announce={topic.category.postAdminOnly || undefined}>
+      <div className={className} data-category={topic.category.slug} data-announce={topic.category.postAdminOnly || undefined}>
         {inner}
       </div>
     );
   }
 
   return (
-    <Link to={`/discussions/${topic.topicId}`} className={className} data-pinned={topic.isPinned || undefined}
+    <Link to={`/discussions/${topic.topicId}`} className={className}
       data-category={topic.category.slug} data-announce={topic.category.postAdminOnly || undefined}>
       {inner}
     </Link>
@@ -150,110 +303,145 @@ function RowList({ items }: { items: Topic[] }) {
   );
 }
 
-function Pager({ hasPrev, hasNext, onPrev, onNext }: { hasPrev: boolean; hasNext: boolean; onPrev: () => void; onNext: () => void }) {
+/** “Đáng chú ý”: one real pinned/announcement topic plus the remaining ones. */
+function FeaturedSection({ lead, rest }: { lead: Topic; rest: Topic[] }) {
+  const author = authorName(lead.author);
+  const preview = plainPreview(lead.body);
   return (
-    <nav className="forum-pagination" aria-label="Phân trang chủ đề">
-      <Button variant="default" size="xs" leftSection={<IconArrowLeft size={14} aria-hidden="true" />} disabled={!hasPrev} onClick={onPrev}>Trước</Button>
-      <Button variant="default" size="xs" rightSection={<IconArrowRight size={14} aria-hidden="true" />} disabled={!hasNext} onClick={onNext}>Sau</Button>
-    </nav>
+    <section className="forum-featured" aria-labelledby="forum-featured-title">
+      <header className="forum-featured-head">
+        <h2 id="forum-featured-title">
+          <span className="forum-section-icon" aria-hidden="true"><IconPin size={15} /></span>
+          Đáng chú ý
+        </h2>
+      </header>
+      <div className="forum-featured-body" data-has-list={rest.length > 0 || undefined}>
+        <article className="forum-feature" data-category={lead.category.slug}>
+          <div className="forum-feature-media">
+            <FeatureArt />
+            {/* The board has no per-topic artwork, so the panel is labelled as
+                community illustration instead of pretending to be a cover the
+                author uploaded. */}
+            <span className="forum-feature-media-note">Minh họa</span>
+          </div>
+          <div className="forum-feature-copy">
+            <div className="forum-feature-badges">
+              {lead.isPinned ? <span className="forum-badge" data-tone="accent"><IconPin size={11} aria-hidden="true" /> Ghim</span> : null}
+              <span className="forum-badge" data-category={lead.category.slug}>{lead.category.name}</span>
+            </div>
+            <h3 className="forum-feature-title">
+              <Link to={`/discussions/${lead.topicId}`}>{lead.title}</Link>
+            </h3>
+            {preview ? <p className="forum-feature-desc">{preview}</p> : null}
+            <div className="forum-feature-meta">
+              <Avatar src={lead.author?.avatarUrl ?? undefined} name={author} size={26} radius="xl"
+                className="forum-identity-avatar" data-role={lead.author?.role === 'AUTHOR' ? 'author' : undefined}
+                aria-hidden="true" />
+              <span className="forum-feature-author">{author}</span>
+              {lead.author?.role === 'AUTHOR' ? <span className="forum-row-role">Tác giả</span> : null}
+              <span className="sc-byline-dot" aria-hidden="true">·</span>
+              <time dateTime={validDate(lead.createdAt)?.toISOString()} title={fmtTime(lead.createdAt)}>
+                {relTime(lead.createdAt)}
+              </time>
+              <span className="forum-feature-stats">
+                <span title={`${lead.replyCount} bình luận`}><IconMessage2 size={14} aria-hidden="true" />{NUMBER.format(lead.replyCount)}</span>
+                <span title={`${lead.likeCount} lượt thích`}><IconThumbUp size={14} aria-hidden="true" />{NUMBER.format(lead.likeCount)}</span>
+              </span>
+            </div>
+          </div>
+        </article>
+
+        {rest.length > 0 ? (
+          <ul className="forum-featured-list">
+            {rest.map(topic => (
+              <li key={topic.topicId}>
+                <Link to={`/discussions/${topic.topicId}`} className="forum-featured-item" data-category={topic.category.slug}>
+                  <span className="forum-featured-icon" aria-hidden="true">
+                    {topic.category.postAdminOnly ? <IconSpeakerphone size={14} /> : <IconPin size={14} />}
+                  </span>
+                  <span className="forum-featured-item-body">
+                    <span className="forum-featured-item-title">{topic.title}</span>
+                    {/* Kind and recency share one line: the icon already hints at
+                        the kind, and a second text row cost 16px per item. */}
+                    <span className="forum-featured-item-meta">
+                      <span className="forum-featured-item-kicker">
+                        {topic.category.postAdminOnly ? 'Thông báo' : 'Ghim'}
+                      </span>
+                      <span aria-hidden="true">·</span>
+                      <span>{relTime(topic.lastActivityAt)}</span>
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
+    </section>
   );
 }
 
-function CategorySidebar({ categories, active, onSelect }: { categories: Category[]; active?: string; onSelect: (slug?: string) => void }) {
-  const [open, setOpen] = useState(false);
-  const toggle = useRef<HTMLButtonElement>(null);
-  function select(slug?: string) {
-    onSelect(slug);
-    setOpen(false);
-    if (toggle.current?.getClientRects().length) toggle.current.focus();
-  }
-  if (!categories.length) return null;
-  const selected = categories.find(category => category.slug === active);
+function CommunitySidebar({ stats, trending }: {
+  stats?: { memberCount: number; topicCount: number; commentCount: number };
+  trending: Topic[];
+}) {
   return (
-    <aside className="forum-categories" aria-label="Danh mục thảo luận">
-      <button ref={toggle} type="button" className="forum-categories-toggle" aria-expanded={open} aria-controls="forum-category-options"
-        onClick={() => setOpen(v => !v)}>
-        <IconLayoutList size={15} aria-hidden="true" />
-        <span className="forum-categories-toggle-label">{selected?.name ?? 'Chuyên mục'}</span>
-        <IconChevronDown size={15} className="forum-categories-toggle-caret" aria-hidden="true" />
-      </button>
-      <div id="forum-category-options" className="forum-categories-body" data-open={open || undefined}>
-        <p className="forum-categories-heading">Chuyên mục</p>
-        <UnstyledButton className="forum-categories-item" aria-pressed={!active} onClick={() => select()}>
-          <span className="forum-category-icon" aria-hidden="true"><IconLayoutList size={15} /></span>
-          <span className="forum-categories-name">Tất cả chủ đề</span>
-        </UnstyledButton>
-        {categories.map(category => {
-          const guide = guideFor(category);
-          return (
-            <UnstyledButton key={category.categoryId} className="forum-categories-item"
-              data-category={category.slug} aria-pressed={active === category.slug}
-              onClick={() => select(category.slug)}>
-              <span className="forum-category-icon" aria-hidden="true">{guide.icon}</span>
-              <span className="forum-categories-name">{category.name}</span>
-              {category.postAdminOnly ? <IconLock size={12} aria-hidden="true" /> : null}
-            </UnstyledButton>
-          );
-        })}
-      </div>
+    <aside className="forum-side" aria-label="Thông tin cộng đồng">
+      {/* One warm card carries both the introduction and the counters: nested
+          stat boxes read as a dashboard and pulled attention from the list. */}
+      <section className="forum-side-card forum-about" aria-labelledby="forum-about-title">
+        <h2 id="forum-about-title">Về cộng đồng</h2>
+        <p>StoryCraft là nơi người viết và người đọc cùng chia sẻ hành trình sáng tác.</p>
+        <AboutArt />
+        {stats ? (
+          <dl className="forum-about-stats">
+            <div>
+              <dt>thành viên</dt>
+              <dd>{NUMBER.format(stats.memberCount)}</dd>
+            </div>
+            <div>
+              <dt>chủ đề</dt>
+              <dd>{NUMBER.format(stats.topicCount)}</dd>
+            </div>
+            <div>
+              <dt>bình luận</dt>
+              <dd>{NUMBER.format(stats.commentCount)}</dd>
+            </div>
+          </dl>
+        ) : null}
+      </section>
+
+      {trending.length > 0 ? (
+        <section className="forum-side-card forum-trending" aria-labelledby="forum-trending-title">
+          <h2 id="forum-trending-title">Hoạt động sôi nổi</h2>
+          <ol>
+            {trending.map((topic, index) => (
+              <li key={topic.topicId}>
+                <span className="forum-trending-rank" aria-hidden="true">{index + 1}</span>
+                <Link to={`/discussions/${topic.topicId}`} className="forum-trending-link">
+                  <span className="forum-trending-title">{topic.title}</span>
+                  <span className="forum-trending-meta">{NUMBER.format(topic.replyCount)} bình luận</span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ) : null}
     </aside>
   );
 }
 
-/** Decorative open book, drawn in flow so a CTA can never cover it. */
-function CommunityArt() {
+/** Compact header for secondary community pages (own topics, editor). */
+function PageMasthead({ title, subtitle, children }: { title: string; subtitle: string; children?: ReactNode }) {
   return (
-    <svg className="forum-intro-art" viewBox="0 0 132 92" aria-hidden="true" focusable="false">
-      <g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round">
-        <path d="M66 21c-8.8-6.4-19.6-8.7-33.4-8.3-3 .1-5 1.8-5 4.7v46.4c0 2.6 1.7 4.1 4.3 4.1 14.4-.3 26.1 1.9 34.1 8 8-6.1 19.7-8.3 34.1-8 2.6 0 4.3-1.5 4.3-4.1V17.4c0-2.9-2-4.6-5-4.7C86 12.3 74.8 14.6 66 21Z" />
-        <path d="M66 21v55" opacity=".5" />
-        <g opacity=".4">
-          <path d="M18 32h35M18 43h35M18 54h24M79 32h35M79 43h35M79 54h24" />
-        </g>
-      </g>
-    </svg>
-  );
-}
-
-function CommunityMasthead({ eyebrow, title, subtitle, children }: {
-  eyebrow: string; title: string; subtitle: string; children?: ReactNode;
-}) {
-  return (
-    <header className="forum-intro">
-      <div className="forum-intro-copy">
-        <Text className="forum-eyebrow">{eyebrow}</Text>
-        <Title order={1} className="forum-intro-title">{title}</Title>
-        <Text className="forum-intro-sub">{subtitle}</Text>
+    <header className="forum-page-head">
+      <div>
+        <Text className="forum-eyebrow">Cộng đồng StoryCraft</Text>
+        <Title order={1} className="forum-heading">{title}</Title>
+        <Text className="forum-page-sub">{subtitle}</Text>
       </div>
-      <CommunityArt />
-      <div className="forum-intro-actions">{children}</div>
+      {children ? <div className="forum-page-head-actions">{children}</div> : null}
     </header>
-  );
-}
-
-/** Compact strip for pinned topics and official announcements (first page only). */
-function TopicHighlights({ items }: { items: Topic[] }) {
-  if (!items.length) return null;
-  return (
-    <section className="forum-highlights" aria-label="Chủ đề ghim và thông báo">
-      <p className="forum-highlights-heading"><IconPin size={12} aria-hidden="true" /> Ghim &amp; thông báo</p>
-      <ul>
-        {items.slice(0, 4).map(topic => (
-          <li key={topic.topicId}>
-            <Link to={`/discussions/${topic.topicId}`} className="forum-highlight" data-category={topic.category.slug}>
-              <span className="forum-highlight-icon" aria-hidden="true">
-                {topic.category.postAdminOnly ? <IconSpeakerphone size={13} /> : <IconPin size={13} />}
-              </span>
-              <span className="forum-highlight-title">{topic.title}</span>
-              <span className="forum-highlight-meta">
-                {topic.category.postAdminOnly ? 'Thông báo' : 'Ghim'} · {relTime(topic.lastActivityAt)}
-              </span>
-              <IconChevronRight size={14} aria-hidden="true" />
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </section>
   );
 }
 
@@ -264,6 +452,9 @@ export function DiscussionListPage() {
   const location = useLocation();
   const previousCursors: string[] = location.state?.forumPrevious ?? [];
   const categories = useQuery({ queryKey: ['discussion-categories'], queryFn: () => listCategories() });
+  const community = useQuery({
+    queryKey: ['discussion-community'], queryFn: () => getCommunity(), staleTime: 60_000
+  });
   const user = useAuthStore((s) => s.user);
   const [q, setQ] = useState(params.get('q') ?? '');
   const filters = {
@@ -275,6 +466,34 @@ export function DiscussionListPage() {
   };
   const topics = useQuery({ queryKey: [...listKey(params), user?.userId ?? 'guest'], queryFn: () => listTopics(filters) });
 
+  // The sidebar sticks below the shell navbar, whose height changes when the
+  // author nav wraps (57px on desktop, ~99px on tablets) and drops away entirely
+  // once the header leaves the viewport. Tracking the navbar's bottom edge keeps
+  // the sticky column clear of it while it is on screen, and flush to the top
+  // when it is not.
+  useEffect(() => {
+    const nav = document.querySelector<HTMLElement>('.sc-navbar');
+    const shell = document.querySelector<HTMLElement>('.sc-discussions-shell');
+    if (!nav || !shell) return;
+    let frame = 0;
+    const apply = () => {
+      frame = 0;
+      const bottom = Math.round(nav.getBoundingClientRect().bottom);
+      shell.style.setProperty('--forum-nav-offset', `${Math.max(0, bottom)}px`);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(apply); };
+    apply();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(schedule);
+    observer?.observe(nav);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      observer?.disconnect();
+    };
+  }, []);
 
   const patch = useCallback((next: Record<string, string | undefined>, previous: string[] = []) => {
     const merged = new URLSearchParams(params);
@@ -283,46 +502,78 @@ export function DiscussionListPage() {
   }, [params, setParams]);
 
   useEffect(() => { setQ(params.get('q') ?? ''); }, [params]);
+
+  // Search commits itself: typing settles into the URL after a pause, so the
+  // toolbar needs no extra submit button while Enter and the clear button still work.
+  const urlQ = params.get('q') ?? '';
+  useEffect(() => {
+    const next = q.trim();
+    if (next === urlQ) return;
+    const timer = setTimeout(() => patch({ q: next || undefined, cursor: undefined }), 420);
+    return () => clearTimeout(timer);
+  }, [q, urlQ, patch]);
+
   const hasFilters = Boolean(filters.category || filters.q);
   const activeCategory = categories.data?.find(category => category.slug === filters.category);
   const createPath = activeCategory ? `/discussions/new?categoryId=${activeCategory.categoryId}` : '/discussions/new';
   const items = topics.data?.items ?? [];
-  // Pinned topics and announcements only move to the strip on an unfiltered first page, so a
+  // Pinned topics and announcements are promoted only on the unfiltered first page, so a
   // paginated or searched view never hides a result the query asked for.
-  const highlights = !filters.cursor && !filters.q
+  const featuredPool = !filters.cursor && !filters.q
     ? items.filter(topic => topic.status === 'VISIBLE' && (topic.isPinned || topic.category.postAdminOnly))
     : [];
-  const listed = highlights.length ? items.filter(topic => !highlights.includes(topic)) : items;
+  const featuredIds = new Set(featuredPool.map(topic => topic.topicId));
+  const lead = featuredPool[0];
+  const rest = featuredPool.slice(1, 4);
+  const listed = featuredIds.size ? items.filter(topic => !featuredIds.has(topic.topicId)) : items;
+  const trending = (community.data?.trending ?? []).filter(topic => !featuredIds.has(topic.topicId)).slice(0, 3);
 
   return (
-    <Stack className="forum-page" gap="lg">
-      <CommunityMasthead eyebrow="Cộng đồng StoryCraft" title="Thảo luận"
-        subtitle={activeCategory ? `Đang xem chuyên mục ${activeCategory.name}.` : 'Giao lưu, chia sẻ kinh nghiệm viết và hỏi đáp.'}>
-        <Button className="forum-create" component={Link} to={user ? createPath : '/login'}
-          leftSection={<IconPencil size={15} aria-hidden="true" />}>
-          {user ? 'Tạo chủ đề' : 'Đăng nhập để đăng bài'}
-        </Button>
-        {user ? <Link to="/discussions/mine" className="forum-text-action">Chủ đề của tôi</Link> : null}
-      </CommunityMasthead>
+    <div className="forum-community">
+      <header className="forum-hero">
+        <div className="forum-hero-media">
+          <HeroArt />
+        </div>
+        <div className="forum-hero-copy">
+          <Text className="forum-eyebrow">Cộng đồng StoryCraft</Text>
+          <Title order={1} className="forum-hero-title">Nơi những câu chuyện bắt đầu.</Title>
+          {/* One fixed sentence for every tab: the old "Đang xem {category} — …"
+              variant changed length on each switch, so the hero re-wrapped and the
+              page below it jumped. The active tab already shows what is filtered. */}
+          <Text className="forum-hero-sub">
+            Giao lưu, chia sẻ kinh nghiệm viết và cùng nhau sáng tác.
+          </Text>
+          <div className="forum-hero-actions">
+            <Button className="forum-create" component={Link} to={user ? createPath : '/login'}
+              leftSection={<IconPencil size={15} aria-hidden="true" />}>
+              {user ? 'Tạo chủ đề' : 'Đăng nhập để đăng bài'}
+            </Button>
+            {user ? <Link to="/discussions/mine" className="forum-text-action">Chủ đề của tôi</Link> : null}
+          </div>
+        </div>
+      </header>
 
-      <div className="forum-list-layout">
-        <CategorySidebar categories={categories.data ?? []} active={filters.category}
-          onSelect={slug => patch({ category: slug, cursor: undefined })} />
-        <div className="forum-list-main">
+      <div className="forum-community-grid">
+        <div className="forum-community-main">
+          <CategoryTabs categories={categories.data ?? []} active={filters.category}
+            onSelect={slug => patch({ category: slug, cursor: undefined })} />
+
           <div className="forum-toolbar">
             <form role="search" aria-label="Tìm chủ đề" className="forum-toolbar-search"
               onSubmit={(e) => { e.preventDefault(); patch({ q: q.trim() || undefined, cursor: undefined }); }}>
               <TextInput aria-label="Tìm kiếm chủ đề" placeholder="Tìm kiếm chủ đề…" value={q}
                 leftSection={<IconSearch size={15} aria-hidden="true" />} maxLength={120}
                 onChange={(e) => setQ(e.currentTarget.value)} />
-              <Button type="submit" variant="default">Tìm</Button>
             </form>
             <Select aria-label="Sắp xếp chủ đề" className="forum-toolbar-sort" data={SORTS} value={filters.sort}
               allowDeselect={false} onChange={(v) => patch({ sort: v ?? 'activity', cursor: undefined })} />
           </div>
+
+          {lead ? <FeaturedSection lead={lead} rest={rest} /> : null}
+
           {topics.isPending ? <LoadingState variant="table" label="Đang tải chủ đề…" /> : null}
           {topics.isError ? <ErrorState error={topics.error} onRetry={() => void topics.refetch()} /> : null}
-          <TopicHighlights items={highlights} />
+
           {topics.data && items.length === 0 ? (
             <div className="forum-empty">
               <EmptyState description={hasFilters ? 'Không có chủ đề nào khớp bộ lọc hiện tại.' : 'Chưa có chủ đề nào. Hãy mở đầu cuộc trò chuyện.'}
@@ -331,15 +582,26 @@ export function DiscussionListPage() {
                   : undefined} />
             </div>
           ) : null}
-          {listed.length > 0 ? <RowList items={listed} /> : null}
+
+          {listed.length > 0 ? (
+            <section className="forum-latest" aria-labelledby="forum-latest-title">
+              <header className="forum-latest-head">
+                <h2 id="forum-latest-title">Thảo luận mới nhất</h2>
+              </header>
+              <RowList items={listed} />
+            </section>
+          ) : null}
+
           {topics.data && (filters.cursor || topics.data.nextCursor) ? (
             <Pager hasPrev={Boolean(filters.cursor)} hasNext={Boolean(topics.data.nextCursor)}
               onPrev={() => patch({ cursor: previousCursors.at(-1) || undefined }, previousCursors.slice(0, -1))}
               onNext={() => patch({ cursor: topics.data?.nextCursor ?? undefined }, [...previousCursors, filters.cursor ?? ''])} />
           ) : null}
         </div>
+
+        <CommunitySidebar stats={community.data?.stats} trending={trending} />
       </div>
-    </Stack>
+    </div>
   );
 }
 
@@ -358,12 +620,11 @@ export function MyDiscussionsPage() {
   }
   return (
     <Stack className="forum-page" gap="lg">
-      <CommunityMasthead eyebrow="Cộng đồng StoryCraft" title="Chủ đề của tôi"
-        subtitle="Những cuộc trò chuyện bạn đã mở.">
+      <PageMasthead title="Chủ đề của tôi" subtitle="Những cuộc trò chuyện bạn đã mở.">
         <Button className="forum-create" component={Link} to="/discussions/new"
           leftSection={<IconPencil size={15} aria-hidden="true" />}>Tạo chủ đề</Button>
         <Link to="/discussions" className="forum-text-action">Tất cả thảo luận</Link>
-      </CommunityMasthead>
+      </PageMasthead>
       {topics.isPending ? <LoadingState variant="table" label="Đang tải chủ đề của bạn…" /> : null}
       {topics.isError ? <ErrorState error={topics.error} onRetry={() => void topics.refetch()} /> : null}
       {topics.data && topics.data.items.length === 0 ? (
@@ -372,7 +633,9 @@ export function MyDiscussionsPage() {
             action={<Button component={Link} to="/discussions/new" size="xs">Tạo chủ đề đầu tiên</Button>} />
         </div>
       ) : null}
-      {topics.data && topics.data.items.length > 0 ? <RowList items={topics.data.items} /> : null}
+      {topics.data && topics.data.items.length > 0 ? (
+        <section className="forum-latest"><RowList items={topics.data.items} /></section>
+      ) : null}
       {topics.data ? (
         <Pager hasPrev={Boolean(cursor)} hasNext={Boolean(topics.data.nextCursor)}
           onPrev={() => setCursor(history.current.pop())}
@@ -446,6 +709,7 @@ export function DiscussionEditorPage() {
       }
       void queryClient.invalidateQueries({ queryKey: ['discussions'] });
       void queryClient.invalidateQueries({ queryKey: ['discussions-mine'] });
+      void queryClient.invalidateQueries({ queryKey: ['discussion-community'] });
     } catch (err) {
       setError(getApiErrorMessage(err));
     } finally {

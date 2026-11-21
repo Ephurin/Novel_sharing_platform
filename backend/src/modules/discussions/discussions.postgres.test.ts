@@ -46,6 +46,13 @@ test('discussions use Postgres for public pagination, reply trees, counters and 
     await write.deleteComment(reader, topicId, root);
     assert.equal((await read.listComments(topicId, { limit: 20 })).items[0].body, '');
     assert.equal((await read.getTopic(topicId)).replyCount, 2);
+    const community = await read.getCommunityOverview();
+    assert.ok(community.stats.memberCount >= 2);
+    assert.ok(community.stats.topicCount >= 1);
+    assert.ok(community.stats.commentCount >= 1);
+    assert.ok(community.trending.length <= 3);
+    assert.ok(community.trending.every(topic => topic.status === 'VISIBLE'));
+    assert.ok(community.trending.some(topic => topic.topicId === topicId));
     const outbox = await db.query("select user_id from notification_events where event_key = $1", ['discussion-comment:' + nested]);
     assert.equal(outbox.rows[0].user_id, author.userId);
     await db.query("update discussion_topics set is_locked = true where topic_id = $1", [topicId]);

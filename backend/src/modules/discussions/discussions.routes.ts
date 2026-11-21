@@ -5,6 +5,7 @@ import { rateLimit } from '../../core/security/rate-limit.js';
 import { validateRequest } from '../../core/validation/validate.js';
 import { successResponse } from '../../core/response/response.js';
 import {
+  getCommunityOverview,
   getTopic,
   listCategories,
   listComments,
@@ -127,6 +128,14 @@ discussionsRoutes.get(
   optionalAuth,
   validateRequest(listCategoriesSchema),
   route(async () => listCategories())
+);
+
+// Public aggregate counters + busiest topics for the community sidebar. Read-only,
+// no viewer state, so guests and members see the same numbers.
+discussionsRoutes.get(
+  '/discussions/community',
+  optionalAuth,
+  route(async () => getCommunityOverview())
 );
 
 discussionsRoutes.get(

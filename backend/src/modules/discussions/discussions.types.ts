@@ -79,6 +79,19 @@ export type CommentLocation = {
   commentCursor: string | null;
 };
 
+/** Public, aggregate-only counters for the community page. */
+export type CommunityStats = {
+  memberCount: number;
+  topicCount: number;
+  commentCount: number;
+};
+
+export type CommunityOverview = {
+  stats: CommunityStats;
+  /** Most replied topics with recent activity, already filtered to public content. */
+  trending: Topic[];
+};
+
 export type TopicListInput = {
   /** Category slug. */
   category?: string;
