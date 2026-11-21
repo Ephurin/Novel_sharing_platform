@@ -46,7 +46,9 @@ export const updateNovelSchema = z.object({
     genres: boundedArray(z.string().trim().min(1).max(100), 5).optional(),
     genre: z.string().max(100).nullable().optional(),
     tags: boundedArray(z.string().min(1).max(100), MAX_NOVEL_TAGS).optional(),
-    coverImageUrl: z.string().url().nullable().optional()
+    coverImageUrl: z.string().url().nullable().optional(),
+    // UAT 2026-11-20 (BUG-003): the author sets the age rating.
+    ageRating: z.enum(['EVERYONE', 'TEEN', 'MATURE']).optional()
   })
 });
 

@@ -302,10 +302,10 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
               </>
             ) : (
               <>
-                {recovering && <Text size="sm">Chọn username và mật khẩu của bạn để hoàn tất đăng ký bằng email đã xác nhận.</Text>}
+                {recovering && <Text size="sm">Chọn tên đăng nhập và mật khẩu để hoàn tất đăng ký bằng email đã xác nhận.</Text>}
                 {registering ? (
                   <TextInput
-                    label="Username"
+                    label="Tên đăng nhập"
                     placeholder="Ví dụ: tacgia_vanhoa"
                     autoComplete="username"
                     required
