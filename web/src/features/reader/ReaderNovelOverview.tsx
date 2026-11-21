@@ -56,6 +56,8 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
   const [coverFailed, setCoverFailed] = useState(false);
   const statusCode = novel.serialStatus ?? novel.status ?? 'ONGOING';
   const status = labels[statusCode] ?? 'Đang ra';
+  // UAT 2026-11-21 (BUG-007): the saved age rating was never shown to readers.
+  const ageLabel = novel.ageRating === 'MATURE' ? '18+' : novel.ageRating === 'TEEN' ? '16+' : null;
   const genres = novel.genres?.length ? novel.genres : novel.genre ? [novel.genre] : [];
   const stats = statistics.data;
   const score = typeof stats?.ratingAverage === 'number' ? `${stats.ratingAverage.toLocaleString('vi-VN', { maximumFractionDigits: 1 })}/10` : 'Chưa có';
@@ -73,6 +75,7 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
       </div>
       <div className="sc-novel-description">
         <Link to={`${catalogPath}?status=${encodeURIComponent(labels[statusCode] ? statusCode : 'ONGOING')}`} className="sc-reader-status" data-completed={statusCode === 'COMPLETED' || undefined} title={`Tìm truyện ${status.toLocaleLowerCase('vi-VN')}`}>{status}</Link>
+        {ageLabel && <span className="sc-reader-age-rating" data-mature={novel.ageRating === 'MATURE' || undefined} data-testid="reader-age-rating" title={`Truyện dành cho độc giả từ ${ageLabel.replace('+', '')} tuổi`}>{ageLabel}</span>}
         <h1 className="text-page-title">{novel.title}</h1>
         <div className="sc-reader-taxonomy" aria-label="Thể loại và thẻ" translate="no">
           {!!genres.length && <div className="sc-reader-genres" aria-label="Thể loại">{genres.map(genre => <Link key={genre} to={`${catalogPath}?genre=${encodeURIComponent(genre)}`} className="sc-genre-tag">{genre}</Link>)}</div>}

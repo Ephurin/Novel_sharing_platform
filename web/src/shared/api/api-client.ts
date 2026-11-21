@@ -79,7 +79,8 @@ const PLAIN_ERROR_MESSAGES: Record<string, string> = {
   AUTH_006: 'Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.',
   AUTH_008: 'Bạn không có quyền thực hiện thao tác này.',
   PAYMENT_002: 'Chương này cần mở khóa bằng xu.',
-  PAYMENT_003: 'Số dư xu không đủ. Hãy nạp thêm xu.'
+  PAYMENT_003: 'Số dư xu không đủ. Hãy nạp thêm xu.',
+  PRIVATE_COMMENTS_DISABLED: 'Góp ý riêng đang tạm tắt trên hệ thống này.'
 };
 
 export function getApiErrorMessage(error: unknown) {

@@ -247,7 +247,7 @@ export function AuthorRelationshipLocks({
         {relations.length === 0 ? (
           <Paper p="md" withBorder radius="md">
             <Text size="xs" c="dimmed" ta="center">
-              Chưa có quan hệ nào được ghi nhận trong Canon. Hãy chọn hai thực thể ở trên để tạo khóa quan hệ.
+              Chưa có quan hệ nào được ghi nhận trong bộ nhớ truyện. Hãy chọn hai thực thể ở trên để tạo khóa quan hệ.
             </Text>
           </Paper>
         ) : (
