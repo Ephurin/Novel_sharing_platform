@@ -87,7 +87,7 @@ export function AuthorNavbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const novelId = params.novelId || searchParams.get('novelId') || readAuthorContext(user?.userId ?? '').novelId;
   const writingUrl = novelId ? `/author/ide?novelId=${encodeURIComponent(novelId)}` : '/author';
   const name = user?.displayName || user?.username || 'Tài khoản';
@@ -95,6 +95,63 @@ export function AuthorNavbar() {
   // admins get the writing workspace links.
   const isWriter = user?.role === 'AUTHOR' || user?.role === 'ADMIN';
   const path = location.pathname;
+  const isCatalogPage = path === '/reader' || path === '/public';
+  const catalogPath = user ? '/reader' : '/public';
+  const urlQuery = isCatalogPage ? (searchParams.get('q') ?? '') : '';
+  const [navSearchText, setNavSearchText] = useState(urlQuery);
+  const [navSearchOpen, setNavSearchOpen] = useState(false);
+  const navSearchRef = useRef<HTMLDivElement>(null);
+  const navSearchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isCatalogPage) {
+      setNavSearchText(urlQuery);
+    }
+  }, [isCatalogPage, urlQuery]);
+
+  useEffect(() => {
+    if (!navSearchOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setNavSearchOpen(false);
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      if (navSearchRef.current && !navSearchRef.current.contains(event.target as Node)) {
+        setNavSearchOpen(false);
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('pointerdown', onPointerDown);
+    };
+  }, [navSearchOpen]);
+
+  function handleNavSearchChange(value: string) {
+    setNavSearchText(value);
+    if (isCatalogPage) {
+      const next = new URLSearchParams(searchParams);
+      if (value) next.set('q', value);
+      else next.delete('q');
+      next.delete('page');
+      setSearchParams(next, { replace: true, preventScrollReset: true });
+    }
+  }
+
+  function handleNavSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const trimmed = navSearchText.trim();
+    if (isCatalogPage) {
+      const next = new URLSearchParams(searchParams);
+      if (trimmed) next.set('q', trimmed);
+      else next.delete('q');
+      next.delete('page');
+      setSearchParams(next, { replace: true, preventScrollReset: true });
+    } else {
+      navigate(trimmed ? `${catalogPath}?q=${encodeURIComponent(trimmed)}` : catalogPath);
+    }
+    setNavSearchOpen(false);
+  }
   const [navbarHidden, setNavbarHidden] = useState(false);
   const navbarRef = useRef<HTMLElement>(null);
   const autoHide = !isWriter;
@@ -196,6 +253,47 @@ export function AuthorNavbar() {
             </nav>
           )}
         </LayoutGroup>
+        {path !== '/author/ide' && (
+          <div ref={navSearchRef} className={`sc-nav-search${navSearchOpen ? ' is-open' : ''}`}>
+            <button
+              type="button"
+              className="sc-nav-search-toggle"
+              aria-label="Tìm kiếm truyện"
+              aria-expanded={navSearchOpen}
+              aria-controls="sc-navbar-search-input"
+              title="Tìm kiếm truyện"
+              onClick={() => {
+                setNavSearchOpen((prev) => {
+                  const next = !prev;
+                  if (next) requestAnimationFrame(() => navSearchInputRef.current?.focus());
+                  return next;
+                });
+              }}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-4-4" />
+              </svg>
+            </button>
+            <form className="sc-nav-search-input" role="search" onSubmit={handleNavSearchSubmit}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-4-4" />
+              </svg>
+              <input
+                ref={navSearchInputRef}
+                id="sc-navbar-search-input"
+                type="search"
+                maxLength={200}
+                data-testid="reader-search-input"
+                value={navSearchText}
+                onChange={(event) => handleNavSearchChange(event.currentTarget.value)}
+                placeholder="Tìm truyện, giới thiệu..."
+                aria-label="Tìm kiếm truyện"
+              />
+            </form>
+          </div>
+        )}
         <div className="sc-navbar-actions">
           {isWriter && <WorkspaceCommands author commands={[
             { label: navigationLabels.authorHome, to: '/author/projects', icon: 'menu_book' },

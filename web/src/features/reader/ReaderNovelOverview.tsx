@@ -81,19 +81,19 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
         {novel.authorName && <p className="sc-reader-author">Tác giả: {authorLink ? <Link to={authorLink}>{novel.authorName}</Link> : <span>{novel.authorName}</span>}</p>}
         <div className="sc-reader-primary-actions">
           {actions}
-          {canFollow ? <button type="button" className="sc-reader-follow-toggle" disabled={follow.isPending || notifications.isPending || !statistics.isSuccess} aria-label={followLabel} title={followLabel} aria-pressed={stats?.isFollowing ?? false} onClick={() => follow.mutate()} data-testid="reader-follow-novel-btn">
+          {canFollow ? <button type="button" className="sc-button sc-reader-secondary-action sc-reader-follow-toggle" disabled={follow.isPending || notifications.isPending || !statistics.isSuccess} aria-label={followLabel} title={followLabel} aria-pressed={stats?.isFollowing ?? false} onClick={() => follow.mutate()} data-testid="reader-follow-novel-btn">
             <ReactionIcon icon="favorite" active={stats?.isFollowing ?? false} />
-          </button> : !user ? <Link to="/login" className="sc-reader-follow-toggle" aria-label="Đăng nhập để theo dõi truyện" title="Đăng nhập để theo dõi truyện"><Icon name="favorite" /></Link> : null}
-          {canFollow ? <button type="button" className="sc-button sc-button-soft sc-reader-notification-toggle" aria-pressed={stats?.notificationsEnabled ?? false} disabled={notifications.isPending || follow.isPending || !statistics.isSuccess} onClick={() => notifications.mutate()} data-testid="reader-notifications-btn">
+          </button> : !user ? <Link to="/login" className="sc-button sc-reader-secondary-action sc-reader-follow-toggle" aria-label="Đăng nhập để theo dõi truyện" title="Đăng nhập để theo dõi truyện"><Icon name="favorite" /></Link> : null}
+          {canFollow ? <button type="button" className="sc-button sc-reader-secondary-action sc-reader-notification-toggle" aria-pressed={stats?.notificationsEnabled ?? false} disabled={notifications.isPending || follow.isPending || !statistics.isSuccess} onClick={() => notifications.mutate()} data-testid="reader-notifications-btn">
             <Icon name={stats?.notificationsEnabled ? 'notifications_active' : 'notifications_none'} /><span className="sc-reader-notification-label"><span className="sc-reader-notification-reserve" aria-hidden="true">Nhận thông báo</span><span>{stats?.notificationsEnabled ? 'Tắt thông báo' : 'Nhận thông báo'}</span></span>
-          </button> : !user ? <Link to="/login" className="sc-button sc-button-soft sc-reader-notification-toggle" title="Đăng nhập để nhận thông báo chương mới"><Icon name="notifications_none" />Nhận thông báo</Link> : null}
-          <nav className="sc-reader-inline-actions" aria-label="Thao tác với truyện">
-            <button type="button" className="sc-button" onClick={() => { setCopied(false); setCopyError(false); setShareOpen(true); }}><Icon name="share" /><span>Chia sẻ</span></button>
-            <Link to={reviewsPath} className="sc-reader-jump-link"><Icon name="star" /><span>Đánh giá</span></Link>
-            <a href="#reader-chapters" className="sc-reader-jump-link"><Icon name="format_list_bulleted" /><span>Mục lục</span></a>
-            <a href="#reader-comments" className="sc-reader-jump-link"><Icon name="forum" /><span>Bình luận</span></a>
-          </nav>
+          </button> : !user ? <Link to="/login" className="sc-button sc-reader-secondary-action sc-reader-notification-toggle" title="Đăng nhập để nhận thông báo chương mới"><Icon name="notifications_none" />Nhận thông báo</Link> : null}
+          <button type="button" className="sc-button sc-reader-share-btn" onClick={() => { setCopied(false); setCopyError(false); setShareOpen(true); }}><Icon name="share" /><span>Chia sẻ</span></button>
         </div>
+        <nav className="sc-reader-inline-actions" aria-label="Thao tác với truyện">
+          <Link to={reviewsPath} className="sc-reader-jump-link"><Icon name="star" /><span>Đánh giá</span></Link>
+          <a href="#reader-chapters" className="sc-reader-jump-link"><Icon name="format_list_bulleted" /><span>Mục lục</span></a>
+          <a href="#reader-comments" className="sc-reader-jump-link"><Icon name="forum" /><span>Bình luận</span></a>
+        </nav>
         {notice && <p className="sc-reader-detail-notice" role="status" data-testid="reader-interaction-notice">{notice}</p>}
       </div>
     </div>
