@@ -17,7 +17,7 @@ import { AdminOverviewPage } from '../features/admin/AdminOverviewPage';
 import { AuthorNovelCommentsPage } from '../features/author-projects/AuthorNovelCommentsPage';
 import { AuthorNovelReviewsPage } from '../features/author-projects/AuthorNovelReviewsPage';
 import { AuthorNavbar, AuthorTheme } from '../shared/components/AuthorTheme';
-import { createBrowserRouter, Navigate, useParams } from 'react-router-dom';
+import { createBrowserRouter, Navigate, Outlet, useParams } from 'react-router-dom';
 import { AuthorWritingIde } from '../features/author-ide/AuthorWritingIde';
 import { WebAppShell } from './layout/WebAppShell';
 import { AuthorNovelMetadataPage } from '../features/author-projects/AuthorNovelMetadataPage';
@@ -44,7 +44,23 @@ import { AuthLanding } from '../shared/components/AuthLanding';
 import { WalletPage } from '../features/wallet/WalletPage';
 import { ManuscriptImportPage } from '../features/manuscript-import/ManuscriptImportPage';
 
+import { DiscussionEditorPage, DiscussionListPage, MyDiscussionsPage } from '../features/discussions/DiscussionPages';
+import { DiscussionTopicPage } from '../features/discussions/DiscussionTopicPage';
+import { AdminDiscussionsPage } from '../features/discussions/AdminDiscussionsPage';
+import '../features/discussions/discussions.css';
+
 export const router = createBrowserRouter([
+  {
+    path: '/discussions',
+    element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content sc-discussions-shell"><Outlet /></main></AuthorTheme></OptionalSession>,
+    children: [
+      { index: true, element: <DiscussionListPage /> },
+      { path: 'mine', element: <AuthGate><MyDiscussionsPage /></AuthGate> },
+      { path: 'new', element: <AuthGate><DiscussionEditorPage /></AuthGate> },
+      { path: ':topicId', element: <DiscussionTopicPage /> },
+      { path: ':topicId/edit', element: <AuthGate><DiscussionEditorPage /></AuthGate> }
+    ]
+  },
   { path: '/readers/:userId', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><ReaderProfilePage /></main></AuthorTheme></OptionalSession> },
   { path: '/public/bookmarks', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><ReadingBookmarksPage publicMode /></main></AuthorTheme></OptionalSession> },
   {
@@ -263,6 +279,7 @@ export const router = createBrowserRouter([
       ...[
         { path: '/admin/audit', element: <AdminAuditPage /> },
         { path: '/admin/appeals', element: <AdminAppealsPage /> },
+        { path: '/admin/discussions', element: <AdminDiscussionsPage /> },
         { path: '/admin/users/:userId', element: <AdminUserDetailPage /> },
         { path: '/admin/withdraws/:requestId', element: <AdminReconciliationPage /> }
       ].map((route) => ({

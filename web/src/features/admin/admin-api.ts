@@ -52,7 +52,7 @@ export type ModerationReview = {
 };
 
 export type ModerationReviewFilters = {
-  targetType?: 'NOVEL' | 'CHAPTER' | 'COMMENT' | 'USER' | '';
+  targetType?: 'NOVEL' | 'CHAPTER' | 'COMMENT' | 'USER' | 'DISCUSSION' | 'DISCUSSION_COMMENT' | '';
   status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REVISION_REQUIRED' | '';
   source?: 'PUBLICATION_REQUEST' | 'KEYWORD_FILTER' | 'USER_REPORT' | '';
 };

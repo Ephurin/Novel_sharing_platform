@@ -18,7 +18,7 @@ import {
 import { ErrorState, LoadingState } from '../../shared/components/PageStates';
 
 export function AdminModerationPage({ reports = false }: { reports?: boolean }) {
-  const urlFilters = useUrlFilters({ targetType: '', status: 'PENDING', source: '', page: 1 }, { targetType: ['', 'NOVEL', 'CHAPTER', 'COMMENT', 'USER'], status: ['', 'PENDING', 'APPROVED', 'REJECTED', 'REVISION_REQUIRED'], source: ['', 'PUBLICATION_REQUEST', 'KEYWORD_FILTER', 'USER_REPORT'] });
+  const urlFilters = useUrlFilters({ targetType: '', status: 'PENDING', source: '', page: 1 }, { targetType: ['', 'NOVEL', 'CHAPTER', 'COMMENT', 'USER', 'DISCUSSION', 'DISCUSSION_COMMENT'], status: ['', 'PENDING', 'APPROVED', 'REJECTED', 'REVISION_REQUIRED'], source: ['', 'PUBLICATION_REQUEST', 'KEYWORD_FILTER', 'USER_REPORT'] });
   const [targetType, setTargetType] = urlFilters.field('targetType');
   const [status, setStatus] = urlFilters.field('status');
   const [source, setSource] = urlFilters.field('source');
@@ -53,7 +53,7 @@ export function AdminModerationPage({ reports = false }: { reports?: boolean }) 
       <AdminPanel>
         <ResponsiveFilters className="admin-toolbar">
           <Select comboboxProps={{ withinPortal: false }}             label="Đối tượng"
-            data={options(['NOVEL', 'CHAPTER', 'COMMENT', 'USER'], 'Tất cả đối tượng')}
+            data={options(['NOVEL', 'CHAPTER', 'COMMENT', 'USER', 'DISCUSSION', 'DISCUSSION_COMMENT'], 'Tất cả đối tượng')}
             value={targetType}
             onChange={(v) => {
               setTargetType(v ?? '');
