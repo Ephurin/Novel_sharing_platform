@@ -41,11 +41,13 @@
 :root[data-theme="dark"] .sc-home-intro-art img { opacity: .62; }
 
 .sc-home-search-form { width: min(100%, 400px); flex-shrink: 0; }
-.sc-home-search { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 2px 4px 2px 12px; border: 1px solid var(--sc-control-border); border-radius: 10px; background: var(--sc-surface); color: var(--sc-text); transition: border-color .15s ease, box-shadow .15s ease; }
+.sc-home-search { display: flex; align-items: center; gap: 8px; min-height: 42px; padding: 3px 4px 3px 12px; border: 1px solid var(--sc-control-border); border-radius: 10px; background: var(--sc-surface); color: var(--sc-text); transition: border-color .15s ease, box-shadow .15s ease; }
 .sc-home-search:hover { border-color: var(--sc-control-border-hover, var(--sc-control-border)); }
-.sc-home-search:focus-within { border-color: var(--sc-primary); outline: 2px solid var(--sc-focus-ring); outline-offset: 2px; }
-.sc-home-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--sc-text); font: inherit; }
+.sc-home-search:focus-within { border-color: var(--sc-primary); box-shadow: 0 0 0 3px rgb(var(--sc-primary-rgb) / .14); outline: none; }
+.sc-author-theme .sc-reader-home .sc-home-search .sc-home-search-input,
+.sc-author-theme .sc-reader-home .sc-home-search .sc-home-search-input:is(:focus, :focus-visible) { flex: 1; min-width: 0; min-height: 34px; padding: 0; border: 0; border-radius: 0; outline: 0; box-shadow: none; background: transparent; color: var(--sc-text); font-family: inherit; font-weight: inherit; line-height: inherit; }
 .sc-home-search button { display: grid; place-items: center; min-width: 34px; min-height: 34px; border: 0; border-radius: var(--sc-radius-control); cursor: pointer; }
+.sc-home-search button:focus-visible { outline-offset: 1px; }
 .sc-home-search-submit { background: var(--sc-primary-soft); color: var(--sc-primary-text); }
 .sc-home-search-submit:hover { background: rgb(var(--sc-primary-rgb) / .18); color: rgb(var(--sc-primary-text-strong-rgb, var(--sc-primary-text-rgb))); }
 .sc-home-search-clear { background: transparent; color: var(--sc-text-muted); }
@@ -943,7 +945,7 @@ a.sc-home-chapter:hover { color: var(--sc-primary-text); }
   .sc-home-resume-progress { flex: none; width: 100%; }
   .sc-reader-home { gap: 22px; padding-top: 16px; }
   .sc-home-intro { padding: 16px; }
-  .sc-home-search input { font-size: 16px; }
+  .sc-author-theme .sc-reader-home .sc-home-search .sc-home-search-input { font-size: 16px; }
   .sc-home-feature-tabs { gap: 6px; }
   .sc-home-feature-tabs .sc-choice-item { padding-inline: 10px; }
   .sc-home-feature-grid, .sc-home-loading-featured { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }

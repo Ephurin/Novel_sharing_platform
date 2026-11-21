@@ -20,6 +20,7 @@ test('home maintains contrast, focus, reduced motion and reflow at narrow widths
       });
       try {
         await page.goto(base);
+        await expect(page.getByRole('link', { name: 'Bookmark', exact: true })).toHaveCount(0);
         await expect(page.locator('.sc-home-feature-cover')).toHaveCount(4);
         await expect(page.locator('.sc-home-feature-grid')).toHaveCSS('opacity', '1');
         const featuredCover = page.locator('.sc-home-feature-cover').first();

@@ -53,11 +53,11 @@
 :is(.sc-author-theme:not(:has(.sc-writing-studio)), .sc-animated-modal-body, .sc-vaul-sheet) select:not([multiple]):not([size]):hover { border-color: var(--sc-control-border-hover); }
 
 /* Text fields share the same quiet border and focus ring. */
-:is(.sc-author-theme:not(:has(.sc-writing-studio)), .sc-animated-modal-body, .sc-vaul-sheet) :is(input:not([type="checkbox"]):not([type="radio"]), textarea) {
+:is(.sc-author-theme:not(:has(.sc-writing-studio)), .sc-animated-modal-body, .sc-vaul-sheet) :is(input:not([type="checkbox"]):not([type="radio"]):not(.sc-home-search-input), textarea) {
   border-color: var(--sc-control-border);
 }
 
-:is(.sc-author-theme:not(:has(.sc-writing-studio)), .sc-animated-modal-body, .sc-vaul-sheet) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):focus,
+:is(.sc-author-theme:not(:has(.sc-writing-studio)), .sc-animated-modal-body, .sc-vaul-sheet) :is(input:not([type="checkbox"]):not([type="radio"]):not(.sc-home-search-input), select, textarea):focus,
 :root :is(.mantine-Input-input, .mantine-PasswordInput-innerInput):focus {
   border-color: rgb(var(--sc-primary-rgb));
   box-shadow: 0 0 0 3px rgb(var(--sc-primary-rgb) / .15);

@@ -205,12 +205,12 @@ export function AuthorNavbar() {
             { label: navigationLabels.authorProfile, to: '/author/profile', icon: 'person' },
             { label: 'Hồ sơ và cài đặt', to: '/profile/me' }
           ]} />}
-          <nav className="sc-navbar-reading-tools" aria-label="Công cụ đọc">
-            {(user ? readerCollections : [{ to: '/public/bookmarks', label: 'Bookmark', icon: 'bookmarks' }]).map(item =>
+          {user && <nav className="sc-navbar-reading-tools" aria-label="Công cụ đọc">
+            {readerCollections.map(item =>
               <NavLink key={item.to} to={item.to} end className="sc-icon-button" aria-label={item.label} title={item.label}>
                 <span className="material-symbols-outlined" aria-hidden="true">{item.icon}</span>
               </NavLink>)}
-          </nav>
+          </nav>}
           <ThemeControl />
           {isWriter && location.pathname !== '/author/ide' && <Link to={writingUrl} className="sc-button sc-button-primary sc-continue"><span className="material-symbols-outlined">edit_note</span><span>Viết tiếp</span></Link>}
           {!user && <Link to="/login" className="sc-button sc-button-primary"><span className="material-symbols-outlined">login</span><span>Đăng nhập</span></Link>}

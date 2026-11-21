@@ -37,7 +37,7 @@ export function HomeSearch({ catalogPath }: { catalogPath: string }) {
       <label className="sc-home-sr-only" htmlFor={`${listId}-input`}>Tìm truyện trên trang chủ</label>
       <Popover.Anchor asChild><div className="sc-home-search">
         <span className="material-symbols-outlined" aria-hidden="true">search</span>
-        <input ref={inputRef} id={`${listId}-input`} role="combobox" aria-autocomplete="list"
+        <input ref={inputRef} id={`${listId}-input`} className="sc-home-search-input" role="combobox" aria-autocomplete="list"
           aria-expanded={expanded} aria-controls={expanded ? listId : undefined}
           aria-activedescendant={expanded && selected >= 0 ? `${listId}-${selected}` : undefined}
           autoComplete="off" placeholder="Bạn muốn đọc truyện gì?" value={value}
