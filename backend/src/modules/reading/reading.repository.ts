@@ -31,6 +31,7 @@ function mapNovelSummary(row: QueryResultRow) {
     synopsis: row.synopsis,
     coverImageUrl: row.cover_image_url,
     genre: row.genre_name,
+    genres: row.genres?.length ? (row.genres as string[]) : row.genre_name ? [row.genre_name as string] : [],
     tags: row.tags ?? [],
     status: row.serial_status,
     likesCount: row.likes_count,
@@ -215,6 +216,9 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
         n.*,
         coalesce(up.display_name, u.username) as author_name,
         g.name as genre_name,
+        (select array_agg(gg.name order by (ng.genre_id = n.genre_id) desc, gg.name)
+          from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
+          where ng.novel_id = n.novel_id) as genres,
         (select json_build_object(
           'chapterId', c.chapter_id, 'chapterNumber', c.chapter_number,
           'title', c.title, 'publishedAt', c.published_at
