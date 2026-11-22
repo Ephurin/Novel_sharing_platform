@@ -75,7 +75,7 @@ test('AX02 mounted AuthorMemoryPanel profile component (MOCK HTTP ONLY)', { time
     try { await page.getByRole('tab', { name: 'Hồ sơ Codex' }).click(); }
     catch { await context.close(); throw new Error('Fixture bootstrap failed: ' + consoleMessages.join(' | ').replaceAll('PRIVATE_SENTINEL', '[redacted]')); }
     const choose = async entity => {
-      await page.getByRole('textbox', { name: 'Chọn entity theo UUID', exact: true }).click();
+      await page.getByRole('textbox', { name: 'Chọn mục cần xem hồ sơ', exact: true }).click();
       await page.getByRole('option', { name: new RegExp('#' + entity.slice(-6)) }).click();
     };
     return { context, page, calls, records, profile, consoleMessages, choose, writes: () => writes,
@@ -100,7 +100,7 @@ test('AX02 mounted AuthorMemoryPanel profile component (MOCK HTTP ONLY)', { time
         await expect(page.getByLabel('Ngoại hình', { exact: true })).toHaveValue('Green eyes');
         if (process.env.AX02_EVIDENCE_DIR) {
           await mkdir(process.env.AX02_EVIDENCE_DIR, { recursive: true });
-          assert.equal(await page.getByLabel('Private Author Notes', { exact: false }).inputValue(), '');
+          assert.equal(await page.getByLabel('Ghi chú riêng của tác giả', { exact: false }).inputValue(), '');
           await page.screenshot({ path: join(process.env.AX02_EVIDENCE_DIR, 'profile-component-mock.png'), fullPage: true });
           await page.getByRole('button', { name: 'Lưu thay đổi', exact: true }).scrollIntoViewIfNeeded();
           await page.screenshot({ path: join(process.env.AX02_EVIDENCE_DIR, 'profile-component-mock-save.png'), fullPage: true });
@@ -111,7 +111,7 @@ test('AX02 mounted AuthorMemoryPanel profile component (MOCK HTTP ONLY)', { time
     await t.test('note-only PATCH, Unicode bounds and private cache/storage/log isolation', async () => {
       const f = await fixture(); const { page } = f;
       try {
-        await f.choose(A); const notes = page.getByLabel('Private Author Notes', { exact: false });
+        await f.choose(A); const notes = page.getByLabel('Ghi chú riêng của tác giả', { exact: false });
         await expect(notes).toHaveValue(''); await notes.fill('PRIVATE_SENTINEL');
         await page.getByRole('button', { name: 'Lưu thay đổi', exact: true }).click();
         await expect(page.getByRole('status').filter({ hasText: 'Đã lưu và đọc lại' })).toBeVisible();
@@ -171,10 +171,10 @@ test('AX02 mounted AuthorMemoryPanel profile component (MOCK HTTP ONLY)', { time
         await expect(page.getByRole('alert').filter({ hasText: '409' })).toBeVisible();
         await expect(page.getByLabel('Ngoại hình', { exact: true })).toHaveValue('Author draft');
         assert.equal(f.calls.filter(c => c.method === 'PATCH').length, 1);
-        await page.getByRole('button', { name: 'Tải phiên bản server để đối chiếu' }).click();
+        await page.getByRole('button', { name: 'Tải phiên bản trên máy chủ để đối chiếu' }).click();
         await expect(page.getByRole('alert')).toContainText('Chưa tải được');
         await expect(page.getByLabel('Ngoại hình', { exact: true })).toHaveValue('Author draft');
-        await page.getByRole('button', { name: 'Tải phiên bản server để đối chiếu' }).click();
+        await page.getByRole('button', { name: 'Tải phiên bản trên máy chủ để đối chiếu' }).click();
         await expect(page.getByTestId('profile-server-comparison')).toContainText('Other session');
         await expect(page.getByLabel('Ngoại hình', { exact: true })).toHaveValue('Author draft');
         await page.getByRole('button', { name: 'Lưu bản đã đối chiếu' }).click();
@@ -215,7 +215,7 @@ test('AX02 mounted AuthorMemoryPanel profile component (MOCK HTTP ONLY)', { time
         if (call.method === 'PATCH') { await route.fulfill({ status, json: { error: { message: 'PRIVATE_SENTINEL' } } }); return true; } return false;
       } }); const { page } = f;
       try {
-        await f.choose(A); const notes = page.getByLabel('Private Author Notes', { exact: false }); await expect(notes).toHaveValue('');
+        await f.choose(A); const notes = page.getByLabel('Ghi chú riêng của tác giả', { exact: false }); await expect(notes).toHaveValue('');
         await notes.fill('PRIVATE_SENTINEL'); await page.getByRole('button', { name: 'Lưu thay đổi', exact: true }).click();
         await expect(page.getByRole('alert')).toBeVisible();
         assert.ok(!(await page.getByRole('alert').textContent()).includes('PRIVATE_SENTINEL'));
@@ -238,8 +238,8 @@ test('AX02 mounted AuthorMemoryPanel profile component (MOCK HTTP ONLY)', { time
         if (target === 'entity') { await f.choose(B); await expect(page.getByLabel('Ngoại hình', { exact: true })).toHaveValue('Red hair'); }
         const response = page.waitForResponse(r => r.url().includes(`/entities/${A}/profile`)); gate.release(); await response;
         await expect(page.locator('body')).not.toContainText('PRIVATE_SENTINEL');
-        if (target !== 'entity') await expect(page.getByLabel('Private Author Notes', { exact: false })).toHaveCount(0);
-        else await expect(page.getByLabel('Private Author Notes', { exact: false })).toHaveValue('');
+        if (target !== 'entity') await expect(page.getByLabel('Ghi chú riêng của tác giả', { exact: false })).toHaveCount(0);
+        else await expect(page.getByLabel('Ghi chú riêng của tác giả', { exact: false })).toHaveValue('');
       } finally { gate.release(); await f.close(); }
     });
 
@@ -247,15 +247,15 @@ test('AX02 mounted AuthorMemoryPanel profile component (MOCK HTTP ONLY)', { time
       const gate = deferred(); let held = false;
       const f = await fixture({ afterWrite: async () => { held = true; await gate.promise; return false; } }); const { page } = f;
       try {
-        await f.choose(A); const notes = page.getByLabel('Private Author Notes', { exact: false }); await expect(notes).toHaveValue(''); await notes.fill('PRIVATE_SENTINEL');
+        await f.choose(A); const notes = page.getByLabel('Ghi chú riêng của tác giả', { exact: false }); await expect(notes).toHaveValue(''); await notes.fill('PRIVATE_SENTINEL');
         await page.getByRole('button', { name: 'Lưu thay đổi', exact: true }).click();
         await expect.poll(() => held).toBe(true);
         if (target === 'account') await page.evaluate(() => window.__profileSetAccount('author-b'));
         if (target === 'novel') await page.evaluate(n => window.__profileSetNovel(n), OTHER_NOVEL);
         if (target === 'entity') { await f.choose(B); await expect(page.getByLabel('Ngoại hình', { exact: true })).toHaveValue('Red hair'); }
         const response = page.waitForResponse(r => r.request().method() === 'PATCH'); gate.release(); await response;
-        if (target !== 'entity') await expect(page.getByLabel('Private Author Notes', { exact: false })).toHaveCount(0);
-        else await expect(page.getByLabel('Private Author Notes', { exact: false })).toHaveValue('');
+        if (target !== 'entity') await expect(page.getByLabel('Ghi chú riêng của tác giả', { exact: false })).toHaveCount(0);
+        else await expect(page.getByLabel('Ghi chú riêng của tác giả', { exact: false })).toHaveValue('');
         assert.equal(f.calls.filter(c => c.method === 'GET' && c.url.includes(`/entities/${A}/profile`)).length, 1);
         assert.ok(f.calls.find(c => c.method === 'PATCH').url.includes(NOVEL));
         assert.equal(f.calls.find(c => c.method === 'PATCH').headers.authorization, 'Bearer fixture-token-author-a');

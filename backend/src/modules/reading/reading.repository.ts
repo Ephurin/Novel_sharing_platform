@@ -34,6 +34,8 @@ function mapNovelSummary(row: QueryResultRow) {
     genres: row.genres?.length ? (row.genres as string[]) : row.genre_name ? [row.genre_name as string] : [],
     tags: row.tags ?? [],
     status: row.serial_status,
+    // UAT 2026-11-21 round 3 (BUG-007): the reader novel page reads this summary, not /novels/:id.
+    ageRating: row.age_rating,
     likesCount: row.likes_count,
     viewsCount: row.views_count,
     chaptersCount: row.chapters_count,
@@ -207,21 +209,21 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
       ? isRelevanceWithQuery
         ? `(
             case
-              when lower(n.title) = lower($7::text) then 100
-              when n.title ilike $8::text then 70
-              when n.title ilike $1 then 40
+              when lower(f_unaccent(n.title)) = lower(f_unaccent($7::text)) then 100
+              when f_unaccent(n.title) ilike f_unaccent($8::text) then 70
+              when f_unaccent(n.title) ilike f_unaccent($1) then 40
               else 0
             end
-            + case when coalesce(up.display_name, u.username) ilike $1 then 25 else 0 end
-            + case when coalesce(g.name ilike $1, false) or exists (
+            + case when f_unaccent(coalesce(up.display_name, u.username)) ilike f_unaccent($1) then 25 else 0 end
+            + case when coalesce(f_unaccent(g.name) ilike f_unaccent($1), false) or exists (
                 select 1 from novel_genres ngr join genres ggr on ggr.genre_id = ngr.genre_id
-                where ngr.novel_id = n.novel_id and ggr.name ilike $1
+                where ngr.novel_id = n.novel_id and f_unaccent(ggr.name) ilike f_unaccent($1)
               ) then 15 else 0 end
             + case when exists (
                 select 1 from novel_tags ntr join tags tr on tr.tag_id = ntr.tag_id
-                where ntr.novel_id = n.novel_id and tr.name ilike $1
+                where ntr.novel_id = n.novel_id and f_unaccent(tr.name) ilike f_unaccent($1)
               ) then 15 else 0 end
-            + case when n.synopsis ilike $1 then 10 else 0 end
+            + case when f_unaccent(n.synopsis) ilike f_unaccent($1) then 10 else 0 end
           ) ${orderDirection}, n.views_count desc, n.updated_at desc, n.novel_id asc`
         : `n.views_count ${orderDirection}, n.updated_at desc, n.novel_id asc`
       : `${
@@ -269,7 +271,7 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
       left join tags t on t.tag_id = nt.tag_id
       where n.deleted_at is null
         and n.status = 'PUBLISHED'
-        and ($1::text is null or n.title ilike $1 or n.synopsis ilike $1 or coalesce(up.display_name, u.username) ilike $1)
+        and ($1::text is null or f_unaccent(n.title) ilike f_unaccent($1) or f_unaccent(n.synopsis) ilike f_unaccent($1) or f_unaccent(coalesce(up.display_name, u.username)) ilike f_unaccent($1))
         and not exists (select 1 from unnest($2::text[]) as selected(value) where not (coalesce(lower(g.slug) = selected.value or lower(g.name) = selected.value, false) or exists (
           select 1 from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
           where ng.novel_id = n.novel_id and (lower(gg.slug) = selected.value or lower(gg.name) = selected.value))))
@@ -295,7 +297,7 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
       left join tags t on t.tag_id = nt.tag_id
       where n.deleted_at is null
         and n.status = 'PUBLISHED'
-        and ($1::text is null or n.title ilike $1 or n.synopsis ilike $1 or coalesce(up.display_name, u.username) ilike $1)
+        and ($1::text is null or f_unaccent(n.title) ilike f_unaccent($1) or f_unaccent(n.synopsis) ilike f_unaccent($1) or f_unaccent(coalesce(up.display_name, u.username)) ilike f_unaccent($1))
         and not exists (select 1 from unnest($2::text[]) as selected(value) where not (coalesce(lower(g.slug) = selected.value or lower(g.name) = selected.value, false) or exists (
           select 1 from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
           where ng.novel_id = n.novel_id and (lower(gg.slug) = selected.value or lower(gg.name) = selected.value))))

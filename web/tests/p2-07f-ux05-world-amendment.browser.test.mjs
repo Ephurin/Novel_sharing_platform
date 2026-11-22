@@ -541,7 +541,7 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
     await expect(page.getByTestId('m0-not-active-banner')).toHaveCount(0);
     await expect(page.getByTestId(`propose-btn-${factGravityA}`)).toBeVisible();
     await expect(page.getByTestId(`propose-btn-${factGravityB}`)).toBeVisible();
-    await expect(page.getByText(`Brain v2`).first()).toBeVisible();
+    await expect(page.getByText(`Bộ nhớ v2`).first()).toBeVisible();
     console.log('✓ UXF-03: Manager automatically synchronized to active M0 and Brain v2!');
 
     // =========================================================================
@@ -585,14 +585,14 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
     // the panel re-reads it instead of keeping the version read at mount.
     // =========================================================================
     const staleVersion = currentBrainVersion;
-    await expect(page.getByText(`Mã Fact: ${factGravityB} · Brain v${staleVersion}`)).toBeVisible();
+    await expect(page.getByTestId(`rule-card-${factGravityB}`).getByText(`Bộ nhớ v${staleVersion}`, { exact: true })).toBeVisible();
     currentBrainVersion += 1; // e.g. a P1 proposal group accepted in the Memory panel
     await page.evaluate(id => window.dispatchEvent(new CustomEvent('ephurin:memory-changed', { detail: { novelId: id } })), novelId);
-    await expect(page.getByText(`Mã Fact: ${factGravityB} · Brain v${currentBrainVersion}`)).toBeVisible();
+    await expect(page.getByTestId(`rule-card-${factGravityB}`).getByText(`Bộ nhớ v${currentBrainVersion}`, { exact: true })).toBeVisible();
     currentBrainVersion += 1; // another change with no same-window signal (e.g. another tab)
     await page.getByTestId(`propose-btn-${factGravityB}`).click();
     await page.getByRole('button', { name: 'Hủy', exact: true }).click();
-    await expect(page.getByText(`Mã Fact: ${factGravityB} · Brain v${currentBrainVersion}`)).toBeVisible();
+    await expect(page.getByTestId(`rule-card-${factGravityB}`).getByText(`Bộ nhớ v${currentBrainVersion}`, { exact: true })).toBeVisible();
     console.log('✓ #137: Brain version refreshed after memory change and on opening the proposal form');
 
     // =========================================================================
@@ -768,7 +768,7 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
 
     // Verify accept confirmed on server, successor promoted to Canon, brain version bumped to v3
     await expect(page.getByText(/Máy chủ đã xác nhận quyết định trước đó.*chấp thuận/)).toBeVisible();
-    await expect(page.getByText(`Brain v${currentBrainVersion}`).first()).toBeVisible();
+    await expect(page.getByText(`Bộ nhớ v${currentBrainVersion}`).first()).toBeVisible();
     const latestSuccFactId = factsDb[factsDb.length - 1].fact_id;
     await expect(page.getByTestId(`canon-text-${latestSuccFactId}`)).toHaveText('Trọng lực hư không Bắc Minh dao động theo thủy triều.');
 
@@ -798,9 +798,9 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
     await page.getByTestId(`history-btn-${latestSuccFactId}`).click();
 
     await expect(page.getByText(/Lịch sử hiệu chỉnh & Phả hệ quy tắc/)).toBeVisible();
-    await expect(page.getByText('Phả hệ các thế hệ Fact (Lineage)')).toBeVisible();
-    await expect(page.getByText('Thế hệ 2 (HEAD)')).toBeVisible();
-    await expect(page.getByText('ĐÃ DUYỆT')).toBeVisible();
+    await expect(page.getByText('Các phiên bản của quy tắc')).toBeVisible();
+    await expect(page.getByText('Phiên bản 2 (đang dùng)')).toBeVisible();
+    await expect(page.getByText('ĐÃ DUYỆT', { exact: true })).toBeVisible();
     await page.screenshot({ path: join(out, 'ux05-lineage-history-modal.png') });
     console.log('✓ Lineage chain and proposal audit trail modal verified!');
 

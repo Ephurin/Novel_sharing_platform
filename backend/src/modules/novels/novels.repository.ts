@@ -134,7 +134,7 @@ export async function listNovels(input: ListNovelsInput) {
       left join genres g on g.genre_id = n.genre_id
       where n.deleted_at is null
         and n.status = $1
-        and ($2::text is null or n.title ilike $2 or n.synopsis ilike $2)
+        and ($2::text is null or f_unaccent(n.title) ilike f_unaccent($2) or f_unaccent(n.synopsis) ilike f_unaccent($2))
       order by n.updated_at desc
       limit $3 offset $4
     `,
@@ -147,7 +147,7 @@ export async function listNovels(input: ListNovelsInput) {
       from novels
       where deleted_at is null
         and status = $1
-        and ($2::text is null or title ilike $2 or synopsis ilike $2)
+        and ($2::text is null or f_unaccent(title) ilike f_unaccent($2) or f_unaccent(synopsis) ilike f_unaccent($2))
     `,
     [status, search]
   );
@@ -181,7 +181,7 @@ export async function listNovelsByAuthor(authorId: string, input: ListNovelsInpu
       where n.deleted_at is null
         and n.author_id = $1
         and ($2::novel_status is null or n.status = $2)
-        and ($3::text is null or n.title ilike $3 or n.synopsis ilike $3)
+        and ($3::text is null or f_unaccent(n.title) ilike f_unaccent($3) or f_unaccent(n.synopsis) ilike f_unaccent($3))
       order by n.updated_at desc
       limit $4 offset $5
     `,
@@ -195,7 +195,7 @@ export async function listNovelsByAuthor(authorId: string, input: ListNovelsInpu
       where deleted_at is null
         and author_id = $1
         and ($2::novel_status is null or status = $2)
-        and ($3::text is null or title ilike $3 or synopsis ilike $3)
+        and ($3::text is null or f_unaccent(title) ilike f_unaccent($3) or f_unaccent(synopsis) ilike f_unaccent($3))
     `,
     [authorId, input.status ?? null, search]
   );
@@ -228,6 +228,7 @@ export async function updateNovel(novelId: string, input: UpdateNovelInput) {
             cover_image_url = case when $5 then $4 else cover_image_url end,
             genre_id = case when $7 then $6::uuid else genre_id end,
             author_note = case when $9 then $8 else author_note end,
+            age_rating = coalesce($10::age_rating, age_rating),
             updated_at = now()
         where novel_id = $1 and deleted_at is null
         returning novel_id
@@ -235,7 +236,7 @@ export async function updateNovel(novelId: string, input: UpdateNovelInput) {
       [novelId, existing.status === 'PENDING_MODERATION' ? undefined : input.title,
         existing.status === 'PENDING_MODERATION' ? undefined : input.synopsis, input.coverImageUrl ?? null,
         input.coverImageUrl !== undefined, metadata?.genreId ?? null, changingGenres,
-        input.authorNote?.trim() || null, input.authorNote !== undefined]
+        input.authorNote?.trim() || null, input.authorNote !== undefined, input.ageRating ?? null]
     );
     if (!result.rows[0]) return null;
     const updated = await client.query(`select n.*, g.name as genre, ${genresProjection} as genres

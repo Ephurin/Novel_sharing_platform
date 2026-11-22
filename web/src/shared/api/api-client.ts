@@ -72,6 +72,19 @@ export type ApiEnvelope<TData> = {
   meta: Record<string, unknown>;
 };
 
+/** UAT 2026-11-20 (BUG-004): Vietnamese text for backend errors whose message is still in English. */
+const PLAIN_ERROR_MESSAGES: Record<string, string> = {
+  AUTH_001: 'Email không đúng định dạng.',
+  AUTH_002: 'Phiên đăng nhập không còn hiệu lực. Hãy đăng nhập lại.',
+  AUTH_003: 'Email, tên đăng nhập hoặc mật khẩu không đúng.',
+  AUTH_004: 'Tài khoản đang bị khóa. Bạn có thể gửi khiếu nại ở trang Quyết định & khiếu nại.',
+  AUTH_006: 'Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.',
+  AUTH_008: 'Bạn không có quyền thực hiện thao tác này.',
+  PAYMENT_002: 'Chương này cần mở khóa bằng xu.',
+  PAYMENT_003: 'Số dư xu không đủ. Hãy nạp thêm xu.',
+  PRIVATE_COMMENTS_DISABLED: 'Góp ý riêng đang tạm tắt trên hệ thống này.'
+};
+
 export function getApiErrorMessage(error: unknown) {
   if (error instanceof ApiClientError) {
     if (error.code === 'IDEA_BOOTSTRAP_RETRY_UNSUPPORTED') {
@@ -99,6 +112,8 @@ export function getApiErrorMessage(error: unknown) {
     if (error.code === 'INVALID_PROJECTION' && /[\u00C0-\u1EF9]/.test(error.message)) {
       return error.message;
     }
+    const plain = /[\u00C0-\u1EF9]/.test(error.message) ? undefined : PLAIN_ERROR_MESSAGES[error.code];
+    if (plain) return plain;
     return `${error.code}: ${error.message}`;
   }
 

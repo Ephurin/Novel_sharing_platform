@@ -9,6 +9,7 @@ import { CommentsSection } from './CommentsSection';
 import { AuthorPrivateFeedback, type AuthorFeedbackRequest } from './PrivateComments';
 import { ChapterReadingWorkspace } from './ChapterReadingWorkspace';
 import { getReaderChapter, getReaderNovel, reportContent, syncHistory, unlockVipChapter } from './reader-api';
+import { getWallet } from '../wallet/wallet-api';
 import { useReadChapterIds } from './useReadChapterIds';
 import { ReaderNotFound, isReaderNotFound } from './ReaderNotFound';
 
@@ -38,8 +39,20 @@ export function ChapterReader({ publicMode = false }: { publicMode?: boolean }) 
   });
   const unlock = useMutation({
     mutationFn: () => unlockVipChapter(chapterId),
-    onSuccess: () => client.invalidateQueries({ queryKey: [publicMode ? 'public-reader-chapter' : 'reader-chapter', chapterId] })
+    onSuccess: () => Promise.all([
+      client.invalidateQueries({ queryKey: [publicMode ? 'public-reader-chapter' : 'reader-chapter', chapterId] }),
+      client.invalidateQueries({ queryKey: ['wallet'] }),
+      client.invalidateQueries({ queryKey: ['wallet-transactions'] })
+    ]),
+    onError: error => showToast(getApiErrorMessage(error), 'error')
   });
+  // UAT 2026-11-20 (BUG-001): show the price and the balance before the reader spends coins.
+  const locked = chapterQuery.error instanceof ApiClientError && chapterQuery.error.code === 'PAYMENT_002';
+  const lockDetails = locked ? (chapterQuery.error as ApiClientError).details as { priceCoins?: number | null } | undefined : undefined;
+  const price = typeof lockDetails?.priceCoins === 'number' ? lockDetails.priceCoins : null;
+  const walletQuery = useQuery({ queryKey: ['wallet'], queryFn: getWallet, enabled: locked && Boolean(userId), retry: false });
+  const balance = walletQuery.data?.coinsBalance;
+  const notEnough = price !== null && typeof balance === 'number' && balance < price;
   const report = useMutation({
     mutationFn: () => reportContent({ targetType: 'CHAPTER', targetId: chapterId, reason: 'Reader report' }),
     onSuccess: () => showToast('Đã gửi báo cáo chương.', 'success'),
@@ -55,10 +68,16 @@ export function ChapterReader({ publicMode = false }: { publicMode?: boolean }) 
     return <section className="sc-reader-locked-chapter sc-reader-detail-section">
       <span className="material-symbols-outlined" aria-hidden="true">lock</span>
       <h1 className="text-section-title">Chương VIP đang khóa</h1>
-      <p>{publicMode && !userId ? 'Đăng nhập để mở khóa chương VIP.' : getApiErrorMessage(chapterQuery.error)}</p>
+      <p>{publicMode && !userId ? 'Đăng nhập để mở khóa chương VIP.' : price !== null
+        ? `Mở khóa chương này với ${price} xu. Sau khi mở khóa, bạn đọc lại được bất cứ lúc nào.`
+        : getApiErrorMessage(chapterQuery.error)}</p>
+      {userId && typeof balance === 'number' && <p className="text-meta" data-testid="unlock-balance">
+        Số dư hiện tại: {balance} xu{notEnough ? ' — chưa đủ để mở khóa chương này.' : ''}
+      </p>}
       <div>{userId ? <>
-        <button type="button" className="sc-button sc-button-primary" disabled={unlock.isPending} onClick={() => unlock.mutate()}>{unlock.isPending ? 'Đang mở khóa…' : 'Mở khóa chương'}</button>
-        <Link to="/wallet" className="sc-button">Đến ví xu</Link>
+        <button type="button" className="sc-button sc-button-primary" disabled={unlock.isPending || notEnough} data-testid="btn-unlock-chapter"
+          onClick={() => unlock.mutate()}>{unlock.isPending ? 'Đang mở khóa…' : price !== null ? `Mở khóa · ${price} xu` : 'Mở khóa chương'}</button>
+        <Link to="/wallet" className={notEnough ? 'sc-button sc-button-primary' : 'sc-button'}>{notEnough ? 'Nạp thêm xu' : 'Đến ví xu'}</Link>
       </> : <Link to="/login" className="sc-button sc-button-primary">Đăng nhập để mở khóa</Link>}
         <Link to={publicMode ? '/public' : '/reader'} className="sc-button">Danh sách truyện</Link></div>
       {unlock.isError && <p role="alert">{getApiErrorMessage(unlock.error)}</p>}

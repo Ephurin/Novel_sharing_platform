@@ -60,6 +60,7 @@ export async function updateNovel(novelId: string, input: {
   title?: string;
   synopsis?: string;
   coverImageUrl?: string | null;
+  ageRating?: 'EVERYONE' | 'TEEN' | 'MATURE';
 }) {
   const response = await apiClient.patch<ApiEnvelope<Novel>>(`/novels/${novelId}`, input);
   return response.data.data;

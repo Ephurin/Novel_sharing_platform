@@ -371,7 +371,7 @@ export function WorldRuleAmendmentManager({
             if (err instanceof ApiClientError) {
               if (err.status === 404 || err.status === 422) {
                 // Rule does not belong to verified M0 setup root
-                newIneligibleMap[r.fact_id] = 'Quy tắc này không thuộc thiết lập M0 của tác phẩm (không thể hiệu chỉnh).';
+                newIneligibleMap[r.fact_id] = 'Quy tắc này không thuộc thiết lập ban đầu của tác phẩm (không thể hiệu chỉnh).';
                 return;
               }
               newErrorsMap[r.fact_id] = getApiErrorMessage(err);
@@ -449,10 +449,10 @@ export function WorldRuleAmendmentManager({
     <Stack gap="md" data-testid="world-rule-amendment-manager">
       <Group justify="space-between" align="center">
         <div>
-          <Title order={4}>Quản lý Quy tắc Thế giới (World Setup Rules)</Title>
+          <Title order={4}>Quản lý quy tắc thế giới</Title>
           <Text size="sm" c="dimmed">
-            Quy tắc đã được tác giả phê duyệt sau mốc M0. Mọi đề xuất hiệu chỉnh đều bảo toàn lịch sử
-            Canon và trải qua quy trình duyệt hai bước (Propose &rarr; Accept/Reject).
+            Quy tắc thế giới bạn đã duyệt khi kích hoạt thiết lập ban đầu. Mỗi lần sửa là một đề xuất chờ bạn
+            chấp thuận hoặc từ chối; bản cũ vẫn được giữ trong lịch sử.
           </Text>
         </div>
         <Button variant="default" size="xs" onClick={() => void reloadRules()} loading={loading}>
@@ -462,10 +462,10 @@ export function WorldRuleAmendmentManager({
 
       {/* UXF-03: M0 Not Active Banner */}
       {!isM0Verified && (
-        <Alert title="Thiết lập M0 chưa được kích hoạt" data-testid="m0-not-active-banner">
+        <Alert title="Thiết lập ban đầu chưa được kích hoạt" data-testid="m0-not-active-banner">
           <Text size="sm">
-            Quy tắc thế giới chỉ có thể hiệu chỉnh sau khi hoàn tất phê duyệt và kích hoạt mốc M0.
-            Vui lòng kích hoạt thiết lập M0 ở trên trước khi thực hiện hiệu chỉnh.
+            Quy tắc thế giới chỉ có thể hiệu chỉnh sau khi bạn duyệt và kích hoạt thiết lập ban đầu.
+            Hãy kích hoạt thiết lập ở trên trước.
           </Text>
         </Alert>
       )}
@@ -487,7 +487,7 @@ export function WorldRuleAmendmentManager({
           <Text c="dimmed" size="sm" ta="center">
             {isM0Verified
               ? 'Chưa có quy tắc thế giới nào trong bộ nhớ truyện.'
-              : 'Chưa có quy tắc thế giới nào được phê duyệt sau mốc M0, hoặc thiết lập thế giới chưa được kích hoạt. Hãy hoàn tất duyệt và kích hoạt thiết lập M0 ở trên để bắt đầu quản lý.'}
+              : 'Chưa có quy tắc thế giới nào được duyệt, hoặc thiết lập ban đầu chưa được kích hoạt. Hãy duyệt và kích hoạt thiết lập ở trên trước.'}
           </Text>
         </Card>
       )}
@@ -521,11 +521,11 @@ export function WorldRuleAmendmentManager({
                   <div>
                     <Group gap="xs">
                       <Text fw={700}>
-                        Quy tắc {idx + 1}: {rule.fact_key}
+                        Quy tắc {idx + 1}
                       </Text>
                       {rule.is_locked ? (
                         <Badge color="red" variant="filled" data-testid={`lock-badge-locked-${rule.fact_id}`}>
-                          Bất biến (Locked)
+                          Đã khóa
                         </Badge>
                       ) : (
                         <Badge color="teal" variant="light" data-testid={`lock-badge-standard-${rule.fact_id}`}>
@@ -539,12 +539,12 @@ export function WorldRuleAmendmentManager({
                       )}
                       {isIneligible && (
                         <Badge color="gray" variant="outline" data-testid={`ineligible-badge-${rule.fact_id}`}>
-                          Không thuộc thiết lập M0 (Chỉ đọc)
+                          Không thuộc thiết lập ban đầu (chỉ đọc)
                         </Badge>
                       )}
                     </Group>
                     <Text size="xs" c="dimmed">
-                      Mã Fact: {rule.fact_id} · Brain v{brainVersion}
+                      Bộ nhớ v{brainVersion}
                     </Text>
                   </div>
                   <Group gap="xs">
@@ -735,7 +735,7 @@ export function WorldRuleAmendmentManager({
                 {/* Canon Content */}
                 <Card withBorder p="sm" bg="var(--sc-surface-subtle)">
                   <Text size="xs" fw={600} c="dimmed" mb={4}>
-                    NỘI DUNG CANON ĐANG HIỆU LỰC:
+                    NỘI DUNG ĐANG DÙNG:
                   </Text>
                   <Text
                     size="sm"
@@ -815,25 +815,22 @@ export function WorldRuleAmendmentManager({
         {historyData && (
           <Stack gap="md">
             <div>
-              <Text size="xs" c="dimmed">
-                Root Fact ID: {historyData.root_fact_id} · Head hiện hành: {historyData.effective_head_id}
-              </Text>
               <Group gap="xs" mt={4}>
                 <Badge color={historyData.is_locked ? 'red' : 'teal'}>
-                  {historyData.is_locked ? 'Bất biến (Locked)' : 'Quy tắc chuẩn'}
+                  {historyData.is_locked ? 'Đã khóa' : 'Quy tắc chuẩn'}
                 </Badge>
-                <Badge variant="outline">Brain v{historyData.brain_version}</Badge>
+                <Badge variant="outline">Bộ nhớ v{historyData.brain_version}</Badge>
               </Group>
             </div>
 
-            <Divider label="Phả hệ các thế hệ Fact (Lineage)" labelPosition="center" />
+            <Divider label="Các phiên bản của quy tắc" labelPosition="center" />
             <ScrollArea h={180}>
               <Stack gap="xs">
                 {historyData.lineage.map((item: WorldRuleLineageEntry, idx: number) => (
                   <Card withBorder key={item.fact_id} p="xs">
                     <Group justify="space-between" mb={2}>
                       <Text size="xs" fw={700}>
-                        Thế hệ {idx + 1} {item.fact_id === historyData.effective_head_id ? '(HEAD)' : ''}
+                        Phiên bản {idx + 1} {item.fact_id === historyData.effective_head_id ? '(đang dùng)' : ''}
                       </Text>
                       <Text size="xs" c="dimmed">
                         {item.created_at ? new Date(item.created_at).toLocaleString('vi-VN') : ''}
@@ -842,17 +839,12 @@ export function WorldRuleAmendmentManager({
                     <Text size="xs" style={{ whiteSpace: 'pre-wrap' }}>
                       {item.fact_value}
                     </Text>
-                    {item.supersedes_id && (
-                      <Text size="xs" c="dimmed" mt={2}>
-                        Kế nhiệm từ: {item.supersedes_id}
-                      </Text>
-                    )}
                   </Card>
                 ))}
               </Stack>
             </ScrollArea>
 
-            <Divider label="Nhật ký các đề xuất sửa đổi (Proposals)" labelPosition="center" />
+            <Divider label="Các đề xuất sửa đổi" labelPosition="center" />
             <ScrollArea h={220}>
               <Stack gap="xs">
                 {historyData.proposals.length === 0 ? (
@@ -880,9 +872,6 @@ export function WorldRuleAmendmentManager({
                               ? 'ĐÃ LOẠI'
                               : 'CHỜ DUYỆT'}
                           </Badge>
-                          <Text size="xs" fw={500}>
-                            Đề xuất: {item.proposal_id.slice(0, 8)}...
-                          </Text>
                         </Group>
                         <Text size="xs" c="dimmed">
                           {item.decided_at ? new Date(item.decided_at).toLocaleString('vi-VN') : ''}
@@ -901,7 +890,7 @@ export function WorldRuleAmendmentManager({
                       )}
                       {item.successor_fact_id && (
                         <Text size="xs" c="teal">
-                          Fact mới sinh: {item.successor_fact_id}
+                          Đã trở thành phiên bản mới của quy tắc.
                         </Text>
                       )}
                     </Card>
@@ -1218,7 +1207,7 @@ function ProposeAmendmentForm({
         setIs503Uncertain(false);
         setHasEditedDraftConflict(false);
         onSuccess(
-          `Đã tạo đề xuất chỉnh sửa quy tắc ${rule.fact_key}. Vui lòng đối chiếu và xác nhận phê duyệt bên dưới.`
+          `Đã tạo đề xuất chỉnh sửa quy tắc. Vui lòng đối chiếu và xác nhận phê duyệt bên dưới.`
         );
       }
     } catch (e) {
@@ -1248,7 +1237,7 @@ function ProposeAmendmentForm({
       return;
     }
     if (replacement_text.trim() === rule.fact_value.trim()) {
-      setError('Nội dung sửa đổi phải khác với nội dung Canon hiện hành.');
+      setError('Nội dung sửa đổi phải khác với nội dung đang dùng.');
       return;
     }
 
@@ -1296,7 +1285,7 @@ function ProposeAmendmentForm({
         draft.clear();
         lastSubmittedRef.current = null;
         onSuccess(
-          `Đã tạo đề xuất chỉnh sửa quy tắc ${rule.fact_key}. Vui lòng đối chiếu và xác nhận phê duyệt bên dưới.`
+          `Đã tạo đề xuất chỉnh sửa quy tắc. Vui lòng đối chiếu và xác nhận phê duyệt bên dưới.`
         );
       }
     } catch (e) {
@@ -1324,10 +1313,10 @@ function ProposeAmendmentForm({
       <Stack gap="sm">
         <Group justify="space-between">
           <Text fw={700} c="var(--sc-primary-text)">
-            Đề xuất chỉnh sửa quy tắc: {rule.fact_key}
+            Đề xuất chỉnh sửa quy tắc
           </Text>
           <Badge size="xs" variant="outline">
-            Fact: {rule.fact_id.slice(0, 8)}... · Brain v{currentExpectedVersion}
+            Bộ nhớ v{currentExpectedVersion}
           </Badge>
         </Group>
 
@@ -1350,7 +1339,7 @@ function ProposeAmendmentForm({
 
         <Textarea
           label="Nội dung quy tắc thay thế (Replacement Text)"
-          description="Nội dung mới sẽ thay thế bản Canon hiện hành sau khi được bạn chấp thuận."
+          description="Nội dung mới sẽ thay thế bản đang dùng sau khi bạn chấp thuận."
           value={replacement_text}
           disabled={submitting}
           minRows={4}
@@ -1820,12 +1809,12 @@ function PendingProposalDecisionView({
         if (resp.decision === 'accept') {
           onDecided(
             'accept',
-            `Đã chấp thuận đề xuất sửa đổi quy tắc ${rule.fact_key}. Fact mới đã trở thành Canon (Brain v${resp.brain_version}).`
+            `Đã chấp thuận đề xuất. Nội dung mới đã vào bộ nhớ (v${resp.brain_version}).`
           );
         } else {
           onDecided(
             'reject',
-            `Đã từ chối đề xuất sửa đổi. Bản Canon cũ của quy tắc ${rule.fact_key} được bảo toàn nguyên vẹn.`
+            `Đã từ chối đề xuất sửa đổi. Quy tắc giữ nguyên nội dung đang dùng.`
           );
         }
       }
@@ -1894,11 +1883,11 @@ function PendingProposalDecisionView({
               ĐỀ XUẤT CHỜ DUYỆT
             </Badge>
             <Text fw={700} size="sm">
-              Mã đề xuất: {proposal.proposal_id.slice(0, 8)}...
+              Đề xuất sửa quy tắc
             </Text>
           </Group>
           <Text size="xs" c="dimmed">
-            Brain v{currentExpectedVersion} · Fact: {rule.fact_id.slice(0, 8)}...
+            Bộ nhớ v{currentExpectedVersion}
           </Text>
         </Group>
 
@@ -2022,7 +2011,7 @@ function PendingProposalDecisionView({
             loading={deciding}
             data-testid={`accept-amendment-btn-${rule.fact_id}`}
           >
-            Chấp thuận (Duyệt thành Canon mới)
+            Chấp thuận
           </Button>
         </Group>
       </Stack>

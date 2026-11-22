@@ -57,10 +57,11 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
           return route.fulfill({ status: 204 });
         } else if (url.pathname.endsWith('/reading/novels/novel-1')) data = { novelId: 'novel-1', title: 'Hành trình qua những mùa gió', authorName: 'Người kể chuyện', authorId: 'author-1', coverImageUrl: '/missing-cover.jpg', synopsis: 'Giới thiệu.', chapters };
         else if (url.pathname.endsWith('/chapters/c-3/unlock')) { unlocked = true; data = { unlocked: true }; }
+        else if (url.pathname.endsWith('/wallet/me')) data = { walletId: 'wallet-1', coinsBalance: 120, lockedCoins: 0 };
         else if (url.pathname.includes('/reading/chapters/')) {
           const chapter = chapters.find(item => url.pathname.endsWith('/' + item.chapterId));
           if (chapter.chapterId === 'c-2') await new Promise(resolve => setTimeout(resolve, 150));
-          if (chapter.isVip && !unlocked) return route.fulfill({ status: 402, json: { success: false, error: { code: 'PAYMENT_002', message: 'Chapter unlock required' } } });
+          if (chapter.isVip && !unlocked) return route.fulfill({ status: 402, json: { success: false, error: { code: 'PAYMENT_002', message: 'Chapter unlock required', details: { priceCoins: 10, novelId: 'novel-1' } } } });
           data = { ...chapter, content };
         } else if (url.pathname.endsWith('/statistics')) data = { isFollowing: false, notificationsEnabled: false, ratingsCount: 0, ratingAverage: null };
         await route.fulfill({ json: { success: true, data, meta } });
@@ -260,7 +261,10 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
         await toc.getByRole('link', { name: /Chương 3:/ }).click();
         await expect(page.getByRole('heading', { name: 'Chương VIP đang khóa', exact: true })).toBeVisible();
         if (role === 'READER') {
-          await page.getByRole('button', { name: 'Mở khóa chương', exact: true }).click();
+          // UAT 2026-11-20 (BUG-001): the price and the balance are shown before coins are spent.
+          await expect(page.getByText('Mở khóa chương này với 10 xu.', { exact: false })).toBeVisible();
+          await expect(page.getByTestId('unlock-balance')).toContainText('Số dư hiện tại: 120 xu');
+          await page.getByRole('button', { name: 'Mở khóa · 10 xu', exact: true }).click();
           await expect(prose).toBeVisible(); await showTools();
           await expect(rail.getByRole('button', { name: 'Chương sau', exact: true })).toBeDisabled();
           await rail.getByRole('link', { name: 'Về trang truyện', exact: true }).click();

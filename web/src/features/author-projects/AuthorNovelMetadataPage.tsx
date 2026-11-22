@@ -34,6 +34,11 @@ import {
 } from '../novels/novel-api';
 import type { Chapter, ChapterStatus } from '../novels/novel-types';
 
+type AgeRating = 'EVERYONE' | 'TEEN' | 'MATURE';
+// UAT 2026-11-21 (BUG-010): the server only reorders a manuscript with nothing released
+// (CHAPTER_ORDER_CANONICAL), so the button says so up front instead of failing on save.
+const ORDER_LOCKED_HINT = 'Chỉ sắp xếp được khi truyện chưa có chương nào phát hành hoặc đang chờ duyệt.';
+
 export function AuthorNovelMetadataPage() {
   const { novelId = '' } = useParams();
   const navigate = useNavigate();
@@ -81,6 +86,8 @@ export function AuthorNovelMetadataPage() {
   const [synopsisInput, setSynopsisInput] = useState('');
   const [coverInput, setCoverInput] = useState('');
   const [authorNoteInput, setAuthorNoteInput] = useState('');
+  // UAT 2026-11-20 (BUG-003): the edit dialog had no age rating field.
+  const [ageRatingInput, setAgeRatingInput] = useState<AgeRating>('TEEN');
   const [genresInput, setGenresInput] = useState<string[]>([]);
 
   const [newChapterModalOpen, setNewChapterModalOpen] = useState(false);
@@ -121,6 +128,7 @@ export function AuthorNovelMetadataPage() {
       setSynopsisInput(novelQuery.data.synopsis || '');
       setCoverInput(novelQuery.data.coverImageUrl || '');
       setAuthorNoteInput(novelQuery.data.authorNote ?? '');
+      setAgeRatingInput(novelQuery.data.ageRating ?? 'TEEN');
       setGenresInput(novelQuery.data.genres ?? (novelQuery.data.genre ? [novelQuery.data.genre] : []));
     }
   }, [novelQuery.data, editModalOpen]);
@@ -134,7 +142,8 @@ export function AuthorNovelMetadataPage() {
         ...(synopsisInput !== (novelQuery.data?.synopsis ?? '') ? { synopsis: synopsisInput } : {}),
         authorNote: authorNoteInput.trim() || null,
         genres: genresInput,
-        coverImageUrl: coverInput.trim() || null
+        coverImageUrl: coverInput.trim() || null,
+        ...(ageRatingInput !== novelQuery.data?.ageRating ? { ageRating: ageRatingInput } : {})
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['novel', novelId] });
@@ -182,6 +191,7 @@ export function AuthorNovelMetadataPage() {
   });
 
   const chapters: Chapter[] = chaptersQuery.data ?? [];
+  const orderLocked = chapters.some(chapter => chapter.content !== null || !['DRAFT', 'REJECTED'].includes(chapter.status));
   const updated = useUpdatedItems(chaptersQuery.data?.map(chapter => ({ id: chapter.chapterId, version: [chapter.updatedAt, chapter.draftVersion, chapter.status, chapter.title, chapter.chapterNumber, chapter.isVip, chapter.priceCoins].join('|') })), novelId);
 
   const vipChaptersCount = chapters.filter((c) => c.isVip).length;
@@ -653,7 +663,9 @@ export function AuthorNovelMetadataPage() {
                       ))}
                     </Menu.Dropdown>
                   </Menu>
-                  <button type="button" className="sc-button" onClick={() => setOrderOpen(true)} disabled={!chapters.length}>Sắp xếp chương</button>
+                  <button type="button" className="sc-button" onClick={() => setOrderOpen(true)} disabled={!chapters.length || orderLocked}
+                    data-testid="chapter-order-open" title={orderLocked ? ORDER_LOCKED_HINT : undefined} aria-describedby={orderLocked ? 'chapter-order-locked' : undefined}>Sắp xếp chương</button>
+                  {orderLocked && <span id="chapter-order-locked" className="sr-only">{ORDER_LOCKED_HINT}</span>}
                   <Link
                     to={`/author/import/${novelId}`}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200/80 text-stone-700 border border-stone-200/70 font-label-md text-meta transition-colors"
@@ -864,6 +876,15 @@ export function AuthorNovelMetadataPage() {
               </div>
 
               <TagsInput className="sc-novel-edit-genres" label="Thể loại" description="Chọn hoặc nhập tối đa 5 thể loại." placeholder="Chọn hoặc nhập thể loại" data={genresQuery.data ?? []} value={genresInput} onChange={setGenresInput} maxTags={5} maxLength={100} clearable comboboxProps={{ withinPortal: false }} />
+              <div>
+                <label htmlFor="novel-age-rating" className="block font-semibold text-stone-800 mb-1">Độ tuổi</label>
+                <select id="novel-age-rating" value={ageRatingInput} onChange={event => setAgeRatingInput(event.target.value as AgeRating)}
+                  className="w-full px-3 py-2 rounded-lg bg-stone-50 border border-stone-200 text-body">
+                  <option value="EVERYONE">Mọi lứa tuổi</option>
+                  <option value="TEEN">16+</option>
+                  <option value="MATURE">18+</option>
+                </select>
+              </div>
               <div>
                 <label htmlFor="novel-author-note" className="block font-semibold text-stone-800 mb-1">Lời tác giả</label>
                 <textarea id="novel-author-note" rows={8} maxLength={5000} value={authorNoteInput} onChange={event => setAuthorNoteInput(event.target.value)} placeholder="Lời nhắn dành cho độc giả…" className="w-full px-3 py-2 rounded-lg bg-stone-50 border border-stone-200 text-body" />

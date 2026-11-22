@@ -103,11 +103,12 @@ export async function getReaderChapter(chapterId: string, auth?: AuthContext) {
 }
 
 /** History writes must satisfy the same access policy as content reads. */
-export async function assertChapterAccess(chapter: { chapterId: string; authorId: string; isVip: boolean }, auth?: AuthContext) {
+export async function assertChapterAccess(chapter: { chapterId: string; authorId: string; isVip: boolean; priceCoins?: number; novelId?: string }, auth?: AuthContext) {
   const owner = Boolean(auth && (auth.userId === chapter.authorId || isContentAdmin(auth)));
   if (auth) await assertActiveAccount(auth);
   if (chapter.isVip && !owner && (!auth || !(await userHasChapterUnlock(auth.userId, chapter.chapterId)))) {
-    throw new AppError(402, 'PAYMENT_002', 'Chapter unlock required');
+    // UAT 2026-11-20 (BUG-001): the reader must see the price before unlocking.
+    throw new AppError(402, 'PAYMENT_002', 'Chapter unlock required', { priceCoins: chapter.priceCoins ?? null, novelId: chapter.novelId ?? null });
   }
   return owner;
 }

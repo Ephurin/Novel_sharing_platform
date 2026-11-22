@@ -18,7 +18,7 @@ test('25 chapters: display sorting, drag/keyboard reorder, scroll, cancel and sa
       const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       let chapters = Array.from({ length: 25 }, (_, i) => ({ chapterId: `c${i + 1}`, novelId: 'book', title: `Chapter ${i + 1}`,
-        chapterNumber: i + 1, wordCount: (i + 1) * 100, isVip: false, priceCoins: 0, status: 'PUBLISHED',
+        chapterNumber: i + 1, wordCount: (i + 1) * 100, isVip: false, priceCoins: 0, status: 'DRAFT', content: null,
         updatedAt: `2026-10-${String(i + 1).padStart(2, '0')}T00:00:00Z` }));
       const saved = [];
       let failSave = false;
@@ -109,6 +109,14 @@ test('25 chapters: display sorting, drag/keyboard reorder, scroll, cancel and sa
       assert.equal(saved[0].length, 25);
       assert.equal(new Set(saved[0]).size, 25);
       assert.deepEqual(saved[0].slice(0, 3), ['c2', 'c1', 'c3']);
+      // UAT 2026-11-21 (BUG-010): once anything is released the server refuses a new
+      // order, so the button is disabled with an explanation instead of failing on save.
+      chapters = chapters.map((ch, i) => i === 0 ? { ...ch, status: 'PUBLISHED', content: 'Released' } : ch);
+      await page.reload();
+      await table.locator('tr').first().waitFor();
+      const locked = page.getByRole('button', { name: 'Sắp xếp chương', exact: true });
+      assert.equal(await locked.isDisabled(), true, 'reorder is locked after a chapter is released');
+      assert.match(await locked.getAttribute('title'), /chưa có chương nào phát hành/);
       assert.deepEqual(errors, []);
       await page.screenshot({ path: join(tmpdir(), `chapter-table-${mode}.png`), fullPage: true });
       await context.close();
