@@ -1,14 +1,13 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'motion/react';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { AnimatedChoiceGroup } from '../../shared/components/AnimatedChoiceGroup';
 import { HomeResults, HomeSectionState, NovelQuickPreview } from './HomeEnhancements';
 import { useAuthStore } from '../auth/useAuthStore';
-import { getReadingFilters, searchPublishedNovels, type ReaderNovel } from './reader-api';
+import { getReadingFilters, searchPublishedNovelPage, searchPublishedNovels, type ReaderNovel } from './reader-api';
 import { useListScroll, useUrlFilters } from '../../shared/components/WorkspacePreferences';
-import { HomeSearch } from './HomeSearch';
 import { HomeGenres } from './HomeGenres';
 import { ContinueReading } from './HomePersonalization';
 import { AuthorSpotlight, CuratedShelves, GenreShowcase, WritingStudioBanner } from './HomeDiscoverySections';
@@ -50,8 +49,10 @@ function relativeTime(date?: string | null) {
 }
 
 export function ReaderHomePage() {
+  const navigate = useNavigate();
   const user = useAuthStore(state => state.user);
   const catalogPath = user && user.role !== 'ADMIN' ? '/reader' : '/public';
+  const [pickingRandom, setPickingRandom] = useState(false);
   const homeFilters = useUrlFilters({ featured: 'views' as typeof featureTabs[number]['value'], genre: '', page: 1 }, { featured: ['views', 'likes', 'updatedAt'] });
   const { featured: featureSort, genre, page } = homeFilters.values;
   const featurePage = page - 1;
@@ -104,6 +105,29 @@ export function ReaderHomePage() {
   const isWriter = user?.role === 'AUTHOR' || user?.role === 'ADMIN';
   const novelPath = (novel: ReaderNovel) => `${catalogPath}/novels/${novel.novelId}`;
 
+  async function handleRandomNovel() {
+    if (pickingRandom) return;
+    if (catalogNovels.length > 0) {
+      const chosen = catalogNovels[Math.floor(Math.random() * catalogNovels.length)];
+      navigate(novelPath(chosen));
+      return;
+    }
+    setPickingRandom(true);
+    try {
+      const pageData = await searchPublishedNovelPage({ page: 1, limit: 20, sort: 'updatedAt', order: 'desc' });
+      if (pageData.items.length > 0) {
+        const chosen = pageData.items[Math.floor(Math.random() * pageData.items.length)];
+        navigate(novelPath(chosen));
+      } else {
+        navigate(catalogPath);
+      }
+    } catch {
+      navigate(catalogPath);
+    } finally {
+      setPickingRandom(false);
+    }
+  }
+
   return <>
     <a className="sc-home-skip-link" href="#home-main">Đến nội dung chính</a>
     <AuthorNavbar />
@@ -113,7 +137,22 @@ export function ReaderHomePage() {
           <span className="sc-home-eyebrow">Không gian đọc StoryCraft</span>
           <h1 className="text-page-title">Góc đọc truyện</h1>
           <p className="sc-home-intro-subtitle">Tìm một câu chuyện để say mê và một khoảnh khắc đọc thật riêng cho mình.</p>
-          <HomeSearch catalogPath={catalogPath} />
+          <div className="sc-home-hero-actions">
+            <Link to={catalogPath} className="sc-home-hero-btn sc-home-hero-btn-primary" data-testid="home-hero-explore">
+              <Icon name="menu_book" />
+              <span>Khám phá truyện</span>
+            </Link>
+            <button
+              type="button"
+              className="sc-home-hero-btn sc-home-hero-btn-secondary"
+              disabled={pickingRandom}
+              onClick={() => void handleRandomNovel()}
+              data-testid="home-hero-random"
+            >
+              <Icon name="shuffle" />
+              <span>{pickingRandom ? 'Đang chọn…' : 'Truyện ngẫu nhiên'}</span>
+            </button>
+          </div>
         </div>
         <div className="sc-home-intro-art" aria-hidden="true">
           <img src={booksTeaArt} alt="" loading="eager" />
