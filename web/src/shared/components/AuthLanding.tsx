@@ -260,7 +260,6 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
             <Link to="/" className="sc-auth-brand" aria-label="StoryCraft — Trang chủ">
               <span className="material-symbols-outlined" aria-hidden="true">menu_book</span>
               <span className="sc-auth-brand-name">StoryCraft</span>
-              <span className="sc-auth-edition">Văn Hoa</span>
             </Link>
             <div className="sc-auth-theme-switch" role="group" aria-label="Chế độ hiển thị">
               <button

@@ -273,7 +273,7 @@ export function ReaderHomePage() {
 
       <footer className="sc-home-footer">
         <div className="sc-home-footer-identity">
-          <Link to="/" className="sc-home-footer-brand">StoryCraft <span>Văn Hoa</span></Link>
+          <Link to="/" className="sc-home-footer-brand">StoryCraft</Link>
           <span className="sc-home-footer-tagline">Nơi những câu chuyện bắt đầu và tiếp nối.</span>
         </div>
         <Link to={catalogPath}>Danh sách truyện<Icon name="arrow_forward" /></Link>

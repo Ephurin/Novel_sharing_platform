@@ -70,13 +70,18 @@
 }
 
 .sc-author-theme .sc-catalog-title {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 29px;
-  letter-spacing: -0.65px;
-  line-height: 1.2;
+  font-family: var(--sc-font);
+  font-size: 24px;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
   font-weight: 700;
+  text-transform: uppercase;
   margin: 0;
   color: #332b27;
+}
+
+.sc-catalog-title-count {
+  font-variant-numeric: tabular-nums;
 }
 
 .sc-catalog-order {
@@ -805,7 +810,7 @@
     margin-bottom: 16px;
   }
   .sc-author-theme .sc-catalog-title {
-    font-size: 25px;
+    font-size: 20px;
   }
   .sc-catalog-topbar {
     gap: 8px;
@@ -879,13 +884,13 @@
 
 @media (max-width: 440px) {
   .sc-author-theme .sc-catalog-title {
-    font-size: 23px;
+    font-size: 18px;
   }
 }
 
 @media (max-width: 360px) {
   .sc-author-theme .sc-catalog-title {
-    font-size: 21px;
+    font-size: 17px;
   }
 }
 

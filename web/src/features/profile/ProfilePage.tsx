@@ -278,7 +278,7 @@ export function AuthorProfilePage() {
       </main>
 
       <footer className="sc-author-profile-footer text-meta">
-        <span>© {new Date().getFullYear()} StoryCraft Văn Hoa</span>
+        <span>© {new Date().getFullYear()} StoryCraft</span>
         <Link to={isGuest ? '/public' : '/reader'}>Khám phá tác phẩm</Link>
       </footer>
 
@@ -306,7 +306,7 @@ export function AuthorProfilePage() {
 
         <div className="space-y-3 text-meta">
           <span id="support-preset-label" className="font-semibold text-stone-700 block">
-            Chọn mức ủng hộ (Xu Văn Hoa):
+            Chọn mức ủng hộ (Xu):
           </span>
           <LayoutGroup id={supportGroupId}>
             <div className="grid grid-cols-4 gap-2" role="group" aria-labelledby="support-preset-label">

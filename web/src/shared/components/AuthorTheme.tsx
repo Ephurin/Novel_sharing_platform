@@ -139,7 +139,7 @@ export function AuthorNavbar() {
       <div className="sc-navbar-inner">
         <Link to="/" className="sc-brand" aria-label={`StoryCraft — ${navigationLabels.home}`}>
           <span className="material-symbols-outlined">menu_book</span>
-          <span>StoryCraft</span><span className="sc-brand-edition">Văn Hoa</span>
+          <span>StoryCraft</span>
         </Link>
         <LayoutGroup id="sc-global-nav">
           {isWriter ? (

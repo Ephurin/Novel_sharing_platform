@@ -139,6 +139,7 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
   };
 
   const items = busy ? [] : result.data?.items ?? [];
+  const totalItems = result.data?.totalItems;
   const totalPages = result.data?.totalPages ?? 1;
 
   const activeFilterCount = genre.length + tag.length + (status ? 1 : 0);
@@ -159,7 +160,12 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
       <div className="sc-catalog-columns">
         <section className="sc-catalog-left" aria-label="Kết quả truyện" aria-busy={busy || result.isFetching}>
           <div className="sc-catalog-topbar">
-            <h1 className="sc-catalog-title">Danh sách truyện</h1>
+            <h1 className="sc-catalog-title">
+              DANH SÁCH TRUYỆN
+              {!busy && !result.isError && typeof totalItems === 'number' && (
+                <span className="sc-catalog-title-count"> ({totalItems.toLocaleString('vi-VN')})</span>
+              )}
+            </h1>
             <button
               type="button"
               className="sc-catalog-filter-open"
