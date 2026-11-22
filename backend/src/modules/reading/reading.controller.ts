@@ -4,6 +4,7 @@ import { successResponse } from '../../core/response/response.js';
 import {
   addToLibrary,
   getHistoryForNovel,
+  getLatestPublishedChapters,
   getPreferences,
   getReaderChapter,
   getReaderNovel,
@@ -73,6 +74,15 @@ export const searchNovelsController: RequestHandler = async (request, response, 
   try {
     const result = await searchNovels(request.query as never);
     response.json(successResponse(result.data, result.meta));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const listLatestChaptersController: RequestHandler = async (request, response, next) => {
+  try {
+    const items = await getLatestPublishedChapters(request.query as never);
+    response.json(successResponse(items));
   } catch (error) {
     next(error);
   }

@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { useAuthStore } from '../auth/useAuthStore';
-import { searchPublishedNovelPage, type ReaderNovel } from './reader-api';
+import { listLatestPublishedChapters, searchPublishedNovelPage, type LatestPublishedChapter, type ReaderNovel } from './reader-api';
 import { useListScroll, useUrlFilters } from '../../shared/components/WorkspacePreferences';
 import { ContinueReading } from './HomePersonalization';
 import { HomeNovelCover } from './HomeNovelCover';
@@ -75,6 +75,12 @@ export function ReaderHomePage() {
     queryFn: () => searchPublishedNovelPage({ sort: 'updatedAt', order: 'desc', page: 1, limit: 20 }),
     staleTime: 30_000,
   });
+  const latestChaptersQuery = useQuery({
+    queryKey: ['reader-home-latest-chapters'],
+    queryFn: ({ signal }) => listLatestPublishedChapters(12, signal),
+    staleTime: 30_000,
+    retry: false,
+  });
   const completedQuery = useQuery({
     queryKey: ['reader-home-list', 'completed'],
     queryFn: () => searchPublishedNovelPage({ status: 'COMPLETED', sort: 'views', order: 'desc', page: 1, limit: 12 }),
@@ -134,21 +140,36 @@ export function ReaderHomePage() {
     [featuredItems]
   );
 
-  const novelsWithPublishedChapter = useMemo(() => {
+  const latestChapterEntries = useMemo<LatestPublishedChapter[]>(() => {
+    const dedicated = latestChaptersQuery.data ?? [];
+    if (dedicated.length > 0) return dedicated;
     const seen = new Set<string>();
-    const list: ReaderNovel[] = [];
+    const fallback: LatestPublishedChapter[] = [];
     for (const novel of latestNovels) {
-      if (!novel.latestChapter || seen.has(novel.novelId)) continue;
-      seen.add(novel.novelId);
-      list.push(novel);
+      if (!novel.latestChapter || seen.has(novel.latestChapter.chapterId)) continue;
+      seen.add(novel.latestChapter.chapterId);
+      fallback.push({
+        chapterId: novel.latestChapter.chapterId,
+        novelId: novel.novelId,
+        chapterNumber: novel.latestChapter.chapterNumber,
+        title: novel.latestChapter.title,
+        publishedAt: novel.latestChapter.publishedAt ?? novel.updatedAt ?? null,
+        novelTitle: novel.title,
+        coverImageUrl: novel.coverImageUrl,
+        genre: novel.genre,
+        genres: novel.genres,
+      });
     }
-    return list;
-  }, [latestNovels]);
+    return fallback;
+  }, [latestChaptersQuery.data, latestNovels]);
 
   const chapterUpdateItems = useMemo(() => {
-    const limit = chaptersExpanded ? 10 : 8;
-    return novelsWithPublishedChapter.slice(0, limit);
-  }, [novelsWithPublishedChapter, chaptersExpanded]);
+    const limit = chaptersExpanded ? 12 : 8;
+    return latestChapterEntries.slice(0, limit);
+  }, [latestChapterEntries, chaptersExpanded]);
+
+  const chapterUpdatesLoading = latestChaptersQuery.isPending && latestQuery.isPending;
+  const chapterUpdatesError = latestChaptersQuery.isError && latestQuery.isError && latestChapterEntries.length === 0;
 
   const authors = useMemo(() => {
     const byId = new Map<string, { authorId: string; authorName: string; novelsCount: number; totalViews: number }>();
@@ -242,99 +263,86 @@ export function ReaderHomePage() {
             {/* 2. Đọc tiếp (chỉ hiện với người đã đăng nhập) */}
             <ContinueReading catalogNovelsMap={catalogNovelsMap} catalogPath={catalogPath} />
 
-            {/* 3. Chương mới cập nhật & Thảo luận nổi bật nằm cạnh nhau trên desktop */}
-            <div className="sc-home-paired">
-              <section className="sc-home-panel sc-home-section" aria-label="Chương mới cập nhật">
-                <div className="sc-home-sec-head">
-                  <div className="sc-home-sec-left">
-                    <span className="material-symbols-outlined sc-home-sec-icon" aria-hidden="true">schedule</span>
-                    <h2>Chương mới cập nhật</h2>
-                  </div>
-                  {novelsWithPublishedChapter.length > 8 ? (
-                    <button
-                      type="button"
-                      className="sc-home-sec-link"
-                      onClick={() => setChaptersExpanded(prev => !prev)}
-                    >
-                      {chaptersExpanded ? 'Thu gọn ↑' : 'Xem thêm →'}
-                    </button>
-                  ) : (
-                    <Link className="sc-home-sec-link" to={`${catalogPath}?sort=updatedAt:desc`}>Xem thêm →</Link>
-                  )}
+            {/* 3. Chương mới cập nhật (full width cột chính, lấy trực tiếp theo thứ tự published_at của chương) */}
+            <section className="sc-home-panel sc-home-section" aria-label="Chương mới cập nhật">
+              <div className="sc-home-sec-head">
+                <div className="sc-home-sec-left">
+                  <span className="material-symbols-outlined sc-home-sec-icon" aria-hidden="true">schedule</span>
+                  <h2>Chương mới cập nhật</h2>
                 </div>
-
-                {latestQuery.isPending ? (
-                  <div className="sc-home-chapter-list" aria-busy="true">
-                    {Array.from({ length: 6 }, (_, idx) => (
-                      <div key={idx} className="sc-home-chapter-row is-skeleton" aria-hidden="true">
-                        <span className="sc-skeleton-block sc-home-chapter-thumb" />
-                        <span className="sc-skeleton-block" style={{ width: '74%', height: 13 }} />
-                        <span className="sc-skeleton-block" style={{ width: 64, height: 22, borderRadius: 999 }} />
-                        <span className="sc-skeleton-block" style={{ width: 52, height: 11 }} />
-                      </div>
-                    ))}
-                  </div>
-                ) : latestQuery.isError ? (
-                  <div className="sc-home-inline-notice" role="alert">
-                    <span>Chưa tải được danh sách chương mới.</span>
-                    <button type="button" onClick={() => void latestQuery.refetch()}>Thử lại</button>
-                  </div>
-                ) : chapterUpdateItems.length === 0 ? (
-                  <div className="sc-home-empty-block">
-                    <p>Chưa có chương mới nào được xuất bản.</p>
-                  </div>
+                {latestChapterEntries.length > 8 ? (
+                  <button
+                    type="button"
+                    className="sc-home-sec-link"
+                    onClick={() => setChaptersExpanded(prev => !prev)}
+                  >
+                    {chaptersExpanded ? 'Thu gọn ↑' : 'Xem thêm →'}
+                  </button>
                 ) : (
-                  <div className="sc-home-chapter-list">
-                    {chapterUpdateItems.map(novel => {
-                      const latestChapter = novel.latestChapter!;
-                      const target = `${catalogPath}/chapters/${latestChapter.chapterId}`;
-                      const badgeLabel = `Chương ${latestChapter.chapterNumber}`;
-                      const updatedStamp = latestChapter.publishedAt ?? novel.updatedAt;
-                      return (
-                        <Link key={novel.novelId} className="sc-home-chapter-row" to={target} title={novel.title}>
-                          <span className="sc-home-chapter-thumb">
-                            <HomeNovelCover novel={novel} size="thumb" />
-                          </span>
-                          <strong className="sc-home-chapter-title">{novel.title}</strong>
-                          <span className="sc-home-chapter-badge">{badgeLabel}</span>
-                          <time
-                            className="sc-home-chapter-time"
-                            dateTime={updatedStamp ?? undefined}
-                            title={updatedStamp ? new Date(updatedStamp).toLocaleString('vi-VN') : undefined}
-                          >
-                            {relativeTime(updatedStamp)}
-                          </time>
-                        </Link>
-                      );
-                    })}
-                  </div>
+                  <Link className="sc-home-sec-link" to={`${catalogPath}?sort=updatedAt:desc`}>Xem thêm →</Link>
                 )}
-              </section>
+              </div>
 
-              <section className="sc-home-panel sc-home-section sc-home-discussions-panel" aria-label="Thảo luận nổi bật">
-                <div className="sc-home-sec-head">
-                  <div className="sc-home-sec-left">
-                    <span className="material-symbols-outlined sc-home-sec-icon" aria-hidden="true">forum</span>
-                    <h2>Thảo luận nổi bật</h2>
-                  </div>
-                  <Link className="sc-home-sec-link" to={catalogPath}>Bình luận truyện →</Link>
+              {chapterUpdatesLoading ? (
+                <div className="sc-home-chapter-list" aria-busy="true">
+                  {Array.from({ length: 6 }, (_, idx) => (
+                    <div key={idx} className="sc-home-chapter-row is-skeleton" aria-hidden="true">
+                      <span className="sc-skeleton-block sc-home-chapter-thumb" />
+                      <span className="sc-skeleton-block" style={{ width: '74%', height: 13 }} />
+                      <span className="sc-skeleton-block sc-home-chapter-sub" style={{ width: '62%', height: 12 }} />
+                      <span className="sc-skeleton-block" style={{ width: 64, height: 22, borderRadius: 999 }} />
+                      <span className="sc-skeleton-block" style={{ width: 52, height: 11 }} />
+                    </div>
+                  ))}
                 </div>
-
-                <div className="sc-home-empty-block sc-home-discussions-empty">
-                  <span className="sc-home-empty-badge" aria-hidden="true">
-                    <span className="material-symbols-outlined">forum</span>
-                  </span>
-                  <h3>Chưa có chủ đề thảo luận</h3>
-                  <p>
-                    Thảo luận chung chưa có bài viết trên nhánh này. Bạn có thể bình luận trực tiếp trong từng truyện.
-                  </p>
-                  <Link className="sc-home-pill-btn sc-home-pill-secondary sc-home-discussions-cta" to={catalogPath}>
-                    <span>Mở danh sách truyện</span>
-                    <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                  </Link>
+              ) : chapterUpdatesError ? (
+                <div className="sc-home-inline-notice" role="alert">
+                  <span>Chưa tải được danh sách chương mới.</span>
+                  <button type="button" onClick={() => { void latestChaptersQuery.refetch(); void latestQuery.refetch(); }}>Thử lại</button>
                 </div>
-              </section>
-            </div>
+              ) : chapterUpdateItems.length === 0 ? (
+                <div className="sc-home-empty-block">
+                  <p>Chưa có chương mới nào được xuất bản.</p>
+                </div>
+              ) : (
+                <div className="sc-home-chapter-list">
+                  {chapterUpdateItems.map(item => {
+                    const target = `${catalogPath}/chapters/${item.chapterId}`;
+                    const badgeLabel = `Chương ${item.chapterNumber}`;
+                    const cleanChapterTitle = item.title?.trim() ?? '';
+                    const coverNovel = {
+                      novelId: item.novelId,
+                      title: item.novelTitle,
+                      coverImageUrl: item.coverImageUrl,
+                      genre: item.genre,
+                      genres: item.genres,
+                    };
+                    return (
+                      <Link
+                        key={item.chapterId}
+                        className="sc-home-chapter-row"
+                        to={target}
+                        title={cleanChapterTitle ? `${item.novelTitle} — ${cleanChapterTitle}` : item.novelTitle}
+                      >
+                        <span className="sc-home-chapter-thumb">
+                          <HomeNovelCover novel={coverNovel} size="thumb" />
+                        </span>
+                        <strong className="sc-home-chapter-title">{item.novelTitle}</strong>
+                        <span className="sc-home-chapter-sub">{cleanChapterTitle || badgeLabel}</span>
+                        <span className="sc-home-chapter-badge">{badgeLabel}</span>
+                        <time
+                          className="sc-home-chapter-time"
+                          dateTime={item.publishedAt ?? undefined}
+                          title={item.publishedAt ? new Date(item.publishedAt).toLocaleString('vi-VN') : undefined}
+                        >
+                          {relativeTime(item.publishedAt)}
+                        </time>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
 
             {/* 4. Truyện nổi bật dạng lưới bìa có tab */}
             <section className="sc-home-panel sc-home-section" id="featured-novels" aria-label="Truyện nổi bật">

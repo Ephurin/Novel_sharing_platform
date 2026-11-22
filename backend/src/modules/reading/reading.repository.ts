@@ -194,21 +194,52 @@ export async function listReadingFilters() {
 
 export async function searchPublishedNovels(input: SearchNovelsInput) {
   const offset = (input.page - 1) * input.limit;
-  const search = input.q ? `%${input.q}%` : null;
+  const trimmedQuery = input.q?.trim() ?? '';
+  const search = trimmedQuery ? `%${trimmedQuery}%` : null;
+  const exactQuery = trimmedQuery || null;
+  const prefixQuery = trimmedQuery ? `${trimmedQuery}%` : null;
   const genres = [...new Set([input.genre, ...(input.genres ?? [])].filter((value): value is string => Boolean(value)).map(value => value.toLowerCase()))];
   const tags = [...new Set([input.tag, ...(input.tags ?? [])].filter((value): value is string => Boolean(value)).map(value => value.toLowerCase()))];
   const orderDirection = input.order === 'asc' ? 'asc' : 'desc';
-  const sortExpression =
-    input.sort === 'views'
-      ? 'n.views_count'
-      : input.sort === 'likes'
-        ? 'n.likes_count'
-        : input.sort === 'title'
-          ? 'lower(n.title)'
-          : input.sort === 'wordCount'
-            ? `(select coalesce(sum(c.word_count), 0) from chapters c
-                where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null)`
-            : 'n.updated_at';
+  const isRelevanceWithQuery = input.sort === 'relevance' && Boolean(trimmedQuery);
+  const orderByClause =
+    input.sort === 'relevance'
+      ? isRelevanceWithQuery
+        ? `(
+            case
+              when lower(n.title) = lower($7::text) then 100
+              when n.title ilike $8::text then 70
+              when n.title ilike $1 then 40
+              else 0
+            end
+            + case when coalesce(up.display_name, u.username) ilike $1 then 25 else 0 end
+            + case when coalesce(g.name ilike $1, false) or exists (
+                select 1 from novel_genres ngr join genres ggr on ggr.genre_id = ngr.genre_id
+                where ngr.novel_id = n.novel_id and ggr.name ilike $1
+              ) then 15 else 0 end
+            + case when exists (
+                select 1 from novel_tags ntr join tags tr on tr.tag_id = ntr.tag_id
+                where ntr.novel_id = n.novel_id and tr.name ilike $1
+              ) then 15 else 0 end
+            + case when n.synopsis ilike $1 then 10 else 0 end
+          ) ${orderDirection}, n.views_count desc, n.updated_at desc, n.novel_id asc`
+        : `n.views_count ${orderDirection}, n.updated_at desc, n.novel_id asc`
+      : `${
+          input.sort === 'views'
+            ? 'n.views_count'
+            : input.sort === 'likes'
+              ? 'n.likes_count'
+              : input.sort === 'title'
+                ? 'lower(n.title)'
+                : input.sort === 'wordCount'
+                  ? `(select coalesce(sum(c.word_count), 0) from chapters c
+                      where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null)`
+                  : 'n.updated_at'
+        } ${orderDirection}, n.novel_id asc`;
+
+  const dataParams = isRelevanceWithQuery
+    ? [search, genres, tags, input.status ?? null, input.limit, offset, exactQuery, prefixQuery]
+    : [search, genres, tags, input.status ?? null, input.limit, offset];
 
   const dataResult = await getPostgresPool().query(
     `
@@ -238,7 +269,7 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
       left join tags t on t.tag_id = nt.tag_id
       where n.deleted_at is null
         and n.status = 'PUBLISHED'
-        and ($1::text is null or n.title ilike $1 or n.synopsis ilike $1)
+        and ($1::text is null or n.title ilike $1 or n.synopsis ilike $1 or coalesce(up.display_name, u.username) ilike $1)
         and not exists (select 1 from unnest($2::text[]) as selected(value) where not (coalesce(lower(g.slug) = selected.value or lower(g.name) = selected.value, false) or exists (
           select 1 from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
           where ng.novel_id = n.novel_id and (lower(gg.slug) = selected.value or lower(gg.name) = selected.value))))
@@ -247,22 +278,24 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
           where ntf.novel_id = n.novel_id and (lower(tf.slug) = selected.value or lower(tf.name) = selected.value)))
         and ($4::novel_serial_status is null or n.serial_status = $4)
       group by n.novel_id, up.display_name, u.username, g.name
-      order by ${sortExpression} ${orderDirection}, n.novel_id asc
+      order by ${orderByClause}
       limit $5 offset $6
     `,
-    [search, genres, tags, input.status ?? null, input.limit, offset]
+    dataParams
   );
 
   const countResult = await getPostgresPool().query(
     `
       select count(distinct n.novel_id)::int as total
       from novels n
+      join users u on u.user_id = n.author_id
+      left join user_profiles up on up.user_id = u.user_id
       left join genres g on g.genre_id = n.genre_id
       left join novel_tags nt on nt.novel_id = n.novel_id
       left join tags t on t.tag_id = nt.tag_id
       where n.deleted_at is null
         and n.status = 'PUBLISHED'
-        and ($1::text is null or n.title ilike $1 or n.synopsis ilike $1)
+        and ($1::text is null or n.title ilike $1 or n.synopsis ilike $1 or coalesce(up.display_name, u.username) ilike $1)
         and not exists (select 1 from unnest($2::text[]) as selected(value) where not (coalesce(lower(g.slug) = selected.value or lower(g.name) = selected.value, false) or exists (
           select 1 from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
           where ng.novel_id = n.novel_id and (lower(gg.slug) = selected.value or lower(gg.name) = selected.value))))
@@ -278,6 +311,47 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
     items: dataResult.rows.map(mapNovelSummary),
     totalItems: countResult.rows[0]?.total ?? 0
   };
+}
+
+export async function listLatestPublishedChapters(limit: number) {
+  const result = await getPostgresPool().query(
+    `
+      select
+        c.chapter_id,
+        c.novel_id,
+        c.chapter_number,
+        c.title as chapter_title,
+        coalesce(c.published_at, c.created_at) as published_at,
+        n.title as novel_title,
+        n.cover_image_url,
+        g.name as genre_name,
+        (select array_agg(gg.name order by (ng.genre_id = n.genre_id) desc, gg.name)
+          from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
+          where ng.novel_id = n.novel_id) as genres
+      from chapters c
+      join novels n on n.novel_id = c.novel_id
+      left join genres g on g.genre_id = n.genre_id
+      where c.status = 'PUBLISHED'
+        and c.deleted_at is null
+        and n.status = 'PUBLISHED'
+        and n.deleted_at is null
+      order by coalesce(c.published_at, c.created_at) desc, c.chapter_number desc, c.chapter_id desc
+      limit $1
+    `,
+    [limit]
+  );
+
+  return result.rows.map(row => ({
+    chapterId: row.chapter_id as string,
+    novelId: row.novel_id as string,
+    chapterNumber: Number(row.chapter_number),
+    title: row.chapter_title as string,
+    publishedAt: row.published_at as Date | null,
+    novelTitle: row.novel_title as string,
+    coverImageUrl: (row.cover_image_url as string | null) ?? null,
+    genre: (row.genre_name as string | null) ?? null,
+    genres: row.genres?.length ? (row.genres as string[]) : row.genre_name ? [row.genre_name as string] : []
+  }));
 }
 
 export async function findPublishedNovelDetail(novelId: string) {

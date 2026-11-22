@@ -36,6 +36,18 @@ export type ReaderChapter = {
   publishedAt?: string;
 };
 
+export type LatestPublishedChapter = {
+  chapterId: string;
+  novelId: string;
+  chapterNumber: number;
+  title: string;
+  publishedAt: string | null;
+  novelTitle: string;
+  coverImageUrl?: string | null;
+  genre?: string | null;
+  genres?: string[];
+};
+
 export type ReadingHistoryItem = {
   readChapterIds?: string[];
   novelId: string;
@@ -143,6 +155,14 @@ export async function getReadingFilters() {
 
 export async function searchPublishedNovels(input: SearchPublishedNovelsInput, signal?: AbortSignal) {
   return (await searchPublishedNovelPage(input, signal)).items;
+}
+
+export async function listLatestPublishedChapters(limit = 10, signal?: AbortSignal) {
+  const response = await apiClient.get<ApiEnvelope<LatestPublishedChapter[]>>('/reading/chapters/latest', {
+    signal,
+    params: { limit }
+  });
+  return Array.isArray(response.data.data) ? response.data.data : [];
 }
 
 export async function searchPublishedNovelPage(input: SearchPublishedNovelsInput & { page?: number; limit?: number }, signal?: AbortSignal) {

@@ -6,6 +6,7 @@ import type { AuthContext } from '../../core/security/auth-context.js';
 import type {
   AddLibraryItemInput,
   HistoryListInput,
+  LatestChaptersInput,
   ReadingPreferencesInput,
   SearchNovelsInput,
   SyncReadingHistoryInput,
@@ -19,6 +20,7 @@ import {
   findReadingHistory,
   incrementNovelViews,
   listBookmarks,
+  listLatestPublishedChapters,
   listPublishedChaptersForNovel,
   listReadingHistories,
   listReadingFilters,
@@ -63,6 +65,10 @@ export async function searchNovels(input: SearchNovelsInput) {
     data: result.items,
     meta: buildMeta(result.totalItems, input.page, input.limit)
   };
+}
+
+export async function getLatestPublishedChapters(input: LatestChaptersInput) {
+  return listLatestPublishedChapters(input.limit);
 }
 
 export async function getReaderNovel(novelId: string) {

@@ -182,11 +182,11 @@ export function HomeSidebar({
         </section>
       )}
 
-      <section className="sc-home-panel sc-home-rail-section" aria-label="Bảng xếp hạng tuần">
+      <section className="sc-home-panel sc-home-rail-section" aria-label="Bảng xếp hạng truyện">
         <div className="sc-home-sec-head">
           <div className="sc-home-sec-left">
             <span className="material-symbols-outlined sc-home-sec-icon" aria-hidden="true">emoji_events</span>
-            <h2>Bảng xếp hạng tuần</h2>
+            <h2>Bảng xếp hạng truyện</h2>
           </div>
         </div>
         <div className="sc-home-rank-tabs" role="tablist" aria-label="Tiêu chí xếp hạng">

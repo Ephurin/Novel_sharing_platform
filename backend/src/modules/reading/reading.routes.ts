@@ -12,6 +12,7 @@ import {
   getReaderNovelController,
   getReadingFiltersController,
   listHistoryController,
+  listLatestChaptersController,
   listLibraryController,
   removeFromLibraryController,
   savePreferencesController,
@@ -25,6 +26,7 @@ import {
   addLibraryItemSchema,
   chapterIdParamSchema,
   historyListSchema,
+  latestChaptersSchema,
   novelIdParamSchema,
   readingPreferencesSchema,
   searchNovelsSchema,
@@ -52,6 +54,7 @@ readingRoutes.delete('/bookmarks/me/:novelId', requireAuth, validateRequest(nove
 readingRoutes.get('/search', validateRequest(searchNovelsSchema), searchNovelsController);
 readingRoutes.get('/filters', getReadingFiltersController);
 readingRoutes.get('/novels/:novelId', validateRequest(novelIdParamSchema), getReaderNovelController);
+readingRoutes.get('/chapters/latest', validateRequest(latestChaptersSchema), listLatestChaptersController);
 readingRoutes.get('/chapters/:chapterId', optionalAuth, validateRequest(chapterIdParamSchema), getReaderChapterController);
 readingRoutes.put('/history/me', requireAuth, validateRequest(syncReadingHistorySchema), syncHistoryController);
 readingRoutes.get('/history/me', requireAuth, validateRequest(historyListSchema), listHistoryController);

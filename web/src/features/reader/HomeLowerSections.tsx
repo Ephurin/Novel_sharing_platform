@@ -802,12 +802,6 @@ export function HomeLowerSections({
               <span className="material-symbols-outlined sc-home-sec-icon" aria-hidden="true">rate_review</span>
               <h2>Bình luận &amp; đánh giá gần đây</h2>
             </div>
-            <Link
-              className="sc-home-sec-link"
-              to={visibleCommunityItems[0]?.href ?? catalogPath}
-            >
-              Xem tất cả →
-            </Link>
           </div>
 
           {communityQuery.isPending ? (

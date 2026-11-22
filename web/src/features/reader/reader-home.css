@@ -511,24 +511,17 @@
   color: var(--home-muted);
 }
 
-/* ─── 3. Paired Row: Chương mới cập nhật + Thảo luận nổi bật ────────────── */
-.sc-home-paired {
-  display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-  gap: 14px;
-  align-items: stretch;
-}
-
+/* ─── 3. Chương mới cập nhật (full width cột chính) ─────────────────────── */
 .sc-home-chapter-list {
   display: grid;
 }
 
 .sc-home-chapter-row {
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) 86px 86px;
+  grid-template-columns: 28px minmax(0, 1.1fr) minmax(0, 1fr) 88px 86px;
   align-items: center;
-  gap: 10px;
-  padding: 6px 4px;
+  gap: 12px;
+  padding: 6px 6px;
   min-height: 41px;
   border-bottom: 1px solid var(--home-line);
   border-radius: 7px;
@@ -564,9 +557,17 @@
 }
 
 .sc-home-chapter-title {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--home-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sc-home-chapter-sub {
+  font-size: 12.5px;
+  color: var(--home-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -595,26 +596,6 @@
   text-align: right;
 }
 
-.sc-home-discussions-panel {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.sc-home-discussions-empty {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 22px 20px;
-  border-radius: 12px;
-  background: var(--home-soft);
-  border: 1px dashed var(--home-line);
-  gap: 8px;
-}
-
 .sc-home-empty-badge {
   width: 38px;
   height: 38px;
@@ -627,28 +608,6 @@
 
 .sc-home-empty-badge .material-symbols-outlined {
   font-size: 20px;
-}
-
-.sc-author-theme .sc-reader-home .sc-home-discussions-empty h3 {
-  margin: 2px 0 0;
-  font-size: 14.5px;
-  font-weight: 700;
-  color: var(--home-heading);
-}
-
-.sc-home-discussions-empty p {
-  margin: 0 0 6px;
-  max-width: 34ch;
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: var(--home-muted);
-}
-
-.sc-author-theme .sc-reader-home .sc-home-discussions-cta {
-  height: 32px;
-  min-height: 32px;
-  padding: 0 13px;
-  font-size: 12px;
 }
 
 /* ─── 4. Truyện nổi bật ─────────────────────────────────────────────────── */
@@ -2617,9 +2576,6 @@
   .sc-author-theme .sc-reader-home .sc-home-rail-section .sc-home-sec-head h2 {
     font-size: 15px;
   }
-  .sc-home-paired {
-    grid-template-columns: 1fr;
-  }
   .sc-home-featured-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
@@ -2664,6 +2620,13 @@
   }
   .sc-home-spotlight-cover {
     width: 124px;
+  }
+  .sc-home-chapter-row {
+    grid-template-columns: 28px minmax(0, 1fr) 84px 78px;
+    gap: 8px;
+  }
+  .sc-home-chapter-sub {
+    display: none;
   }
   .sc-home-chapter-title {
     white-space: normal;
@@ -2826,5 +2789,15 @@
   .sc-author-theme .sc-reader-home .sc-home-hero-actions .sc-home-hero-btn,
   .sc-author-theme .sc-reader-home .sc-home-pill-btn {
     transition: none;
+  }
+  .sc-home-featured-cover-link:hover .sc-home-featured-cover img,
+  .sc-home-featured-card:hover .sc-home-featured-cover img,
+  .sc-home-rec-card:hover .sc-home-rec-cover img,
+  .sc-home-spotlight-card:hover .sc-home-spotlight-cover,
+  .sc-home-collection-card:hover,
+  .sc-home-collection-card:hover .sc-home-col-media img,
+  .sc-home-completed-hcard:hover,
+  .sc-home-review-card:hover {
+    transform: none;
   }
 }

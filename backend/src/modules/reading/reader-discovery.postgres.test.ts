@@ -22,7 +22,7 @@ test('reader catalog, published metadata and unified follow/library state', {
       await pool.query(`create table "${table}" (like public."${table}" including all)`);
     }
     await pool.query(await readFile(new URL('../../core/database/migrations/021_novel_notification_subscriptions.sql', import.meta.url), 'utf8'));
-    const { searchPublishedNovels, listReadingFilters, findPublishedNovelDetail } = await import('./reading.repository.js');
+    const { searchPublishedNovels, listLatestPublishedChapters, listReadingFilters, findPublishedNovelDetail } = await import('./reading.repository.js');
     const { searchNovelsSchema } = await import('./reading.schemas.js');
     const author = randomUUID();
     await pool.query(`insert into users (user_id, email, username, password_hash, role)
@@ -179,6 +179,41 @@ test('reader catalog, published metadata and unified follow/library state', {
     assert.equal((await pool.query('select status from chapters where chapter_id=$1', [rollbackChapter])).rows[0].status, 'DRAFT');
     await assert.rejects(updateNovelEngagement({ userId: author, role: 'READER' }, ids[0], { notificationsEnabled: true }), { httpStatus: 403 });
     await assert.rejects(updateNovelEngagement(readerAuth, ids[3], { notificationsEnabled: true }), { httpStatus: 404 });
+
+    // Relevance ranking must prioritize title exact > title prefix > title substring > synopsis
+    // even when the synopsis-only novel has newer updated_at and higher views_count.
+    const [relExact, relPrefix, relSub, relSynopsis] = [randomUUID(), randomUUID(), randomUUID(), randomUUID()];
+    for (const [id, title, synopsis, views, updatedAt] of [
+      [relExact, 'Kiếm Thánh', 'Giới thiệu ngắn', 5, '2025-01-01T00:00:00Z'],
+      [relPrefix, 'Kiếm Thánh Truyền Kỳ', 'Giới thiệu ngắn', 50, '2026-01-01T00:00:00Z'],
+      [relSub, 'Hành Trình Kiếm Thánh', 'Giới thiệu ngắn', 500, '2026-06-01T00:00:00Z'],
+      [relSynopsis, 'Câu Chuyện Mùa Thu', 'Nhắc đến Kiếm Thánh huyền thoại', 99999, '2026-11-20T00:00:00Z']
+    ] as const) {
+      await pool.query(
+        `insert into novels (novel_id, author_id, title, slug, synopsis, status, views_count, updated_at)
+         values ($1, $2, $3, $4, $5, 'PUBLISHED', $6, $7)`,
+        [id, author, title, `slug-${id}`, synopsis, views, updatedAt]
+      );
+    }
+    const relevance = await search({ q: 'Kiếm Thánh', sort: 'relevance', order: 'desc' });
+    assert.deepEqual(relevance.items.map(item => item.novelId), [relExact, relPrefix, relSub, relSynopsis]);
+
+    // Latest published chapters must order by chapter published_at desc across novels
+    // and include multiple chapters from the same novel while excluding drafts/deleted.
+    const [chOld, chMid, chNew, chDraft] = [randomUUID(), randomUUID(), randomUUID(), randomUUID()];
+    await pool.query(
+      `insert into chapters (chapter_id, novel_id, title, chapter_number, word_count, status, published_at)
+       values
+         ($1, $5, 'Chương cũ hơn', 1, 500, 'PUBLISHED', '2030-01-02T10:00:00Z'),
+         ($2, $6, 'Chương ở giữa', 1, 500, 'PUBLISHED', '2030-01-02T15:00:00Z'),
+         ($3, $5, 'Chương mới nhất', 2, 500, 'PUBLISHED', '2030-01-03T10:00:00Z'),
+         ($4, $5, 'Bản nháp mới hơn', 3, 500, 'DRAFT', '2030-01-05T10:00:00Z')`,
+      [chOld, chMid, chNew, chDraft, relExact, relPrefix]
+    );
+    const latestChapters = await listLatestPublishedChapters(3);
+    assert.deepEqual(latestChapters.map(item => item.chapterId), [chNew, chMid, chOld]);
+    assert.equal(latestChapters[0].novelTitle, 'Kiếm Thánh');
+    assert.equal(latestChapters[1].novelTitle, 'Kiếm Thánh Truyền Kỳ');
   } finally {
     await disconnect?.();
     await admin.query(`drop schema if exists "${schema}" cascade`);

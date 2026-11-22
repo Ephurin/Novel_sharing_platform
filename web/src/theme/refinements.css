@@ -53,11 +53,11 @@
 :is(.sc-author-theme:not(:has(.sc-writing-studio)), .sc-animated-modal-body, .sc-vaul-sheet) select:not([multiple]):not([size]):hover { border-color: var(--sc-control-border-hover); }
 
 /* Text fields share the same quiet border and focus ring. */
-:is(.sc-author-theme:not(:has(.sc-writing-studio)), .sc-animated-modal-body, .sc-vaul-sheet) :is(input:not([type="checkbox"]):not([type="radio"]):not(.sc-home-search-input), textarea) {
+:is(.sc-author-theme:not(:has(.sc-writing-studio)), .sc-animated-modal-body, .sc-vaul-sheet) :is(input:not([type="checkbox"]):not([type="radio"]):where(:not(.sc-home-search-input)), textarea) {
   border-color: var(--sc-control-border);
 }
 
-:is(.sc-author-theme:not(:has(.sc-writing-studio)), .sc-animated-modal-body, .sc-vaul-sheet) :is(input:not([type="checkbox"]):not([type="radio"]):not(.sc-home-search-input), select, textarea):focus,
+:is(.sc-author-theme:not(:has(.sc-writing-studio)), .sc-animated-modal-body, .sc-vaul-sheet) :is(input:not([type="checkbox"]):not([type="radio"]):where(:not(.sc-home-search-input)), select, textarea):focus,
 :root :is(.mantine-Input-input, .mantine-PasswordInput-innerInput):focus {
   border-color: rgb(var(--sc-primary-rgb));
   box-shadow: 0 0 0 3px rgb(var(--sc-primary-rgb) / .15);
@@ -70,7 +70,7 @@
 /* ─── Buttons: compact and flat; secondary actions stay quiet ─────────────── */
 
 /* Every button-like control on StoryCraft screens: 34px tall, 13px semibold, no drop shadow. */
-.sc-author-theme:not(:has(.sc-writing-studio)) :is(button:not(.sc-auth-theme-btn):not(.sc-auth-forgot-btn), a[class*="inline-flex"]) { font-size: 13px; min-height: 34px; }
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(button:where(:not(.sc-auth-theme-btn):not(.sc-auth-forgot-btn)), a[class*="inline-flex"]) { font-size: 13px; min-height: 34px; }
 .sc-author-theme:not(:has(.sc-writing-studio)) :is(button, a)[class*="shadow"] { box-shadow: none; }
 /* Buttons inside a field (number steppers, clear/reveal icons) and circular icon pills keep their own sizing. */
 .sc-author-theme:not(:has(.sc-writing-studio)) :is(.mantine-Input-section, .mantine-NumberInput-controls, .sc-auth-theme-switch) button { min-height: 0; }

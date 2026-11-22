@@ -124,20 +124,20 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
         await page.screenshot({ path: path.join(output, `${role}-${width}-${theme}-detail.png`), fullPage: true });
         await page.locator('.sc-reader-genres').getByRole('link', { name: 'Fantasy', exact: true }).click();
         await expect(page).toHaveURL(`${base}${prefix}?genre=Fantasy`);
-        if (width < 768) await page.getByRole('button', { name: 'Bộ lọc', exact: true }).click();
-        await expect(page.locator('.mantine-MultiSelect-pill').filter({ hasText: 'Fantasy' })).toBeVisible();
+        if (width < 1024) await page.locator('.sc-catalog-filter-open').click();
+        await expect(page.locator('#sc-catalog-sidebar').getByRole('checkbox', { name: 'Fantasy', exact: true })).toBeChecked();
         await expect.poll(() => searchParams?.get('genres')).toBe('Fantasy');
         await page.goto(detail);
         await page.locator('.sc-reader-status').click();
         await expect(page).toHaveURL(`${base}${prefix}?status=ONGOING`);
-        if (width < 768) await page.getByRole('button', { name: 'Bộ lọc', exact: true }).click();
-        await expect(page.getByRole('group', { name: 'Lọc theo trạng thái', exact: true }).getByRole('button', { name: 'Đang ra', exact: true })).toHaveAttribute('aria-pressed', 'true');
+        if (width < 1024) await page.locator('.sc-catalog-filter-open').click();
+        await expect(page.getByRole('radiogroup', { name: 'Lọc theo tình trạng', exact: true }).getByRole('radio', { name: 'Đang ra', exact: true })).toBeChecked();
         await expect.poll(() => searchParams?.get('status')).toBe('ONGOING');
         await page.goto(detail);
         await page.locator('.sc-reader-tags').getByRole('link', { name: '#Adventure', exact: true }).click();
         await expect(page).toHaveURL(`${base}${prefix}?tag=Adventure`);
-        if (width < 768) await page.getByRole('button', { name: 'Bộ lọc', exact: true }).click();
-        await expect(page.locator('.mantine-MultiSelect-pill').filter({ hasText: 'Adventure' })).toBeVisible();
+        if (width < 1024) await page.locator('.sc-catalog-filter-open').click();
+        await expect(page.locator('#sc-catalog-sidebar').getByRole('checkbox', { name: 'Adventure', exact: true })).toBeChecked();
         await expect.poll(() => searchParams?.get('tags')).toBe('Adventure');
         await page.goto(detail);
         if (role === 'READER') {
@@ -176,7 +176,7 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
         await page.getByRole('button', { name: 'Xem toàn bộ 7 chương', exact: true }).click();
         await expect(page.locator('#reader-chapters tbody tr')).toHaveCount(7);
         await expect(page.getByTestId('read-chapter-chapter-7')).toHaveAttribute('href', `${prefix}/chapters/chapter-7`);
-        await shortcuts.getByRole('button', { name: 'Chia sẻ', exact: true }).click();
+        await page.getByRole('button', { name: 'Chia sẻ', exact: true }).click();
         const share = page.getByRole('dialog', { name: 'Chia sẻ truyện', exact: true });
         await share.getByRole('button', { name: 'Sao chép đường dẫn', exact: true }).click();
         await expect(share.getByRole('status')).toHaveText('Đã sao chép đường dẫn.');
