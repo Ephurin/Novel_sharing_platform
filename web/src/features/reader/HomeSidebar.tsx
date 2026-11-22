@@ -91,15 +91,35 @@ export function HomeSidebar({
     retry: false,
   });
 
-  const rankItems = (
+  const rawRankItems =
     rankTab === 'views'
       ? viewsNovels
       : rankTab === 'recent'
         ? latestNovels
-        : likesNovels
-  ).slice(0, 5);
+        : likesNovels;
 
-  const notifications: AppNotification[] = (notificationsQuery.data?.data ?? []).slice(0, 3);
+  const rankItems: ReaderNovel[] = [];
+  const seenRankIds = new Set<string>();
+  for (const novel of rawRankItems) {
+    if (seenRankIds.has(novel.novelId)) continue;
+    seenRankIds.add(novel.novelId);
+    rankItems.push(novel);
+    if (rankItems.length >= 7) break;
+  }
+
+  const notifications: AppNotification[] = (() => {
+    const raw = notificationsQuery.data?.data ?? [];
+    const seen = new Set<string>();
+    const deduped: AppNotification[] = [];
+    for (const item of raw) {
+      if (seen.has(item.notificationId)) continue;
+      seen.add(item.notificationId);
+      deduped.push(item);
+    }
+    return deduped
+      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+      .slice(0, 6);
+  })();
 
   return (
     <aside className="sc-home-rail" aria-label="Thông tin và bảng xếp hạng">
@@ -190,7 +210,7 @@ export function HomeSidebar({
 
         {rankingLoading && rankItems.length === 0 ? (
           <div className="sc-home-rank-list" aria-busy="true" aria-label="Đang tải bảng xếp hạng">
-            {Array.from({ length: 5 }, (_, idx) => (
+            {Array.from({ length: 7 }, (_, idx) => (
               <div key={idx} className="sc-home-rank-row is-skeleton" aria-hidden="true">
                 <span className="sc-skeleton-block" style={{ width: 16, height: 16 }} />
                 <span className="sc-skeleton-block sc-home-rank-thumb" />
@@ -229,60 +249,57 @@ export function HomeSidebar({
         )}
       </section>
 
-      <section className="sc-home-panel sc-home-rail-section" aria-label="Hoạt động gần đây">
-        <div className="sc-home-sec-head">
-          <div className="sc-home-sec-left">
-            <span className="material-symbols-outlined sc-home-sec-icon" aria-hidden="true">notifications</span>
-            <h2>Hoạt động gần đây</h2>
+      {user && (
+        <section className="sc-home-panel sc-home-rail-section" aria-label="Hoạt động gần đây">
+          <div className="sc-home-sec-head">
+            <div className="sc-home-sec-left">
+              <span className="material-symbols-outlined sc-home-sec-icon" aria-hidden="true">notifications</span>
+              <h2>Hoạt động gần đây</h2>
+            </div>
+            <Link className="sc-home-sec-link" to="/notifications">Tất cả →</Link>
           </div>
-          {user && <Link className="sc-home-sec-link" to="/notifications">Tất cả →</Link>}
-        </div>
 
-        {!user ? (
-          <div className="sc-home-rail-empty-box">
-            <p>Đăng nhập để theo dõi thông báo chương mới và tương tác của bạn.</p>
-            <Link className="sc-home-sec-link" to="/login">Đăng nhập →</Link>
-          </div>
-        ) : notificationsQuery.isPending ? (
-          <div className="sc-home-activity-list" aria-busy="true">
-            {Array.from({ length: 3 }, (_, idx) => (
-              <div key={idx} className="sc-home-activity-row is-skeleton" aria-hidden="true">
-                <span className="sc-skeleton-block sc-home-activity-icon" />
-                <div className="sc-home-activity-copy">
-                  <span className="sc-skeleton-block" style={{ width: '90%', height: 12 }} />
-                  <span className="sc-skeleton-block" style={{ width: '55%', height: 10 }} />
+          {notificationsQuery.isPending ? (
+            <div className="sc-home-activity-list" aria-busy="true">
+              {Array.from({ length: 4 }, (_, idx) => (
+                <div key={idx} className="sc-home-activity-row is-skeleton" aria-hidden="true">
+                  <span className="sc-skeleton-block sc-home-activity-icon" />
+                  <div className="sc-home-activity-copy">
+                    <span className="sc-skeleton-block" style={{ width: '90%', height: 12 }} />
+                    <span className="sc-skeleton-block" style={{ width: '55%', height: 10 }} />
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : notificationsQuery.isError ? (
-          <div className="sc-home-inline-notice">
-            <span>Chưa tải được hoạt động gần đây.</span>
-            <button type="button" onClick={() => void notificationsQuery.refetch()}>Thử lại</button>
-          </div>
-        ) : notifications.length === 0 ? (
-          <p className="sc-home-rail-empty">Chưa có hoạt động mới gần đây.</p>
-        ) : (
-          <div className="sc-home-activity-list">
-            {notifications.map(item => {
-              const target = notificationHref(item, user.role === 'READER') ?? '/notifications';
-              const meta = [notificationTypeLabel(item.type), relativeTime(item.createdAt)].filter(Boolean).join(' · ');
-              return (
-                <Link key={item.notificationId} className="sc-home-activity-row" to={target}>
-                  <span className="sc-home-activity-icon" aria-hidden="true">
-                    <span className="material-symbols-outlined">{activityIconName(item.type)}</span>
-                  </span>
-                  <span className="sc-home-activity-copy">
-                    <strong>{item.title}</strong>
-                    {item.content && <span className="sc-home-activity-desc">{item.content}</span>}
-                    <small>{meta}</small>
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </section>
+              ))}
+            </div>
+          ) : notificationsQuery.isError ? (
+            <div className="sc-home-inline-notice">
+              <span>Chưa tải được hoạt động gần đây.</span>
+              <button type="button" onClick={() => void notificationsQuery.refetch()}>Thử lại</button>
+            </div>
+          ) : notifications.length === 0 ? (
+            <p className="sc-home-rail-empty">Chưa có hoạt động mới gần đây.</p>
+          ) : (
+            <div className="sc-home-activity-list">
+              {notifications.map(item => {
+                const target = notificationHref(item, user.role === 'READER') ?? '/notifications';
+                const meta = [notificationTypeLabel(item.type), relativeTime(item.createdAt)].filter(Boolean).join(' · ');
+                return (
+                  <Link key={item.notificationId} className="sc-home-activity-row" to={target}>
+                    <span className="sc-home-activity-icon" aria-hidden="true">
+                      <span className="material-symbols-outlined">{activityIconName(item.type)}</span>
+                    </span>
+                    <span className="sc-home-activity-copy">
+                      <strong>{item.title}</strong>
+                      {item.content && <span className="sc-home-activity-desc">{item.content}</span>}
+                      <small>{meta}</small>
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      )}
     </aside>
   );
 }

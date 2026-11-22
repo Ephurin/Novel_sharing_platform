@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { useAuthStore } from '../auth/useAuthStore';
-import { getReadingFilters, searchPublishedNovelPage, type ReaderNovel } from './reader-api';
+import { searchPublishedNovelPage, type ReaderNovel } from './reader-api';
 import { useListScroll, useUrlFilters } from '../../shared/components/WorkspacePreferences';
 import { ContinueReading } from './HomePersonalization';
 import { HomeNovelCover } from './HomeNovelCover';
@@ -20,8 +20,6 @@ const FEATURE_TABS: Array<{ key: FeatureTabKey; label: string }> = [
   { key: 'liked', label: 'Được yêu thích' },
   { key: 'new', label: 'Mới ra mắt' },
 ];
-
-const count = (value = 0) => value.toLocaleString('vi-VN');
 
 function relativeTime(date?: string | null) {
   if (!date) return '';
@@ -47,78 +45,6 @@ function resolveNovelPills(novel: ReaderNovel): Array<{ label: string; kind: 'ge
     ...genres.map(label => ({ label, kind: 'genre' as const })),
     ...tags.map(label => ({ label, kind: 'tag' as const })),
   ].slice(0, 2);
-}
-
-type GenreGlyphKind = 'mountain' | 'house' | 'castle' | 'sword' | 'compass' | 'magnify' | 'heart' | 'book';
-
-function resolveGenreVisual(name: string): { subtitle: string; glyph: GenreGlyphKind } {
-  if (/cultivation|tu tiên|tiên hiệp/i.test(name)) return { subtitle: 'Tu tiên', glyph: 'mountain' };
-  if (/đời thường|slice/i.test(name)) return { subtitle: 'Nhẹ nhàng', glyph: 'house' };
-  if (/fantasy|kỳ ảo|huyền ảo/i.test(name)) return { subtitle: 'Kỳ ảo', glyph: 'castle' };
-  if (/kiếm hiệp|võ|hành động/i.test(name)) return { subtitle: 'Giang hồ', glyph: 'sword' };
-  if (/phiêu lưu|hành trình/i.test(name)) return { subtitle: 'Khám phá', glyph: 'compass' };
-  if (/trinh thám|bí ẩn/i.test(name)) return { subtitle: 'Bí ẩn', glyph: 'magnify' };
-  if (/lãng mạn|ngôn tình|romcom/i.test(name)) return { subtitle: 'Lãng mạn', glyph: 'heart' };
-  if (/khoa học|viễn tưởng|sci-fi/i.test(name)) return { subtitle: 'Viễn tưởng', glyph: 'compass' };
-  return { subtitle: 'Khám phá', glyph: 'book' };
-}
-
-function GenreGlyphSvg({ kind }: { kind: GenreGlyphKind }) {
-  switch (kind) {
-    case 'mountain':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="m2 20 7.4-13 4.7 7 3-4 4.9 10H2Z" />
-          <path d="m6.8 11.5 2.6 1.3 1.8-1.6" />
-        </svg>
-      );
-    case 'house':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="m3 11 9-8 9 8v9H3v-9Z" />
-          <path d="M9 20v-7h6v7" />
-        </svg>
-      );
-    case 'castle':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M3 21V8h4v3h3V7h4v4h3V8h4v13H3Z" />
-          <path d="M9 21v-6h6v6M6 4h.01M18 4h.01" />
-        </svg>
-      );
-    case 'sword':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="m5 19 12-12 3-3-5 1-3 3-9 9m4-2 3 3m-6-2 4 4m-7 1 4-4" />
-        </svg>
-      );
-    case 'compass':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="9" />
-          <path d="m15.8 8.2-2.2 5.4-5.4 2.2 2.2-5.4 5.4-2.2Z" />
-        </svg>
-      );
-    case 'magnify':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <circle cx="10" cy="10" r="7" />
-          <path d="m15 15 6 6" />
-        </svg>
-      );
-    case 'heart':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M20 5c-2.5-2.5-6-1.5-8 1-2-2.5-5.5-3.5-8-1-5 5 1 10 8 16 7-6 13-11 8-16Z" />
-        </svg>
-      );
-    default:
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M12 6c-2.5-2.4-6-3-9-2v15c3-1 6.5-.4 9 2m0-15c2.5-2.4 6-3 9-2v15c-3-1-6.5-.4-9 2m0-15v15" />
-        </svg>
-      );
-  }
 }
 
 export function ReaderHomePage() {
@@ -154,11 +80,6 @@ export function ReaderHomePage() {
     queryFn: () => searchPublishedNovelPage({ status: 'COMPLETED', sort: 'views', order: 'desc', page: 1, limit: 12 }),
     staleTime: 30_000,
   });
-  const filtersQuery = useQuery({
-    queryKey: ['reading-filters'],
-    queryFn: getReadingFilters,
-    staleTime: 60_000,
-  });
 
   useListScroll(!viewsQuery.isPending && !latestQuery.isPending);
 
@@ -190,50 +111,44 @@ export function ReaderHomePage() {
         ? likesQuery
         : latestQuery;
 
-  const featuredItems = useMemo(
-    () => (activeFeatureQuery.data?.items ?? []).slice(0, 6),
-    [activeFeatureQuery.data?.items]
-  );
+  const featuredItems = useMemo(() => {
+    const raw = activeFeatureQuery.data?.items ?? [];
+    const seen = new Set<string>();
+    const deduped: ReaderNovel[] = [];
+    for (const novel of raw) {
+      if (seen.has(novel.novelId)) continue;
+      seen.add(novel.novelId);
+      deduped.push(novel);
+      if (deduped.length >= 12) break;
+    }
+    return deduped;
+  }, [activeFeatureQuery.data?.items]);
 
   const featuredIds = useMemo(
     () => new Set(featuredItems.map(novel => novel.novelId)),
     [featuredItems]
   );
 
-  const novelsWithPublishedChapter = useMemo(
-    () => latestNovels.filter(novel => Boolean(novel.latestChapter)),
-    [latestNovels]
+  const topFeaturedIds = useMemo(
+    () => new Set(featuredItems.slice(0, 6).map(novel => novel.novelId)),
+    [featuredItems]
   );
 
+  const novelsWithPublishedChapter = useMemo(() => {
+    const seen = new Set<string>();
+    const list: ReaderNovel[] = [];
+    for (const novel of latestNovels) {
+      if (!novel.latestChapter || seen.has(novel.novelId)) continue;
+      seen.add(novel.novelId);
+      list.push(novel);
+    }
+    return list;
+  }, [latestNovels]);
+
   const chapterUpdateItems = useMemo(() => {
-    const limit = chaptersExpanded ? 10 : 6;
+    const limit = chaptersExpanded ? 10 : 8;
     return novelsWithPublishedChapter.slice(0, limit);
   }, [novelsWithPublishedChapter, chaptersExpanded]);
-
-  const genreCards = useMemo(() => {
-    const rawGenres = filtersQuery.data?.genres ?? [];
-    const totalCatalog = latestQuery.data?.totalItems ?? 0;
-    const hasCompleteCount = totalCatalog > 0 && catalogNovels.length >= totalCatalog;
-    const counts = new Map<string, number>();
-    if (hasCompleteCount) {
-      for (const novel of catalogNovels) {
-        const list = novel.genres?.length ? novel.genres : novel.genre ? [novel.genre] : [];
-        for (const g of list) counts.set(g, (counts.get(g) ?? 0) + 1);
-      }
-    }
-
-    return rawGenres.slice(0, 6).map(name => {
-      const visual = resolveGenreVisual(name);
-      const genreCount = counts.get(name);
-      return {
-        name,
-        glyph: visual.glyph,
-        subtitle: hasCompleteCount && typeof genreCount === 'number' && genreCount > 0
-          ? `${count(genreCount)} truyện`
-          : visual.subtitle,
-      };
-    });
-  }, [filtersQuery.data?.genres, catalogNovels, latestQuery.data?.totalItems]);
 
   const authors = useMemo(() => {
     const byId = new Map<string, { authorId: string; authorName: string; novelsCount: number; totalViews: number }>();
@@ -335,7 +250,7 @@ export function ReaderHomePage() {
                     <span className="material-symbols-outlined sc-home-sec-icon" aria-hidden="true">schedule</span>
                     <h2>Chương mới cập nhật</h2>
                   </div>
-                  {novelsWithPublishedChapter.length > 6 ? (
+                  {novelsWithPublishedChapter.length > 8 ? (
                     <button
                       type="button"
                       className="sc-home-sec-link"
@@ -447,7 +362,7 @@ export function ReaderHomePage() {
 
               {activeFeatureQuery.isPending ? (
                 <div className="sc-home-featured-grid" aria-busy="true">
-                  {Array.from({ length: 6 }, (_, idx) => (
+                  {Array.from({ length: 12 }, (_, idx) => (
                     <div key={idx} className="sc-home-featured-card is-skeleton" aria-hidden="true">
                       <span className="sc-skeleton-block sc-home-featured-cover" />
                       <span className="sc-skeleton-block" style={{ width: '86%', height: 13, marginTop: 8 }} />
@@ -500,36 +415,6 @@ export function ReaderHomePage() {
                 </div>
               )}
             </section>
-
-            {/* 5. Khám phá theo thể loại (duy nhất, không lặp section khám phá khác) */}
-            {genreCards.length > 0 && (
-              <section className="sc-home-panel sc-home-section" id="browse-genres" aria-label="Khám phá theo thể loại">
-                <div className="sc-home-sec-head">
-                  <div className="sc-home-sec-left">
-                    <span className="material-symbols-outlined sc-home-sec-icon" aria-hidden="true">menu_book</span>
-                    <h2>Khám phá theo thể loại</h2>
-                  </div>
-                  <Link className="sc-home-sec-link" to={catalogPath}>Xem tất cả thể loại →</Link>
-                </div>
-                <div className="sc-home-categories">
-                  {genreCards.map((item, idx) => (
-                    <Link
-                      key={item.name}
-                      className={`sc-home-category is-cat-${(idx % 6) + 1}`}
-                      to={`${catalogPath}?genre=${encodeURIComponent(item.name)}`}
-                    >
-                      <span className="sc-home-category-copy">
-                        <strong translate="no">{item.name}</strong>
-                        <small>{item.subtitle}</small>
-                      </span>
-                      <span className="sc-home-category-glyph">
-                        <GenreGlyphSvg kind={item.glyph} />
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            )}
           </div>
 
           {/* Cột Sidebar phải */}
@@ -547,6 +432,7 @@ export function ReaderHomePage() {
           catalogPath={catalogPath}
           catalogNovels={catalogNovels}
           featuredIds={featuredIds}
+          topFeaturedIds={topFeaturedIds}
           topFeaturedId={viewsNovels[0]?.novelId}
           completedNovels={completedNovels}
           completedPending={completedQuery.isPending}

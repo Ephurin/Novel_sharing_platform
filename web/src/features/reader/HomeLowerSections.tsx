@@ -8,6 +8,8 @@ import { listHistoryPage, listLibraryPage, type ReaderNovel } from './reader-api
 import { HomeNovelCover } from './HomeNovelCover';
 import { NovelQuickPreview } from './HomeEnhancements';
 import writingStudioArt from '../../assets/home-writing-studio.jpg';
+import collectionWeekendArt from '../../assets/collection-weekend.jpg';
+import collectionFantasyArt from '../../assets/collection-fantasy.jpg';
 
 const count = (value = 0) => value.toLocaleString('vi-VN');
 
@@ -104,10 +106,212 @@ type AuthorEntry = {
   novelsCount: number;
 };
 
+type ReadingCollectionItem = {
+  id: 'weekend' | 'fantasy' | 'healing' | 'journey';
+  title: string;
+  description: string;
+  icon: string;
+  href: string;
+  matchedCount: number;
+  imageSrc?: string;
+  imagePosition?: string;
+};
+
+function novelGenresAndTags(novel: ReaderNovel) {
+  const genres = (novel.genres?.length ? novel.genres : novel.genre ? [novel.genre] : [])
+    .map(g => g.trim())
+    .filter(Boolean);
+  const tags = (novel.tags ?? []).map(t => t.trim()).filter(Boolean);
+  return { genres, tags };
+}
+
+function pickTopMatchingGenre(novels: ReaderNovel[], matcher: RegExp, preferredOrder: RegExp[]): string | null {
+  const counts = new Map<string, number>();
+  for (const novel of novels) {
+    const { genres } = novelGenresAndTags(novel);
+    for (const genre of genres) {
+      if (matcher.test(genre)) {
+        counts.set(genre, (counts.get(genre) ?? 0) + 1);
+      }
+    }
+  }
+  const available = [...counts.entries()];
+  if (available.length === 0) return null;
+  for (const pref of preferredOrder) {
+    const match = available.find(([name]) => pref.test(name));
+    if (match) return match[0];
+  }
+  available.sort((a, b) => b[1] - a[1]);
+  return available[0]?.[0] ?? null;
+}
+
+function buildReadingCollections(
+  catalogNovels: ReaderNovel[],
+  completedNovels: ReaderNovel[],
+  catalogPath: string
+): ReadingCollectionItem[] {
+  const weekendMatches = completedNovels.filter(
+    novel => (novel.serialStatus ?? novel.status) === 'COMPLETED'
+  );
+
+  const fantasyPattern = /fantasy|kỳ ảo|huyền ảo|dị giới|khoa học|viễn tưởng|cultivation|tu tiên/i;
+  const fantasyMatches = catalogNovels.filter(novel => {
+    const { genres, tags } = novelGenresAndTags(novel);
+    return [...genres, ...tags].some(token => fantasyPattern.test(token));
+  });
+  const fantasyGenre = pickTopMatchingGenre(fantasyMatches, fantasyPattern, [/fantasy/i, /cultivation|tu tiên/i, /khoa học/i]);
+
+  const healingPattern = /đời thường|lãng mạn|chữa lành|slice|nhẹ nhàng|tình cảm/i;
+  const healingMatches = catalogNovels.filter(novel => {
+    const { genres, tags } = novelGenresAndTags(novel);
+    return [...genres, ...tags].some(token => healingPattern.test(token));
+  });
+  const healingGenre = pickTopMatchingGenre(healingMatches, healingPattern, [/đời thường/i, /lãng mạn/i]);
+
+  const journeyPattern = /trưởng thành|phiêu lưu|kiếm hiệp|tu tiên|cultivation|hành trình|hành động/i;
+  const journeyMatches = catalogNovels.filter(novel => {
+    if ((novel.chaptersCount ?? 0) < 3) return false;
+    const { genres, tags } = novelGenresAndTags(novel);
+    return [...genres, ...tags, novel.synopsis ?? ''].some(token => journeyPattern.test(token));
+  });
+  const journeyGenre = pickTopMatchingGenre(journeyMatches, journeyPattern, [/kiếm hiệp/i, /phiêu lưu/i, /cultivation|tu tiên/i]);
+
+  return [
+    {
+      id: 'weekend',
+      title: 'Đọc một mạch cuối tuần',
+      description: 'Những câu chuyện đã hoàn thành, gọn gàng và trọn vẹn cảm xúc.',
+      icon: 'menu_book',
+      href: `${catalogPath}?status=COMPLETED&sort=views:desc`,
+      matchedCount: weekendMatches.length,
+      imageSrc: collectionWeekendArt,
+      imagePosition: 'center 74%',
+    },
+    {
+      id: 'fantasy',
+      title: 'Dị giới kỳ ảo',
+      description: 'Bước vào những thế giới khác, huyền ảo và giàu trí tưởng tượng.',
+      icon: 'castle',
+      href: fantasyGenre
+        ? `${catalogPath}?genre=${encodeURIComponent(fantasyGenre)}&sort=views:desc`
+        : `${catalogPath}?sort=views:desc`,
+      matchedCount: fantasyMatches.length,
+      imageSrc: collectionFantasyArt,
+      imagePosition: 'center 42%',
+    },
+    {
+      id: 'healing',
+      title: 'Chữa lành nhẹ nhàng',
+      description: 'Những câu chuyện ấm áp, đời thường giúp bạn thư giãn và lắng lại.',
+      icon: 'spa',
+      href: healingGenre
+        ? `${catalogPath}?genre=${encodeURIComponent(healingGenre)}&sort=likes:desc`
+        : `${catalogPath}?sort=likes:desc`,
+      matchedCount: healingMatches.length,
+    },
+    {
+      id: 'journey',
+      title: 'Hành trình trưởng thành',
+      description: 'Cùng nhân vật vượt thử thách, khám phá và hoàn thiện bản thân.',
+      icon: 'hiking',
+      href: journeyGenre
+        ? `${catalogPath}?genre=${encodeURIComponent(journeyGenre)}&sort=views:desc`
+        : `${catalogPath}?sort=views:desc`,
+      matchedCount: journeyMatches.length,
+    },
+  ];
+}
+
+function CollectionVectorArtwork({ kind }: { kind: 'healing' | 'journey' }) {
+  if (kind === 'healing') {
+    return (
+      <svg className="sc-home-col-svg" viewBox="0 0 360 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="sc-col-heal-sky" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#fde6ea" />
+            <stop offset="52%" stopColor="#fff3ea" />
+            <stop offset="100%" stopColor="#f9d9e0" />
+          </linearGradient>
+          <radialGradient id="sc-col-heal-sun" cx="76%" cy="28%" r="48%">
+            <stop offset="0%" stopColor="#fff9e8" stopOpacity="0.95" />
+            <stop offset="100%" stopColor="#ffd9c4" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <rect width="360" height="140" fill="url(#sc-col-heal-sky)" />
+        <rect width="360" height="140" fill="url(#sc-col-heal-sun)" />
+        <path d="M0 106 Q95 88 188 100 T360 94 V140 H0 Z" fill="#e8e2d0" opacity="0.65" />
+        <path d="M0 116 Q120 106 230 114 T360 110 V140 H0 Z" fill="#d4dec8" opacity="0.8" />
+        {/* Wooden park bench */}
+        <g opacity="0.88">
+          <rect x="122" y="88" width="116" height="6" rx="2.5" fill="#b77f62" />
+          <rect x="122" y="97" width="116" height="6" rx="2.5" fill="#a87054" />
+          <rect x="116" y="106" width="128" height="6" rx="2.5" fill="#9a6349" />
+          <rect x="132" y="86" width="5" height="35" rx="2" fill="#7c4e3b" />
+          <rect x="223" y="86" width="5" height="35" rx="2" fill="#7c4e3b" />
+        </g>
+        {/* Cherry blossom boughs */}
+        <path d="M-10 18 Q72 28 134 52" stroke="#8f5d52" strokeWidth="4.5" strokeLinecap="round" fill="none" />
+        <path d="M370 14 Q290 30 232 48" stroke="#8f5d52" strokeWidth="4" strokeLinecap="round" fill="none" />
+        <g fill="#f5a7b8" opacity="0.92">
+          <circle cx="38" cy="24" r="14" />
+          <circle cx="62" cy="18" r="16" />
+          <circle cx="88" cy="30" r="14" />
+          <circle cx="116" cy="40" r="11" />
+          <circle cx="318" cy="22" r="15" />
+          <circle cx="288" cy="28" r="13" />
+          <circle cx="256" cy="38" r="11" />
+        </g>
+        <g fill="#ffd4de" opacity="0.9">
+          <circle cx="48" cy="28" r="8" />
+          <circle cx="76" cy="22" r="9" />
+          <circle cx="104" cy="36" r="7" />
+          <circle cx="304" cy="24" r="9" />
+          <circle cx="272" cy="34" r="7" />
+        </g>
+        {/* Drifting petals */}
+        <g fill="#f499ad" opacity="0.78">
+          <ellipse cx="160" cy="44" rx="4.5" ry="2.2" transform="rotate(-24 160 44)" />
+          <ellipse cx="204" cy="58" rx="4" ry="2" transform="rotate(18 204 58)" />
+          <ellipse cx="92" cy="74" rx="4" ry="2" transform="rotate(32 92 74)" />
+          <ellipse cx="268" cy="76" rx="4.5" ry="2.2" transform="rotate(-18 268 76)" />
+        </g>
+      </svg>
+    );
+  }
+
+  return (
+    <svg className="sc-home-col-svg" viewBox="0 0 360 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <linearGradient id="sc-col-jrn-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#f3d8dc" />
+          <stop offset="48%" stopColor="#fde1c6" />
+          <stop offset="100%" stopColor="#ffefcf" />
+        </linearGradient>
+        <radialGradient id="sc-col-jrn-sun" cx="50%" cy="62%" r="42%">
+          <stop offset="0%" stopColor="#fff9e2" />
+          <stop offset="55%" stopColor="#ffca82" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="#ffca82" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="360" height="140" fill="url(#sc-col-jrn-sky)" />
+      <rect width="360" height="140" fill="url(#sc-col-jrn-sun)" />
+      <circle cx="180" cy="78" r="24" fill="#fff7da" opacity="0.92" />
+      {/* Distant ridges */}
+      <path d="M0 98 L62 56 L126 84 L196 48 L266 80 L322 54 L360 76 V140 H0 Z" fill="#d9a18e" opacity="0.52" />
+      <path d="M0 108 L86 72 L156 98 L234 68 L314 96 L360 82 V140 H0 Z" fill="#c2806b" opacity="0.68" />
+      <path d="M0 118 Q104 94 184 110 T360 104 V140 H0 Z" fill="#9a5f4e" opacity="0.82" />
+      {/* Sunlit winding trail */}
+      <path d="M168 140 Q180 124 198 117 T214 104" stroke="#ffe5bd" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.86" />
+      <path d="M168 140 Q180 124 198 117 T214 104" stroke="#fff7e6" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.95" />
+    </svg>
+  );
+}
+
 export function HomeLowerSections({
   catalogPath,
   catalogNovels,
   featuredIds,
+  topFeaturedIds,
   topFeaturedId,
   completedNovels,
   completedPending,
@@ -119,6 +323,7 @@ export function HomeLowerSections({
   catalogPath: string;
   catalogNovels: ReaderNovel[];
   featuredIds: Set<string>;
+  topFeaturedIds: Set<string>;
   topFeaturedId?: string;
   completedNovels: ReaderNovel[];
   completedPending: boolean;
@@ -222,7 +427,7 @@ export function HomeLowerSections({
   });
 
   const communityItems = communityQuery.data ?? [];
-  const communityPageSize = 2;
+  const communityPageSize = 3;
   const communityTotalPages = Math.max(1, Math.ceil(communityItems.length / communityPageSize));
   const [communityPage, setCommunityPage] = useState(0);
   useEffect(() => {
@@ -270,18 +475,25 @@ export function HomeLowerSections({
       }
     }
 
-    const excludeTop = new Set<string>(featuredIds);
-    if (spotlight) excludeTop.add(spotlight.novelId);
+    const nonPlaceholder = catalogNovels.filter(
+      novel => !(/^untitled\b/i.test(novel.title.trim()) && !novel.latestChapter)
+    );
+    const pool = nonPlaceholder.length >= 3 ? nonPlaceholder : catalogNovels;
 
-    const scored = catalogNovels.map(novel => {
+    const excludeAllFeatured = new Set<string>(featuredIds);
+    if (spotlight) excludeAllFeatured.add(spotlight.novelId);
+
+    const scored = pool.map(novel => {
       const genres = novel.genres?.length ? novel.genres : novel.genre ? [novel.genre] : [];
       let score = 0;
       if (isReaderSide) {
         if (readIds.has(novel.novelId)) score -= 25;
         for (const g of genres) score += (preferredGenres.get(g.toLowerCase()) ?? 0) * 6;
       }
-      if (!excludeTop.has(novel.novelId)) score += 18;
-      if (novel.coverImageUrl) score += 4;
+      if (!excludeAllFeatured.has(novel.novelId)) score += 22;
+      else if (!topFeaturedIds.has(novel.novelId)) score += 12;
+      if (spotlight && novel.novelId === spotlight.novelId) score -= 24;
+      if (novel.coverImageUrl) score += 3;
       if ((novel.chaptersCount ?? 0) >= 3) score += 3;
       score += Math.min(5, Math.log10((novel.viewsCount ?? 0) + 1) * 2);
       return { novel, score };
@@ -291,7 +503,25 @@ export function HomeLowerSections({
       .sort((a, b) => b.score - a.score || (b.novel.viewsCount ?? 0) - (a.novel.viewsCount ?? 0))
       .map(entry => entry.novel)
       .slice(0, 9);
-  }, [catalogNovels, featuredIds, spotlight, isReaderSide, historyQuery.data?.items, libraryQuery.data?.items]);
+  }, [catalogNovels, featuredIds, topFeaturedIds, spotlight, isReaderSide, historyQuery.data?.items, libraryQuery.data?.items]);
+
+  const uniqueCompletedNovels = useMemo(() => {
+    const seen = new Set<string>();
+    return completedNovels.filter(novel => {
+      if ((novel.serialStatus ?? novel.status) !== 'COMPLETED') return false;
+      if (seen.has(novel.novelId)) return false;
+      seen.add(novel.novelId);
+      return true;
+    });
+  }, [completedNovels]);
+
+  const readingCollections = useMemo(
+    () =>
+      buildReadingCollections(catalogNovels, uniqueCompletedNovels, catalogPath).filter(
+        col => col.matchedCount > 0
+      ),
+    [catalogNovels, uniqueCompletedNovels, catalogPath]
+  );
 
   const [recPage, setRecPage] = useState(0);
   const recPageSize = 3;
@@ -417,7 +647,7 @@ export function HomeLowerSections({
         </section>
       )}
 
-      {/* 2. Truyện đã hoàn thành (Full-width, tối đa 6 bìa dọc 2:3) */}
+      {/* 2. Truyện đã hoàn thành (Full-width: 1–2 truyện hiển thị card ngang; >=3 hiển thị lưới 6 bìa 2:3) */}
       <section className="sc-home-panel sc-home-section" id="completed-novels" aria-label="Truyện đã hoàn thành">
         <div className="sc-home-sec-head">
           <div className="sc-home-sec-left">
@@ -428,12 +658,16 @@ export function HomeLowerSections({
         </div>
 
         {completedPending ? (
-          <div className="sc-home-completed-grid" aria-busy="true">
-            {Array.from({ length: 6 }, (_, idx) => (
-              <div key={idx} className="sc-home-featured-card is-skeleton" aria-hidden="true">
-                <span className="sc-skeleton-block sc-home-featured-cover" />
-                <span className="sc-skeleton-block" style={{ width: '84%', height: 13, marginTop: 8 }} />
-                <span className="sc-skeleton-block" style={{ width: '56%', height: 16, marginTop: 6 }} />
+          <div className="sc-home-completed-horiz" aria-busy="true">
+            {Array.from({ length: 2 }, (_, idx) => (
+              <div key={idx} className="sc-home-completed-hcard is-skeleton" aria-hidden="true">
+                <span className="sc-skeleton-block sc-home-completed-hcover" />
+                <div className="sc-home-completed-hbody">
+                  <span className="sc-skeleton-block" style={{ width: '58%', height: 16 }} />
+                  <span className="sc-skeleton-block" style={{ width: '36%', height: 18 }} />
+                  <span className="sc-skeleton-block" style={{ width: '92%', height: 13 }} />
+                  <span className="sc-skeleton-block" style={{ width: '48%', height: 12 }} />
+                </div>
               </div>
             ))}
           </div>
@@ -442,15 +676,53 @@ export function HomeLowerSections({
             <span>Không tải được danh sách truyện đã hoàn thành.</span>
             <button type="button" onClick={onRetryCompleted}>Thử lại</button>
           </div>
-        ) : completedNovels.length === 0 ? (
+        ) : uniqueCompletedNovels.length === 0 ? (
           <div className="sc-home-empty-inline">
             <span className="material-symbols-outlined" aria-hidden="true">auto_stories</span>
             <p>Hiện chưa có truyện nào ở trạng thái đã hoàn thành.</p>
             <Link className="sc-home-sec-link" to={catalogPath}>Xem danh sách truyện →</Link>
           </div>
+        ) : uniqueCompletedNovels.length <= 2 ? (
+          <div className={`sc-home-completed-horiz${uniqueCompletedNovels.length === 1 ? ' is-single' : ''}`}>
+            {uniqueCompletedNovels.map(novel => {
+              const primaryGenre = novel.genres?.[0] || novel.genre;
+              return (
+                <Link key={novel.novelId} to={novelPath(novel)} className="sc-home-completed-hcard">
+                  <span className="sc-home-completed-hcover">
+                    <HomeNovelCover novel={novel} size="compact" />
+                  </span>
+                  <div className="sc-home-completed-hbody">
+                    <strong className="sc-home-completed-htitle">{novel.title}</strong>
+                    <div className="sc-home-completed-hpills">
+                      {primaryGenre && (
+                        <span className="sc-home-spot-pill is-secondary" translate="no">{primaryGenre}</span>
+                      )}
+                      <span className="sc-home-spot-pill is-primary">Hoàn thành</span>
+                    </div>
+                    <p className="sc-home-completed-hsynopsis">
+                      {novel.synopsis?.trim() || 'Câu chuyện đã hoàn thành trọn vẹn, sẵn sàng để đọc liền mạch từ đầu đến cuối.'}
+                    </p>
+                    <div className="sc-home-completed-hmeta">
+                      <span>
+                        <span className="material-symbols-outlined" aria-hidden="true">menu_book</span>
+                        {count(novel.chaptersCount)} chương
+                      </span>
+                      <span>
+                        <span className="material-symbols-outlined" aria-hidden="true">visibility</span>
+                        {count(novel.viewsCount)} lượt đọc
+                      </span>
+                    </div>
+                  </div>
+                  <span className="sc-home-completed-harrow" aria-hidden="true">
+                    <span className="material-symbols-outlined">chevron_right</span>
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
         ) : (
           <div className="sc-home-completed-grid">
-            {completedNovels.slice(0, 6).map(novel => (
+            {uniqueCompletedNovels.slice(0, 6).map(novel => (
               <article key={novel.novelId} className="sc-home-featured-card">
                 <div className="sc-home-featured-media">
                   <Link className="sc-home-featured-cover-link" to={novelPath(novel)} aria-label={`Đọc truyện hoàn thành: ${novel.title}`}>
@@ -472,6 +744,52 @@ export function HomeLowerSections({
           </div>
         )}
       </section>
+
+      {/* 3. Bộ sưu tập theo gu đọc (Full-width, chỉ hiện bộ sưu tập có truyện khớp thật) */}
+      {readingCollections.length > 0 && (
+        <section className="sc-home-panel sc-home-section" id="reading-collections" aria-label="Bộ sưu tập theo gu đọc">
+          <div className="sc-home-sec-head sc-home-collections-head">
+            <div className="sc-home-collections-title">
+              <div className="sc-home-sec-left">
+                <span className="material-symbols-outlined sc-home-sec-icon" aria-hidden="true">collections_bookmark</span>
+                <h2>Bộ sưu tập theo gu đọc</h2>
+              </div>
+              <p className="sc-home-collections-sub">
+                Những bộ truyện được tuyển chọn theo chủ đề và cảm hứng đọc dành cho bạn.
+              </p>
+            </div>
+            <Link className="sc-home-sec-link" to={catalogPath}>Xem tất cả truyện →</Link>
+          </div>
+
+          <div className="sc-home-collections-grid">
+            {readingCollections.map(col => (
+              <Link key={col.id} to={col.href} className={`sc-home-collection-card is-col-${col.id}`}>
+                <div className="sc-home-col-media" aria-hidden="true">
+                  {col.imageSrc ? (
+                    <img
+                      src={col.imageSrc}
+                      alt=""
+                      loading="lazy"
+                      style={col.imagePosition ? { objectPosition: col.imagePosition } : undefined}
+                    />
+                  ) : (
+                    <CollectionVectorArtwork kind={col.id === 'healing' ? 'healing' : 'journey'} />
+                  )}
+                  <span className="sc-home-col-count">{count(col.matchedCount)} truyện</span>
+                </div>
+                <div className="sc-home-col-body">
+                  <div className="sc-home-col-heading">
+                    <span className="material-symbols-outlined sc-home-col-icon" aria-hidden="true">{col.icon}</span>
+                    <h3>{col.title}</h3>
+                  </div>
+                  <p>{col.description}</p>
+                  <span className="sc-home-col-cta">Xem bộ sưu tập →</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 3. Bình luận & đánh giá gần đây + Gợi ý dành cho bạn (2 cột full-width trên desktop) */}
       <div className="sc-home-lower-paired">
