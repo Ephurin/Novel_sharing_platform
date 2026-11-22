@@ -63,7 +63,7 @@ a.sc-reader-status[data-completed="true"]:hover { color: var(--sc-success); text
 .sc-reader-description-section { padding-top: 20px; }
 .sc-reader-description-section + .sc-reader-description-section { border-top: 1px solid var(--sc-border); margin-top: 20px; }
 .sc-reader-description-section h2 { margin: 0 0 10px; }
-.sc-reader-description-section p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--sc-text-muted); line-height: 1.85; }
+.sc-reader-description-section p { margin: 0; max-width: 78ch; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--sc-text-muted); line-height: 1.85; }
 .sc-reader-detail-section { padding: 20px; border: 1px solid var(--sc-border); border-radius: var(--sc-radius-card); background: var(--sc-surface); }
 #reader-reviews, #reader-chapters, #reader-comments { scroll-margin-top: 90px; }
 .sc-reader-share { display: flex; flex-direction: column; gap: 12px; }

@@ -89,7 +89,7 @@
 .sc-home-resume-error button, .sc-home-resume-retry { color: var(--sc-primary-text); padding: 4px 10px; min-height: 32px; font-size: 12.5px; text-decoration: underline; }
 
 /* ─── Top grid: Featured + Ranking ───────────────────────────────────────── */
-.sc-home-top { display: grid; grid-template-columns: minmax(0, 1fr) 304px; gap: 24px; align-items: start; }
+.sc-home-top { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
 .sc-home-featured, .sc-home-ranking, .sc-home-panel { min-width: 0; }
 .sc-home-feature-heading, .sc-home-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 36px; margin-bottom: 14px; }
 .sc-home-feature-tabs { gap: 8px; }

@@ -156,12 +156,6 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
 
   return (
     <div className="sc-catalog-page">
-      <nav className="sc-catalog-breadcrumb" aria-label="Đường dẫn">
-        <Link to="/">Trang chủ</Link>
-        <span aria-hidden="true">›</span>
-        <strong>Danh sách truyện</strong>
-      </nav>
-
       <div className="sc-catalog-columns">
         <section className="sc-catalog-left" aria-label="Kết quả truyện" aria-busy={busy || result.isFetching}>
           <div className="sc-catalog-topbar">

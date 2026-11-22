@@ -162,20 +162,6 @@ export function SearchResultsPage({ advanced = false }: { advanced?: boolean }) 
 
   return (
     <div className="sc-search-page">
-      <nav className="sc-search-breadcrumb" aria-label="Đường dẫn">
-        <Link to="/">Trang chủ</Link>
-        <span aria-hidden="true">›</span>
-        {advanced ? (
-          <>
-            <Link to={buildSearchUrl(SEARCH_PATH, urlState)}>Tìm kiếm</Link>
-            <span aria-hidden="true">›</span>
-            <strong>Tìm kiếm nâng cao</strong>
-          </>
-        ) : (
-          <strong>Tìm kiếm</strong>
-        )}
-      </nav>
-
       <section
         className={`sc-search-panel${advanced ? ' is-advanced' : ''}`}
         aria-label={advanced ? 'Biểu mẫu tìm kiếm nâng cao' : 'Tìm kiếm truyện'}
@@ -227,9 +213,10 @@ export function SearchResultsPage({ advanced = false }: { advanced?: boolean }) 
                 aria-label="Từ khóa tìm kiếm truyện"
                 data-testid="search-page-input"
                 value={draft.keywords}
-                onChange={(event) =>
-                  setDraft((prev) => ({ ...prev, keywords: event.currentTarget.value }))
-                }
+                onChange={(event) => {
+                  const nextKeywords = event.currentTarget.value;
+                  setDraft((prev) => ({ ...prev, keywords: nextKeywords }));
+                }}
               />
               {draft.keywords.length > 0 && (
                 <button
@@ -283,9 +270,10 @@ export function SearchResultsPage({ advanced = false }: { advanced?: boolean }) 
                     id="sc-advanced-sort"
                     className="sc-search-select"
                     value={draft.sort}
-                    onChange={(event) =>
-                      setDraft((prev) => ({ ...prev, sort: event.target.value as SearchSortValue }))
-                    }
+                    onChange={(event) => {
+                      const nextSort = event.target.value as SearchSortValue;
+                      setDraft((prev) => ({ ...prev, sort: nextSort }));
+                    }}
                   >
                     {SEARCH_SORTS.map(([val, label]) => (
                       <option key={val} value={val}>

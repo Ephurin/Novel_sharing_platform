@@ -1,10 +1,5 @@
 /* StoryCraft Catalog — implemented from design-references/storycraft_catalog_status_sidebar_demo.html */
 
-/* Only widen the catalog content container to 1380px; keep navbar & shared layout unchanged */
-.sc-shell-content:has(.sc-catalog-page) {
-  max-width: 1380px;
-}
-
 .sc-catalog-page {
   --cat-ink: #2b2927;
   --cat-muted: #93877e;
@@ -239,9 +234,9 @@
 }
 
 .sc-catalog-placeholder .cover-title {
-  font: 700 17px/1.14 Georgia, serif;
-  letter-spacing: -0.3px;
-  max-width: 110px;
+  font: 700 15px/1.22 var(--sc-font);
+  letter-spacing: -0.02em;
+  max-width: 116px;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
@@ -390,7 +385,7 @@
   display: flex;
   gap: 10px;
   color: #8c8179;
-  font-size: 11px;
+  font-size: 12px;
   padding-bottom: 10px;
   border-bottom: 1px dashed #eee8e1;
   white-space: nowrap;
@@ -405,7 +400,7 @@
 .sc-catalog-desc {
   margin: 9px 0 7px;
   color: #81746b;
-  font-size: 11.5px;
+  font-size: 12.5px;
   line-height: 1.5;
   display: -webkit-box;
   -webkit-box-orient: vertical;
