@@ -43,6 +43,15 @@ test('discussions use Postgres for public pagination, reply trees, counters and 
     await write.recordView(topicId, 'g:' + stamp);
     await write.recordView(topicId, 'g:' + stamp);
     assert.equal((await read.getTopic(topicId)).viewCount, 1);
+    // Unread state rides on the same view rows: the viewer key that opened the topic
+    // reads as seen, an unseen key reads as unread, and a request without a key
+    // claims nothing instead of marking the whole board unread.
+    const seen = await read.listTopics({ q: 'kiem ' + stamp, sort: 'newest', limit: 5 }, undefined, 'g:' + stamp);
+    assert.equal(seen.items.find(item => item.topicId === topicId)?.viewerViewed, true);
+    const unseen = await read.listTopics({ q: 'kiem ' + stamp, sort: 'newest', limit: 5 }, undefined, 'g:other-' + stamp);
+    assert.equal(unseen.items.find(item => item.topicId === topicId)?.viewerViewed, false);
+    const anonymous = await read.listTopics({ q: 'kiem ' + stamp, sort: 'newest', limit: 5 });
+    assert.equal(anonymous.items.find(item => item.topicId === topicId)?.viewerViewed, undefined);
     await write.deleteComment(reader, topicId, root);
     assert.equal((await read.listComments(topicId, { limit: 20 })).items[0].body, '');
     assert.equal((await read.getTopic(topicId)).replyCount, 2);

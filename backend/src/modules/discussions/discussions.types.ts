@@ -46,6 +46,14 @@ export type Topic = {
   lastActivityUser: TopicAuthor | null;
   createdAt: string;
   editedAt: string | null;
+  /**
+   * List responses only. `true` when this viewer already opened the topic inside
+   * the retained view window (`discussion_topic_views`, pruned after 7 days),
+   * `false` when the viewer is known but has no retained view, and omitted when
+   * the request carried neither a session nor a guest view cookie — the API then
+   * cannot tell, so nothing is claimed.
+   */
+  viewerViewed?: boolean;
 };
 
 export type CommentAuthor = {

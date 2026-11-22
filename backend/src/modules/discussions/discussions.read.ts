@@ -123,9 +123,13 @@ export async function getCommunityOverview(): Promise<CommunityOverview> {
            where ${topicVisible} and ${visibleComment}) as comment_count`
     ),
     // `$1` is the optional viewer used by `topicFrom` for viewer_liked; anonymous here.
+    // Pinned topics and admin-only announcements are excluded: the board already
+    // promotes them under "Đáng chú ý", so the sidebar keeps the busiest community
+    // threads instead of repeating the notice board.
     pool.query<{ item: Topic }>(
       `select ${topicDto} as item ${topicFrom}
        where ${topicVisible} and t.reply_count > 0
+         and not t.is_pinned and not cat.post_admin_only
          and t.last_activity_at > now() - interval '30 days'
        order by t.reply_count desc, t.last_activity_at desc, t.topic_id desc
        limit 3`,
@@ -143,22 +147,40 @@ export async function getCommunityOverview(): Promise<CommunityOverview> {
   };
 }
 
-export async function listTopics(input: TopicListInput, viewerId?: string): Promise<CursorPage<Topic>> {
+/**
+ * One page of visible topics. `viewerKey` is the same key `recordView` writes
+ * (`u:<userId>` for members, `g:<cookie>` for guests): when supplied, each item
+ * reports whether that viewer already opened it inside the retained view window,
+ * so the list can mark unread threads without inventing client-side state.
+ */
+export async function listTopics(input: TopicListInput, viewerId?: string, viewerKey?: string): Promise<CursorPage<Topic>> {
   const scope = JSON.stringify(['topics', input.sort, input.category, null, input.q]);
   const cursor = parseCursor(input.cursor, scope, input.sort === 'replies');
   const column = topicOrder[input.sort];
   const type = input.sort === 'replies' ? 'integer' : 'timestamptz';
-  const { rows } = await getPostgresPool().query<PageRow<Topic>>(
-    `select ${topicDto} as item, ${column}::text as order_key, t.topic_id as id, t.is_pinned as pinned
+  const { rows } = await getPostgresPool().query<PageRow<Topic> & { viewer_viewed: boolean | null }>(
+    `select ${topicDto} as item, ${column}::text as order_key, t.topic_id as id, t.is_pinned as pinned,
+       case when $8::text is null then null else exists (
+         select 1 from discussion_topic_views v
+          where v.topic_id = t.topic_id and v.viewer_key = $8::text
+       ) end as viewer_viewed
      ${topicFrom}
      where ${topicVisible} and ($2::text is null or cat.slug = $2)
        and ($3::text is null or to_tsvector('simple', t.search_document) @@ plainto_tsquery('simple', f_unaccent($3)))
        and ($4::boolean is null or (t.is_pinned, ${column}, t.topic_id) < ($4, $5::${type}, $6::uuid))
      order by t.is_pinned desc, ${column} desc, t.topic_id desc limit $7`,
     [viewerId ?? null, input.category ?? null, input.q ?? null,
-      cursor?.pinned ?? null, cursor?.order ?? null, cursor?.id ?? null, input.limit + 1]
+      cursor?.pinned ?? null, cursor?.order ?? null, cursor?.id ?? null, input.limit + 1,
+      viewerKey ?? null]
   );
-  return page(rows, input.limit, scope);
+  const paged = page(rows, input.limit, scope);
+  return {
+    items: paged.items.map((item, index) => {
+      const viewed = rows[index]?.viewer_viewed;
+      return typeof viewed === 'boolean' ? { ...item, viewerViewed: viewed } : item;
+    }),
+    nextCursor: paged.nextCursor
+  };
 }
 
 export async function getTopic(topicId: string, viewerId?: string): Promise<Topic> {  const { rows } = await getPostgresPool().query<{ item: Topic }>(

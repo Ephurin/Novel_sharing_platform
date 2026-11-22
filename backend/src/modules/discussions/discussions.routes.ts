@@ -112,6 +112,15 @@ const viewKey = (request: Request, response: Response): string => {
   return `g:${issued}`;
 };
 
+// The same key `recordView` persists, but read-only: listing topics must not mint
+// a guest cookie just to decide whether to show an unread marker.
+const storedViewKey = (request: Request): string | undefined => {
+  const userId = viewerIdOf(request);
+  if (userId) return `u:${userId}`;
+  const stored = readViewerCookie(request);
+  return stored ? `g:${stored}` : undefined;
+};
+
 const viewRateLimit = rateLimit({
   scope: 'discussions.view',
   max: 60,
@@ -143,7 +152,7 @@ discussionsRoutes.get(
   optionalAuth,
   validateRequest(listTopicsSchema),
   route(async (request: Request) =>
-    listTopics(request.query as unknown as ListTopicsInput, viewerIdOf(request))
+    listTopics(request.query as unknown as ListTopicsInput, viewerIdOf(request), storedViewKey(request))
   )
 );
 

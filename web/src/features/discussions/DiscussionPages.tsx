@@ -232,6 +232,9 @@ function Pager({ hasPrev, hasNext, onPrev, onNext }: { hasPrev: boolean; hasNext
 function TopicRow({ topic }: { topic: Topic }) {
   const author = authorName(topic.author);
   const hidden = topic.status !== 'VISIBLE';
+  // `false` only when the server identified this viewer and found no retained view,
+  // so the marker never appears for anonymous visitors or unreadable guests.
+  const unread = topic.viewerViewed === false && !hidden;
   const className = ['forum-row', hidden ? 'forum-row-static' : ''].filter(Boolean).join(' ');
   const isAuthor = topic.author?.role === 'AUTHOR';
 
@@ -240,8 +243,14 @@ function TopicRow({ topic }: { topic: Topic }) {
   // chevron live on the topic page so rows stay scannable.
   const inner = (
     <>
-      <Avatar src={topic.author?.avatarUrl ?? undefined} name={author} size={36} radius="xl"
-        className="forum-row-avatar" data-role={isAuthor ? 'author' : undefined} aria-hidden="true" />
+      {/* The unread dot is pinned to the avatar corner rather than set inline before
+          the title: a board where most threads are new keeps reading as a list. */}
+      <span className="forum-row-ident">
+        <Avatar src={topic.author?.avatarUrl ?? undefined} name={author} size={36} radius="xl"
+          className="forum-row-avatar" data-role={isAuthor ? 'author' : undefined} aria-hidden="true" />
+        {unread ? <span className="forum-row-unread" aria-hidden="true" /> : null}
+        {unread ? <span className="forum-visually-hidden">Chưa xem</span> : null}
+      </span>
       <span className="forum-row-main">
         <span className="forum-row-title">
           {topic.title}
@@ -281,7 +290,8 @@ function TopicRow({ topic }: { topic: Topic }) {
 
   if (hidden) {
     return (
-      <div className={className} data-category={topic.category.slug} data-announce={topic.category.postAdminOnly || undefined}>
+      <div className={className} data-category={topic.category.slug} data-announce={topic.category.postAdminOnly || undefined}
+      data-unread={unread || undefined}>
         {inner}
       </div>
     );
@@ -289,7 +299,8 @@ function TopicRow({ topic }: { topic: Topic }) {
 
   return (
     <Link to={`/discussions/${topic.topicId}`} className={className}
-      data-category={topic.category.slug} data-announce={topic.category.postAdminOnly || undefined}>
+      data-category={topic.category.slug} data-announce={topic.category.postAdminOnly || undefined}
+      data-unread={unread || undefined}>
       {inner}
     </Link>
   );
@@ -413,7 +424,10 @@ function CommunitySidebar({ stats, trending }: {
 
       {trending.length > 0 ? (
         <section className="forum-side-card forum-trending" aria-labelledby="forum-trending-title">
-          <h2 id="forum-trending-title">Hoạt động sôi nổi</h2>
+          {/* Different job from “Đáng chú ý”: that block promotes pinned notices, this
+              one ranks the community's busiest threads by replies, and the API keeps
+              pinned/admin-only topics out of it so the two never mirror each other. */}
+          <h2 id="forum-trending-title">Sôi nổi 30 ngày</h2>
           <ol>
             {trending.map((topic, index) => (
               <li key={topic.topicId}>

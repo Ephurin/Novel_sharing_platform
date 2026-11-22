@@ -60,6 +60,13 @@ export type Topic = {
   lastActivityUser: TopicAuthor | null;
   createdAt: string;
   editedAt: string | null;
+  /**
+   * List responses only. `false` means this viewer has no view row for the topic
+   * inside the retained window (7 days), `true` means it was already opened, and
+   * `undefined` means the server could not identify the viewer (no session, no
+   * guest view cookie) so the UI must not claim anything.
+   */
+  viewerViewed?: boolean;
 };
 
 export type CommentAuthor = {
