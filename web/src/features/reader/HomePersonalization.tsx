@@ -1,10 +1,10 @@
-import { useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useIsMutating, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
 import { followNovel, getNovelStatistics } from '../novels/novel-statistics-api';
-import { AnimatedProgress } from '../../shared/components/AnimatedProgress';
 import { useToast } from '../../shared/components/ToastProvider';
-import { getReaderNovel, listHistory } from './reader-api';
+import { getReaderNovel, listHistoryPage, type ReaderNovel } from './reader-api';
+import { HomeNovelCover } from './HomeNovelCover';
 
 export function PreviewLibraryAction({ novelId, authorId }: { novelId: string; authorId: string }) {
   const user = useAuthStore(state => state.user);
@@ -15,7 +15,8 @@ export function PreviewLibraryAction({ novelId, authorId }: { novelId: string; a
   const mutationKey = ['home-library-toggle', novelId, user?.userId ?? 'guest'];
   const statistics = useQuery({ queryKey: key, queryFn: () => getNovelStatistics(novelId), enabled: canSave, staleTime: 15_000, retry: false });
   const busy = useIsMutating({ mutationKey }) > 0;
-  const save = useMutation({ mutationKey,
+  const save = useMutation({
+    mutationKey,
     mutationFn: ({ userId, following }: { userId: string; following: boolean }) => {
       if (useAuthStore.getState().user?.userId !== userId) throw new Error('Session changed');
       return followNovel(novelId, following);
@@ -24,6 +25,7 @@ export function PreviewLibraryAction({ novelId, authorId }: { novelId: string; a
       if (useAuthStore.getState().user?.userId !== variables.userId) return;
       client.setQueryData(['novel-statistics', novelId, variables.userId], data);
       void client.invalidateQueries({ queryKey: ['reader-library'] });
+      void client.invalidateQueries({ queryKey: ['reader-home-sidebar-library'] });
       showToast(data.isFollowing ? 'Đã theo dõi truyện.' : 'Đã bỏ theo dõi truyện.', 'success');
     },
     onError: (_error, variables) => {
@@ -40,41 +42,147 @@ export function PreviewLibraryAction({ novelId, authorId }: { novelId: string; a
   </button>;
 }
 
-export function ContinueReading() {
+function formatChapterLabel(chapterNumber: number, title: string) {
+  if (/^\s*(?:chương|chapter)\s*\d+/iu.test(title)) return title;
+  return `Chương ${chapterNumber}: ${title}`;
+}
+
+export function ContinueReading({
+  catalogNovelsMap,
+  catalogPath,
+}: {
+  catalogNovelsMap: Map<string, ReaderNovel>;
+  catalogPath: string;
+}) {
   const user = useAuthStore(state => state.user);
-  const enabled = user?.role === 'READER' && user.status === 'ACTIVE';
-  const history = useQuery({ queryKey: ['reader-home-history', user?.userId], queryFn: listHistory, enabled, retry: false });
-  const item = enabled ? history.data?.filter(entry => entry.novel && entry.chapter).slice().sort((a, b) => Date.parse(b.readAt) - Date.parse(a.readAt))[0] : undefined;
-  const detail = useQuery({ queryKey: ['reader-home-resume', user?.userId, item?.novelId],
-    queryFn: ({ signal }) => getReaderNovel(item!.novelId, signal), enabled: Boolean(enabled && item), retry: false });
+  const enabled = Boolean(user && user.role !== 'ADMIN' && user.status === 'ACTIVE');
+
+  const history = useQuery({
+    queryKey: ['reader-home-history', user?.userId],
+    queryFn: () => listHistoryPage(1, 10),
+    enabled,
+    retry: false,
+  });
+
+  const recentItems = enabled
+    ? (history.data?.items ?? [])
+        .filter(entry => entry.novel && entry.chapter)
+        .slice()
+        .sort((a, b) => Date.parse(b.readAt) - Date.parse(a.readAt))
+        .slice(0, 3)
+    : [];
+
+  const detailQueries = useQueries({
+    queries: recentItems.map(entry => {
+      const cached = catalogNovelsMap.get(entry.novelId);
+      const needsFetch = enabled && (!cached || typeof cached.chaptersCount !== 'number');
+      return {
+        queryKey: ['reader-home-resume-novel', entry.novelId],
+        queryFn: ({ signal }: { signal: AbortSignal }) => getReaderNovel(entry.novelId, signal),
+        enabled: needsFetch,
+        staleTime: 60_000,
+        retry: false,
+      };
+    }),
+  });
+
   if (!enabled) return null;
-  if (history.isPending) return <div className="sc-home-resume sc-home-resume-skeleton" aria-busy="true" aria-label="Đang tải lịch sử đọc">
-    <div><span className="sc-skeleton-block sc-home-resume-skeleton-heading" /><span className="sc-skeleton-block sc-home-resume-skeleton-title" /><span className="sc-skeleton-block sc-home-resume-skeleton-meta" /></div>
-    <span className="sc-skeleton-block sc-home-resume-skeleton-cta" aria-hidden="true" />
-  </div>;
-  if (history.isError) return <div className="sc-home-resume-error"><span>Chưa tải được lịch sử đọc.</span><button type="button" onClick={() => void history.refetch()}>Thử lại lịch sử đọc</button></div>;
-  if (!item) return null;
-  const hasVerifiedRead = Boolean(item.readChapterIds?.includes(item.chapterId));
-  const chapters = detail.data?.chapters ?? [];
-  const publishedIndex = chapters.findIndex(chapter => chapter.chapterId === item.chapterId);
-  const index = hasVerifiedRead ? publishedIndex : -1;
-  const position = index >= 0 && chapters.length > 0 ? (index + 1) / chapters.length * 100 : null;
-  const canContinue = index >= 0 || (hasVerifiedRead && detail.isPending);
-  return <section className="sc-home-resume" aria-label="Đọc tiếp">
-    <div className="sc-home-resume-main">
-      <div className="sc-home-resume-head">
-        <span className="sc-home-resume-badge"><span className="material-symbols-outlined" aria-hidden="true">menu_book</span><h2>Đọc tiếp</h2></span>
-        <Link className="sc-home-novel-title" to={`/reader/novels/${item.novelId}`}>{item.novel.title}</Link>
-        <p className="sc-home-resume-chapter">{/^\s*(?:chương|chapter)\s*\d+/iu.test(item.chapter.title) ? item.chapter.title : `Chương ${item.chapter.chapterNumber}: ${item.chapter.title}`}</p>
+
+  return (
+    <section className="sc-home-panel sc-home-section" id="continue-reading" aria-label="Đọc tiếp">
+      <div className="sc-home-sec-head">
+        <div className="sc-home-sec-left">
+          <span className="material-symbols-outlined sc-home-sec-icon" aria-hidden="true">menu_book</span>
+          <h2>Đọc tiếp</h2>
+        </div>
+        <Link className="sc-home-sec-link" to="/reader/history">Xem lịch sử đọc →</Link>
       </div>
-      {detail.isError && <button type="button" className="sc-home-resume-retry" onClick={() => void detail.refetch()}>Tải lại thông tin chương</button>}
-      {detail.isSuccess && publishedIndex < 0 && <p className="sc-home-resume-note">Chương đọc gần đây không còn khả dụng.</p>}
-    </div>
-    {position !== null ? <div className="sc-home-resume-progress"><AnimatedProgress value={position} label={`Vị trí chương ${index + 1} / ${chapters.length}`} /></div>
-      : hasVerifiedRead && detail.isPending ? <div className="sc-home-resume-progress sc-home-resume-progress-placeholder" aria-hidden="true"><span className="sc-skeleton-block sc-home-resume-progress-label-skeleton" /><span className="sc-skeleton-block sc-home-resume-progress-track-skeleton" /></div> : null}
-    <Link className="sc-home-preview-link sc-home-resume-cta" to={canContinue ? `/reader/chapters/${item.chapterId}` : `/reader/novels/${item.novelId}`}>
-      {canContinue ? 'Đọc tiếp' : 'Xem truyện'}
-      <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-    </Link>
-  </section>;
+
+      {history.isPending ? (
+        <div className="sc-home-read-grid" aria-busy="true" aria-label="Đang tải lịch sử đọc">
+          {Array.from({ length: 3 }, (_, idx) => (
+            <div key={idx} className="sc-home-read-card is-skeleton" aria-hidden="true">
+              <span className="sc-skeleton-block sc-home-read-thumb" />
+              <div className="sc-home-read-body">
+                <span className="sc-skeleton-block" style={{ width: '82%', height: 13 }} />
+                <span className="sc-skeleton-block" style={{ width: '64%', height: 11 }} />
+                <span className="sc-skeleton-block" style={{ width: '100%', height: 6, borderRadius: 999 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : history.isError ? (
+        <div className="sc-home-inline-notice" role="alert">
+          <span>Chưa tải được lịch sử đọc.</span>
+          <button type="button" onClick={() => void history.refetch()}>Thử lại</button>
+        </div>
+      ) : recentItems.length === 0 ? (
+        <div className="sc-home-empty-inline">
+          <span className="material-symbols-outlined" aria-hidden="true">auto_stories</span>
+          <p>Bạn chưa có lịch sử đọc nào. Hãy chọn một truyện để lưu tiến độ đọc tại đây.</p>
+          <Link className="sc-home-sec-link" to={catalogPath}>Khám phá truyện →</Link>
+        </div>
+      ) : (
+        <div className="sc-home-read-grid" data-count={recentItems.length}>
+          {recentItems.map((entry, idx) => {
+            const cachedNovel = catalogNovelsMap.get(entry.novelId);
+            const fetchedNovel = detailQueries[idx]?.data;
+            const totalChapters =
+              fetchedNovel?.chapters?.length ??
+              cachedNovel?.chaptersCount ??
+              fetchedNovel?.chaptersCount ??
+              0;
+
+            let progressPercent: number | null = null;
+            if (totalChapters > 0) {
+              const verifiedCount = entry.readChapterIds?.length ?? 0;
+              const chapterIdx = fetchedNovel?.chapters
+                ? fetchedNovel.chapters.findIndex(c => c.chapterId === entry.chapterId) + 1
+                : 0;
+              const bestStep = Math.max(chapterIdx, entry.chapter.chapterNumber || 0, verifiedCount);
+              if (bestStep > 0) {
+                progressPercent = Math.min(100, Math.max(1, Math.round((bestStep / totalChapters) * 100)));
+              }
+            }
+
+            const chapterLabel = formatChapterLabel(entry.chapter.chapterNumber, entry.chapter.title);
+            const coverNovel = {
+              novelId: entry.novelId,
+              title: entry.novel.title,
+              coverImageUrl: entry.novel.coverImageUrl,
+              genre: cachedNovel?.genre ?? null,
+              genres: cachedNovel?.genres,
+            };
+
+            return (
+              <Link
+                key={entry.novelId}
+                className="sc-home-read-card"
+                to={`/reader/chapters/${entry.chapterId}`}
+                title={`${entry.novel.title} — ${chapterLabel}`}
+              >
+                <span className="sc-home-read-thumb">
+                  <HomeNovelCover novel={coverNovel} size="thumb" />
+                </span>
+                <div className="sc-home-read-body">
+                  <strong className="sc-home-read-title">{entry.novel.title}</strong>
+                  <span className="sc-home-read-chapter">{chapterLabel}</span>
+                  {progressPercent !== null ? (
+                    <div className="sc-home-progress-line" aria-label={`Tiến độ đọc ${progressPercent}%`}>
+                      <span className="sc-home-progress-track">
+                        <span className="sc-home-progress-fill" style={{ width: `${progressPercent}%` }} />
+                      </span>
+                      <span className="sc-home-progress-pct">{progressPercent}%</span>
+                    </div>
+                  ) : (
+                    <span className="sc-home-read-resume-hint">Đọc tiếp →</span>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
 }
