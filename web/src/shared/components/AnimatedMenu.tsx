@@ -1,5 +1,6 @@
 import { createContext, useContext, useRef, type ComponentPropsWithoutRef, type ElementType, type PropsWithChildren, type ReactElement, type ReactNode, type RefObject } from 'react';
 import { DropdownMenu } from '@animate-ui/react/primitives/radix-ui/dropdown-menu';
+import { DropdownMenu as RadixDropdownMenu } from 'radix-ui';
 import './animated-overlays.css';
 
 const MenuOptions = createContext<{ withinPortal: boolean; align: 'start' | 'end'; trigger: RefObject<HTMLButtonElement | null> | null; onCloseAutoFocus?: (event: Event) => void }>({ withinPortal: true, align: 'end', trigger: null });
@@ -20,9 +21,9 @@ function Target({ children }: { children: ReactElement }) {
   return <DropdownMenu.Trigger ref={trigger ?? undefined} asChild>{children}</DropdownMenu.Trigger>;
 }
 
-function Dropdown({ children }: PropsWithChildren) {
+function Dropdown({ children, className = '' }: PropsWithChildren<{ className?: string }>) {
   const { withinPortal, align, trigger, onCloseAutoFocus } = useContext(MenuOptions);
-  const content = <DropdownMenu.Content className="sc-animated-menu" align={align} sideOffset={6} collisionPadding={12}
+  const content = <DropdownMenu.Content className={`sc-animated-menu ${className}`.trim()} align={align} sideOffset={6} collisionPadding={12}
     onCloseAutoFocus={(event) => {
       onCloseAutoFocus?.(event);
       if (event.defaultPrevented) return;
@@ -46,14 +47,14 @@ type ItemProps = ComponentPropsWithoutRef<'button'> & {
 };
 
 function Item({ component: Component = 'button', children, color, leftSection, rightSection, disabled, className = '', ...props }: ItemProps) {
-  return <DropdownMenu.Item asChild disabled={disabled}>
+  return <RadixDropdownMenu.Item asChild disabled={disabled}>
     <Component type={Component === 'button' ? 'button' : undefined} disabled={disabled}
       className={`sc-animated-menu-item ${className}`} data-destructive={color === 'red' || undefined} {...props}>
       {leftSection && <span className="sc-animated-menu-icon">{leftSection}</span>}
       <span className="sc-animated-menu-label">{children}</span>
       {rightSection && <span className="sc-animated-menu-icon">{rightSection}</span>}
     </Component>
-  </DropdownMenu.Item>;
+  </RadixDropdownMenu.Item>;
 }
 
 function Label({ children }: PropsWithChildren) {
