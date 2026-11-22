@@ -11,6 +11,7 @@ import { adminGet, type Access } from '../admin/admin-operations-api';
 import { useAuthStore } from '../auth/useAuthStore';
 import { EmptyState, ErrorState, LoadingState, PermissionState } from '../../shared/components/PageStates';
 import { DiscussionComposer } from './DiscussionComposer';
+import { RoleBadge } from './DiscussionRole';
 import {
   createTopic, getCommunity, getTopic, listCategories, listOwnTopics, listTopics, updateTopic,
   type Topic, type Category, type TopicDraft, type TopicSort
@@ -272,6 +273,7 @@ function TopicRow({ topic }: { topic: Topic }) {
           <span className="forum-row-cat" data-category={topic.category.slug}>{topic.category.name}</span>
           <span className="forum-row-sep" aria-hidden="true">·</span>
           <span className="forum-row-author">{author}</span>
+          <RoleBadge role={topic.author?.role} />
           <span className="forum-row-sep" aria-hidden="true">·</span>
           <time className="forum-row-time" dateTime={validDate(topic.lastActivityAt)?.toISOString()}
             title={fmtTime(topic.lastActivityAt)}>
@@ -279,11 +281,12 @@ function TopicRow({ topic }: { topic: Topic }) {
           </time>
         </span>
       </span>
-      <span className="forum-row-replies" data-empty={topic.replyCount === 0 || undefined}>
-        <span className="forum-row-replies-count">
-          <IconMessage2 size={15} aria-hidden="true" />{NUMBER.format(topic.replyCount)}
-        </span>
-        <span className="forum-row-replies-label">trả lời</span>
+      {/* Count and icon share one pill on one line; the word stays available to
+          screen readers and as a hover tooltip instead of wrapping to a second row. */}
+      <span className="forum-row-replies" data-empty={topic.replyCount === 0 || undefined}
+        title={`${NUMBER.format(topic.replyCount)} trả lời`}>
+        <IconMessage2 size={14} aria-hidden="true" />{NUMBER.format(topic.replyCount)}
+        <span className="forum-visually-hidden"> trả lời</span>
       </span>
     </>
   );
@@ -349,7 +352,7 @@ function FeaturedSection({ lead, rest }: { lead: Topic; rest: Topic[] }) {
                 className="forum-identity-avatar" data-role={lead.author?.role === 'AUTHOR' ? 'author' : undefined}
                 aria-hidden="true" />
               <span className="forum-feature-author">{author}</span>
-              {lead.author?.role === 'AUTHOR' ? <span className="forum-row-role">Tác giả</span> : null}
+              <RoleBadge role={lead.author?.role} />
               <span className="sc-byline-dot" aria-hidden="true">·</span>
               <time dateTime={validDate(lead.createdAt)?.toISOString()} title={fmtTime(lead.createdAt)}>
                 {relTime(lead.createdAt)}
@@ -562,7 +565,10 @@ export function DiscussionListPage() {
               leftSection={<IconPencil size={15} aria-hidden="true" />}>
               {user ? 'Tạo chủ đề' : 'Đăng nhập để đăng bài'}
             </Button>
-            {user ? <Link to="/discussions/mine" className="forum-text-action">Chủ đề của tôi</Link> : null}
+            {/* Outline variant, not a bare text link: beside a filled CTA a link read as
+                a label, and this is the shortcut returning members use most. */}
+            {user ? <Button component={Link} to="/discussions/mine" variant="default"
+              leftSection={<IconLayoutList size={15} aria-hidden="true" />}>Chủ đề của tôi</Button> : null}
           </div>
         </div>
       </header>
@@ -637,7 +643,8 @@ export function MyDiscussionsPage() {
       <PageMasthead title="Chủ đề của tôi" subtitle="Những cuộc trò chuyện bạn đã mở.">
         <Button className="forum-create" component={Link} to="/discussions/new"
           leftSection={<IconPencil size={15} aria-hidden="true" />}>Tạo chủ đề</Button>
-        <Link to="/discussions" className="forum-text-action">Tất cả thảo luận</Link>
+        <Button component={Link} to="/discussions" variant="default"
+          leftSection={<IconArrowLeft size={15} aria-hidden="true" />}>Tất cả thảo luận</Button>
       </PageMasthead>
       {topics.isPending ? <LoadingState variant="table" label="Đang tải chủ đề của bạn…" /> : null}
       {topics.isError ? <ErrorState error={topics.error} onRetry={() => void topics.refetch()} /> : null}

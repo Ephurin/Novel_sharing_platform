@@ -17,6 +17,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../shared/components/Pa
 import { AnimatedMenu } from '../../shared/components/AnimatedMenu';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { DiscussionComposer, DiscussionBody } from './DiscussionComposer';
+import { RoleBadge } from './DiscussionRole';
 
 const REPORT_REASONS = [
   { value: 'SPAM', label: 'Spam hoặc quảng cáo' },
@@ -54,6 +55,7 @@ function AuthorLink({ author, compact }: { author: TopicAuthor | null; compact?:
     <Avatar src={author.avatarUrl} name={authorName(author)} alt="" size={compact ? 26 : 34} radius="xl"
       className="forum-identity-avatar" data-role={author.role === 'AUTHOR' ? 'author' : undefined} />
     <span className="forum-identity-name">{authorName(author)}</span>
+    <RoleBadge role={author.role} />
   </Link>;
 }
 

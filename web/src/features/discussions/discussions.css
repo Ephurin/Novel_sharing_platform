@@ -85,7 +85,9 @@
  */
 
 .forum-hero {
-  --hero-pad-y: clamp(1rem, 2.4vw, 1.9rem);
+  /* A returning reader should reach the newest threads without scrolling past the
+   * banner, so the block stays a headline over one line of copy and the CTAs. */
+  --hero-pad-y: clamp(.62rem, 1.35vw, 1.02rem);
   --hero-pad-x: clamp(1rem, 2.6vw, 2.2rem);
   position: relative;
   display: grid;
@@ -93,7 +95,7 @@
   align-items: stretch;
   gap: clamp(.5rem, 1.6vw, 1.4rem);
   overflow: clip;
-  min-block-size: clamp(148px, 17vw, 208px);
+  min-block-size: clamp(104px, 11vw, 148px);
   padding: var(--hero-pad-y) var(--hero-pad-x);
   border: 1px solid color-mix(in srgb, var(--sc-primary) 22%, var(--sc-border));
   border-radius: calc(var(--sc-radius-card) + 4px);
@@ -113,9 +115,12 @@
   display: grid;
   grid-area: 1 / 1;
   align-content: center;
-  gap: .2rem;
+  gap: .15rem;
   max-width: min(100%, 42rem);
 }
+
+/* Scoped: the shared eyebrow keeps its airy spacing on the secondary pages. */
+.forum-hero .forum-eyebrow { margin-block-end: .25rem; }
 
 .forum-hero-media {
   position: relative;
@@ -160,7 +165,7 @@
   margin: 0;
   color: var(--sc-text);
   font-family: var(--sc-font-display);
-  font-size: clamp(1.65rem, 3vw, 2.35rem);
+  font-size: clamp(1.45rem, 2.3vw, 1.9rem);
   font-weight: 600;
   line-height: 1.08;
   letter-spacing: -.022em;
@@ -169,10 +174,10 @@
 
 .forum-hero-sub {
   max-width: 46ch;
-  margin: .45rem 0 0;
+  margin: .28rem 0 0;
   color: var(--sc-text-muted);
-  font-size: clamp(.85rem, 1vw, .95rem);
-  line-height: 1.55;
+  font-size: clamp(.82rem, .95vw, .9rem);
+  line-height: 1.5;
   text-wrap: pretty;
 }
 
@@ -181,18 +186,8 @@
   flex-wrap: wrap;
   align-items: center;
   gap: .75rem;
-  margin-block-start: .85rem;
+  margin-block-start: .6rem;
 }
-
-.forum-text-action {
-  color: var(--sc-primary-text);
-  font-size: .83rem;
-  font-weight: 600;
-  text-decoration: none;
-  text-underline-offset: .18em;
-  white-space: nowrap;
-}
-.forum-text-action:hover { text-decoration: underline; }
 
 /* ── Layout ─────────────────────────────────────────────────────────────── */
 
@@ -666,29 +661,29 @@
 .forum-row-sep { opacity: .5; }
 .forum-row-time { white-space: nowrap; }
 
+/* One pill on one line: the count and the word "trả lời" used to stack into two
+ * lines in a 2.7rem column, which read as cramped at every width. */
 .forum-row-replies {
-  display: grid;
-  justify-items: center;
-  min-inline-size: 2.7rem;
-  color: var(--sc-text-muted);
-  font-variant-numeric: tabular-nums;
-  line-height: 1.25;
-}
-.forum-row-replies-count {
   display: inline-flex;
   align-items: center;
   gap: .22rem;
+  padding: .1rem .45rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sc-border) 26%, var(--sc-surface));
   color: var(--sc-text);
-  font-size: .8rem;
+  font-size: .78rem;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+  white-space: nowrap;
 }
-.forum-row-replies[data-empty] .forum-row-replies-count { color: var(--sc-text-muted); font-weight: 500; }
-.forum-row-replies[data-empty] .forum-row-replies-label { opacity: .72; }
-.forum-row-replies-label {
-  color: color-mix(in srgb, var(--sc-text-muted) 74%, var(--sc-text));
-  font-size: .68rem;
+.forum-row-replies svg { flex: 0 0 auto; opacity: .8; }
+.forum-row-replies[data-empty] {
+  background: transparent;
+  color: var(--sc-text-muted);
   font-weight: 500;
 }
+.forum-row-replies[data-empty] svg { opacity: .62; }
 
 .forum-row:is(a):hover,
 .forum-row:is(a):focus-visible {
@@ -718,9 +713,15 @@
   white-space: nowrap;
 }
 .forum-badge[data-tone="accent"] { background: var(--sc-primary-soft); color: var(--sc-primary-text); }
+/* Trust markers beside a display name. Both pairs are already guarded by
+ * tests/contrast.test.mjs (text on primary-soft, text on neutral-bg). */
+.forum-badge[data-tone="author"] { background: var(--sc-primary-soft); color: var(--sc-primary-text); }
+.forum-badge[data-tone="admin"] { background: var(--sc-neutral-bg); color: var(--sc-text); }
 .forum-badge[data-tone="muted"] { background: color-mix(in srgb, var(--sc-border) 42%, var(--sc-surface)); color: var(--sc-text-muted); }
 .forum-badge[data-tone="warning"],
 .forum-badge[data-tone="announce"] { background: var(--sc-warning-bg); color: var(--sc-warning); }
+/* A role chip is inline with a display name, so it may never wrap or shrink. */
+.forum-role { flex: 0 0 auto; padding-block: .03rem; font-size: .7rem; letter-spacing: .01em; }
 
 .forum-badge[data-category] {
   background: color-mix(in srgb, var(--forum-category) 13%, var(--sc-surface));
@@ -1397,7 +1398,7 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
   .forum-community-grid { grid-template-columns: minmax(0, 1fr) minmax(15rem, 16.5rem); }
   .forum-feature { grid-template-columns: minmax(0, 33%) minmax(0, 1fr); }
   .forum-featured-body[data-has-list] { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
-  .sc-discussions-shell .forum-hero-title { font-size: clamp(1.6rem, 3vw, 2.2rem); }
+  .sc-discussions-shell .forum-hero-title { font-size: clamp(1.4rem, 2.5vw, 1.8rem); }
 }
 
 @media (max-width: 1024px) {
@@ -1438,10 +1439,10 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
      whole community page into a horizontal scroll on phones. Scoped to this shell. */
   .sc-navbar-discussions .sc-navbar-actions { flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
 
-  .forum-hero { padding: 1rem; border-radius: var(--sc-radius-card); }
-  .sc-discussions-shell .forum-hero-title { font-size: 1.5rem; text-wrap: pretty; }
-  .forum-hero-sub { font-size: .845rem; }
-  .forum-hero-actions { margin-block-start: .7rem; gap: .6rem; }
+  .forum-hero { padding: .75rem 1rem; border-radius: var(--sc-radius-card); }
+  .sc-discussions-shell .forum-hero-title { font-size: 1.32rem; text-wrap: pretty; }
+  .forum-hero-sub { margin-block-start: .22rem; font-size: .79rem; line-height: 1.42; }
+  .forum-hero-actions { margin-block-start: .5rem; gap: .6rem; }
 
   .forum-tabs ul {
     border-radius: var(--sc-radius-card);
@@ -1468,8 +1469,7 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
      grouping, and long display names still fit without a second meta line. */
   .forum-row-meta { font-size: .745rem; gap: .05rem .34rem; }
   .forum-row-sep { display: none; }
-  .forum-row-replies { min-inline-size: 2.3rem; }
-  .forum-row-replies-count { font-size: .755rem; }
+  .forum-row-replies { padding: .08rem .38rem; font-size: .745rem; }
 
   .forum-breadcrumb { flex-wrap: nowrap; }
   .forum-breadcrumb > :not(.forum-breadcrumb-crumb) { flex: 0 0 auto; }
@@ -1482,6 +1482,12 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
   .forum-stat-label { display: none; }
   .forum-comment-grid { padding-inline-start: 2.1rem; }
   .forum-comments-head { margin-block-end: .6rem; }
+}
+
+@media (max-width: 480px) {
+  /* Below a phone width the eyebrow only repeats the navigation above the banner,
+   * and that saved line is the difference between one screen of topics and none. */
+  .forum-hero .forum-eyebrow { display: none; }
 }
 
 @media (max-width: 400px) {
