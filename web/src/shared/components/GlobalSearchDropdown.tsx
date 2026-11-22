@@ -3,6 +3,12 @@ import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { searchPublishedNovelPage, type ReaderNovel } from '../../features/reader/reader-api';
+import {
+  ADVANCED_SEARCH_PATH,
+  buildSearchUrl,
+  parseSearchParams,
+  SEARCH_PATH
+} from '../../features/reader/search-params';
 import './global-search-dropdown.css';
 
 const SUGGESTION_LIMIT = 6;
@@ -16,14 +22,15 @@ const statusLabels: Record<string, string> = {
 export function GlobalSearchDropdown({ catalogPath }: { catalogPath: '/reader' | '/public' }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const listId = useId();
 
-  const isCatalogPage = location.pathname === '/reader' || location.pathname === '/public';
-  const urlQuery = isCatalogPage ? (searchParams.get('q') ?? '') : '';
+  const isSearchPage =
+    location.pathname === SEARCH_PATH || location.pathname === ADVANCED_SEARCH_PATH;
+  const urlKeywords = isSearchPage ? parseSearchParams(searchParams).keywords : '';
 
-  const [value, setValue] = useState(urlQuery);
+  const [value, setValue] = useState(urlKeywords);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -31,18 +38,19 @@ export function GlobalSearchDropdown({ catalogPath }: { catalogPath: '/reader' |
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Sync navbar search input with URL only on dedicated search routes (decoupled from ReaderCatalog)
   useEffect(() => {
-    if (isCatalogPage) {
-      setValue(urlQuery);
+    if (isSearchPage) {
+      setValue(urlKeywords);
     }
-  }, [isCatalogPage, urlQuery]);
+  }, [isSearchPage, urlKeywords]);
 
   // Close dropdown & mobile overlay when navigating to another page
   useEffect(() => {
     setDropdownOpen(false);
     setMobileOpen(false);
     setActiveIndex(-1);
-  }, [location.pathname]);
+  }, [location.pathname, location.search]);
 
   // Close on Escape or click outside
   useEffect(() => {
@@ -97,7 +105,7 @@ export function GlobalSearchDropdown({ catalogPath }: { catalogPath: '/reader' |
     !waiting && suggestionsQuery.isSuccess ? suggestionsQuery.data.items.slice(0, SUGGESTION_LIMIT) : [];
   const selectedIndex = activeIndex >= 0 && activeIndex < items.length ? activeIndex : -1;
   const isLoading = shouldShowDropdown && (waiting || suggestionsQuery.isPending);
-  const allResultsPath = trimmed ? `${catalogPath}?q=${encodeURIComponent(trimmed)}` : catalogPath;
+  const allResultsPath = buildSearchUrl(SEARCH_PATH, { keywords: trimmed });
 
   useEffect(() => {
     if (shouldShowDropdown && selectedIndex >= 0) {
@@ -118,17 +126,11 @@ export function GlobalSearchDropdown({ catalogPath }: { catalogPath: '/reader' |
     setValue(nextValue);
     setActiveIndex(-1);
     setDropdownOpen(nextValue.trim().length > 0);
-    if (isCatalogPage) {
-      const next = new URLSearchParams(searchParams);
-      if (nextValue) next.set('q', nextValue);
-      else next.delete('q');
-      next.delete('page');
-      setSearchParams(next, { replace: true, preventScrollReset: true });
-    }
   }
 
   function handleClear() {
-    handleInputChange('');
+    setValue('');
+    setActiveIndex(-1);
     setDropdownOpen(false);
     inputRef.current?.focus();
   }
@@ -141,17 +143,8 @@ export function GlobalSearchDropdown({ catalogPath }: { catalogPath: '/reader' |
       navigate(target);
       return;
     }
-    if (isCatalogPage) {
-      const next = new URLSearchParams(searchParams);
-      if (trimmed) next.set('q', trimmed);
-      else next.delete('q');
-      next.delete('page');
-      setSearchParams(next, { replace: true, preventScrollReset: true });
-      closeAll();
-    } else {
-      closeAll();
-      navigate(allResultsPath);
-    }
+    closeAll();
+    navigate(allResultsPath);
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -222,7 +215,7 @@ export function GlobalSearchDropdown({ catalogPath }: { catalogPath: '/reader' |
             aria-controls={shouldShowDropdown ? listId : undefined}
             aria-activedescendant={shouldShowDropdown && selectedIndex >= 0 ? `${listId}-opt-${selectedIndex}` : undefined}
             aria-label="Tìm kiếm truyện"
-            data-testid="reader-search-input"
+            data-testid="navbar-global-search-input"
             placeholder="Tìm truyện, giới thiệu..."
             value={value}
             onChange={(event) => handleInputChange(event.currentTarget.value)}
