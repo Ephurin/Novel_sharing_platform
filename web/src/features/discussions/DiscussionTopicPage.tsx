@@ -250,23 +250,26 @@ function DiscussionTopic({ id }: { id: string }) {
           <div className="sc-discussion-title-wrap">
             <h2 id="forum-comments-heading">Bình luận <span className="forum-count">{topic.replyCount}</span></h2>
           </div>
-          {canWrite && !locked ? <a href="#sc-discussion-composer" className="forum-jump" onClick={(e) => { e.preventDefault(); setFocusRequest(request => request + 1); }}>Viết bình luận</a> : null}
         </div>
 
-        <div className="forum-composer sc-discussion-box" id="sc-discussion-composer" data-category={topic.category.slug}>
+        {/* One compose field: the section heading already names it, the toolbar carries
+            the counter and the send action, so there is no separate button strip. */}
+        <div className="forum-comment-composer" id="sc-discussion-composer" data-category={topic.category.slug}>
           {locked ? <div className="forum-callout" data-tone="warning">
             <Text size="sm">Chủ đề đã bị khoá. Bạn vẫn có thể báo cáo hoặc gỡ nội dung của mình.</Text>
           </div> : !canWrite ? <div className="forum-callout" data-tone="muted">
             <Text size="sm">Đăng nhập để tham gia thảo luận.</Text><Button size="compact-xs" component={Link} to="/login">Đăng nhập</Button>
           </div> : <Stack gap={6}>
-            {replyTo ? <Group gap={6} justify="space-between">
+            {replyTo ? <Group gap={6} justify="space-between" className="forum-reply-context">
               <Text size="xs" c="dimmed">Đang trả lời <strong>{replyTo.name}</strong></Text>
               <Button size="compact-xs" variant="subtle" onClick={() => setReplyTo(null)}>Huỷ</Button>
             </Group> : null}
-            <DiscussionComposer value={composerBody} onChange={setComposerBody} label={replyTo ? `Trả lời ${replyTo.name}` : 'Thêm bình luận'}
-              maxLength={10000} minRows={3} focusRequest={focusRequest} disabled={createMutation.isPending} placeholder="Chia sẻ suy nghĩ của bạn…" />
-            <Group justify="flex-end"><Button size="xs" leftSection={<IconSend size={14} />} loading={createMutation.isPending}
-              disabled={!composerBody.trim()} onClick={() => createMutation.mutate()}>Gửi</Button></Group>
+            <DiscussionComposer hideLabel value={composerBody} onChange={setComposerBody}
+              label={replyTo ? `Trả lời ${replyTo.name}` : 'Bình luận của bạn'}
+              maxLength={10000} minRows={3} focusRequest={focusRequest} disabled={createMutation.isPending}
+              placeholder={replyTo ? `Trả lời ${replyTo.name}…` : 'Chia sẻ suy nghĩ của bạn…'}
+              action={<Button size="xs" leftSection={<IconSend size={14} />} loading={createMutation.isPending}
+                disabled={!composerBody.trim()} onClick={() => createMutation.mutate()}>Gửi</Button>} />
           </Stack>}
         </div>
 

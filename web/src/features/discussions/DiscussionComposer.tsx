@@ -62,16 +62,21 @@ export function DiscussionBody({ text }: { text: string }) {
 type DiscussionComposerProps = {
   value: string;
   onChange: (value: string) => void;
+  /** Accessible name for the field; also the visible label unless `hideLabel`. */
   label: string;
   maxLength?: number;
   minRows?: number;
   disabled?: boolean;
   placeholder?: string;
   focusRequest?: number;
+  /** Drop the visible label when the surrounding section already names the field. */
+  hideLabel?: boolean;
+  /** Primary submit control, rendered at the end of the toolbar row. */
+  action?: React.ReactNode;
 };
 
 /** Controlled composer shared by topic and comment create/edit forms. */
-export function DiscussionComposer({ value, onChange, label, maxLength, minRows = 4, disabled = false, placeholder, focusRequest }: DiscussionComposerProps) {
+export function DiscussionComposer({ value, onChange, label, maxLength, minRows = 4, disabled = false, placeholder, focusRequest, hideLabel = false, action }: DiscussionComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [preview, setPreview] = useState(false);
   const [linkOpened, link] = useDisclosure(false);
@@ -149,7 +154,8 @@ export function DiscussionComposer({ value, onChange, label, maxLength, minRows 
         ) : (
           <Textarea
             ref={textareaRef}
-            label={label}
+            label={hideLabel ? undefined : label}
+            aria-label={hideLabel ? label : undefined}
             value={text}
             onChange={onTextareaChange}
             autosize
@@ -174,11 +180,17 @@ export function DiscussionComposer({ value, onChange, label, maxLength, minRows 
           <Button type="button" size="compact-xs" variant="subtle" aria-pressed={preview} disabled={disabled} onClick={() => setPreview((state) => !state)}>
             {preview ? 'Quay lại soạn' : 'Xem trước'}
           </Button>
-          {limit !== undefined ? (
-            <span className="forum-compose-count" data-over={overLimit || undefined}>
-              {count}/{limit}<span className="forum-compose-count-unit"> ký tự</span>
-            </span>
-          ) : null}
+          {/* Counter and send action travel together so a wrapped toolbar (touch
+              pointers enlarge the targets) keeps the action right-aligned instead of
+              dropping it to the left edge. */}
+          <div className="forum-compose-end">
+            {limit !== undefined ? (
+              <span className="forum-compose-count" data-over={overLimit || undefined}>
+                {count}/{limit}<span className="forum-compose-count-unit"> ký tự</span>
+              </span>
+            ) : null}
+            {action ? <div className="forum-compose-action">{action}</div> : null}
+          </div>
         </div>
       </div>
       {formatError && <Text size="xs" c="red" role="alert">Nội dung đã gần đến giới hạn ký tự.</Text>}

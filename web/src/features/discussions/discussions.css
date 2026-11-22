@@ -1098,15 +1098,6 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
   font-weight: 700;
 }
 
-.forum-jump {
-  color: var(--sc-primary-text);
-  font-size: .82rem;
-  font-weight: 600;
-  text-decoration: none;
-  text-underline-offset: .18em;
-}
-.forum-jump:hover { text-decoration: underline; }
-
 .forum-callout {
   display: flex;
   align-items: center;
@@ -1135,29 +1126,28 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
   justify-content: stretch;
   gap: .4rem;
 }
-.forum-composer > .forum-composer-box {
-  min-width: 0;
-  padding: .6rem .7rem;
-  border: 1px solid var(--sc-border);
-  border-radius: var(--sc-radius-card);
-  background: var(--sc-surface);
-}
-.forum-comments > .forum-composer { margin-block-end: .9rem; }
-.forum-comments > .forum-composer > .forum-composer-box { background: var(--sc-surface-subtle); }
+.forum-composer > .forum-composer-box { min-width: 0; }
 
+.forum-comment-composer { margin-block-end: .9rem; }
+
+/* No rule between the field and its toolbar: the textarea border already closes the
+ * field, so a second line would read as another nested panel. */
 .forum-compose-toolbar {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: .2rem;
-  margin-block-start: .4rem;
-  padding-block-start: .35rem;
-  border-block-start: 1px solid var(--sc-border);
+  margin-block-start: .25rem;
 }
 .forum-compose-toolbar button { min-width: 34px; min-height: 34px; }
-.forum-compose-count {
+.forum-compose-end {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
   margin-inline-start: auto;
-  padding-inline-end: .25rem;
+}
+.forum-compose-count {
+  padding-inline-end: .1rem;
   color: var(--sc-text-muted);
   font-size: .74rem;
   font-variant-numeric: tabular-nums;
@@ -1504,11 +1494,9 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
      touch target floor has to be declared !important to survive the cascade. */
   .forum-icon-btn,
   .forum-compose-toolbar button,
-  .forum-compose-toolbar .mantine-Button-root,
-  .forum-composer .mantine-Group-root .mantine-Button-root { min-width: 44px; min-height: 44px !important; }
+  .forum-compose-toolbar .mantine-Button-root { min-width: 44px; min-height: 44px !important; }
   .forum-comment-actions button,
   .forum-reply-toggle,
-  .forum-jump,
   .forum-tab,
   .forum-featured-item,
   .forum-trending-link,
