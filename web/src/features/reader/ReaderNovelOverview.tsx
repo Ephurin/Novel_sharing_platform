@@ -101,7 +101,7 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
       <div><dt>Cập nhật</dt><dd className="sc-reader-updated"><time dateTime={updated ?? undefined} title={updated ? new Date(updated).toLocaleString('vi-VN') : undefined}>{lastUpdate(updated)}</time></dd></div>
       <div><dt>Tổng chương</dt><dd><MetricNumber value={chapters.length} /></dd></div>
       <div><dt>Lượt đọc</dt><dd><MetricNumber value={novel.viewsCount ?? 0} /></dd></div>
-      <div><dt>Đánh giá</dt><dd><Link className="sc-rating-metric" to={reviewsPath}>{statistics.isPending ? '…' : statistics.isError ? '—' : score}<Icon name="chevron_right" /></Link></dd></div>
+      <div><dt>Đánh giá</dt><dd>{statistics.isPending ? '…' : statistics.isError ? '—' : score}</dd></div>
       <div><dt>Số từ</dt><dd><MetricNumber value={chapters.reduce((sum, chapter) => sum + (chapter.wordCount ?? 0), 0)} /></dd></div>
     </dl>
     {statistics.isError && <button type="button" className="sc-review-link" onClick={() => void statistics.refetch()}>Không tải được thống kê · Thử lại</button>}

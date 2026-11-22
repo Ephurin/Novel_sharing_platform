@@ -78,6 +78,10 @@ celerybeat-schedule
 .expo/
 mobile/dist-social/
 
+# Local-only seed data (never commit third-party stories)
+backend/local-seeds/
+**/stories_seeds*.json
+
 # Sealed local evaluation state (never commit before blind review)
 .eval-private/
 

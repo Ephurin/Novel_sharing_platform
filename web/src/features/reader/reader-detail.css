@@ -65,6 +65,16 @@ a.sc-reader-status[data-completed="true"]:hover { color: var(--sc-success); text
 .sc-reader-description-section h2 { margin: 0 0 10px; }
 .sc-reader-description-section p { margin: 0; max-width: 78ch; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--sc-text-muted); line-height: 1.85; }
 .sc-reader-detail-section { padding: 20px; border: 1px solid var(--sc-border); border-radius: var(--sc-radius-card); background: var(--sc-surface); }
+.sc-reader-detail-section.sc-reader-reviews-compact-section { padding: 14px 16px; }
+.sc-reader-reviews-compact .sc-reviews-list-heading h2 { font-size: 16px; line-height: 1.3; margin: 0; }
+.sc-reviews-compact-count { margin-left: 6px; font-size: 12.5px; font-weight: 500; color: var(--sc-text-muted); }
+.sc-reviews-all-link { font-size: 12.5px; font-weight: 600; color: var(--sc-primary-text); white-space: nowrap; text-decoration: none; }
+.sc-reviews-all-link:hover { color: rgb(var(--sc-primary-text-strong-rgb)); text-decoration: underline; text-underline-offset: 3px; }
+.sc-reader-review.is-compact { padding: 10px 12px; border-radius: 10px; background: var(--sc-surface-subtle); }
+.sc-reader-review.is-compact .sc-reader-review-header { gap: 9px; margin-bottom: 6px; }
+.sc-reader-review.is-compact .sc-reader-review-identity { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.sc-reader-review.is-compact .sc-reader-review-score { padding: 2px 7px; border-radius: 999px; background: var(--sc-primary-soft); font-size: 12px; font-variant-numeric: tabular-nums; }
+.sc-reader-review.is-compact .sc-reader-review-content { line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 #reader-reviews, #reader-chapters, #reader-comments { scroll-margin-top: 90px; }
 .sc-reader-share { display: flex; flex-direction: column; gap: 12px; }
 .sc-reader-share p { margin: 0; color: var(--sc-text-muted); font-size: 13px; }
