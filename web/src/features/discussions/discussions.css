@@ -20,8 +20,7 @@
  *
  * Colour rules: only StoryCraft tokens from theme/storycraft.css and
  * theme/refinements.css. Category accents resolve through `--forum-category`,
- * a single variable set per element by `[data-category]`. Illustration fills
- * resolve through the `--forum-art-*` palette below, which has a dark variant.
+ * a single variable set per element by `[data-category]`.
  */
 
 /* ── Shell ───────────────────────────────────────────────────────────────── */
@@ -36,17 +35,19 @@
 .sc-discussions-shell :is(
   .forum-topic, .forum-editor, .forum-community-grid,
   .forum-community-main, .forum-side, .forum-side-card,
-  .forum-row-main, .forum-feature-copy, .forum-comment
+  .forum-row-main, .forum-comment
 ) {
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
-/* Paper surfaces shared by the topic article and the composer form. */
-.sc-discussions-shell :is(.forum-article, .forum-editor-panel) {
-  border: 1px solid var(--sc-border);
+/* Paper surfaces shared by the topic article, the comment panel and the composer
+   form. They read as warm paper rather than as the global white card, so the
+   cream page wash keeps a visible edge around them. */
+.sc-discussions-shell :is(.forum-article, .forum-editor-panel, .forum-threads) {
+  border: 1px solid var(--forum-paper-border);
   border-radius: var(--sc-radius-card);
-  background: var(--sc-surface);
+  background: var(--forum-paper);
 }
 
 /* The article body is the one place that reads like prose, so it gets a slightly
@@ -56,12 +57,118 @@
   line-height: 1.78;
 }
 
-/* Category accents. Declared once; every accent site reads the variable. */
-.sc-discussions-shell { --forum-category: var(--sc-primary); }
-.sc-discussions-shell [data-category="thao-luan-chung"] { --forum-category: #ca775c; }
-.sc-discussions-shell [data-category="goc-tac-gia"] { --forum-category: #85855e; }
-.sc-discussions-shell [data-category="hoi-dap"] { --forum-category: #6d9290; }
-.sc-discussions-shell [data-category="thong-bao-cong-dong"] { --forum-category: #bd854c; }
+/* ── Community palette ─────────────────────────────────────────────────────
+ * One hue per category, one wash per section, and one ink per hue — declared
+ * once per theme. Everything below reads these variables, so a category is
+ * defined here and nowhere else.
+ *
+ * Ink pairs are the AA-safe companions of the matching 13% wash: 4.9–6.2:1 on
+ * cream in light mode, 5.0–8.7:1 on the dark surface. `--forum-muted-strong`
+ * is the secondary text for tinted cards, where the global muted token only
+ * reaches ~4.1:1.
+ */
+.sc-discussions-shell {
+  --forum-coral: #c96b4b;
+  --forum-sage: #77956e;
+  --forum-blue: #6d95b5;
+  --forum-plum: #9975a0;
+  --forum-amber: #cf9c45;
+
+  /* One step deeper than the global primary text: the board prints this ink on
+     its own 12% coral washes (selected tab, reply pill, category label), where
+     the shared token measured 4.39:1. */
+  --forum-coral-ink: #9a4b30;
+  --forum-sage-ink: #566f4d;
+  --forum-blue-ink: #446b87;
+  --forum-plum-ink: #7a5578;
+  --forum-amber-ink: #8a611c;
+
+  /* Section washes: pastel in light mode, colour-tinted charcoal in dark. */
+  --forum-tint-sage: #eef3e7;
+  --forum-tint-plum: #f4eef5;
+  --forum-muted-strong: #66615c;
+  --forum-page: #f7f4ef;
+
+  /* Surfaces. `paper` is the content sheet (article, comments, composer), the
+     notice surface is one step in from the sage panel, and `field` is the input
+     background. Light mode keeps all three warm instead of pure white. */
+  --forum-paper: #fffdfa;
+  --forum-paper-border: #e7dfd2;
+  --forum-field: #fffefb;
+  --forum-notice: #fafcf5;
+  --forum-notice-border: #dfe7d3;
+  --forum-rule: #ece5da;
+  --forum-chip: color-mix(in srgb, var(--sc-border) 45%, var(--forum-paper));
+  --forum-shadow: 0 1px 2px rgb(60 44 34 / .04);
+
+  /* Row hover strength per theme: a visible lift on cream, a touch stronger on
+     charcoal so the same row still reads as hovered. */
+  --forum-row-hover: 8%;
+
+  --forum-category: var(--forum-coral);
+  --forum-category-ink: var(--forum-coral-ink);
+}
+
+:root[data-theme="dark"] .sc-discussions-shell {
+  --forum-coral: #e58b69;
+  --forum-sage: #a4bf8b;
+  --forum-blue: #8bbee7;
+  --forum-plum: #c49ad1;
+  --forum-amber: #e8b76a;
+
+  --forum-coral-ink: #f0aa8b;
+  --forum-sage-ink: #b6cfa0;
+  --forum-blue-ink: #a3cdec;
+  --forum-plum-ink: #d8b4e2;
+  --forum-amber-ink: #f0c684;
+
+  --forum-tint-sage: #242b21;
+  --forum-tint-plum: #2b222a;
+  --forum-muted-strong: #cfc5bc;
+  --forum-page: #1b1817;
+
+  /* Dark surfaces sit in a warm-brown ladder: page #1b1817 → paper #262220 →
+     field #302b27 → notice #2a3126. Each step is visible but none is black. */
+  --forum-paper: #262220;
+  --forum-paper-border: #413a34;
+  --forum-field: #302b27;
+  --forum-notice: #2d342a;
+  --forum-notice-border: #414b3a;
+  --forum-rule: #3c342e;
+  --forum-chip: color-mix(in srgb, var(--sc-border) 62%, var(--forum-paper));
+  --forum-shadow: none;
+
+  --forum-row-hover: 16%;
+
+  --forum-category: var(--forum-coral);
+  --forum-category-ink: var(--forum-coral-ink);
+}
+
+/* Declared after the dark block on purpose: they point at tokens, so a dark page
+ * resolves the same rule to the dark hue. */
+.sc-discussions-shell [data-category="thao-luan-chung"] { --forum-category: var(--forum-plum); --forum-category-ink: var(--forum-plum-ink); }
+.sc-discussions-shell [data-category="goc-tac-gia"] { --forum-category: var(--forum-sage); --forum-category-ink: var(--forum-sage-ink); }
+.sc-discussions-shell [data-category="hoi-dap"] { --forum-category: var(--forum-blue); --forum-category-ink: var(--forum-blue-ink); }
+.sc-discussions-shell [data-category="thong-bao-cong-dong"] { --forum-category: var(--forum-amber); --forum-category-ink: var(--forum-amber-ink); }
+
+/* Section wash. The board sits on warm cream (light) or warm charcoal (dark),
+ * owned by this section rather than by `body`, so the shared background token
+ * that every other route uses stays untouched. The tint is one fixed layer
+ * painted behind the shell, which reaches the viewport edges while the content
+ * column keeps its centred measure. */
+.sc-discussions-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.sc-discussions-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--forum-page);
+  pointer-events: none;
+}
 
 .sc-discussions-shell :is(a, button, textarea, input):focus-visible {
   outline: 2px solid var(--sc-focus-ring);
@@ -77,116 +184,42 @@
   white-space: nowrap;
 }
 
-/* ── Community banner ──────────────────────────────────────────────────────
- * Two in-flow columns: copy (eyebrow, display headline, subtitle, actions) and
- * the illustration, which bleeds to the banner edge. The artwork is a real grid
- * cell, never an absolute layer under the text, so copy can not overlap it and
- * the CTA stays reachable at every width.
+/* ── Board header ───────────────────────────────────────
+ * V4 header: one compact strip instead of a banner. The board still needs a mark
+ * and one sentence of context, but the thread list has to start above the fold,
+ * so the block is a single row at every width — no illustration, no hero copy.
  */
 
-.forum-hero {
-  /* A returning reader should reach the newest threads without scrolling past the
-   * banner, so the block stays a headline over one line of copy and the CTAs. */
-  --hero-pad-y: clamp(.62rem, 1.35vw, 1.02rem);
-  --hero-pad-x: clamp(1rem, 2.6vw, 2.2rem);
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 42%);
-  align-items: stretch;
-  gap: clamp(.5rem, 1.6vw, 1.4rem);
-  overflow: clip;
-  min-block-size: clamp(104px, 11vw, 148px);
-  padding: var(--hero-pad-y) var(--hero-pad-x);
-  border: 1px solid color-mix(in srgb, var(--sc-primary) 22%, var(--sc-border));
-  border-radius: calc(var(--sc-radius-card) + 4px);
-  background:
-    radial-gradient(120% 150% at 84% 6%, color-mix(in srgb, var(--sc-primary-soft) 96%, var(--sc-surface)) 0%, transparent 62%),
-    linear-gradient(102deg, color-mix(in srgb, var(--sc-primary-soft) 60%, var(--sc-surface)), color-mix(in srgb, var(--sc-primary-soft) 26%, var(--sc-surface)));
+.forum-board-ident {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  min-width: 0;
 }
 
-:root[data-theme="dark"] .forum-hero {
-  border-color: color-mix(in srgb, var(--sc-primary) 26%, var(--sc-border));
-  background:
-    radial-gradient(120% 150% at 84% 6%, color-mix(in srgb, var(--sc-primary-soft) 86%, var(--sc-surface)) 0%, transparent 64%),
-    linear-gradient(102deg, color-mix(in srgb, var(--sc-primary-soft) 46%, var(--sc-surface)), var(--sc-surface));
+/* The mark is the community's own glyph in its own coral wash: identity without
+ * decoration, and nothing that competes with the first thread. */
+.forum-board-mark {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  inline-size: 2.35rem;
+  block-size: 2.35rem;
+  border-radius: calc(var(--sc-radius-control) + 3px);
+  background: color-mix(in srgb, var(--forum-coral) 14%, var(--forum-paper));
+  color: var(--forum-coral-ink);
 }
 
-.forum-hero-copy {
-  display: grid;
-  grid-area: 1 / 1;
-  align-content: center;
-  gap: .15rem;
-  max-width: min(100%, 42rem);
-}
+.forum-board-copy { min-width: 0; }
 
-/* Scoped: the shared eyebrow keeps its airy spacing on the secondary pages. */
-.forum-hero .forum-eyebrow { margin-block-end: .25rem; }
-
-.forum-hero-media {
-  position: relative;
-  grid-area: 1 / 2;
-  margin-block: calc(-1 * var(--hero-pad-y));
-  margin-inline-end: calc(-1 * var(--hero-pad-x));
-}
-
-.forum-hero-art {
-  position: absolute;
-  inset: 0;
+/* Same footprint as the two buttons it stands in for, so restoring the session
+ * never shifts the header: no wrong-permission control flashes first. */
+.forum-board-pending {
   display: block;
-  inline-size: 100%;
-  block-size: 100%;
-  pointer-events: none;
-  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 24%);
-  mask-image: linear-gradient(to right, transparent 0, #000 24%);
-}
-
-.forum-eyebrow {
-  display: flex;
-  align-items: center;
-  gap: .45rem;
-  margin: 0 0 .4rem;
-  color: var(--sc-primary-text);
-  font-size: .71rem;
-  font-weight: 700;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-}
-
-.forum-eyebrow::before {
-  content: "";
-  inline-size: 15px;
-  block-size: 1px;
-  background: currentColor;
-  opacity: .55;
-}
-
-.sc-discussions-shell .forum-hero-title {
-  max-width: 100%;
-  margin: 0;
-  color: var(--sc-text);
-  font-family: var(--sc-font-display);
-  font-size: clamp(1.45rem, 2.3vw, 1.9rem);
-  font-weight: 600;
-  line-height: 1.08;
-  letter-spacing: -.022em;
-  text-wrap: balance;
-}
-
-.forum-hero-sub {
-  max-width: 46ch;
-  margin: .28rem 0 0;
-  color: var(--sc-text-muted);
-  font-size: clamp(.82rem, .95vw, .9rem);
-  line-height: 1.5;
-  text-wrap: pretty;
-}
-
-.forum-hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: .75rem;
-  margin-block-start: .6rem;
+  inline-size: min(18rem, 58vw);
+  block-size: 2.25rem; /* matches the 36px standard button */
+  border-radius: var(--sc-radius-control);
+  background: var(--forum-chip);
 }
 
 /* ── Layout ─────────────────────────────────────────────────────────────── */
@@ -238,64 +271,73 @@
  * buttons (aria-pressed), so keyboard users get the same filter switch.
  */
 
+/* The rail sits on the page wash instead of inside a card: category colour lives
+ * in the icons and the selected pill, and hairlines do the grouping. */
 .forum-tabs {
   min-width: 0;
-  margin-block: 1rem .8rem;
+  margin-block: 1rem .85rem;
 }
 
 .forum-tabs ul {
   display: flex;
   min-width: 0;
   max-inline-size: 100%;
-  gap: .15rem;
+  gap: 0;
   margin: 0;
-  padding: .3rem;
+  padding: 0;
   overflow-x: auto;
   list-style: none;
-  border: 1px solid var(--sc-border);
-  border-radius: calc(var(--sc-radius-card) + 2px);
-  background: var(--sc-surface);
+  background: transparent;
   scrollbar-width: none;
 }
 .forum-tabs ul::-webkit-scrollbar { display: none; }
 
-.forum-tabs li { display: flex; flex: 1 0 auto; }
+.forum-tabs li { display: flex; flex: 1 0 auto; align-items: center; }
+
+.forum-tabs li + li::before {
+  content: "";
+  flex: 0 0 auto;
+  inline-size: 1px;
+  block-size: 22px;
+  margin-inline: .25rem;
+  background: color-mix(in srgb, var(--forum-paper-border) 92%, transparent);
+}
 
 .forum-tab {
   display: inline-flex;
   flex: 1 1 auto;
   align-items: center;
   justify-content: center;
-  gap: .45rem;
-  min-height: 40px;
+  gap: .48rem;
+  min-height: 42px;
   padding: .45rem .85rem;
   border: 0;
-  border-radius: 999px;
+  border-radius: 11px;
   background: transparent;
   color: var(--sc-text-muted);
   font: inherit;
-  font-size: .865rem;
+  font-size: .89rem;
   font-weight: 600;
   line-height: 1.2;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color .16s ease, color .16s ease;
+  transition: background-color .16s ease, color .16s ease, box-shadow .16s ease;
 }
 
-.forum-tab-icon { display: inline-grid; place-items: center; opacity: .85; }
+.forum-tab-icon { display: inline-grid; place-items: center; color: var(--forum-category); }
 
 .forum-tab:hover:not([aria-pressed="true"]) {
-  background: var(--sc-surface-subtle);
+  background: color-mix(in srgb, var(--forum-category) 9%, transparent);
   color: var(--sc-text);
 }
-.forum-tab:hover:not([aria-pressed="true"]) .forum-tab-icon { opacity: 1; }
 
+/* Selected tab: a pastel pill of the category's own hue plus a hairline ring.
+   The fill stays under 14% so the label keeps AA contrast on cream. */
 .forum-tab[aria-pressed="true"] {
-  background: color-mix(in srgb, var(--sc-primary-soft) 86%, var(--sc-surface));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sc-primary) 26%, transparent);
-  color: var(--sc-primary-text);
+  background: color-mix(in srgb, var(--forum-category) 12%, var(--forum-paper));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--forum-category) 34%, transparent);
+  color: var(--forum-category-ink);
 }
-.forum-tab[aria-pressed="true"] .forum-tab-icon { opacity: 1; }
 
 /* ── Toolbar: search + sort ─────────────────────────────────────────────── */
 
@@ -317,268 +359,181 @@
 }
 .forum-toolbar-search > :first-child { flex: 1 1 auto; min-width: 0; }
 .forum-toolbar-sort { flex: 0 0 auto; min-width: 13rem; }
-.forum-toolbar :is(input, select) { min-height: 42px; border-radius: var(--sc-radius-control); }
-
-/* ── Featured block ─────────────────────────────────────────────────────── */
-
-.forum-featured {
-  display: grid;
-  gap: .5rem;
-  margin-block-end: 1rem;
-  padding: .7rem .85rem .8rem;
-  border: 1px solid var(--sc-border);
-  border-radius: var(--sc-radius-card);
-  background: var(--sc-surface);
+.forum-toolbar :is(input, select) {
+  min-height: 44px;
+  border-color: var(--forum-paper-border);
+  border-radius: 11px;
+  background: var(--forum-field);
+  font-size: .89rem;
+}
+.forum-toolbar :is(input, select):hover { border-color: color-mix(in srgb, var(--forum-coral) 34%, var(--forum-paper-border)); }
+.forum-toolbar :is(input, select):focus,
+.forum-toolbar :is(input, select):focus-within {
+  border-color: color-mix(in srgb, var(--forum-coral) 55%, var(--forum-paper-border));
 }
 
-.forum-featured-head h2,
-.forum-trending h2,
-.forum-about h2 {
+/* ── Đáng chú ý (sidebar) ───────────────────────────────────
+ * Pinned threads and admin announcements live in the sidebar, not above the list:
+ * the board opens on its newest threads, and the notices stay one glance away.
+ */
+
+.forum-notices {
+  border-color: color-mix(in srgb, var(--forum-sage) 28%, var(--forum-paper-border));
+  background: var(--forum-tint-sage);
+}
+
+.forum-notices h2 { margin-block-end: .5rem; }
+
+/* Card headings lay out like the panel head — mark, gap, title on one row that
+ * centres both. JSX drops the whitespace between the icon and the label, so the
+ * spacing has to come from layout; without it the glyph sat flush on the text
+ * and rode 2px high. */
+.forum-side-card h2 {
   display: flex;
   align-items: center;
-  gap: .45rem;
+  gap: .4rem;
+}
+
+.forum-notices ul {
+  display: grid;
+  gap: .1rem;
   margin: 0;
-  font-family: var(--sc-font-display);
-  font-size: 1.02rem;
-  font-weight: 600;
-  letter-spacing: -.01em;
-}
-
-.forum-section-icon {
-  display: inline-grid;
-  inline-size: 24px;
-  block-size: 24px;
-  place-items: center;
-  border-radius: 7px;
-  background: var(--sc-primary-soft);
-  color: var(--sc-primary-text);
-}
-
-.forum-featured-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: .85rem;
-}
-.forum-featured-body[data-has-list] {
-  /* The notice column used to take an equal share, which pushed long Vietnamese
-     titles onto four lines and cut the summary after two. The lead now keeps
-     roughly two thirds, so the headline settles at 2–3 lines and the excerpt
-     gets a third line before it ellipsises. */
-  grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
-  gap: 1rem;
-}
-
-.forum-feature {
-  display: grid;
-  grid-template-columns: minmax(0, 31%) minmax(0, 1fr);
-  align-items: stretch;
-  gap: .95rem;
-  min-width: 0;
-}
-
-.forum-feature-media {
-  position: relative;
-  overflow: clip;
-  min-block-size: 138px;
-  border-radius: calc(var(--sc-radius-card) - 2px);
-  background: color-mix(in srgb, var(--sc-primary-soft) 40%, var(--sc-surface));
-}
-
-.forum-feature-art {
-  position: absolute;
-  inset: 0;
-  display: block;
-  inline-size: 100%;
-  block-size: 100%;
-}
-
-.forum-feature-media-note {
-  position: absolute;
-  inset-block-end: .45rem;
-  inset-inline-start: .5rem;
-  padding: .1rem .45rem;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--sc-surface) 80%, transparent);
-  color: var(--sc-text-muted);
-  font-size: .6rem;
-  font-weight: 600;
-  letter-spacing: .01em;
-  line-height: 1.5;
-  backdrop-filter: blur(3px);
-  pointer-events: none;
-}
-
-.forum-feature-copy {
-  display: grid;
-  align-content: center;
-  gap: .22rem;
-  padding-block: .1rem;
-}
-
-.forum-feature-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .35rem;
-}
-
-.forum-feature-title {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  margin: .05rem 0 0;
-  font-size: clamp(.98rem, 1.35vw, 1.13rem);
-  font-weight: 700;
-  line-height: 1.34;
-  letter-spacing: -.015em;
-  text-wrap: pretty;
-}
-.forum-feature-title a { color: var(--sc-text); text-decoration: none; }
-.forum-feature-title a:hover { color: var(--sc-primary-text); }
-
-.forum-feature-desc {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  margin: 0;
-  color: var(--sc-text-muted);
-  font-size: .85rem;
-  line-height: 1.55;
-}
-
-.forum-feature-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: .35rem;
-  margin-block-start: .35rem;
-  color: var(--sc-text-muted);
-  font-size: .755rem;
-}
-.forum-feature-author { color: var(--sc-text); font-weight: 600; }
-.forum-feature-meta time { white-space: nowrap; }
-
-.forum-feature-stats {
-  display: inline-flex;
-  align-items: center;
-  gap: .75rem;
-  margin-inline-start: auto;
-  font-variant-numeric: tabular-nums;
-}
-.forum-feature-stats > span { display: inline-flex; align-items: center; gap: .25rem; }
-
-.forum-featured-list {
-  display: grid;
-  /* Spread the notices down the full height of the lead story instead of stacking
-     them shoulder to shoulder at the top; with one notice this degrades to start. */
-  align-content: space-between;
-  gap: .25rem;
-  margin: 0;
-  padding: 0 0 0 1rem;
-  border-inline-start: 1px solid var(--sc-border);
+  padding: 0;
   list-style: none;
 }
 
-.forum-featured-item {
+.forum-notice {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: .55rem;
-  padding: .5rem .45rem;
+  align-items: start;
+  gap: .5rem;
+  padding: .42rem .4rem .42rem .5rem;
+  border-inline-start: 2px solid var(--forum-category);
   border-radius: var(--sc-radius-control);
   color: var(--sc-text);
   text-decoration: none;
   transition: background-color .16s ease;
 }
+.forum-notice:hover { background: color-mix(in srgb, var(--forum-category) 9%, transparent); }
+.forum-notice:focus-visible { outline-offset: -2px; }
 
-.forum-featured-icon {
+.forum-notice-icon {
   display: inline-grid;
-  inline-size: 24px;
-  block-size: 24px;
   place-items: center;
-  border-radius: 7px;
-  background: color-mix(in srgb, var(--forum-category) 15%, var(--sc-surface));
-  color: color-mix(in srgb, var(--forum-category) 74%, var(--sc-text));
+  margin-block-start: .12rem;
+  color: var(--forum-category-ink);
 }
 
-.forum-featured-item-body { display: grid; min-width: 0; gap: .12rem; }
+.forum-notice-body { display: grid; min-width: 0; gap: .1rem; }
 
-.forum-featured-item-kicker {
-  color: var(--sc-primary-text);
-  font-size: .72rem;
-  font-weight: 600;
-}
-
-.forum-featured-item-title {
+.forum-notice-title {
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-  font-size: .855rem;
+  font-size: .82rem;
   font-weight: 620;
-  line-height: 1.38;
-  transition: color .16s ease;
+  line-height: 1.34;
+  text-wrap: pretty;
 }
+.forum-notice:hover .forum-notice-title { color: var(--sc-primary-text); }
 
-.forum-featured-item-meta {
+/* Category and recency on one line; the category keeps its own ink so the notice
+ * and the list agree on what a Hỏi đáp or a Thông báo looks like. */
+.forum-notice-meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: .3rem;
-  color: var(--sc-text-muted);
-  font-size: .735rem;
-  line-height: 1.4;
+  color: var(--forum-muted-strong);
+  font-size: .75rem; /* 12px metadata token, not smaller */
+  line-height: 1.3;
 }
 
-.forum-featured-item:hover { background: var(--sc-surface-subtle); }
-.forum-featured-item:hover .forum-featured-item-title { color: var(--sc-primary-text); }
-.forum-featured-item:focus-visible { outline-offset: -2px; }
+.forum-notice-kicker {
+  color: var(--forum-category-ink);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Section marks are bare glyphs in the hue that owns the block: no chip behind
+ * them, no filled icon, so the heading still reads as text. */
+.forum-section-icon {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--sc-text-muted);
+}
+
+.forum-section-icon[data-tone="sage"] { color: var(--forum-sage); }
+.forum-section-icon[data-tone="plum"] { color: var(--forum-plum); }
+.forum-section-icon[data-tone="coral"] { color: var(--forum-coral); }
+.forum-section-icon[data-tone="amber"] { color: var(--forum-amber); }
 
 /* ── Latest topic list ──────────────────────────────────────────────────── */
 
+/* One panel carries the surface, not a card per thread: V4 puts the list straight
+ * under the toolbar, so the panel frames it and the rows stay flat inside. */
 .forum-latest {
   overflow: clip;
-  border: 1px solid var(--sc-border);
+  border: 1px solid var(--forum-paper-border);
   border-radius: var(--sc-radius-card);
-  background: var(--sc-surface);
+  background: var(--forum-paper);
+  box-shadow: var(--forum-shadow);
 }
 
-.forum-latest-head { padding: .8rem 1rem .5rem; }
+.forum-latest-head {
+  padding: .8rem clamp(.85rem, 1.4vw, 1.05rem) .68rem;
+  border-block-end: 1px solid var(--forum-rule);
+}
 .forum-latest-head h2 {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
   margin: 0;
   font-family: var(--sc-font-display);
-  font-size: 1.06rem;
+  font-size: 1.12rem;
   font-weight: 600;
   letter-spacing: -.01em;
 }
 
-.forum-list { overflow: clip; }
-.forum-list > [role="listitem"] + [role="listitem"] { border-block-start: 1px solid var(--sc-border); }
+.forum-list { overflow: visible; }
+.forum-list > [role="listitem"] + [role="listitem"] { border-block-start: 1px solid var(--forum-rule); }
 
 .forum-row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: 4px auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: .5rem .85rem;
+  gap: .45rem .85rem;
   min-width: 0;
   width: 100%;
-  padding: .74rem 1rem;
+  padding: .78rem clamp(.85rem, 1.4vw, 1.05rem) .78rem clamp(.5rem, .9vw, .7rem);
   color: var(--sc-text);
   text-decoration: none;
-  transition: background-color .16s ease, box-shadow .16s ease;
+  transition: background-color .16s ease;
+}
+
+/* A short rounded bar in the row's category hue: the only colour mark in the
+ * list, and it replaces the old hover-only inset stripe. */
+.forum-row-stripe {
+  align-self: center;
+  inline-size: 4px;
+  block-size: 2.1rem;
+  border-radius: 999px;
+  background: var(--forum-category);
+  opacity: .9;
 }
 
 .forum-row-ident { position: relative; display: inline-flex; flex: 0 0 auto; }
 
 .forum-row-avatar { flex: 0 0 auto; }
+/* Initials take the category wash, so avatar, bar and pill agree at a glance —
+ * an author account is already announced by the role chip in the meta line. */
 .forum-row-avatar .mantine-Avatar-placeholder {
-  background: color-mix(in srgb, var(--sc-border) 46%, var(--sc-surface));
-  color: var(--sc-text);
+  background: color-mix(in srgb, var(--forum-category) 10%, var(--forum-paper));
+  color: var(--forum-category-ink);
   font-size: .76rem;
   font-weight: 650;
-}
-.forum-row-avatar[data-role="author"] .mantine-Avatar-placeholder {
-  background: var(--sc-primary-soft);
-  color: var(--sc-primary-text);
 }
 
 .forum-row-main { display: grid; gap: .16rem; min-width: 0; }
@@ -592,8 +547,8 @@
   inline-size: 7px;
   block-size: 7px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--sc-primary) 88%, var(--sc-text));
-  box-shadow: 0 0 0 2px var(--sc-surface);
+  background: color-mix(in srgb, var(--forum-coral) 88%, var(--sc-text));
+  box-shadow: 0 0 0 2px var(--forum-paper);
   pointer-events: none;
 }
 
@@ -605,10 +560,10 @@
   min-width: 0;
   margin: 0;
   color: var(--sc-text);
-  font-size: .945rem;
-  font-weight: 620;
-  line-height: 1.38;
-  letter-spacing: -.006em;
+  font-size: .975rem;
+  font-weight: 640;
+  line-height: 1.36;
+  letter-spacing: -.008em;
   text-wrap: pretty;
   transition: color .16s ease;
 }
@@ -635,17 +590,19 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: .1rem .4rem;
+  gap: .1rem .42rem;
   min-width: 0;
-  color: var(--sc-text-muted);
-  font-size: .765rem;
-  line-height: 1.4;
+  color: var(--forum-muted-strong);
+  font-size: .785rem;
+  line-height: 1.42;
 }
 
 .forum-row-cat {
   display: inline-flex;
   align-items: center;
   gap: .3rem;
+  color: var(--forum-category-ink);
+  font-weight: 600;
   white-space: nowrap;
 }
 .forum-row-cat::before {
@@ -661,36 +618,60 @@
 .forum-row-sep { opacity: .5; }
 .forum-row-time { white-space: nowrap; }
 
+/* Views then replies: one quiet pair closing the row. Both numbers are served by
+ * the list endpoint, so a thread with no replies still shows it is being read.
+ * Neither is printed as a badge on its own line, and likes stay off the list. */
+.forum-row-stats {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+.forum-row-views {
+  display: inline-flex;
+  align-items: center;
+  gap: .24rem;
+  padding-inline-end: .1rem;
+  color: var(--forum-muted-strong);
+  font-size: .775rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.forum-row-views svg { flex: 0 0 auto; opacity: .72; }
+
 /* One pill on one line: the count and the word "trả lời" used to stack into two
  * lines in a 2.7rem column, which read as cramped at every width. */
 .forum-row-replies {
   display: inline-flex;
   align-items: center;
-  gap: .22rem;
-  padding: .1rem .45rem;
+  gap: .28rem;
+  padding: .14rem .55rem;
+  border: 1px solid color-mix(in srgb, var(--forum-category) 30%, transparent);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--sc-border) 26%, var(--sc-surface));
-  color: var(--sc-text);
-  font-size: .78rem;
+  background: color-mix(in srgb, var(--forum-category) 10%, var(--forum-paper));
+  color: var(--forum-category-ink);
+  font-size: .795rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  line-height: 1.35;
+  line-height: 1.4;
   white-space: nowrap;
 }
-.forum-row-replies svg { flex: 0 0 auto; opacity: .8; }
+.forum-row-replies svg { flex: 0 0 auto; opacity: .9; }
 .forum-row-replies[data-empty] {
+  border-color: color-mix(in srgb, var(--sc-border) 92%, transparent);
   background: transparent;
   color: var(--sc-text-muted);
   font-weight: 500;
 }
-.forum-row-replies[data-empty] svg { opacity: .62; }
+.forum-row-replies[data-empty] svg { opacity: .6; }
 
+/* Hover lifts the row onto a faint category wash; the stripe already carries the
+ * colour, so no second inset bar is drawn. */
 .forum-row:is(a):hover,
 .forum-row:is(a):focus-visible {
-  background: color-mix(in srgb, var(--sc-surface-subtle) 84%, var(--sc-surface));
-  /* A hairline bar in the row's own category colour marks the pointer position
-   * without repainting the whole row. */
-  box-shadow: inset 2px 0 0 var(--forum-category);
+  background: color-mix(in srgb, var(--forum-category) var(--forum-row-hover), var(--forum-paper));
 }
 .forum-row:is(a):hover .forum-row-title,
 .forum-row:is(a):focus-visible .forum-row-title { color: var(--sc-primary-text); }
@@ -724,8 +705,8 @@
 .forum-role { flex: 0 0 auto; padding-block: .03rem; font-size: .7rem; letter-spacing: .01em; }
 
 .forum-badge[data-category] {
-  background: color-mix(in srgb, var(--forum-category) 13%, var(--sc-surface));
-  color: var(--sc-text);
+  background: color-mix(in srgb, var(--forum-category) 14%, var(--sc-surface));
+  color: var(--forum-category-ink);
   text-decoration: none;
 }
 .forum-badge[data-category]::before {
@@ -752,9 +733,13 @@
 
 .forum-page { max-width: 980px; margin-inline: auto; }
 
-.forum-page-head {
+/* Secondary community pages and the board header share one strip: same surface,
+ * same padding, same action row — the board only adds its mark and swaps the
+ * eyebrow for the board's own title. */
+.forum-page-head,
+.forum-board-head {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: .85rem;
@@ -763,6 +748,9 @@
   border-radius: var(--sc-radius-card);
   background: var(--sc-surface);
 }
+
+/* The board header closes the gap to the category rail under it. */
+.forum-board-head { margin-block: .6rem .1rem; }
 
 .sc-discussions-shell h1.forum-heading {
   margin: 0;
@@ -774,8 +762,11 @@
   letter-spacing: -.015em;
 }
 
-.forum-page-sub { margin: .25rem 0 0; color: var(--sc-text-muted); font-size: .865rem; }
-.forum-page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
+.forum-page-sub,
+.forum-board-sub { margin: .25rem 0 0; color: var(--forum-muted-strong); font-size: .865rem; }
+.forum-board-sub { margin-block-start: .15rem; }
+.forum-page-head-actions,
+.forum-board-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
 
 .forum-empty {
   display: grid;
@@ -792,77 +783,20 @@
 .forum-comments > .forum-empty { margin-block-start: .9rem; }
 .forum-empty > svg { color: color-mix(in srgb, var(--sc-primary) 70%, var(--sc-text-muted)); }
 
+.forum-comments > .forum-empty {
+  border: 0;
+  background: color-mix(in srgb, var(--forum-chip) 70%, transparent);
+}
+.forum-comments > .forum-empty p { font-size: .885rem; }
+
 /* ── Sidebar cards ──────────────────────────────────────────────────────── */
 
-.forum-about {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: .35rem .5rem;
-  background:
-    linear-gradient(158deg, color-mix(in srgb, var(--sc-primary-soft) 54%, var(--sc-surface)), var(--sc-surface) 74%);
+/* The trending card carries the column's colour — plum for what is drawing
+ * attention — so the rail has hue without a single illustration in it. */
+.forum-trending {
+  border-color: color-mix(in srgb, var(--forum-plum) 28%, var(--forum-paper-border));
+  background: var(--forum-tint-plum);
 }
-.forum-about h2 { grid-column: 1 / -1; }
-.forum-about p {
-  margin: 0;
-  color: var(--sc-text-muted);
-  font-size: .825rem;
-  line-height: 1.55;
-}
-.forum-about-art {
-  align-self: end;
-  inline-size: 78px;
-  block-size: auto;
-  opacity: .95;
-}
-
-/* Counters ride inside the "about" card as one quiet line of figures: no extra
- * card, no icon chips, nothing that competes with the topic list. */
-.forum-about-stats {
-  display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0;
-  margin: .3rem 0 0;
-  padding-block-start: .55rem;
-  border-block-start: 1px solid color-mix(in srgb, var(--sc-border) 82%, transparent);
-  text-align: center;
-}
-
-/* Equal thirds read as one row of figures: each column owns a hairline divider, so
- * the eye lands on the number first instead of hunting for where a value starts. */
-.forum-about-stats > div {
-  display: flex;
-  flex-direction: column-reverse;
-  align-items: center;
-  justify-content: flex-end;
-  gap: .08rem;
-  min-width: 0;
-  padding-inline: .3rem;
-}
-
-.forum-about-stats > div + div {
-  border-inline-start: 1px solid color-mix(in srgb, var(--sc-border) 78%, transparent);
-}
-
-.forum-about-stats dd {
-  margin: 0;
-  color: var(--sc-text);
-  font-size: 1.04rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -.01em;
-  line-height: 1.15;
-}
-
-.forum-about-stats dt {
-  /* The about card carries a warm tint, so the label needs a touch more weight
-     in the colour to stay above 4.5:1. */
-  color: color-mix(in srgb, var(--sc-text-muted) 74%, var(--sc-text));
-  font-size: .685rem;
-  line-height: 1.25;
-  white-space: nowrap;
-}
-
 .forum-trending h2 { margin-block-end: .55rem; }
 
 .forum-trending ol {
@@ -876,41 +810,94 @@
 .forum-trending li {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
+  align-items: start;
   gap: .55rem;
-  padding: .35rem .1rem;
+  padding: .4rem .3rem;
+  border-radius: var(--sc-radius-control);
+  transition: background-color .16s ease;
 }
+.forum-trending li:hover { background: color-mix(in srgb, var(--forum-plum) 8%, transparent); }
 
+/* Rank as a small tinted counter: one plum chip per row, denser for the lead
+ * story. It keeps the order readable without adding a second colour family. */
 .forum-trending-rank {
-  inline-size: 1rem;
-  color: color-mix(in srgb, var(--sc-text-muted) 78%, transparent);
-  font-size: .78rem;
-  font-weight: 600;
+  display: inline-grid;
+  place-items: center;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  margin-block-start: .08rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--forum-plum) 15%, var(--forum-paper));
+  color: var(--forum-plum-ink);
+  font-size: .72rem;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  text-align: end;
+  line-height: 1;
 }
-.forum-trending li:first-child .forum-trending-rank { color: var(--sc-primary-text); }
+.forum-trending li:first-child .forum-trending-rank {
+  background: color-mix(in srgb, var(--forum-plum) 24%, var(--forum-paper));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--forum-plum) 30%, transparent);
+}
 
 .forum-trending-link {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: .5rem;
   min-width: 0;
   color: var(--sc-text);
   text-decoration: none;
 }
 
+.forum-trending-body { display: grid; min-width: 0; gap: .1rem; }
+
+/* Two lines: enough for a Vietnamese title to finish, short enough that the
+ * ranked list stays a glance instead of a scroll. */
 .forum-trending-title {
+  display: -webkit-box;
   overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   font-size: .85rem;
-  font-weight: 600;
-  line-height: 1.35;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-weight: 620;
+  line-height: 1.36;
+  text-wrap: pretty;
   transition: color .16s ease;
 }
 
-.forum-trending-meta { color: var(--sc-text-muted); font-size: .73rem; }
-.forum-trending-link:hover .forum-trending-title { color: var(--sc-primary-text); }
+/* The line under the title names the author, not the reply count: that number
+ * already owns the badge on the right, and printing it twice muddied the card. */
+.forum-trending-author {
+  overflow: hidden;
+  color: var(--forum-muted-strong);
+  font-size: .75rem; /* 12px metadata token */
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The card's single reply badge: one count per row, quiet enough that the title
+ * still leads. */
+.forum-trending-replies {
+  display: inline-flex;
+  align-items: center;
+  gap: .24rem;
+  padding: .1rem .45rem;
+  border: 1px solid color-mix(in srgb, var(--forum-plum) 26%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--forum-plum) 12%, var(--forum-paper));
+  color: var(--forum-plum-ink);
+  font-size: .745rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.forum-trending-replies svg { flex: 0 0 auto; opacity: .85; }
+.forum-trending-link:hover .forum-trending-title { color: var(--forum-plum-ink); }
 .forum-trending-link:focus-visible { outline-offset: 2px; }
+
+.forum-trending .forum-section-icon { color: var(--forum-plum-ink); }
 
 /* ── Topic detail ───────────────────────────────────────────────────────── */
 
@@ -940,8 +927,9 @@
 .forum-breadcrumb-sep { color: color-mix(in srgb, var(--sc-text-muted) 70%, transparent); }
 
 .forum-article {
-  padding: clamp(1.1rem, 2.6vw, 1.85rem);
+  padding: clamp(1.15rem, 2.6vw, 1.95rem);
   border-block-start: 3px solid var(--forum-category) !important;
+  box-shadow: var(--forum-shadow);
 }
 
 .forum-badges {
@@ -965,9 +953,9 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
   gap: .5rem;
-  margin-block: .6rem 1.1rem;
-  padding-block-end: .75rem;
-  border-block-end: 1px solid var(--sc-border);
+  margin-block: .7rem 1.25rem;
+  padding-block-end: .8rem;
+  border-block-end: 1px solid var(--forum-rule);
 }
 
 .forum-identity,
@@ -1031,7 +1019,7 @@
   cursor: pointer;
   transition: background-color .15s ease, color .15s ease;
 }
-.forum-icon-btn:hover { background: var(--sc-surface-subtle); color: var(--sc-primary-text); }
+.forum-icon-btn:hover { background: var(--forum-chip); color: var(--sc-primary-text); }
 
 /* Reaction footer: one quiet pill for the like action, counts beside it. */
 .forum-article-footer {
@@ -1039,9 +1027,9 @@
   flex-wrap: wrap;
   align-items: center;
   gap: .25rem .55rem;
-  margin-block-start: 1.15rem;
-  padding-block-start: .8rem;
-  border-block-start: 1px solid var(--sc-border);
+  margin-block-start: 1.25rem;
+  padding-block-start: .85rem;
+  border-block-start: 1px solid var(--forum-rule);
   color: var(--sc-text-muted);
   font-size: .81rem;
 }
@@ -1062,7 +1050,7 @@
   white-space: nowrap;
 }
 button.forum-stat { cursor: pointer; transition: background-color .15s ease, color .15s ease; }
-button.forum-stat:not(:disabled):hover { background: var(--sc-surface-subtle); color: var(--sc-primary-text); }
+button.forum-stat:not(:disabled):hover { background: var(--forum-chip); color: var(--sc-primary-text); }
 button.forum-stat[data-active="true"] { background: var(--sc-primary-soft); color: var(--sc-primary-text); }
 button.forum-stat:disabled { cursor: default; opacity: .8; }
 .forum-stat-label { color: var(--sc-text-muted); }
@@ -1090,11 +1078,14 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
   letter-spacing: -.015em;
 }
 
+/* The comment counter follows the topic's category, like every other tinted
+ * surface on the page; outside a `[data-category]` scope it falls back to coral. */
 .forum-count {
   padding: .04rem .4rem;
   border-radius: 999px;
-  background: var(--sc-primary-soft);
-  color: var(--sc-primary-text);
+  background: color-mix(in srgb, var(--forum-category) 10%, var(--sc-surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--forum-category) 26%, transparent);
+  color: var(--forum-category-ink);
   font-size: .74rem;
   font-weight: 700;
 }
@@ -1129,63 +1120,130 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
 }
 .forum-composer > .forum-composer-box { min-width: 0; }
 
-.forum-comment-composer { margin-block-end: .9rem; }
+.forum-comment-composer { margin-block-end: 1.15rem; }
 
-/* No rule between the field and its toolbar: the textarea border already closes the
- * field, so a second line would read as another nested panel. */
+/* Composer: one writing surface. Field and formatting rail share a single
+ * border, so the toolbar reads as part of the editor rather than a second row
+ * floating under it. Focus lifts the border to coral and adds a soft ring. */
+.forum-composer-box {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  border: 1px solid var(--forum-paper-border);
+  border-radius: calc(var(--sc-radius-card) - 1px);
+  background: var(--forum-field);
+  box-shadow: var(--forum-shadow);
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+.forum-composer-box:focus-within {
+  border-color: color-mix(in srgb, var(--forum-coral) 58%, var(--forum-paper-border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--forum-coral) 15%, transparent);
+}
+.forum-composer-box[data-over="true"] { border-color: color-mix(in srgb, var(--sc-danger) 55%, var(--forum-paper-border)); }
+.forum-composer-box[data-disabled="true"] { background: color-mix(in srgb, var(--forum-field) 70%, var(--forum-paper)); }
+
+.forum-compose-label {
+  padding: .6rem .8rem 0;
+  color: var(--forum-muted-strong);
+  font-size: .8rem;
+  font-weight: 650;
+}
+
+/* The field itself is borderless: the box owns the outline, so a second border
+ * would double the edge and break the "one surface" reading. */
+.forum-compose-input {
+  padding: .55rem .8rem .65rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: .93rem;
+  line-height: 1.6;
+  box-shadow: none;
+}
+.forum-compose-input:focus,
+.forum-compose-input:focus-within {
+  border: 0;
+  outline: none;
+  box-shadow: none;
+}
+.forum-compose-input:disabled { background: transparent; color: var(--sc-text-muted); }
+
 .forum-compose-toolbar {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: .2rem;
-  margin-block-start: .25rem;
+  justify-content: space-between;
+  gap: .3rem .5rem;
+  padding: .3rem .45rem .3rem .4rem;
+  border-block-start: 1px solid var(--forum-rule);
+  border-end-start-radius: calc(var(--sc-radius-card) - 2px);
+  border-end-end-radius: calc(var(--sc-radius-card) - 2px);
+  background: color-mix(in srgb, var(--forum-chip) 52%, transparent);
 }
-.forum-compose-toolbar button { min-width: 34px; min-height: 34px; }
+
+.forum-compose-tools { display: flex; align-items: center; gap: .05rem; min-width: 0; }
+.forum-compose-toolbar button { min-width: 34px; min-height: 34px; border-radius: 8px; color: var(--sc-text-muted); }
+.forum-compose-toolbar button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--forum-coral) 13%, transparent);
+  color: var(--forum-coral-ink);
+}
+.forum-compose-toolbar button:disabled { color: color-mix(in srgb, var(--sc-text-muted) 62%, transparent); }
+
 .forum-compose-end {
   display: flex;
   align-items: center;
-  gap: .35rem;
+  gap: .45rem;
   margin-inline-start: auto;
 }
 .forum-compose-count {
   padding-inline-end: .1rem;
-  color: var(--sc-text-muted);
+  color: var(--forum-muted-strong);
   font-size: .74rem;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 .forum-compose-count[data-over] { color: var(--sc-danger); font-weight: 600; }
-.forum-compose-input { font-size: .93rem; line-height: 1.55; }
-.forum-compose-preview {
-  min-height: 6rem;
-  padding: .7rem .85rem;
-  border-radius: var(--sc-radius-control);
-  background: var(--sc-surface-subtle);
-  overflow-wrap: anywhere;
-}
-.forum-compose-footer {
-  justify-content: end;
-  margin-block-start: .2rem;
-  color: var(--sc-text-muted);
-  font-size: .74rem;
+.forum-compose-action button { min-height: 34px; padding-inline: .8rem; font-size: .82rem; font-weight: 650; }
+.forum-compose-action button:disabled {
+  opacity: 1;
+  background: color-mix(in srgb, var(--sc-text) 14%, var(--forum-field));
+  color: color-mix(in srgb, var(--sc-text) 62%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sc-text) 12%, transparent);
 }
 
+/* The reply field opens under the comment it answers, not back at the top of the
+ * section: the thread is where the question was read, so it is where the answer
+ * gets written. A dashed category rule ties the field to that comment; the field
+ * itself carries the context in its placeholder, so no strip sits above it. */
+.forum-inline-reply {
+  display: grid;
+  gap: .45rem;
+  margin-block: .6rem .3rem;
+  padding-block-start: .6rem;
+  border-block-start: 1px dashed color-mix(in srgb, var(--forum-category) 32%, var(--forum-paper-border));
+}
+.forum-inline-reply .forum-composer-box { background: var(--forum-paper); }
+
+/* One paper panel holds the whole thread list — no per-comment cards, so the
+ * comments stay a readable column instead of a stack of boxes. */
 .forum-threads:has(.forum-thread) {
-  border: 1px solid var(--sc-border);
-  border-radius: var(--sc-radius-card);
-  background: var(--sc-surface);
-  padding-inline: clamp(.7rem, 2vw, 1.1rem);
+  padding-inline: clamp(.8rem, 2vw, 1.2rem);
+  box-shadow: var(--forum-shadow);
 }
 
-.forum-thread { border-block-end: 1px solid var(--sc-border); }
+.forum-thread { border-block-end: 1px solid var(--forum-rule); }
 .forum-thread:last-child { border-block-end: 0; }
 
-.forum-comment { padding-block: .8rem; scroll-margin-block-start: 5.5rem; }
-.forum-comment-grid { position: relative; min-height: 30px; padding-inline-start: 2.35rem; }
-.forum-comment-grid .mantine-Avatar-root { position: absolute; inset-block-start: .08rem; inset-inline-start: 0; }
+.forum-comment { padding-block: .95rem; scroll-margin-block-start: 5.5rem; }
+.forum-comment-grid { position: relative; min-height: 30px; padding-inline-start: 2.5rem; }
+.forum-comment-grid .mantine-Avatar-root { position: absolute; inset-block-start: .05rem; inset-inline-start: 0; }
 .forum-comment-main { min-width: 0; }
-.forum-comment-meta { margin-block-end: .2rem; }
-.forum-comment .forum-prose { margin-block: .15rem .35rem; font-size: .93rem; }
+.forum-comment-meta { margin-block-end: .28rem; }
+/* The commenter's name is the strongest thing in the row; role, time and the
+ * "Bạn" tag stay one step behind it. */
+.forum-comment .forum-identity-link { font-size: .895rem; font-weight: 680; }
+.forum-comment-meta time { color: var(--forum-muted-strong); font-size: .8rem; }
+.forum-comment .forum-prose { margin-block: .2rem .45rem; font-size: .925rem; line-height: 1.68; }
 .forum-comment-deleted { color: var(--sc-text-muted); }
 .forum-comment:focus,
 .sc-discussion-tombstone:focus {
@@ -1193,16 +1251,27 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
   outline: 2px solid var(--sc-focus-ring);
   outline-offset: 4px;
 }
+/* The anchored comment (deep link or just-posted) keeps a soft warm marker so it
+ * is findable without a coloured frame. */
+.forum-comment:target { background: color-mix(in srgb, var(--forum-category) 7%, transparent); }
 
 .forum-comment-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: .05rem .1rem;
-  margin-block-start: .15rem;
+  gap: .1rem .2rem;
+  margin-block-start: .3rem;
+  margin-inline-start: -.45rem;
 }
-.forum-comment-actions button.forum-stat { min-height: 30px; padding-inline: .4rem; font-size: .785rem; }
-.forum-comment-actions .forum-icon-btn { width: 30px; min-height: 30px; }
+.forum-comment-actions button.forum-stat,
+.forum-comment-actions button.forum-stat .forum-stat-label {
+  color: var(--forum-muted-strong);
+}
+.forum-comment-actions button.forum-stat { min-height: 32px; padding-inline: .45rem; font-size: .8rem; border-radius: 999px; }
+.forum-comment-actions button.forum-stat:not(:disabled):hover { color: var(--sc-primary-text); }
+.forum-comment-actions .forum-reply-toggle { min-height: 32px; }
+.forum-comment-actions svg { inline-size: 15px; block-size: 15px; }
+.forum-comment-actions .forum-icon-btn { width: 32px; min-height: 32px; }
 
 .forum-reply-ref {
   display: inline-flex;
@@ -1231,12 +1300,14 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
   cursor: pointer;
   transition: background-color .15s ease;
 }
-.forum-reply-toggle:hover { background: var(--sc-primary-soft); }
+.forum-reply-toggle:hover { background: color-mix(in srgb, var(--forum-category) 11%, transparent); }
 
+/* Replies keep a category-tinted rail: parent → child is visible at a glance,
+ * and the indent stays shallow enough to survive a 390px screen. */
 .forum-replies {
-  margin: .1rem 0 .7rem clamp(.3rem, 1.6vw, 1.2rem);
-  padding-inline-start: clamp(.5rem, 2vw, 1.1rem);
-  border-inline-start: 2px solid var(--sc-border);
+  margin: .1rem 0 .75rem clamp(.25rem, 1.4vw, 1rem);
+  padding-inline-start: clamp(.55rem, 2vw, 1.15rem);
+  border-inline-start: 2px solid color-mix(in srgb, var(--forum-category) 30%, var(--forum-rule));
 }
 
 .sc-load-more { margin-block-start: .8rem; }
@@ -1245,9 +1316,10 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
 
 .forum-editor-panel {
   display: grid;
-  gap: 1rem;
-  margin-block-start: .85rem;
-  padding: clamp(1rem, 2.75vw, 1.7rem);
+  gap: 1.05rem;
+  margin-block-start: .9rem;
+  padding: clamp(1rem, 2.75vw, 1.75rem);
+  box-shadow: var(--forum-shadow);
 }
 
 .forum-editor-grid {
@@ -1270,20 +1342,25 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
 .forum-category-choice {
   display: flex;
   align-items: center;
-  gap: .55rem;
+  gap: .6rem;
   min-width: 0;
-  min-height: 56px;
-  padding: .6rem;
-  border: 1px solid var(--sc-border);
+  min-height: 60px;
+  padding: .65rem .7rem;
+  border: 1px solid var(--forum-paper-border);
   border-radius: var(--sc-radius-control);
-  background: var(--sc-surface-subtle);
+  background: var(--forum-field);
   color: var(--sc-text);
   cursor: pointer;
-  transition: border-color .15s ease, background-color .15s ease;
+  transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
 }
-.forum-category-choice:is(:hover, :has(input:checked)) {
-  border-color: var(--forum-category);
-  background: color-mix(in srgb, var(--forum-category) 11%, var(--sc-surface));
+.forum-category-choice:hover {
+  border-color: color-mix(in srgb, var(--forum-category) 55%, var(--forum-paper-border));
+  background: color-mix(in srgb, var(--forum-category) 7%, var(--forum-field));
+}
+.forum-category-choice:has(input:checked) {
+  border-color: color-mix(in srgb, var(--forum-category) 70%, var(--forum-paper-border));
+  background: color-mix(in srgb, var(--forum-category) 11%, var(--forum-field));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--forum-category) 34%, transparent);
 }
 .forum-category-choice input { accent-color: var(--sc-primary-text); }
 .forum-category-choice:has(input:focus-visible) { outline: 2px solid var(--sc-focus-ring); outline-offset: 2px; }
@@ -1291,144 +1368,50 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
   display: grid;
   flex: 0 0 auto;
   place-items: center;
-  color: color-mix(in srgb, var(--forum-category) 62%, var(--sc-text-muted));
+  color: var(--forum-category-ink);
 }
-.forum-category-choice-title { display: block; font-size: .87rem; font-weight: 650; }
-.forum-category-choice-hint { display: block; color: var(--sc-text-muted); font-size: .75rem; }
+.forum-category-choice-title { display: block; font-size: .88rem; font-weight: 650; }
+.forum-category-choice-hint { display: block; color: var(--forum-muted-strong); font-size: .755rem; line-height: 1.4; }
 
 /* ── Display typography overrides (applied after the detail block) ──────── */
 
 .sc-discussions-shell .forum-article .forum-heading {
   font-family: var(--sc-font-display);
-  font-size: clamp(1.35rem, 2.2vw, 1.85rem);
+  font-size: clamp(1.5rem, 2.45vw, 2.05rem);
   font-weight: 600;
-  line-height: 1.24;
-  letter-spacing: -.018em;
+  line-height: 1.2;
+  letter-spacing: -.022em;
+  text-wrap: pretty;
 }
 
 .sc-discussions-shell .forum-comments-head h2 {
   font-family: var(--sc-font-display);
+  font-size: 1.1rem;
   font-weight: 600;
-  letter-spacing: -.01em;
+  letter-spacing: -.012em;
 }
-
-/* ── Illustration palette ───────────────────────────────────────────────── */
-
-.sc-discussions-shell {
-  --forum-art-sky: #fbd9b6;
-  --forum-art-glow: #ffeccb;
-  --forum-art-glass: #fff8f1;
-  --forum-art-line: #c48f72;
-  --forum-art-sill: #e9c4ac;
-  --forum-art-beam: #fff6e6;
-  --forum-art-mug: #fbf3e9;
-  --forum-art-steam: #c6a48c;
-  --forum-art-book-1: #c9705a;
-  --forum-art-book-2: #dc9c66;
-  --forum-art-book-3: #8fa07c;
-  --forum-art-book-4: #b9c6c4;
-  --forum-art-leaf: #7f9c72;
-  --forum-art-blossom: #efb3a8;
-  --forum-art-petal: #f0c2af;
-  --forum-art-hill-far: #eaa87f;
-  --forum-art-hill-mid: #c4785f;
-  --forum-art-hill-near: #6f4a3e;
-  --forum-art-sun: #fff0cf;
-  --forum-art-reader: #4a3630;
-}
-
-:root[data-theme="dark"] .sc-discussions-shell {
-  --forum-art-sky: #3d2c22;
-  --forum-art-glow: #6d4a31;
-  --forum-art-glass: #3f3029;
-  --forum-art-line: #a5775c;
-  --forum-art-sill: #4b382e;
-  --forum-art-beam: #f6d9b6;
-  --forum-art-mug: #4a3a30;
-  --forum-art-steam: #8d7361;
-  --forum-art-book-1: #b76a55;
-  --forum-art-book-2: #bd8455;
-  --forum-art-book-3: #6f7f5f;
-  --forum-art-book-4: #7f8d8b;
-  --forum-art-leaf: #6d8a63;
-  --forum-art-blossom: #c98d84;
-  --forum-art-petal: #b98172;
-  --forum-art-hill-far: #6b4a3d;
-  --forum-art-hill-mid: #52382f;
-  --forum-art-hill-near: #362621;
-  --forum-art-sun: #f0c79a;
-  --forum-art-reader: #241b18;
-}
-
-.fa-sky { fill: var(--forum-art-sky); }
-.fa-glow { fill: var(--forum-art-glow); opacity: .7; }
-.fa-glass { fill: var(--forum-art-glass); opacity: .55; }
-.fa-line { stroke: var(--forum-art-line); }
-.fa-beam { fill: var(--forum-art-beam); opacity: .42; }
-.fa-beam-soft { opacity: .22; }
-:root[data-theme="dark"] .fa-beam { opacity: .18; }
-:root[data-theme="dark"] .fa-beam-soft { opacity: .1; }
-.fa-sill rect { fill: var(--forum-art-sill); }
-.fa-book-1 { fill: var(--forum-art-book-1); }
-.fa-book-2 { fill: var(--forum-art-book-2); }
-.fa-book-3 { fill: var(--forum-art-book-3); }
-.fa-book-4 { fill: var(--forum-art-book-4); }
-.fa-mug rect { fill: var(--forum-art-mug); }
-.fa-mug path.fa-line { stroke: var(--forum-art-line); }
-.fa-steam { stroke: var(--forum-art-steam); opacity: .75; }
-.fa-leaf { fill: var(--forum-art-leaf); }
-.fa-leaf-soft { opacity: .68; }
-.fa-blossom { fill: var(--forum-art-blossom); }
-.fa-petals ellipse { fill: var(--forum-art-petal); opacity: .85; }
-
-.fa-sky-stop-1 { stop-color: var(--forum-art-sky); }
-.fa-sky-stop-2 { stop-color: var(--forum-art-hill-far); }
-.fa-sky-stop-3 { stop-color: var(--forum-art-glow); }
-.fa-sun { fill: var(--forum-art-sun); opacity: .9; }
-.fa-hill-far { fill: var(--forum-art-hill-far); }
-.fa-hill-mid { fill: var(--forum-art-hill-mid); }
-.fa-hill-near { fill: var(--forum-art-hill-near); }
-.fa-reader :is(circle, path:not(.fa-book)) { fill: var(--forum-art-reader); }
-.fa-reader .fa-book { fill: var(--forum-art-glass); }
-.fa-birds path { stroke: var(--forum-art-reader); opacity: .5; }
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 
 @media (max-width: 1180px) {
   .forum-community-grid { grid-template-columns: minmax(0, 1fr) minmax(15rem, 16.5rem); }
-  .forum-feature { grid-template-columns: minmax(0, 33%) minmax(0, 1fr); }
-  .forum-featured-body[data-has-list] { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
-  .sc-discussions-shell .forum-hero-title { font-size: clamp(1.4rem, 2.5vw, 1.8rem); }
+  .forum-tabs ul {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 22px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 22px), transparent);
+  }
 }
 
-@media (max-width: 1024px) {
+/* Two columns hold down to laptop width; below it the sidebar becomes a pair of
+   cards under the list instead of a squeezed third column. */
+@media (max-width: 940px) {
   .forum-community-grid { grid-template-columns: minmax(0, 1fr); gap: 1.1rem; }
+  /* Stacked sidebar: one card per row, so neither card is left half-empty. */
   .forum-side {
     position: static;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     align-items: start;
     max-block-size: none;
     overflow: visible;
-  }
-  .forum-about { grid-column: 1 / -1; }
-}
-
-@media (max-width: 700px) {
-  /* The banner becomes copy-only: the illustration is decorative, the CTA is not. */
-  .forum-hero { grid-template-columns: minmax(0, 1fr); min-block-size: 0; }
-  .forum-hero-media { display: none; }
-}
-
-@media (max-width: 720px) {
-  .forum-featured-body[data-has-list] { grid-template-columns: minmax(0, 1fr); }
-  .forum-feature { grid-template-columns: minmax(0, 1fr); }
-  .forum-feature-media { min-block-size: 0; aspect-ratio: 16 / 6; }
-  .forum-feature-art { position: absolute; }
-  .forum-featured-list {
-    padding-block-start: .6rem;
-    padding-inline-start: 0;
-    border-block-start: 1px solid var(--sc-border);
-    border-inline-start: 0;
   }
 }
 
@@ -1439,30 +1422,36 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
      whole community page into a horizontal scroll on phones. Scoped to this shell. */
   .sc-navbar-discussions .sc-navbar-actions { flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
 
-  .forum-hero { padding: .75rem 1rem; border-radius: var(--sc-radius-card); }
-  .sc-discussions-shell .forum-hero-title { font-size: 1.32rem; text-wrap: pretty; }
-  .forum-hero-sub { margin-block-start: .22rem; font-size: .79rem; line-height: 1.42; }
-  .forum-hero-actions { margin-block-start: .5rem; gap: .6rem; }
+  /* The board header keeps its two lines of copy and puts the actions on their own
+     row, so the CTA never squeezes the title. */
+  .forum-board-head { align-items: stretch; }
+  .forum-board-actions { inline-size: 100%; justify-content: flex-start; }
+  .forum-board-actions > * { flex: 1 1 auto; justify-content: center; }
+  .forum-board-pending { inline-size: 100%; }
 
-  .forum-tabs ul {
-    border-radius: var(--sc-radius-card);
-    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent);
-    mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent);
-  }
+  .forum-tabs ul { border-radius: var(--sc-radius-card); }
   .forum-tab { padding: .4rem .72rem; font-size: .825rem; }
 
   .forum-toolbar-search { flex-basis: 100%; }
   .forum-toolbar-sort { flex: 1 1 auto; min-width: 0; }
 
-  .forum-featured { padding: .8rem .8rem .9rem; }
-  /* width must come from the column, so the hero art is sized by aspect-ratio only */
-  .forum-feature-media { min-block-size: 0; aspect-ratio: 12 / 5; }
-  .forum-feature-stats { margin-inline-start: 0; }
+  /* Phones keep one counter per row: replies are the signal readers scan for, and
+     two numbers beside a wrapped title read as a crowd. */
+  .forum-row-views { display: none; }
+  .forum-row-stats { gap: 0; }
 
   .forum-side { grid-template-columns: minmax(0, 1fr); }
-  .forum-about-art { inline-size: 66px; }
 
-  .forum-row { grid-template-columns: auto minmax(0, 1fr) auto; gap: .4rem .55rem; padding: .68rem .75rem; }
+  /* Phone rows keep the panel's edge padding but tighten the gaps: a wrapped title
+     and one meta line are what a phone row is, not two of each. */
+  .forum-row {
+    grid-template-columns: 3px auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: .3rem .45rem;
+    padding: .6rem .65rem .6rem .3rem;
+  }
+  .forum-row-stripe { inline-size: 3px; block-size: 1.7rem; margin-block-start: .2rem; }
+  .forum-row-ident, .forum-row-replies { margin-block-start: .1rem; }
   .forum-row-avatar { --avatar-size: 32px !important; }
   .forum-row-title { font-size: .915rem; }
   /* Phone rows drop the "·" separators: the category dot and spacing carry the
@@ -1480,18 +1469,25 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
   .forum-article { padding: .95rem; }
   .forum-stat-quiet { margin-inline-start: 0; }
   .forum-stat-label { display: none; }
-  .forum-comment-grid { padding-inline-start: 2.1rem; }
+  .forum-comment-grid { padding-inline-start: 2.15rem; }
+  /* On phones the nested field already sits inside the reply rail, so the dashed
+     divider would double the indent and squeeze the text. */
+  .forum-inline-reply { margin-block-start: .5rem; padding-block-start: .45rem; }
   .forum-comments-head { margin-block-end: .6rem; }
+  /* The composer rail folds under the field: tools keep their own line and the
+     counter + send stay together on the next one. */
+  .forum-compose-toolbar { padding: .3rem .3rem .35rem; row-gap: .15rem; }
+  .forum-compose-tools { flex: 1 1 auto; }
+  .forum-compose-end { flex: 1 1 auto; justify-content: flex-end; }
 }
 
 @media (max-width: 480px) {
-  /* Below a phone width the eyebrow only repeats the navigation above the banner,
-   * and that saved line is the difference between one screen of topics and none. */
-  .forum-hero .forum-eyebrow { display: none; }
+  /* The mark stays: it is the board's identity, and it costs one small square. */
+  .forum-board-mark { inline-size: 2.1rem; block-size: 2.1rem; }
+  .forum-board-head { padding: .65rem .75rem; }
 }
 
 @media (max-width: 400px) {
-  .forum-feature-stats { gap: .6rem; }
   .forum-compose-count-unit { display: none; }
 }
 
@@ -1504,7 +1500,7 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
   .forum-comment-actions button,
   .forum-reply-toggle,
   .forum-tab,
-  .forum-featured-item,
+  .forum-notice,
   .forum-trending-link,
   .forum-row { min-height: 44px !important; }
   .forum-icon-btn { width: auto; }
@@ -1514,8 +1510,8 @@ button.forum-stat:disabled { cursor: default; opacity: .8; }
   .forum-row,
   .forum-row-title,
   .forum-tab,
-  .forum-featured-item,
-  .forum-featured-item-title,
+  .forum-notice,
+  .forum-notice-title,
   .forum-trending-title,
   .forum-icon-btn,
   button.forum-stat,

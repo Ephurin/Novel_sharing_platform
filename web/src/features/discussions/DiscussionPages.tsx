@@ -1,7 +1,8 @@
 import { Alert, Avatar, Button, Group, Select, Stack, Text, TextInput, Title } from '@mantine/core';
 import {
-  IconArrowLeft, IconArrowRight, IconFeather, IconHelp, IconLayoutList, IconLock, IconMessage2,
-  IconMessages, IconPencil, IconPin, IconSearch, IconSpeakerphone, IconThumbUp
+  IconArrowLeft, IconArrowRight, IconEye, IconFeather, IconFlame, IconHelp, IconLayoutGrid,
+  IconLayoutList, IconLock, IconMessage2, IconMessages, IconPencil, IconPin, IconSearch,
+  IconSpeakerphone
 } from '@tabler/icons-react';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -64,138 +65,13 @@ function relTime(value: string) {
 }
 function authorName(a: { displayName: string | null } | null) { return a?.displayName?.trim() || 'Ẩn danh'; }
 
-/** Collapse markdown/whitespace into a single plain line for compact previews. */
-function plainPreview(body: string) {
-  const text = body
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/`([^`]*)`/g, '$1')
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/^#{1,6}\s+/gm, '')
-    .replace(/^>\s?/gm, '')
-    .replace(/[*_~]+/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-  return text;
-}
-
-/* ── Illustrations ───────────────────────────────────────────────────────────
- * Original, decorative SVG scenes drawn for this page (no stock imagery, no
- * uploaded photos, nothing that could be mistaken for user content). Fills come
- * from the `--forum-art-*` tokens in discussions.css so both themes stay warm.
- */
-
-/** Community banner: a sunlit reading nook with a flowered window and books. */
-function HeroArt() {
-  return (
-    <svg className="forum-hero-art" viewBox="0 0 420 240" aria-hidden="true" focusable="false"
-      preserveAspectRatio="xMaxYMax slice">
-      <rect className="fa-sky" width="420" height="240" />
-      <circle className="fa-glow" cx="330" cy="66" r="66" />
-      <g className="fa-window">
-        <rect className="fa-glass" x="196" y="14" width="208" height="180" rx="8" />
-        <rect className="fa-line" x="196" y="14" width="208" height="180" rx="8" fill="none" strokeWidth="4" />
-        <path className="fa-line" d="M300 16v176M198 104h204" strokeWidth="3.4" fill="none" />
-        <path className="fa-beam" d="M214 40 92 208h96L322 40Z" />
-        <path className="fa-beam fa-beam-soft" d="M330 40 236 208h64L386 40Z" />
-      </g>
-      <g className="fa-sill">
-        <rect x="176" y="192" width="244" height="9" rx="4" />
-      </g>
-      <g className="fa-books">
-        <rect className="fa-book-1" x="206" y="160" width="15" height="32" rx="2.5" />
-        <rect className="fa-book-2" x="223" y="152" width="13" height="40" rx="2.5" />
-        <rect className="fa-book-3" x="238" y="166" width="17" height="26" rx="2.5" />
-        <rect className="fa-book-4" x="258" y="171" width="40" height="8" rx="2.5" />
-        <rect className="fa-book-2" x="264" y="164" width="34" height="7" rx="2.5" />
-        <rect className="fa-book-1" x="262" y="158" width="30" height="6" rx="2.5" />
-      </g>
-      <g className="fa-mug">
-        <rect x="312" y="158" width="30" height="34" rx="5" />
-        <path className="fa-line" d="M342 168h6a9 9 0 0 1 0 18h-6" strokeWidth="3.2" fill="none" />
-        <path className="fa-steam" d="M320 148c6-6-6-9 0-15M330 150c6-6-6-9 0-15" strokeWidth="2.4" fill="none" />
-      </g>
-      <g className="fa-branch">
-        <path className="fa-line" d="M84 14c22 24 30 52 30 84" strokeWidth="2.4" fill="none" />
-        <ellipse className="fa-leaf" cx="76" cy="34" rx="11" ry="6" transform="rotate(-24 76 34)" />
-        <ellipse className="fa-leaf" cx="104" cy="42" rx="11" ry="6" transform="rotate(22 104 42)" />
-        <ellipse className="fa-leaf" cx="70" cy="62" rx="10" ry="5.5" transform="rotate(-30 70 62)" />
-        <ellipse className="fa-leaf fa-leaf-soft" cx="106" cy="72" rx="10" ry="5.5" transform="rotate(26 106 72)" />
-        <circle className="fa-blossom" cx="92" cy="24" r="5" />
-        <circle className="fa-blossom" cx="66" cy="48" r="4" />
-        <circle className="fa-blossom" cx="112" cy="60" r="4.5" />
-      </g>
-      <g className="fa-petals">
-        <ellipse cx="150" cy="118" rx="5" ry="3" transform="rotate(24 150 118)" />
-        <ellipse cx="44" cy="150" rx="4" ry="2.6" transform="rotate(-18 44 150)" />
-        <ellipse cx="118" cy="196" rx="5" ry="3" transform="rotate(38 118 196)" />
-        <ellipse cx="30" cy="204" rx="4" ry="2.4" transform="rotate(-32 30 204)" />
-      </g>
-    </svg>
-  );
-}
-
-/**
- * Featured card art: a reader on a hill at golden hour. Cropped bottom-anchored
- * (`xMidYMax`) so the wide, short box on phones keeps the hills and the reader
- * instead of cutting them in half.
- */
-function FeatureArt() {
-  return (
-    <svg className="forum-feature-art" viewBox="0 0 300 220" aria-hidden="true" focusable="false"
-      preserveAspectRatio="xMidYMax slice">
-      <defs>
-        <linearGradient id="forum-feature-sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" className="fa-sky-stop-1" />
-          <stop offset=".62" className="fa-sky-stop-2" />
-          <stop offset="1" className="fa-sky-stop-3" />
-        </linearGradient>
-      </defs>
-      <rect width="300" height="220" fill="url(#forum-feature-sky)" />
-      <circle className="fa-sun" cx="196" cy="104" r="26" />
-      <path className="fa-hill-far" d="M0 150c46-22 88-20 132-4 40 14 74 12 168-8v82H0Z" />
-      <path className="fa-hill-mid" d="M0 178c54-16 96-8 138 6 44 14 96 10 162-14v50H0Z" />
-      <path className="fa-hill-near" d="M0 210c60-6 96-18 140-30 40-11 92-12 160 4v36H0Z" />
-      <g className="fa-reader">
-        <circle cx="120" cy="148" r="7" />
-        <path d="M120 156c-9 0-16 7-16 16v18h32v-18c0-9-7-16-16-16Z" />
-        <path className="fa-book" d="M104 172h32l-4 10h-24Z" />
-      </g>
-      <g className="fa-birds">
-        <path d="M60 62c4-4 7-4 11 0 4-4 7-4 11 0" strokeWidth="2" fill="none" />
-        <path d="M232 46c3-3 5-3 8 0 3-3 5-3 8 0" strokeWidth="1.7" fill="none" />
-      </g>
-    </svg>
-  );
-}
-
-/** Sidebar art: a small book stack with a leafy sprig. */
-function AboutArt() {
-  return (
-    <svg className="forum-about-art" viewBox="0 0 120 84" aria-hidden="true" focusable="false">
-      <g className="fa-books">
-        <rect className="fa-book-1" x="18" y="58" width="62" height="9" rx="3" />
-        <rect className="fa-book-2" x="24" y="47" width="56" height="9" rx="3" />
-        <rect className="fa-book-3" x="20" y="36" width="58" height="9" rx="3" />
-      </g>
-      <g className="fa-branch">
-        <path className="fa-line" d="M96 16c-10 10-14 24-16 40" strokeWidth="2.2" fill="none" />
-        <ellipse className="fa-leaf" cx="92" cy="26" rx="9" ry="5" transform="rotate(-30 92 26)" />
-        <ellipse className="fa-leaf fa-leaf-soft" cx="104" cy="40" rx="9" ry="5" transform="rotate(20 104 40)" />
-        <ellipse className="fa-leaf" cx="84" cy="52" rx="8" ry="4.6" transform="rotate(-24 84 52)" />
-        <circle className="fa-blossom" cx="100" cy="14" r="4" />
-      </g>
-    </svg>
-  );
-}
-
 /* ── Shared bits ─────────────────────────────────────────────────────────── */
 
 function CategoryTabs({ categories, active, onSelect }: {
   categories: Category[]; active?: string; onSelect: (slug?: string) => void;
 }) {
   const items: Array<{ slug?: string; name: string; icon: ReactNode; accent?: string }> = [
-    { name: 'Tất cả', icon: <IconLayoutList size={16} aria-hidden="true" /> },
+    { name: 'Tất cả', icon: <IconLayoutGrid size={16} aria-hidden="true" /> },
     ...categories.map(category => ({
       slug: category.slug,
       name: category.name,
@@ -244,6 +120,8 @@ function TopicRow({ topic }: { topic: Topic }) {
   // chevron live on the topic page so rows stay scannable.
   const inner = (
     <>
+      {/* Category bar: one short rounded mark per row, in the category hue. */}
+      <span className="forum-row-stripe" aria-hidden="true" />
       {/* The unread dot is pinned to the avatar corner rather than set inline before
           the title: a board where most threads are new keeps reading as a list. */}
       <span className="forum-row-ident">
@@ -281,12 +159,20 @@ function TopicRow({ topic }: { topic: Topic }) {
           </time>
         </span>
       </span>
-      {/* Count and icon share one pill on one line; the word stays available to
-          screen readers and as a hover tooltip instead of wrapping to a second row. */}
-      <span className="forum-row-replies" data-empty={topic.replyCount === 0 || undefined}
-        title={`${NUMBER.format(topic.replyCount)} trả lời`}>
-        <IconMessage2 size={14} aria-hidden="true" />{NUMBER.format(topic.replyCount)}
-        <span className="forum-visually-hidden"> trả lời</span>
+      {/* Two server-side counters close the row on one line: views then replies.
+          Both are real (`viewCount` / `replyCount` from the list payload), never
+          derived, never invented, and no third metadata line is added. Narrow
+          viewports drop views and keep replies, the clearer of the two. */}
+      <span className="forum-row-stats">
+        <span className="forum-row-stat forum-row-views" title={`${NUMBER.format(topic.viewCount)} lượt xem`}>
+          <IconEye size={14} aria-hidden="true" />{NUMBER.format(topic.viewCount)}
+          <span className="forum-visually-hidden"> lượt xem</span>
+        </span>
+        <span className="forum-row-replies" data-empty={topic.replyCount === 0 || undefined}
+          title={`${NUMBER.format(topic.replyCount)} trả lời`}>
+          <IconMessage2 size={14} aria-hidden="true" />{NUMBER.format(topic.replyCount)}
+          <span className="forum-visually-hidden"> trả lời</span>
+        </span>
       </span>
     </>
   );
@@ -317,127 +203,76 @@ function RowList({ items }: { items: Topic[] }) {
   );
 }
 
-/** “Đáng chú ý”: one real pinned/announcement topic plus the remaining ones. */
-function FeaturedSection({ lead, rest }: { lead: Topic; rest: Topic[] }) {
-  const author = authorName(lead.author);
-  const preview = plainPreview(lead.body);
+/** “Đáng chú ý”: pinned threads and admin announcements, as one compact
+ *  sidebar card. The V4 board keeps this block out of the list column, so the
+ *  thread list starts right under the toolbar instead of behind a big panel. */
+function NoticeCard({ items }: { items: Topic[] }) {
+  if (items.length === 0) return null;
   return (
-    <section className="forum-featured" aria-labelledby="forum-featured-title">
-      <header className="forum-featured-head">
-        <h2 id="forum-featured-title">
-          <span className="forum-section-icon" aria-hidden="true"><IconPin size={15} /></span>
-          Đáng chú ý
-        </h2>
-      </header>
-      <div className="forum-featured-body" data-has-list={rest.length > 0 || undefined}>
-        <article className="forum-feature" data-category={lead.category.slug}>
-          <div className="forum-feature-media">
-            <FeatureArt />
-            {/* The board has no per-topic artwork, so the panel is labelled as
-                community illustration instead of pretending to be a cover the
-                author uploaded. */}
-            <span className="forum-feature-media-note">Minh họa</span>
-          </div>
-          <div className="forum-feature-copy">
-            <div className="forum-feature-badges">
-              {lead.isPinned ? <span className="forum-badge" data-tone="accent"><IconPin size={11} aria-hidden="true" /> Ghim</span> : null}
-              <span className="forum-badge" data-category={lead.category.slug}>{lead.category.name}</span>
-            </div>
-            <h3 className="forum-feature-title">
-              <Link to={`/discussions/${lead.topicId}`}>{lead.title}</Link>
-            </h3>
-            {preview ? <p className="forum-feature-desc">{preview}</p> : null}
-            <div className="forum-feature-meta">
-              <Avatar src={lead.author?.avatarUrl ?? undefined} name={author} size={26} radius="xl"
-                className="forum-identity-avatar" data-role={lead.author?.role === 'AUTHOR' ? 'author' : undefined}
-                aria-hidden="true" />
-              <span className="forum-feature-author">{author}</span>
-              <RoleBadge role={lead.author?.role} />
-              <span className="sc-byline-dot" aria-hidden="true">·</span>
-              <time dateTime={validDate(lead.createdAt)?.toISOString()} title={fmtTime(lead.createdAt)}>
-                {relTime(lead.createdAt)}
-              </time>
-              <span className="forum-feature-stats">
-                <span title={`${lead.replyCount} bình luận`}><IconMessage2 size={14} aria-hidden="true" />{NUMBER.format(lead.replyCount)}</span>
-                <span title={`${lead.likeCount} lượt thích`}><IconThumbUp size={14} aria-hidden="true" />{NUMBER.format(lead.likeCount)}</span>
+    <section className="forum-side-card forum-notices" aria-labelledby="forum-notices-title">
+      <h2 id="forum-notices-title">
+        <span className="forum-section-icon" data-tone="sage" aria-hidden="true"><IconSpeakerphone size={17} /></span>
+        Đáng chú ý
+      </h2>
+      <ul>
+        {items.map(topic => (
+          <li key={topic.topicId}>
+            {/* Accent bar and pill both resolve from the topic's own category
+                slug, so a notice keeps its category colour here as well. */}
+            <Link to={`/discussions/${topic.topicId}`} className="forum-notice" data-category={topic.category.slug}>
+              <span className="forum-notice-icon" aria-hidden="true">
+                {topic.category.postAdminOnly ? <IconSpeakerphone size={13} /> : <IconPin size={13} />}
               </span>
-            </div>
-          </div>
-        </article>
-
-        {rest.length > 0 ? (
-          <ul className="forum-featured-list">
-            {rest.map(topic => (
-              <li key={topic.topicId}>
-                <Link to={`/discussions/${topic.topicId}`} className="forum-featured-item" data-category={topic.category.slug}>
-                  <span className="forum-featured-icon" aria-hidden="true">
-                    {topic.category.postAdminOnly ? <IconSpeakerphone size={14} /> : <IconPin size={14} />}
-                  </span>
-                  <span className="forum-featured-item-body">
-                    <span className="forum-featured-item-title">{topic.title}</span>
-                    {/* Kind and recency share one line: the icon already hints at
-                        the kind, and a second text row cost 16px per item. */}
-                    <span className="forum-featured-item-meta">
-                      <span className="forum-featured-item-kicker">
-                        {topic.category.postAdminOnly ? 'Thông báo' : 'Ghim'}
-                      </span>
-                      <span aria-hidden="true">·</span>
-                      <span>{relTime(topic.lastActivityAt)}</span>
-                    </span>
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-      </div>
+              <span className="forum-notice-body">
+                <span className="forum-notice-title">{topic.title}</span>
+                <span className="forum-notice-meta">
+                  <span className="forum-notice-kicker">{topic.category.name}</span>
+                  <span aria-hidden="true">·</span>
+                  <time dateTime={validDate(topic.lastActivityAt)?.toISOString()} title={fmtTime(topic.lastActivityAt)}>
+                    {relTime(topic.lastActivityAt)}
+                  </time>
+                </span>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
 
-function CommunitySidebar({ stats, trending }: {
-  stats?: { memberCount: number; topicCount: number; commentCount: number };
+function CommunitySidebar({ notices, trending }: {
+  notices: Topic[];
   trending: Topic[];
 }) {
   return (
     <aside className="forum-side" aria-label="Thông tin cộng đồng">
-      {/* One warm card carries both the introduction and the counters: nested
-          stat boxes read as a dashboard and pulled attention from the list. */}
-      <section className="forum-side-card forum-about" aria-labelledby="forum-about-title">
-        <h2 id="forum-about-title">Về cộng đồng</h2>
-        <p>StoryCraft là nơi người viết và người đọc cùng chia sẻ hành trình sáng tác.</p>
-        <AboutArt />
-        {stats ? (
-          <dl className="forum-about-stats">
-            <div>
-              <dt>thành viên</dt>
-              <dd>{NUMBER.format(stats.memberCount)}</dd>
-            </div>
-            <div>
-              <dt>chủ đề</dt>
-              <dd>{NUMBER.format(stats.topicCount)}</dd>
-            </div>
-            <div>
-              <dt>bình luận</dt>
-              <dd>{NUMBER.format(stats.commentCount)}</dd>
-            </div>
-          </dl>
-        ) : null}
-      </section>
+      <NoticeCard items={notices} />
 
       {trending.length > 0 ? (
         <section className="forum-side-card forum-trending" aria-labelledby="forum-trending-title">
           {/* Different job from “Đáng chú ý”: that block promotes pinned notices, this
               one ranks the community's busiest threads by replies, and the API keeps
               pinned/admin-only topics out of it so the two never mirror each other. */}
-          <h2 id="forum-trending-title">Sôi nổi 30 ngày</h2>
+          <h2 id="forum-trending-title">
+            <span className="forum-section-icon" data-tone="plum" aria-hidden="true"><IconFlame size={17} /></span>
+            Đang được quan tâm
+          </h2>
           <ol>
             {trending.map((topic, index) => (
               <li key={topic.topicId}>
                 <span className="forum-trending-rank" aria-hidden="true">{index + 1}</span>
                 <Link to={`/discussions/${topic.topicId}`} className="forum-trending-link">
-                  <span className="forum-trending-title">{topic.title}</span>
-                  <span className="forum-trending-meta">{NUMBER.format(topic.replyCount)} bình luận</span>
+                  <span className="forum-trending-body">
+                    <span className="forum-trending-title">{topic.title}</span>
+                    {/* Author, never the reply count: that number already sits in the
+                        badge on the right and printing it twice muddied the card. */}
+                    <span className="forum-trending-author">{authorName(topic.author)}</span>
+                  </span>
+                  <span className="forum-trending-replies" title={`${NUMBER.format(topic.replyCount)} trả lời`}>
+                    <IconMessage2 size={13} aria-hidden="true" />{NUMBER.format(topic.replyCount)}
+                    <span className="forum-visually-hidden"> trả lời</span>
+                  </span>
                 </Link>
               </li>
             ))}
@@ -445,6 +280,48 @@ function CommunitySidebar({ stats, trending }: {
         </section>
       ) : null}
     </aside>
+  );
+}
+
+/**
+ * V4 board header: one compact strip — mark, title, subtitle — with the board's
+ * actions on the right. Buttons follow the real session state from the auth
+ * store instead of guessing from the navbar: a guest gets a single sign-in CTA
+ * (“Chủ đề của tôi” is an account shortcut and must not be offered) and a
+ * signed-in member gets both. The route guard already holds the page while a
+ * stored session is restored, so this branch is only a fallback: it keeps a
+ * same-size placeholder instead of a button, never a guest CTA.
+ */
+function BoardHeader({ createPath }: { createPath: string }) {
+  const user = useAuthStore((s) => s.user);
+  const sessionStatus = useAuthStore((s) => s.sessionStatus);
+  const signedIn = sessionStatus === 'authenticated' && Boolean(user);
+  return (
+    <header className="forum-board-head">
+      <div className="forum-board-ident">
+        <span className="forum-board-mark" aria-hidden="true"><IconMessage2 size={20} /></span>
+        <div className="forum-board-copy">
+          <Title order={1} className="forum-heading">Thảo luận</Title>
+          <Text className="forum-board-sub">Nơi những câu chuyện bắt đầu.</Text>
+        </div>
+      </div>
+      <div className="forum-board-actions">
+        {signedIn ? (
+          <>
+            {/* Outline first, filled CTA last: the primary action stays rightmost. */}
+            <Button component={Link} to="/discussions/mine" variant="default"
+              leftSection={<IconLayoutList size={15} aria-hidden="true" />}>Chủ đề của tôi</Button>
+            <Button className="forum-create" component={Link} to={createPath}
+              leftSection={<IconPencil size={15} aria-hidden="true" />}>Tạo chủ đề</Button>
+          </>
+        ) : sessionStatus === 'guest' ? (
+          <Button className="forum-create" component={Link} to="/login"
+            leftSection={<IconPencil size={15} aria-hidden="true" />}>Đăng nhập để đăng bài</Button>
+        ) : (
+          <span className="forum-board-pending" aria-hidden="true" />
+        )}
+      </div>
+    </header>
   );
 }
 
@@ -535,43 +412,20 @@ export function DiscussionListPage() {
   const createPath = activeCategory ? `/discussions/new?categoryId=${activeCategory.categoryId}` : '/discussions/new';
   const items = topics.data?.items ?? [];
   // Pinned topics and announcements are promoted only on the unfiltered first page, so a
-  // paginated or searched view never hides a result the query asked for.
-  const featuredPool = !filters.cursor && !filters.q
+  // paginated or searched view never hides a result the query asked for. They are
+  // listed in the sidebar's “Đáng chú ý” card and kept out of the chronological
+  // list, so the same thread never appears twice on the board.
+  const noticePool = !filters.cursor && !filters.q
     ? items.filter(topic => topic.status === 'VISIBLE' && (topic.isPinned || topic.category.postAdminOnly))
     : [];
-  const featuredIds = new Set(featuredPool.map(topic => topic.topicId));
-  const lead = featuredPool[0];
-  const rest = featuredPool.slice(1, 4);
-  const listed = featuredIds.size ? items.filter(topic => !featuredIds.has(topic.topicId)) : items;
-  const trending = (community.data?.trending ?? []).filter(topic => !featuredIds.has(topic.topicId)).slice(0, 3);
+  const noticeIds = new Set(noticePool.map(topic => topic.topicId));
+  const notices = noticePool.slice(0, 4);
+  const listed = noticeIds.size ? items.filter(topic => !noticeIds.has(topic.topicId)) : items;
+  const trending = (community.data?.trending ?? []).filter(topic => !noticeIds.has(topic.topicId)).slice(0, 3);
 
   return (
     <div className="forum-community">
-      <header className="forum-hero">
-        <div className="forum-hero-media">
-          <HeroArt />
-        </div>
-        <div className="forum-hero-copy">
-          <Text className="forum-eyebrow">Cộng đồng StoryCraft</Text>
-          <Title order={1} className="forum-hero-title">Nơi những câu chuyện bắt đầu.</Title>
-          {/* One fixed sentence for every tab: the old "Đang xem {category} — …"
-              variant changed length on each switch, so the hero re-wrapped and the
-              page below it jumped. The active tab already shows what is filtered. */}
-          <Text className="forum-hero-sub">
-            Giao lưu, chia sẻ kinh nghiệm viết và cùng nhau sáng tác.
-          </Text>
-          <div className="forum-hero-actions">
-            <Button className="forum-create" component={Link} to={user ? createPath : '/login'}
-              leftSection={<IconPencil size={15} aria-hidden="true" />}>
-              {user ? 'Tạo chủ đề' : 'Đăng nhập để đăng bài'}
-            </Button>
-            {/* Outline variant, not a bare text link: beside a filled CTA a link read as
-                a label, and this is the shortcut returning members use most. */}
-            {user ? <Button component={Link} to="/discussions/mine" variant="default"
-              leftSection={<IconLayoutList size={15} aria-hidden="true" />}>Chủ đề của tôi</Button> : null}
-          </div>
-        </div>
-      </header>
+      <BoardHeader createPath={createPath} />
 
       <div className="forum-community-grid">
         <div className="forum-community-main">
@@ -589,8 +443,6 @@ export function DiscussionListPage() {
               allowDeselect={false} onChange={(v) => patch({ sort: v ?? 'activity', cursor: undefined })} />
           </div>
 
-          {lead ? <FeaturedSection lead={lead} rest={rest} /> : null}
-
           {topics.isPending ? <LoadingState variant="table" label="Đang tải chủ đề…" /> : null}
           {topics.isError ? <ErrorState error={topics.error} onRetry={() => void topics.refetch()} /> : null}
 
@@ -606,7 +458,10 @@ export function DiscussionListPage() {
           {listed.length > 0 ? (
             <section className="forum-latest" aria-labelledby="forum-latest-title">
               <header className="forum-latest-head">
-                <h2 id="forum-latest-title">Thảo luận mới nhất</h2>
+                <h2 id="forum-latest-title">
+                  <span className="forum-section-icon" data-tone="coral" aria-hidden="true"><IconMessage2 size={17} /></span>
+                  Thảo luận mới nhất
+                </h2>
               </header>
               <RowList items={listed} />
             </section>
@@ -619,7 +474,7 @@ export function DiscussionListPage() {
           ) : null}
         </div>
 
-        <CommunitySidebar stats={community.data?.stats} trending={trending} />
+        <CommunitySidebar notices={notices} trending={trending} />
       </div>
     </div>
   );

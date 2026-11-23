@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Avatar, Button, Group, Loader, Select, Stack, Text, TextInput } from '@mantine/core';
 import {
@@ -80,7 +80,10 @@ function DiscussionTopic({ id }: { id: string }) {
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
   const viewerId = user?.userId ?? 'guest';
-  const [focusRequest, setFocusRequest] = useState(0);
+  // A reply is composed where it will land: the field opens directly under the
+  // comment that was clicked, so the writer never has to leave the thread.
+  const [replyBody, setReplyBody] = useState('');
+  const [replyFocus, setReplyFocus] = useState(0);
   const [notice, setNotice] = useState<{ type: 'error' | 'info'; text: string } | null>(null);
   const [replyTo, setReplyTo] = useState<{ rootId: string; replyToId: string; name: string } | null>(null);
   const [composerBody, setComposerBody] = useState('');
@@ -138,12 +141,22 @@ function DiscussionTopic({ id }: { id: string }) {
   const onSuccess = (text: string) => { setNotice({ type: 'info', text }); refresh(); };
 
   const createMutation = useMutation({
-    mutationFn: () => createComment(id, composerBody.trim(), replyTo?.replyToId),
+    mutationFn: () => createComment(id, composerBody.trim()),
     onSuccess: ({ commentId }) => {
-      if (replyTo) setExpandedRoots(previous => ({ ...previous, [replyTo.rootId]: true }));
       setComposerBody('');
-      setReplyTo(null);
       onSuccess('Đã gửi bình luận.');
+      navigate({ search: `?commentId=${commentId}`, hash: `#comment-${commentId}` }, { replace: true });
+    },
+    onError
+  });
+  const replyMutation = useMutation({
+    mutationFn: () => createComment(id, replyBody.trim(), replyTo!.replyToId),
+    onSuccess: ({ commentId }) => {
+      const rootId = replyTo?.rootId;
+      if (rootId) setExpandedRoots(previous => ({ ...previous, [rootId]: true }));
+      setReplyBody('');
+      setReplyTo(null);
+      onSuccess('Đã gửi trả lời.');
       navigate({ search: `?commentId=${commentId}`, hash: `#comment-${commentId}` }, { replace: true });
     },
     onError
@@ -170,8 +183,10 @@ function DiscussionTopic({ id }: { id: string }) {
 
   const handleReply = useCallback((target: { rootId: string; replyToId: string; name: string }) => {
     setReplyTo(target);
-    setFocusRequest(request => request + 1);
+    setReplyBody('');
+    setReplyFocus(request => request + 1);
   }, []);
+  const cancelReply = useCallback(() => { setReplyTo(null); setReplyBody(''); replyMutation.reset(); }, [replyMutation]);
 
   if (topicQuery.isLoading) return <LoadingState label="Đang tải chủ đề…" />;
   if (topicQuery.isError) return <ErrorState error={topicQuery.error} onRetry={() => topicQuery.refetch()} />;
@@ -180,6 +195,21 @@ function DiscussionTopic({ id }: { id: string }) {
   const roots = rootsQuery.data?.pages.flatMap((page) => page.items) ?? [];
   if (located && !roots.some(root => root.commentId === located.root.commentId)) roots.unshift(located.root);
   const canWrite = Boolean(user);
+
+  // The reply field lives inside the thread: it is handed to the comment being
+  // answered, so nothing has to scroll up to a section-level composer.
+  const replySlotFor = (comment: Comment) => (replyTo && replyTo.replyToId === comment.commentId
+    ? <div className="forum-inline-reply">
+        <DiscussionComposer hideLabel value={replyBody} onChange={setReplyBody}
+          label={`Trả lời ${replyTo.name}`} maxLength={10000} minRows={3} focusRequest={replyFocus}
+          disabled={replyMutation.isPending} placeholder={`Trả lời ${replyTo.name}…`}
+          action={<Group gap={4} wrap="nowrap">
+            <Button size="xs" variant="subtle" onClick={cancelReply}>Huỷ</Button>
+            <Button size="xs" leftSection={<IconSend size={14} />} loading={replyMutation.isPending}
+              disabled={!replyBody.trim()} onClick={() => replyMutation.mutate()}>Gửi</Button>
+          </Group>} />
+      </div>
+    : null);
 
   return (
     <div className="forum-topic sc-editorial-topic" data-category={topic.category.slug}>
@@ -262,14 +292,10 @@ function DiscussionTopic({ id }: { id: string }) {
           </div> : !canWrite ? <div className="forum-callout" data-tone="muted">
             <Text size="sm">Đăng nhập để tham gia thảo luận.</Text><Button size="compact-xs" component={Link} to="/login">Đăng nhập</Button>
           </div> : <Stack gap={6}>
-            {replyTo ? <Group gap={6} justify="space-between" className="forum-reply-context">
-              <Text size="xs" c="dimmed">Đang trả lời <strong>{replyTo.name}</strong></Text>
-              <Button size="compact-xs" variant="subtle" onClick={() => setReplyTo(null)}>Huỷ</Button>
-            </Group> : null}
             <DiscussionComposer hideLabel value={composerBody} onChange={setComposerBody}
-              label={replyTo ? `Trả lời ${replyTo.name}` : 'Bình luận của bạn'}
-              maxLength={10000} minRows={3} focusRequest={focusRequest} disabled={createMutation.isPending}
-              placeholder={replyTo ? `Trả lời ${replyTo.name}…` : 'Chia sẻ suy nghĩ của bạn…'}
+              label="Bình luận của bạn"
+              maxLength={10000} minRows={3} disabled={createMutation.isPending}
+              placeholder="Chia sẻ suy nghĩ của bạn…"
               action={<Button size="xs" leftSection={<IconSend size={14} />} loading={createMutation.isPending}
                 disabled={!composerBody.trim()} onClick={() => createMutation.mutate()}>Gửi</Button>} />
           </Stack>}
@@ -291,6 +317,7 @@ function DiscussionTopic({ id }: { id: string }) {
               onExpand={() => setExpandedRoots((prev) => ({ ...prev, [root.commentId]: true }))}
               onCollapse={() => setExpandedRoots((prev) => ({ ...prev, [root.commentId]: false }))}
               onReply={handleReply}
+              renderReply={replySlotFor}
               onEdit={(c) => setEditing({ commentId: c.commentId, body: c.body })}
               onDelete={(c) => setConfirmDelete({ scope: 'COMMENT', commentId: c.commentId })}
               onLike={(c) => likeMutation.mutate({ commentId: c.commentId, liked: !c.viewerLiked })}
@@ -344,6 +371,8 @@ type ThreadProps = {
   topicId: string; root: Comment; currentUserId?: string; locked: boolean; expand: boolean; onExpand: () => void; onCollapse: () => void;
   onReply: (target: { rootId: string; replyToId: string; name: string }) => void; onEdit: (c: Comment) => void; onDelete: (c: Comment) => void;
   onLike: (c: Comment) => void; onReport: (c: Comment) => void; onPermalink: (id: string) => void;
+  /** Reply field for the comment currently being answered, rendered in place. */
+  renderReply?: (comment: Comment) => ReactNode;
   locatedReply?: Comment;
 };
 
@@ -361,7 +390,7 @@ function CommentThread(props: ThreadProps) {
   return (
     <article className="forum-thread sc-thread" data-category={root.author?.role === 'AUTHOR' ? 'author' : undefined}>
       <div className="forum-thread-content">
-        <CommentRow comment={root} {...props} />
+        <CommentRow comment={root} {...props} replySlot={props.renderReply?.(root)} />
 
         {root.replyCount > 0 ? <div className="sc-thread-guide">
           <button type="button" className="forum-reply-toggle" aria-expanded={expand}
@@ -375,7 +404,7 @@ function CommentThread(props: ThreadProps) {
           <div className="forum-replies sc-replies">
             {repliesQuery.isLoading ? <Text size="xs" c="dimmed">Đang tải trả lời…</Text> : null}
             {repliesQuery.isError ? <ErrorState error={repliesQuery.error} onRetry={() => repliesQuery.refetch()} /> : null}
-            {replies.map((reply) => <CommentRow key={reply.commentId} comment={reply} {...props} />)}
+            {replies.map((reply) => <CommentRow key={reply.commentId} comment={reply} {...props} replySlot={props.renderReply?.(reply)} />)}
             {repliesQuery.hasNextPage ? <Button size="compact-xs" variant="light" loading={repliesQuery.isFetchingNextPage}
               onClick={() => repliesQuery.fetchNextPage()}>Tải thêm trả lời</Button> : null}
           </div>
@@ -385,7 +414,7 @@ function CommentThread(props: ThreadProps) {
   );
 }
 
-function CommentRow({ comment, currentUserId, locked, topicId, onReply, onEdit, onDelete, onLike, onReport, onPermalink, root }: ThreadProps & { comment: Comment }) {
+function CommentRow({ comment, currentUserId, locked, topicId, onReply, onEdit, onDelete, onLike, onReport, onPermalink, root, replySlot }: ThreadProps & { comment: Comment; replySlot?: ReactNode }) {
   const isOwner = Boolean(currentUserId && comment.author?.userId === currentUserId);
   const anchor = `comment-${comment.commentId}`;
   const isReply = comment.commentId !== root.commentId;
@@ -429,6 +458,7 @@ function CommentRow({ comment, currentUserId, locked, topicId, onReply, onEdit, 
               </AnimatedMenu.Dropdown>
             </AnimatedMenu>
           </div>
+          {replySlot}
         </div>
       </div>
     </div>

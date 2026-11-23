@@ -78,7 +78,6 @@ type DiscussionComposerProps = {
 /** Controlled composer shared by topic and comment create/edit forms. */
 export function DiscussionComposer({ value, onChange, label, maxLength, minRows = 4, disabled = false, placeholder, focusRequest, hideLabel = false, action }: DiscussionComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [preview, setPreview] = useState(false);
   const [linkOpened, link] = useDisclosure(false);
   const [linkLabel, setLinkLabel] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
@@ -91,7 +90,6 @@ export function DiscussionComposer({ value, onChange, label, maxLength, minRows 
 
   useEffect(() => {
     if (!focusRequest || disabled) return;
-    setPreview(false);
     const frame = requestAnimationFrame(() => textareaRef.current?.focus());
     return () => cancelAnimationFrame(frame);
   }, [focusRequest]);
@@ -146,13 +144,12 @@ export function DiscussionComposer({ value, onChange, label, maxLength, minRows 
 
   return (
     <Stack gap="xs" className="forum-composer">
-      <div className="forum-composer-box">
-        {preview ? (
-          <div className="forum-compose-preview" aria-live="polite" aria-label={`Xem trước ${label}`}>
-            {text.trim() ? <DiscussionBody text={text} /> : <Text size="sm" c="dimmed">Chưa có nội dung để xem trước.</Text>}
-          </div>
-        ) : (
-          <Textarea
+      {/* One writing surface: the field and its formatting rail share a single
+          bordered box, so the toolbar reads as part of the editor instead of a
+          second row floating under it. */}
+      <div className="forum-composer-box"
+        data-disabled={disabled || undefined} data-over={overLimit || undefined}>
+        <Textarea
             ref={textareaRef}
             label={hideLabel ? undefined : label}
             aria-label={hideLabel ? label : undefined}
@@ -164,28 +161,26 @@ export function DiscussionComposer({ value, onChange, label, maxLength, minRows 
             disabled={disabled}
             placeholder={placeholder}
             error={overLimit ? 'Nội dung vượt quá giới hạn ký tự.' : undefined}
-            classNames={{ input: 'forum-compose-input' }}
-          />
-        )}
+          classNames={{ input: 'forum-compose-input', label: 'forum-compose-label' }}
+        />
         <div className="forum-compose-toolbar" role="group" aria-label="Định dạng nội dung">
-          <ActionIcon type="button" variant="subtle" aria-label="Chữ đậm" title="Chữ đậm" disabled={disabled || preview} onClick={() => insert('**', '**', 'chữ đậm')}>
-            <IconBold size={18} aria-hidden="true" />
-          </ActionIcon>
-          <ActionIcon type="button" variant="subtle" aria-label="Chữ nghiêng" title="Chữ nghiêng" disabled={disabled || preview} onClick={() => insert('*', '*', 'chữ nghiêng')}>
-            <IconItalic size={18} aria-hidden="true" />
-          </ActionIcon>
-          <ActionIcon type="button" variant="subtle" aria-label="Chèn liên kết" title="Chèn liên kết" disabled={disabled || preview} onClick={openLink}>
-            <IconLink size={18} aria-hidden="true" />
-          </ActionIcon>
-          <Button type="button" size="compact-xs" variant="subtle" aria-pressed={preview} disabled={disabled} onClick={() => setPreview((state) => !state)}>
-            {preview ? 'Quay lại soạn' : 'Xem trước'}
-          </Button>
-          {/* Counter and send action travel together so a wrapped toolbar (touch
+          <div className="forum-compose-tools">
+            <ActionIcon type="button" variant="subtle" aria-label="Chữ đậm" title="Chữ đậm" disabled={disabled} onClick={() => insert('**', '**', 'chữ đậm')}>
+              <IconBold size={17} aria-hidden="true" />
+            </ActionIcon>
+            <ActionIcon type="button" variant="subtle" aria-label="Chữ nghiêng" title="Chữ nghiêng" disabled={disabled} onClick={() => insert('*', '*', 'chữ nghiêng')}>
+              <IconItalic size={17} aria-hidden="true" />
+            </ActionIcon>
+            <ActionIcon type="button" variant="subtle" aria-label="Chèn liên kết" title="Chèn liên kết" disabled={disabled} onClick={openLink}>
+              <IconLink size={17} aria-hidden="true" />
+            </ActionIcon>
+          </div>
+          {/* Counter and send action travel together so a wrapped rail (touch
               pointers enlarge the targets) keeps the action right-aligned instead of
               dropping it to the left edge. */}
           <div className="forum-compose-end">
             {limit !== undefined ? (
-              <span className="forum-compose-count" data-over={overLimit || undefined}>
+              <span className="forum-compose-count" data-over={overLimit || undefined} aria-live="polite">
                 {count}/{limit}<span className="forum-compose-count-unit"> ký tự</span>
               </span>
             ) : null}
