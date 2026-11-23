@@ -18,7 +18,8 @@ export type PrivateComment = ReaderComment & { audience: string; anchor?: { quot
 const policy = { gcTime: 0, staleTime: 0, retry: false, refetchOnWindowFocus: 'always' as const, refetchInterval: 15000 };
 async function list(url: string, params: Record<string, unknown>) {
   const response = await apiClient.get<ApiEnvelope<PrivateComment[]>>(url, { params });
-  return { items: response.data.data, pages: Number(response.data.meta.totalPages) || 1, count: Number(response.data.meta.totalItems) };
+  const meta = response.data.meta as Record<string, unknown>;
+  return { items: response.data.data, pages: Number(meta.totalPages) || 1, count: Number(meta.totalItems), creationEnabled: meta.creationEnabled !== false };
 }
 export function usePrivateCommentFocus(target: CommentTarget) {
   const account = useAuthStore(s => s.user?.userId);
@@ -427,9 +428,11 @@ function AuthorPrivateSession({ target, account, requestedFeedback }: {
       <FocusedPrivateThread focus={focus} onChanged={refresh} />}
     {open && <Stack ref={panel} id="reader-author-feedback" role="region" aria-label="Góp ý riêng cho tác giả"
       tabIndex={-1} className="sc-author-feedback-inline" gap="sm">
-      <PrivateComposer target={target} author savedDraft={savedDraft} onSendingChange={setSending}
-        onSent={() => setPage(1)}
-        onCancel={() => { savedDraft.save(emptyPrivateDraft); setOpen(false); }} />
+      {query.data?.creationEnabled === false
+        ? <Text size="sm" c="dimmed" role="note" data-testid="private-comments-disabled">Góp ý riêng đang tạm tắt trên hệ thống này. Bạn vẫn xem được các góp ý đã gửi.</Text>
+        : <PrivateComposer target={target} author savedDraft={savedDraft} onSendingChange={setSending}
+          onSent={() => setPage(1)}
+          onCancel={() => { savedDraft.save(emptyPrivateDraft); setOpen(false); }} />}
       {authorNotification && <FocusedPrivateThread focus={focus} onChanged={refresh} />}
       {query.isPending && <Text size="sm" role="status">Đang tải góp ý…</Text>}
       {query.isError && <ErrorState title="Không tải được góp ý" error={query.error} onRetry={() => void query.refetch()} />}

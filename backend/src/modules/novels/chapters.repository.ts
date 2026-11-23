@@ -190,6 +190,7 @@ export async function publishChapter(
         word_count = $4,
         status = 'PUBLISHED',
         published_at = coalesce(published_at, now()),
+        published_updated_at = now(),
         updated_at = now()
       where chapter_id = $1 and deleted_at is null and status in ('PENDING_MODERATION', 'PUBLISHED')
       returning *

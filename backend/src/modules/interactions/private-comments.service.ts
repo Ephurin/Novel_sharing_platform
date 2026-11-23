@@ -26,7 +26,7 @@ export async function createPrivate(auth: AuthContext, novelId: string, chapterI
     target = await findCommentById(replyToId);
     root = await authorizeComment(target, auth, true);
   }
-  if (!env.PRIVATE_COMMENTS_ENABLED) throw new AppError(503,'PRIVATE_COMMENTS_DISABLED','Private comment creation is disabled');
+  if (!env.PRIVATE_COMMENTS_ENABLED) throw new AppError(503,'PRIVATE_COMMENTS_DISABLED','Góp ý riêng đang tạm tắt trên hệ thống này.');
   validatePrivateText(input);
   const { chapter } = await privateTarget(novelId,chapterId,auth);
   const audience = root?.audience ?? input.audience!;
@@ -70,7 +70,8 @@ export async function presentPrivate(items: CommentDocument[], totalItems: numbe
       canReply:isCommentApproved(item),status:item.status,
       anchor:item.anchor && chapter ? resolveAnchor(chapter.content,item.anchor) : null});
   }
-  return {data,meta:{page:input.page,limit:input.limit,totalItems,totalPages:Math.ceil(totalItems/input.limit)}};
+  // UAT 2026-11-21 (BUG-008): tell the reader up front when new private comments are switched off.
+  return {data,meta:{page:input.page,limit:input.limit,totalItems,totalPages:Math.ceil(totalItems/input.limit),creationEnabled:env.PRIVATE_COMMENTS_ENABLED}};
 }
 export async function listPrivate(auth: AuthContext | undefined, input: ListCommentsInput, filter: Filter<CommentDocument> = {}) {
   if (!auth) throw new AppError(401,'AUTH_002','Authentication required');

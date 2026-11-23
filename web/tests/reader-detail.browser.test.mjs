@@ -50,7 +50,7 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
   const base = `http://127.0.0.1:${server.httpServer.address().port}`;
   const cover = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="300"><rect width="200" height="300" fill="#775f55"/><circle cx="100" cy="100" r="60" fill="#e9c899"/><text x="100" y="225" text-anchor="middle" fill="white" font-size="20">StoryCraft</text></svg>');
   const chapters = Array.from({ length: 7 }, (_, index) => ({ chapterId: `chapter-${index + 1}`, novelId: 'novel-1', chapterNumber: index + 1, title: `Chương ${index + 1}: Ngày nắng trở về`, wordCount: 100, isVip: index === 1, priceCoins: index === 1 ? 10 : 0, publishedAt: '2026-10-20T12:00:00Z' }));
-  const novel = { novelId: 'novel-1', authorId: 'author-1', authorName: 'Người kể chuyện', title: 'Hành Trình Qua Những Mùa Gió', synopsis: Array.from({ length: 12 }, () => 'Câu chuyện về những người trẻ trên hành trình tìm lại ký ức và những lời hẹn chưa thành.').join('\n\n'), authorNote: 'Cảm ơn bạn đã ghé qua.', genres: ['Fantasy', 'Đời thường'], tags: ['Adventure'], status: 'ONGOING', coverImageUrl: cover, chaptersCount: 99, viewsCount: 18, lastUpdatedAt: '2026-10-20T12:00:00Z', chapters };
+  const novel = { novelId: 'novel-1', authorId: 'author-1', authorName: 'Người kể chuyện', title: 'Hành Trình Qua Những Mùa Gió', synopsis: Array.from({ length: 12 }, () => 'Câu chuyện về những người trẻ trên hành trình tìm lại ký ức và những lời hẹn chưa thành.').join('\n\n'), authorNote: 'Cảm ơn bạn đã ghé qua.', genres: ['Fantasy', 'Đời thường'], tags: ['Adventure'], status: 'ONGOING', ageRating: 'MATURE', coverImageUrl: cover, chaptersCount: 99, viewsCount: 18, lastUpdatedAt: '2026-10-20T12:00:00Z', chapters };
   try {
     for (const role of ['GUEST', 'READER']) for (const width of [1440, 650, 390]) for (const theme of ['light', 'dark']) {
       const context = await browser.newContext({ viewport: { width, height: 1000 } });
@@ -124,20 +124,22 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
         await page.screenshot({ path: path.join(output, `${role}-${width}-${theme}-detail.png`), fullPage: true });
         await page.locator('.sc-reader-genres').getByRole('link', { name: 'Fantasy', exact: true }).click();
         await expect(page).toHaveURL(`${base}${prefix}?genre=Fantasy`);
-        if (width < 768) await page.getByRole('button', { name: 'Bộ lọc', exact: true }).click();
-        await expect(page.locator('.mantine-MultiSelect-pill').filter({ hasText: 'Fantasy' })).toBeVisible();
+        if (width < 1024) await page.locator('.sc-catalog-filter-open').click();
+        await expect(page.locator('#sc-catalog-sidebar').getByRole('checkbox', { name: 'Fantasy', exact: true })).toBeChecked();
         await expect.poll(() => searchParams?.get('genres')).toBe('Fantasy');
         await page.goto(detail);
+        // UAT 2026-11-21 (BUG-007): the saved age rating is visible to readers.
+        await expect(page.getByTestId('reader-age-rating')).toHaveText('18+');
         await page.locator('.sc-reader-status').click();
         await expect(page).toHaveURL(`${base}${prefix}?status=ONGOING`);
-        if (width < 768) await page.getByRole('button', { name: 'Bộ lọc', exact: true }).click();
-        await expect(page.getByRole('group', { name: 'Lọc theo trạng thái', exact: true }).getByRole('button', { name: 'Đang ra', exact: true })).toHaveAttribute('aria-pressed', 'true');
+        if (width < 1024) await page.locator('.sc-catalog-filter-open').click();
+        await expect(page.getByRole('radiogroup', { name: 'Lọc theo tình trạng', exact: true }).getByRole('radio', { name: 'Đang ra', exact: true })).toBeChecked();
         await expect.poll(() => searchParams?.get('status')).toBe('ONGOING');
         await page.goto(detail);
         await page.locator('.sc-reader-tags').getByRole('link', { name: '#Adventure', exact: true }).click();
         await expect(page).toHaveURL(`${base}${prefix}?tag=Adventure`);
-        if (width < 768) await page.getByRole('button', { name: 'Bộ lọc', exact: true }).click();
-        await expect(page.locator('.mantine-MultiSelect-pill').filter({ hasText: 'Adventure' })).toBeVisible();
+        if (width < 1024) await page.locator('.sc-catalog-filter-open').click();
+        await expect(page.locator('#sc-catalog-sidebar').getByRole('checkbox', { name: 'Adventure', exact: true })).toBeChecked();
         await expect.poll(() => searchParams?.get('tags')).toBe('Adventure');
         await page.goto(detail);
         if (role === 'READER') {
@@ -176,7 +178,7 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
         await page.getByRole('button', { name: 'Xem toàn bộ 7 chương', exact: true }).click();
         await expect(page.locator('#reader-chapters tbody tr')).toHaveCount(7);
         await expect(page.getByTestId('read-chapter-chapter-7')).toHaveAttribute('href', `${prefix}/chapters/chapter-7`);
-        await shortcuts.getByRole('button', { name: 'Chia sẻ', exact: true }).click();
+        await page.getByRole('button', { name: 'Chia sẻ', exact: true }).click();
         const share = page.getByRole('dialog', { name: 'Chia sẻ truyện', exact: true });
         await share.getByRole('button', { name: 'Sao chép đường dẫn', exact: true }).click();
         await expect(share.getByRole('status')).toHaveText('Đã sao chép đường dẫn.');

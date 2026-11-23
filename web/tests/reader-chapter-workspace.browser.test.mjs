@@ -251,7 +251,8 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
           await expect(page.getByRole('heading', { name: 'Thư viện của tôi', exact: true })).toBeVisible();
           await sections.getByRole('link', { name: 'Lịch sử đọc', exact: true }).click();
           await expect(sections.getByRole('link', { name: 'Lịch sử đọc', exact: true })).toHaveAttribute('aria-current', 'page');
-          await page.getByRole('navigation', { name: 'Công cụ đọc', exact: true }).getByRole('link', { name: 'Bookmark', exact: true }).click();
+          await page.getByTestId('shell-avatar-btn').click();
+          await page.locator('.sc-account-menu').getByRole('menuitem', { name: 'Bookmark', exact: true }).click();
           await page.getByRole('button', { name: /Hành trình qua những mùa gió/ }).click();
           await expect(page.locator('.sc-reading-bookmark-entry')).toHaveCount(1);
         }

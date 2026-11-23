@@ -56,13 +56,13 @@ export function HomeResults({ identity, direction = 0, className, children }: Pr
 export function HomeSectionState({ query, empty, variant = 'compact', onReset, announceLoading = true }: {
   query: { isPending: boolean; isError: boolean; data?: ReaderNovel[]; refetch: () => unknown };
   empty: string;
-  variant?: 'featured' | 'compact' | 'rows' | 'ranking';
+  variant?: 'featured' | 'compact' | 'rows' | 'ranking' | 'completed';
   onReset?: () => void;
   announceLoading?: boolean;
 }) {
   if (query.isPending) return <div className={`sc-home-loading sc-home-loading-${variant}`} role={announceLoading ? 'status' : undefined} aria-hidden={!announceLoading || undefined}>
     {announceLoading && <span className="sc-home-sr-only">Đang tải truyện…</span>}
-    {Array.from({ length: variant === 'compact' ? 6 : variant === 'ranking' ? 5 : 4 }, (_, index) => <div key={index} className="sc-home-loading-item" aria-hidden="true">
+    {Array.from({ length: variant === 'compact' ? 6 : variant === 'ranking' || variant === 'completed' ? 5 : 4 }, (_, index) => <div key={index} className="sc-home-loading-item" aria-hidden="true">
       <span className="sc-skeleton-block sc-home-loading-cover" />
       <div><span className="sc-skeleton-block" /><span className="sc-skeleton-block" /></div>
     </div>)}
@@ -71,7 +71,8 @@ export function HomeSectionState({ query, empty, variant = 'compact', onReset, a
     <p>{query.data?.length ? 'Chưa cập nhật được danh sách.' : 'Không tải được truyện.'}</p>
     <button type="button" onClick={() => void query.refetch()}>Thử lại</button>
   </div>;
-  if (!query.data?.length) return <div className="sc-home-inline-state">
+  if (!query.data?.length) return <div className="sc-home-inline-state is-empty">
+    <span className="sc-home-empty-icon material-symbols-outlined" aria-hidden="true">auto_stories</span>
     <h3>{empty}</h3>
     {onReset && <button type="button" onClick={onReset}>Bỏ bộ lọc</button>}
   </div>;

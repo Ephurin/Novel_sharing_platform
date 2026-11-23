@@ -35,6 +35,9 @@ import {
 import type { Chapter, ChapterStatus } from '../novels/novel-types';
 
 type AgeRating = 'EVERYONE' | 'TEEN' | 'MATURE';
+// UAT 2026-11-21 (BUG-010): the server only reorders a manuscript with nothing released
+// (CHAPTER_ORDER_CANONICAL), so the button says so up front instead of failing on save.
+const ORDER_LOCKED_HINT = 'Chỉ sắp xếp được khi truyện chưa có chương nào phát hành hoặc đang chờ duyệt.';
 
 export function AuthorNovelMetadataPage() {
   const { novelId = '' } = useParams();
@@ -188,6 +191,7 @@ export function AuthorNovelMetadataPage() {
   });
 
   const chapters: Chapter[] = chaptersQuery.data ?? [];
+  const orderLocked = chapters.some(chapter => chapter.content !== null || !['DRAFT', 'REJECTED'].includes(chapter.status));
   const updated = useUpdatedItems(chaptersQuery.data?.map(chapter => ({ id: chapter.chapterId, version: [chapter.updatedAt, chapter.draftVersion, chapter.status, chapter.title, chapter.chapterNumber, chapter.isVip, chapter.priceCoins].join('|') })), novelId);
 
   const vipChaptersCount = chapters.filter((c) => c.isVip).length;
@@ -659,7 +663,9 @@ export function AuthorNovelMetadataPage() {
                       ))}
                     </Menu.Dropdown>
                   </Menu>
-                  <button type="button" className="sc-button" onClick={() => setOrderOpen(true)} disabled={!chapters.length}>Sắp xếp chương</button>
+                  <button type="button" className="sc-button" onClick={() => setOrderOpen(true)} disabled={!chapters.length || orderLocked}
+                    data-testid="chapter-order-open" title={orderLocked ? ORDER_LOCKED_HINT : undefined} aria-describedby={orderLocked ? 'chapter-order-locked' : undefined}>Sắp xếp chương</button>
+                  {orderLocked && <span id="chapter-order-locked" className="sr-only">{ORDER_LOCKED_HINT}</span>}
                   <Link
                     to={`/author/import/${novelId}`}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200/80 text-stone-700 border border-stone-200/70 font-label-md text-meta transition-colors"

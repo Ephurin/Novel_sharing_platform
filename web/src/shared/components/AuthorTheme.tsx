@@ -1,5 +1,6 @@
 import { NotificationBell } from '../../features/notifications/NotificationBell';
 import { readerCollections } from '../../features/reader/ReaderCollectionsLayout';
+import { GlobalSearchDropdown } from './GlobalSearchDropdown';
 import { ThemeControl } from './ThemeControl';
 import { WorkspaceCommands } from './WorkspaceCommands';
 import { FocusTrap, useComputedColorScheme } from '@mantine/core';
@@ -96,6 +97,7 @@ export function AuthorNavbar() {
   const isWriter = user?.role === 'AUTHOR' || user?.role === 'ADMIN';
   const path = location.pathname;
   const discussionsActive = path === '/discussions' || path.startsWith('/discussions/');
+  const catalogPath: '/reader' | '/public' = user ? '/reader' : '/public';
   const [navbarHidden, setNavbarHidden] = useState(false);
   const navbarRef = useRef<HTMLElement>(null);
   const autoHide = !isWriter;
@@ -138,7 +140,7 @@ export function AuthorNavbar() {
       <div className="sc-navbar-inner">
         <Link to="/" className="sc-brand" aria-label={`StoryCraft — ${navigationLabels.home}`}>
           <span className="material-symbols-outlined">menu_book</span>
-          <span>StoryCraft</span><span className="sc-brand-edition">Văn Hoa</span>
+          <span>StoryCraft</span>
         </Link>
         <LayoutGroup id="sc-global-nav">
           {isWriter ? (
@@ -146,7 +148,6 @@ export function AuthorNavbar() {
               {(() => {
                 const authorActive = (path === '/author' || path.startsWith('/author/')) && path !== '/author/profile';
                 const readerActive = path === '/reader';
-                const walletActive = path.startsWith('/wallet');
                 const profileActive = path === '/author/profile';
                 return (
                   <>
@@ -162,10 +163,6 @@ export function AuthorNavbar() {
                       {discussionsActive && navPill}
                       <span>Thảo luận</span>
                     </NavLink>
-                    <NavLink to="/wallet" className={walletActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
-                      {walletActive && navPill}
-                      <span>{navigationLabels.authorWallet}</span>
-                    </NavLink>
                     <NavLink to="/author/profile" className={profileActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
                       {profileActive && navPill}
                       <span>{navigationLabels.authorProfile}</span>
@@ -179,7 +176,6 @@ export function AuthorNavbar() {
               {[
                 { to: '/', label: navigationLabels.home, active: path === '/' },
                 { to: '/reader', label: navigationLabels.readerHome, active: path === '/reader' || path.startsWith('/reader/novels') || path.startsWith('/reader/chapters') || path.startsWith('/authors/') },
-                { to: '/wallet', label: navigationLabels.readerWallet, active: path.startsWith('/wallet') },
                 { to: '/discussions', label: 'Thảo luận', active: discussionsActive },
               ].map((item) => (
                 <Link key={item.to} to={item.to} className={readerLink(item.active)}>
@@ -203,6 +199,7 @@ export function AuthorNavbar() {
             </nav>
           )}
         </LayoutGroup>
+        {path !== '/author/ide' && <GlobalSearchDropdown catalogPath={catalogPath} />}
         <div className="sc-navbar-actions">
           {isWriter && <WorkspaceCommands author commands={[
             { label: navigationLabels.authorHome, to: '/author/projects', icon: 'menu_book' },
@@ -212,12 +209,6 @@ export function AuthorNavbar() {
             { label: navigationLabels.authorProfile, to: '/author/profile', icon: 'person' },
             { label: 'Hồ sơ và cài đặt', to: '/profile/me' }
           ]} />}
-          <nav className="sc-navbar-reading-tools" aria-label="Công cụ đọc">
-            {(user ? readerCollections : [{ to: '/public/bookmarks', label: 'Bookmark', icon: 'bookmarks' }]).map(item =>
-              <NavLink key={item.to} to={item.to} end className="sc-icon-button" aria-label={item.label} title={item.label}>
-                <span className="material-symbols-outlined" aria-hidden="true">{item.icon}</span>
-              </NavLink>)}
-          </nav>
           <ThemeControl />
           {isWriter && location.pathname !== '/author/ide' && <Link to={writingUrl} className="sc-button sc-button-primary sc-continue"><span className="material-symbols-outlined">edit_note</span><span>Viết tiếp</span></Link>}
           {!user && <Link to="/login" className="sc-button sc-button-primary"><span className="material-symbols-outlined">login</span><span>Đăng nhập</span></Link>}
@@ -229,17 +220,106 @@ export function AuthorNavbar() {
                 {user?.avatarUrl ? <img src={user.avatarUrl} alt={name} /> : name.slice(0, 1).toUpperCase()}
               </button>
             </Menu.Target>
-            <Menu.Dropdown>
-              <Menu.Label>{name}</Menu.Label>
-              <Menu.Item component={Link} to="/appeals">Quyết định &amp; khiếu nại</Menu.Item>
-              <Menu.Item component={Link} to="/profile/me">Hồ sơ &amp; cài đặt</Menu.Item>
-              <Menu.Item component={Link} to="/reader/connections">Bạn bè</Menu.Item>
-              <Menu.Item component={Link} to="/reader/feedback">Góp ý đã gửi</Menu.Item>
-              {isWriter ? <>
-                <Menu.Item component={Link} to="/author/profile">Trang tác giả</Menu.Item>
-              </> : <Menu.Item component={Link} to="/notifications">Thông báo</Menu.Item>}
+            <Menu.Dropdown className="sc-account-menu">
+              <div className="sc-account-menu-user">
+                <strong>{name}</strong>
+                {user.displayName && user.displayName !== user.username && <span>@{user.username}</span>}
+              </div>
               <Menu.Divider />
-              <Menu.Item onClick={() => void handleLogout()} data-testid="shell-logout-btn">Đăng xuất</Menu.Item>
+              <Menu.Label>Tài khoản</Menu.Label>
+              <Menu.Item
+                component={Link}
+                to="/profile/me"
+                className={path === '/profile/me' ? 'is-active' : ''}
+                aria-current={path === '/profile/me' ? 'page' : undefined}
+                leftSection={<span className="material-symbols-outlined" aria-hidden="true">person</span>}
+              >
+                Hồ sơ &amp; cài đặt
+              </Menu.Item>
+              <Menu.Item
+                component={Link}
+                to="/wallet"
+                className={path.startsWith('/wallet') ? 'is-active' : ''}
+                aria-current={path.startsWith('/wallet') ? 'page' : undefined}
+                leftSection={<span className="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span>}
+              >
+                Ví xu
+              </Menu.Item>
+              {isWriter && (
+                <Menu.Item
+                  component={Link}
+                  to="/author/profile"
+                  className={path === '/author/profile' ? 'is-active' : ''}
+                  aria-current={path === '/author/profile' ? 'page' : undefined}
+                  leftSection={<span className="material-symbols-outlined" aria-hidden="true">edit_square</span>}
+                >
+                  Trang tác giả
+                </Menu.Item>
+              )}
+              <Menu.Divider />
+              <Menu.Label>Đọc truyện</Menu.Label>
+              {readerCollections.map((item) => {
+                const active = path === item.to;
+                return (
+                  <Menu.Item
+                    key={item.to}
+                    component={Link}
+                    to={item.to}
+                    className={active ? 'is-active' : ''}
+                    aria-current={active ? 'page' : undefined}
+                    leftSection={<span className="material-symbols-outlined" aria-hidden="true">{item.icon}</span>}
+                  >
+                    {item.label}
+                  </Menu.Item>
+                );
+              })}
+              <Menu.Divider />
+              <Menu.Label>Khác</Menu.Label>
+              <Menu.Item
+                component={Link}
+                to="/reader/connections"
+                className={path === '/reader/connections' ? 'is-active' : ''}
+                aria-current={path === '/reader/connections' ? 'page' : undefined}
+                leftSection={<span className="material-symbols-outlined" aria-hidden="true">group</span>}
+              >
+                Bạn bè
+              </Menu.Item>
+              <Menu.Item
+                component={Link}
+                to="/notifications"
+                className={path === '/notifications' ? 'is-active' : ''}
+                aria-current={path === '/notifications' ? 'page' : undefined}
+                leftSection={<span className="material-symbols-outlined" aria-hidden="true">notifications</span>}
+              >
+                Thông báo
+              </Menu.Item>
+              <Menu.Item
+                component={Link}
+                to="/appeals"
+                className={path === '/appeals' ? 'is-active' : ''}
+                aria-current={path === '/appeals' ? 'page' : undefined}
+                leftSection={<span className="material-symbols-outlined" aria-hidden="true">gavel</span>}
+              >
+                Quyết định &amp; khiếu nại
+              </Menu.Item>
+              <Menu.Item
+                component={Link}
+                to="/reader/feedback"
+                className={path === '/reader/feedback' ? 'is-active' : ''}
+                aria-current={path === '/reader/feedback' ? 'page' : undefined}
+                leftSection={<span className="material-symbols-outlined" aria-hidden="true">feedback</span>}
+              >
+                Góp ý đã gửi
+              </Menu.Item>
+              <Menu.Divider />
+              <Menu.Item
+                color="red"
+                onClick={() => void handleLogout()}
+                data-testid="shell-logout-btn"
+                leftSection={<span className="material-symbols-outlined" aria-hidden="true">logout</span>}
+              >
+                Đăng xuất
+              </Menu.Item>
             </Menu.Dropdown>
           </Menu>}
         </div>

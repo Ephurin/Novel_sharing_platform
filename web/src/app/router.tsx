@@ -25,6 +25,7 @@ import { AuthorProjectsPage } from '../features/author-projects/AuthorProjectsPa
 import { AuthorStoryContextPage } from '../features/story-context/AuthorStoryContextPage';
 import { AuthGate, OptionalSession, RoleGuard } from '../features/auth/AuthGate';
 import { ReaderHomePage } from '../features/reader/ReaderHomePage';
+import { SearchResultsPage } from '../features/reader/SearchResultsPage';
 import { ReaderNovelReviewsPage } from '../features/reader/ReaderNovelReviewsPage';
 import { ReadingBookmarksPage } from '../features/reader/ReadingBookmarksPage';
 import { ReaderCollectionsLayout } from '../features/reader/ReaderCollectionsLayout';
@@ -65,6 +66,8 @@ export const router = createBrowserRouter([
   },
   { path: '/readers/:userId', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><ReaderProfilePage /></main></AuthorTheme></OptionalSession> },
   { path: '/public/bookmarks', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><ReadingBookmarksPage publicMode /></main></AuthorTheme></OptionalSession> },
+  { path: '/tim-kiem', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><SearchResultsPage /></main></AuthorTheme></OptionalSession> },
+  { path: '/tim-kiem-nang-cao', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><SearchResultsPage advanced /></main></AuthorTheme></OptionalSession> },
   {
     path: '/',
     element: <OptionalSession><AuthorTheme><ReaderHomePage /></AuthorTheme></OptionalSession>

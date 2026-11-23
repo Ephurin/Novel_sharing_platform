@@ -9,13 +9,16 @@ type AuthState = {
   sessionStatus: SessionStatus;
   beginRestore: () => void;
   setUser: (user: AuthUser) => void;
-  setSession: (input: { accessToken: string; user: AuthUser }) => void;
+  setSession: (input: { accessToken: string; user: AuthUser }, persist?: boolean) => void;
   clearSession: () => void;
 };
 
 function readStoredToken() {
-  try { return localStorage.getItem('ephurin_access_token'); }
-  catch { return null; }
+  try {
+    return localStorage.getItem('ephurin_access_token') ?? sessionStorage.getItem('ephurin_access_token');
+  } catch {
+    return null;
+  }
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -24,8 +27,16 @@ export const useAuthStore = create<AuthState>((set) => ({
   sessionStatus: readStoredToken() ? 'unknown' : 'guest',
   beginRestore: () => set({ sessionStatus: 'restoring' }),
   setUser: (user) => set({ user, sessionStatus: 'authenticated' }),
-  setSession: ({ accessToken, user }) => {
-    try { localStorage.setItem('ephurin_access_token', accessToken); } catch { /* Storage may be disabled. */ }
+  setSession: ({ accessToken, user }, persist = true) => {
+    try {
+      if (persist) {
+        sessionStorage.removeItem('ephurin_access_token');
+        localStorage.setItem('ephurin_access_token', accessToken);
+      } else {
+        localStorage.removeItem('ephurin_access_token');
+        sessionStorage.setItem('ephurin_access_token', accessToken);
+      }
+    } catch { /* Storage may be disabled. */ }
     set({ accessToken, user, sessionStatus: 'authenticated' });
   },
   clearSession: () => {

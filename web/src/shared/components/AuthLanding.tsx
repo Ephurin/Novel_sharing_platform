@@ -1,4 +1,5 @@
-import { Alert, Button, Group, Paper, PasswordInput, Stack, Text, TextInput } from '@mantine/core';
+import { Alert, Button, Checkbox, Group, Modal, PasswordInput, Stack, Text, TextInput, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
+import { IconArrowRight, IconLock, IconMail, IconMoon, IconSun, IconUser } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
@@ -13,7 +14,35 @@ import { useAuthStore } from '../../features/auth/useAuthStore';
 import { ApiClientError, getApiErrorMessage } from '../api/api-client';
 import { useStoryCraftAutoAnimate } from '../hooks/useStoryCraftAutoAnimate';
 import { AuthorTheme } from './AuthorTheme';
-import { ThemeControl } from './ThemeControl';
+import './AuthLanding.css';
+
+const REMEMBER_IDENTIFIER_KEY = 'storycraft_remember_identifier';
+
+function readRememberedIdentifier() {
+  try {
+    return localStorage.getItem(REMEMBER_IDENTIFIER_KEY) ?? '';
+  } catch {
+    return '';
+  }
+}
+
+function writeRememberedIdentifier(value: string) {
+  try {
+    const trimmed = value.trim();
+    if (trimmed) localStorage.setItem(REMEMBER_IDENTIFIER_KEY, trimmed);
+    else localStorage.removeItem(REMEMBER_IDENTIFIER_KEY);
+  } catch {
+    /* Storage may be unavailable. */
+  }
+}
+
+function clearRememberedIdentifier() {
+  try {
+    localStorage.removeItem(REMEMBER_IDENTIFIER_KEY);
+  } catch {
+    /* Storage may be unavailable. */
+  }
+}
 
 export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFromLink?: boolean }) {
   const navigate = useNavigate();
@@ -23,7 +52,9 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
   const user = useAuthStore((state) => state.user);
   const setSession = useAuthStore((state) => state.setSession);
   const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(() => readRememberedIdentifier());
+  const [remember, setRemember] = useState(() => Boolean(readRememberedIdentifier()));
+  const [forgotModalOpen, setForgotModalOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
@@ -37,6 +68,8 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
   const [resendAt, setResendAt] = useState(0);
   const [resendRemaining, setResendRemaining] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const { setColorScheme } = useMantineColorScheme();
+  const computedColorScheme = useComputedColorScheme('light');
   const [googleBusy, setGoogleBusy] = useState(false);
   const reduce = useReducedMotion();
   const tabGroupId = useId();
@@ -85,7 +118,12 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
 
   const handleSession = (session: AuthSession) => {
     setError(null);
-    setSession(session);
+    const persistSession = mode === 'login' && !recovering ? remember : true;
+    if (mode === 'login' && !recovering) {
+      if (remember) writeRememberedIdentifier(email);
+      else clearRememberedIdentifier();
+    }
+    setSession(session, persistSession);
     queryClient.setQueryData(['auth', 'me'], session.user);
     navigate(getRoleHome(session.user.role), { replace: true });
   };
@@ -181,84 +219,139 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
     authMutation.mutate();
   };
 
+  const iconUser = <IconUser size={17} stroke={1.75} aria-hidden="true" />;
+  const iconLock = <IconLock size={17} stroke={1.75} aria-hidden="true" />;
+  const iconMail = <IconMail size={17} stroke={1.75} aria-hidden="true" />;
+
   return (
-    <AuthorTheme className="auth-shell">
-      <Paper p="xl" withBorder className="auth-card">
-        <Group justify="space-between" align="center" mb="md">
-          <Link to="/" className="sc-brand" aria-label="StoryCraft — Trang chủ">
-            <span className="material-symbols-outlined" aria-hidden="true">menu_book</span>
-            <span>StoryCraft</span>
-            <span className="sc-brand-edition">Văn Hoa</span>
-          </Link>
-          <ThemeControl />
-        </Group>
-
-        <div className="mb-4">
-          <h1 className="text-section-title m-0">
-            {recovering ? 'Khôi phục đăng ký' : confirmEmailFromLink || registration ? 'Xác nhận email'
-              : mode === 'login' ? 'Chào mừng trở lại' : 'Tạo tài khoản mới'}
-          </h1>
-          {!confirmEmailFromLink && !registration && <Text size="xs" c="dimmed" mt={2}>
-            Không gian đọc truyện và sáng tác tiểu thuyết Việt
-          </Text>}
+    <AuthorTheme className="auth-shell sc-auth-shell">
+      <div className="sc-auth-photo-stage">
+        <div
+          className="sc-auth-photo"
+          role="img"
+          aria-label="Góc bàn đọc sách bên cửa sổ với cây xanh, tách trà và sổ tay dưới nắng nhẹ"
+        />
+        <div className="sc-auth-photo-caption">
+          <p className="sc-auth-quote">“Mỗi câu chuyện đều bắt đầu từ một trang giấy trắng.”</p>
+          <p className="sc-auth-tagline">StoryCraft · Đọc · Viết · Sẻ chia</p>
         </div>
+      </div>
 
-        {!confirmEmailFromLink && !registration && !restoring && <LayoutGroup id={tabGroupId}>
-          <div
-            role="tablist"
-            aria-label="Chế độ xác thực"
-            className="grid grid-cols-2 p-1 mb-4 rounded-lg border border-stone-200 bg-surface-subtle"
-          >
-            {([
-              { id: 'login', label: 'Đăng nhập' },
-              { id: 'register', label: 'Tạo tài khoản' }
-            ] as const).map((tab) => {
-              const active = mode === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  id={`${tabGroupId}-tab-${tab.id}`}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  aria-controls={`${tabGroupId}-panel`}
-                  tabIndex={active ? 0 : -1}
-                  onClick={() => switchMode(tab.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') {
-                      e.preventDefault();
-                      const next = e.key === 'Home' ? 'login' : e.key === 'End' ? 'register' : mode === 'login' ? 'register' : 'login';
-                      switchMode(next);
-                      const buttons = e.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
-                      buttons?.[next === 'login' ? 0 : 1]?.focus();
-                    }
-                  }}
-                  className={`relative z-10 py-1.5 px-3 rounded-md text-meta font-semibold transition-colors ${
-                    active ? 'text-primary-800' : 'text-stone-600 hover:text-stone-900'
-                  }`}
-                >
-                  {active && (
-                    <motion.span
-                      layoutId="sc-auth-mode-pill"
-                      aria-hidden="true"
-                      className="absolute inset-0 -z-10 rounded-md bg-surface-container-lowest border border-stone-200/80 shadow-2xs"
-                      transition={{ duration: reduce ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
-                    />
-                  )}
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
+      <svg className="sc-auth-seam" aria-hidden="true" preserveAspectRatio="none" viewBox="0 0 1672 941">
+        <defs>
+          <linearGradient id="sc-seam-edge-glow" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="var(--auth-paper)" stopOpacity="0" />
+            <stop offset="100%" stopColor="var(--auth-paper)" stopOpacity="0.32" />
+          </linearGradient>
+        </defs>
+        <path
+          className="sc-auth-seam-fill"
+          d="M902 0 C852 108 830 228 844 362 C858 492 868 622 824 756 C798 836 766 896 742 941 L1672 941 L1672 0 Z"
+        />
+        <path
+          className="sc-auth-seam-detail"
+          d="M902 0 C852 108 830 228 844 362 C858 492 868 622 824 756 C798 836 766 896 742 941"
+        />
+      </svg>
+
+      <section className="sc-auth-panel" aria-labelledby="sc-auth-title">
+        <div className="sc-auth-inner">
+          <header className="sc-auth-brand-row">
+            <Link to="/" className="sc-auth-brand" aria-label="StoryCraft — Trang chủ">
+              <span className="material-symbols-outlined" aria-hidden="true">menu_book</span>
+              <span className="sc-auth-brand-name">StoryCraft</span>
+            </Link>
+            <div className="sc-auth-theme-switch" role="group" aria-label="Chế độ hiển thị">
+              <button
+                type="button"
+                className={`sc-auth-theme-btn${computedColorScheme === 'light' ? ' is-active' : ''}`}
+                aria-label="Giao diện sáng"
+                aria-pressed={computedColorScheme === 'light'}
+                onClick={() => setColorScheme('light')}
+              >
+                <IconSun size={16} stroke={1.9} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={`sc-auth-theme-btn${computedColorScheme === 'dark' ? ' is-active' : ''}`}
+                aria-label="Giao diện tối"
+                aria-pressed={computedColorScheme === 'dark'}
+                onClick={() => setColorScheme('dark')}
+              >
+                <IconMoon size={16} stroke={1.9} aria-hidden="true" />
+              </button>
+            </div>
+          </header>
+
+          <div className="sc-auth-header">
+            <h1 id="sc-auth-title" className="sc-auth-headline">
+              {recovering ? 'Khôi phục đăng ký' : confirmEmailFromLink || registration ? 'Xác nhận email'
+                : mode === 'login' ? 'Chào mừng trở lại!' : 'Bắt đầu câu chuyện mới!'}
+              {!confirmEmailFromLink && !registration && <span className="sc-auth-flair" aria-hidden="true" />}
+            </h1>
+            {!confirmEmailFromLink && !registration && (
+              <p className="sc-auth-subhead">
+                {mode === 'login'
+                  ? 'Tiếp tục hành trình đọc và viết cùng StoryCraft.'
+                  : 'Tạo tài khoản để đọc, viết và chia sẻ câu chuyện.'}
+              </p>
+            )}
           </div>
-        </LayoutGroup>}
 
-        {restoring ? <Text size="sm" role="status">Đang kiểm tra phiên đăng ký…</Text> : <form
-          id={confirmEmailFromLink || registration ? undefined : `${tabGroupId}-panel`}
-          role={confirmEmailFromLink || registration ? undefined : 'tabpanel'}
-          aria-labelledby={confirmEmailFromLink || registration ? undefined : `${tabGroupId}-tab-${mode}`}
-          onSubmit={handleSubmit}
-        >
-          <Stack gap="sm" ref={fieldsRef}>
+          {!confirmEmailFromLink && !registration && !restoring && <LayoutGroup id={tabGroupId}>
+            <div
+              role="tablist"
+              aria-label="Chế độ xác thực"
+              className="sc-auth-tabs"
+            >
+              {([
+                { id: 'login', label: 'Đăng nhập' },
+                { id: 'register', label: 'Đăng ký' }
+              ] as const).map((tab) => {
+                const active = mode === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    id={`${tabGroupId}-tab-${tab.id}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    aria-controls={`${tabGroupId}-panel`}
+                    tabIndex={active ? 0 : -1}
+                    onClick={() => switchMode(tab.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') {
+                        e.preventDefault();
+                        const next = e.key === 'Home' ? 'login' : e.key === 'End' ? 'register' : mode === 'login' ? 'register' : 'login';
+                        switchMode(next);
+                        const buttons = e.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+                        buttons?.[next === 'login' ? 0 : 1]?.focus();
+                      }
+                    }}
+                    className="sc-auth-tab"
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="sc-auth-mode-pill"
+                        aria-hidden="true"
+                        className="sc-auth-tab-pill"
+                        transition={{ duration: reduce ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
+                      />
+                    )}
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </LayoutGroup>}
+
+          {restoring ? <Text size="sm" role="status">Đang kiểm tra phiên đăng ký…</Text> : <form
+            id={confirmEmailFromLink || registration ? undefined : `${tabGroupId}-panel`}
+            role={confirmEmailFromLink || registration ? undefined : 'tabpanel'}
+            aria-labelledby={confirmEmailFromLink || registration ? undefined : `${tabGroupId}-tab-${mode}`}
+            onSubmit={handleSubmit}
+          >
+            <Stack gap={12} ref={fieldsRef}>
             {confirmEmailFromLink && (!recovering || invalidLink) ? (
               <Text size="sm">
                 {invalidLink
@@ -307,6 +400,8 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
                   <TextInput
                     label="Tên đăng nhập"
                     placeholder="Ví dụ: tacgia_vanhoa"
+                    leftSection={iconUser}
+                    leftSectionPointerEvents="none"
                     autoComplete="username"
                     required
                     withAsterisk={false}
@@ -317,6 +412,8 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
                   <TextInput
                     label="Email hoặc tên đăng nhập"
                     placeholder="Nhập email hoặc tên đăng nhập"
+                    leftSection={iconUser}
+                    leftSectionPointerEvents="none"
                     autoComplete="username"
                     value={email}
                     onChange={(event) => setEmail(event.currentTarget.value)}
@@ -325,6 +422,8 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
                 <PasswordInput
                   label="Mật khẩu"
                   placeholder="Nhập mật khẩu của bạn"
+                  leftSection={iconLock}
+                  leftSectionPointerEvents="none"
                   autoComplete={registering ? 'new-password' : 'current-password'}
                   required={registering}
                   withAsterisk={false}
@@ -338,6 +437,8 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
                       ref={confirmationRef}
                       label="Nhập lại mật khẩu"
                       placeholder="Nhập lại mật khẩu của bạn"
+                      leftSection={iconLock}
+                      leftSectionPointerEvents="none"
                       autoComplete="new-password"
                       required
                       withAsterisk={false}
@@ -350,6 +451,8 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
                     {!recovering && <TextInput
                       label="Email"
                       placeholder="ban@gmail.com"
+                      leftSection={iconMail}
+                      leftSectionPointerEvents="none"
                       type="email"
                       autoComplete="email"
                       required
@@ -362,9 +465,40 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
               </>
             )}
             {error ? <Alert color="red" role="alert">{error}</Alert> : null}
+          </Stack>
+          {!confirmEmailFromLink && !registration && !registering && (
+            <div className="sc-auth-options-row">
+              <Checkbox
+                label="Ghi nhớ đăng nhập"
+                size="sm"
+                checked={remember}
+                onChange={(event) => {
+                  const checked = event.currentTarget.checked;
+                  setRemember(checked);
+                  if (!checked) clearRememberedIdentifier();
+                }}
+                className="sc-auth-remember"
+              />
+              <button
+                type="button"
+                className="sc-auth-forgot-btn"
+                onClick={() => setForgotModalOpen(true)}
+              >
+                Quên mật khẩu?
+              </button>
+            </div>
+          )}
+          <Stack gap={10} mt={!confirmEmailFromLink && !registration && !registering ? 12 : 10}>
             {!invalidLink && (!registration || showCode) && (
-              <Button type="submit" loading={authMutation.isPending}
-                disabled={resendMutation.isPending || cancelMutation.isPending || googleBusy || Boolean(registration && code.length !== 8)} fullWidth mt={4}>
+              <Button
+                type="submit"
+                className="sc-auth-submit"
+                rightSection={<IconArrowRight size={17} stroke={2} aria-hidden="true" />}
+                loading={authMutation.isPending}
+                disabled={resendMutation.isPending || cancelMutation.isPending || googleBusy || Boolean(registration && code.length !== 8)}
+                fullWidth
+                mt={2}
+              >
                 {recovering ? 'Hoàn tất đăng ký' : confirmEmailFromLink ? 'Xác nhận tài khoản' : registration ? 'Xác nhận bằng mã' : mode === 'login'
                   ? 'Đăng nhập' : registerMailFailed ? 'Thử gửi lại email' : 'Tạo tài khoản'}
               </Button>
@@ -385,8 +519,35 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
         </form>}
 
         {!confirmEmailFromLink && !registration && !restoring && <GoogleSignIn blocked={authMutation.isPending}
-          onBusyChange={setGoogleBusy} onSession={handleSession} />}
-      </Paper>
+          mode={mode} onBusyChange={setGoogleBusy} onSession={handleSession} />}
+        </div>
+
+        <svg className="sc-auth-wave" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 77C110 31 199 33 312 70C410 109 468 96 552 70C664 35 718 29 819 42C892 51 957 68 1000 81V100H0Z" />
+        </svg>
+        <svg className="sc-auth-doodle" viewBox="0 -14 126 92" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M56 57C43 47 27 45 9 48V11C28 7 46 12 56 23C70 12 87 9 106 13V49C87 46 68 48 56 57ZM56 57V23" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M20 20C34 19 45 22 50 27M20 28C35 28 43 30 50 34M66 27C77 21 88 21 97 22M66 34C78 30 87 30 97 31" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M87 2L90 -9M104 9L114 0M108 25L120 23" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+        </svg>
+      </section>
+
+      <Modal
+        opened={forgotModalOpen}
+        onClose={() => setForgotModalOpen(false)}
+        title="Quên mật khẩu"
+        centered
+        size="sm"
+      >
+        <Stack gap="sm">
+          <Text size="sm" c="dimmed">
+            Chức năng đặt lại mật khẩu qua email hiện chưa được máy chủ hỗ trợ. Nếu tài khoản của bạn đã liên kết Google, bạn có thể dùng nút <strong>Đăng nhập bằng Google</strong> bên dưới, hoặc liên hệ quản trị viên StoryCraft để được hỗ trợ.
+          </Text>
+          <Button type="button" onClick={() => setForgotModalOpen(false)} fullWidth>
+            Đã hiểu
+          </Button>
+        </Stack>
+      </Modal>
     </AuthorTheme>
   );
 }

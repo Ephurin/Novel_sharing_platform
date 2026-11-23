@@ -137,7 +137,7 @@ function PrivateProfileForm({ novelId, entity, onSaved }: { novelId: string; ent
 
   return <Stack gap="sm" data-testid="entity-profile-editor">
     <Group justify="space-between" align="center" wrap="wrap">
-      <Group gap="xs"><Text fw={600}>{entity.name} · {entityTypeLabel(entity.entity_type)}</Text>{base && <Badge>Profile v{base.version} · Brain v{base.brain_version}</Badge>}</Group>
+      <Group gap="xs"><Text fw={600}>{entity.name} · {entityTypeLabel(entity.entity_type)}</Text>{base && <Badge>Hồ sơ v{base.version} · Bộ nhớ v{base.brain_version}</Badge>}</Group>
       <CopyTextButton value={entity.entity_id} label="Sao chép mã" />
     </Group>
     <AnimatedDisclosure summary="Xem mã định danh">

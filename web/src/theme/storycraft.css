@@ -47,7 +47,7 @@
   --sc-danger: #b84d49;
   --sc-danger-bg: #fff0ef;
   --sc-neutral-bg: #f1f0ed;
-  --sc-content-width: 1240px;
+  --sc-content-width: 1380px;
   --sc-radius-card: 12px;
   --sc-radius-control: 8px;
 }
@@ -146,7 +146,7 @@
 :is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) ::selection { background: var(--sc-primary-soft); color: var(--sc-primary-text); }
 .sc-author-theme :focus-visible { outline: 2px solid var(--sc-primary-hover); outline-offset: 3px; }
 :is(.sc-author-theme, .sc-animated-modal-body) :is(button, a, input, select, textarea) { -webkit-tap-highlight-color: transparent; }
-:is(.sc-author-theme, .sc-animated-modal-body) :is(button, a[class*="inline-flex"]) { font-size: 14px; font-weight: 600; line-height: 20px; min-height: 36px; }
+:is(.sc-author-theme, .sc-animated-modal-body) :is(button:where(:not(.sc-auth-theme-btn):not(.sc-auth-forgot-btn)), a[class*="inline-flex"]) { font-size: 14px; font-weight: 600; line-height: 20px; min-height: 36px; }
 :is(.sc-author-theme, .sc-animated-modal-body) :is(button, a[class*="inline-flex"]) > span:not(.material-symbols-outlined) { font-size: inherit; line-height: inherit; }
 :is(.sc-author-theme, .sc-animated-modal-body) button:disabled { opacity: .5; cursor: not-allowed; }
 :is(.sc-author-theme, .sc-animated-modal-body) :is(label, .mantine-InputWrapper-label) { font-size: 13px; font-weight: 500; line-height: 20px; }
@@ -313,6 +313,8 @@
 .sc-shell-content { max-width: var(--sc-content-width); padding: 24px; margin: auto; }
 .sc-chapter-toolbar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; overflow-x: auto; background: var(--sc-surface); border-bottom: 1px solid var(--sc-border); }
 .sc-chapter-filters, .sc-chapter-toolbar-actions { display: contents; }
+/* Mobile filter trigger: its 16px bottom margin pushed the button 8px above the other toolbar controls. */
+.sc-chapter-toolbar > .sc-responsive-filters { margin-bottom: 0; flex-shrink: 0; }
 .sc-chapter-search { flex: 1 0 180px; min-width: 180px; }
 .sc-chapter-toolbar > .sc-chapter-filters > .relative:not(.sc-chapter-search) { flex-shrink: 0; }
 .sc-chapter-toolbar :is(button, a, select, input) { height: 36px; min-height: 36px; font: 500 14px/20px var(--sc-font); white-space: nowrap; }

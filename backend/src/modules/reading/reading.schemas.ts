@@ -54,6 +54,12 @@ export const historyListSchema = z.object({
   })
 });
 
+export const latestChaptersSchema = z.object({
+  query: z.object({
+    limit: z.coerce.number().int().positive().max(20).default(10)
+  })
+});
+
 export const addLibraryItemSchema = z.object({
   body: z.object({
     novelId: z.string().uuid()
@@ -86,4 +92,5 @@ export type ReadingPreferencesInput = z.infer<typeof readingPreferencesSchema>['
 export type SearchNovelsInput = z.infer<typeof searchNovelsSchema>['query'];
 export type SyncReadingHistoryInput = z.infer<typeof syncReadingHistorySchema>['body'];
 export type HistoryListInput = z.infer<typeof historyListSchema>['query'];
+export type LatestChaptersInput = z.infer<typeof latestChaptersSchema>['query'];
 export type AddLibraryItemInput = z.infer<typeof addLibraryItemSchema>['body'];
