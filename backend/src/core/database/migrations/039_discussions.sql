@@ -3,7 +3,7 @@
 -- or row is changed, and no prior discussion data can be cascaded away by these definitions.
 --
 -- Conventions follow the earlier migrations in this folder: uuid keys with gen_random_uuid(),
--- timestamptz timestamps, and the report/moderation target enums extended in 037 rather than
+-- timestamptz timestamps, and the report/moderation target enums extended in 038 rather than
 -- duplicated here.
 --
 -- Search: f_unaccent (036) is STABLE, so it cannot appear in a generated column or in an index
