@@ -94,7 +94,25 @@ export async function resolveUserReport(
           reason
         }
       });
-    const notified = new Set<string>(comment ? [comment.userId] : []);
+    if (discussionAuthorId)
+      await queueAdminNotification(client, {
+        userId: discussionAuthorId,
+        type: 'DISCUSSION_REMOVED_BY_REPORT',
+        title: 'Nội dung thảo luận của bạn đã bị ẩn',
+        content: reason,
+        payload: {
+          reviewId,
+          targetType: review.target_type,
+          targetId: review.target_id,
+          decision: input.decision,
+          adminId: auth.userId,
+          reason
+        }
+      });
+    const notified = new Set<string>([
+      ...(comment ? [comment.userId] : []),
+      ...(discussionAuthorId ? [discussionAuthorId] : [])
+    ]);
     for (const report of reports) {
       if (notified.has(report.reporter_id)) continue;
       notified.add(report.reporter_id);

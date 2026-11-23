@@ -119,3 +119,110 @@ test('moderation covers report dedupe, scoped admin review, hide and public visi
     await disconnectPostgres();
   }
 });
+
+test('accepted forum reports notify the discussion author once and rejections stay silent', {
+  skip: process.env.DISCUSSIONS_TEST_DATABASE !== '1'
+}, async () => {
+  const { getPostgresPool, disconnectPostgres } = await import('../../core/database/postgres.js');
+  const { connectMongo, disconnectMongo, getMongoDatabase } = await import('../../core/database/mongo.js');
+  const { createApp } = await import('../../app.js');
+  const db = getPostgresPool();
+  let server: Server | undefined;
+  try {
+    await connectMongo();
+    const stamp = randomUUID().slice(0, 8);
+    const bcrypt = (await import('bcryptjs')).default;
+    const hash = await bcrypt.hash('Fixture1Pass', 4);
+    const insertUser = async (role: string, scope?: string) => {
+      const name = role.toLowerCase() + randomUUID().slice(0, 8);
+      const { rows } = await db.query<{ user_id: string }>(
+        "insert into users(email, username, password_hash, role, status) values($1, $2, $3, $4, 'ACTIVE') returning user_id",
+        [name + '@test.invalid', name, hash, role]
+      );
+      if (scope) {
+        await db.query("insert into admin_access(user_id, scope) values($1, $2)", [rows[0].user_id, scope]);
+      }
+      return { userId: rows[0].user_id, identifier: name };
+    };
+    const author = await insertUser('READER');
+    const reporter = await insertUser('READER');
+    const moderator = await insertUser('ADMIN', 'MODERATOR');
+    server = createApp().listen(0, '127.0.0.1');
+    await new Promise<void>(resolve => server!.once('listening', resolve));
+    const base = 'http://127.0.0.1:' + (server!.address() as { port: number }).port + '/api/v1';
+    const call = async <T = unknown>(method: string, path: string, body?: unknown, token?: string) => {
+      const response = await fetch(base + path, {
+        method,
+        headers: {
+          'content-type': 'application/json',
+          ...(token ? { authorization: 'Bearer ' + token } : {})
+        },
+        body: body === undefined ? undefined : JSON.stringify(body)
+      });
+      const payload = await response.json() as { data: T };
+      return { status: response.status, data: payload.data };
+    };
+    const login = async (identifier: string) => {
+      const result = await call<{ accessToken: string }>('POST', '/auth/login', { identifier, password: 'Fixture1Pass' });
+      assert.equal(result.status, 200);
+      return result.data.accessToken;
+    };
+    const authorToken = await login(author.identifier);
+    const reporterToken = await login(reporter.identifier);
+    const moderatorToken = await login(moderator.identifier);
+    const categories = await call<Array<{ slug: string; categoryId: string }>>('GET', '/discussions/categories');
+    const categoryId = categories.data.find(item => item.slug === 'thao-luan-chung')!.categoryId;
+
+    const acceptedTopic = await call<{ topicId: string }>('POST', '/discussions', {
+      categoryId, title: 'Notified topic ' + stamp, body: 'To be hidden by report'
+    }, authorToken);
+    assert.equal(acceptedTopic.status, 200);
+    await call('POST', '/reports', {
+      targetType: 'DISCUSSION', targetId: acceptedTopic.data.topicId, reason: 'spam topic'
+    }, reporterToken);
+    let reviews = await call<Review[]>('GET', '/admin/moderation/reviews?status=PENDING', undefined, moderatorToken);
+    let review = reviews.data.find(item => item.targetId === acceptedTopic.data.topicId);
+    assert.ok(review);
+    const acceptedReviewId = review.reviewId;
+    const resolved = await call('POST', '/admin/moderation/reviews/' + review.reviewId + '/resolve', {
+      decision: 'APPROVED', action: 'HIDE', reason: 'confirmed spam topic'
+    }, moderatorToken);
+    assert.equal(resolved.status, 200);
+
+    const rejectedTopic = await call<{ topicId: string }>('POST', '/discussions', {
+      categoryId, title: 'Kept topic ' + stamp, body: 'To stay visible'
+    }, authorToken);
+    assert.equal(rejectedTopic.status, 200);
+    await call('POST', '/reports', {
+      targetType: 'DISCUSSION', targetId: rejectedTopic.data.topicId, reason: 'disagrees topic'
+    }, reporterToken);
+    reviews = await call<Review[]>('GET', '/admin/moderation/reviews?status=PENDING', undefined, moderatorToken);
+    review = reviews.data.find(item => item.targetId === rejectedTopic.data.topicId);
+    assert.ok(review);
+    const dismissed = await call('POST', '/admin/moderation/reviews/' + review.reviewId + '/resolve', {
+      decision: 'REJECTED', reason: 'no violation found'
+    }, moderatorToken);
+    assert.equal(dismissed.status, 200);
+
+    const notifications = getMongoDatabase().collection('notifications');
+    const ownerNotices = await notifications.find({
+      userId: author.userId,
+      type: 'DISCUSSION_REMOVED_BY_REPORT'
+    }).toArray();
+    assert.equal(ownerNotices.length, 1, 'accepted report notifies the discussion author exactly once');
+    assert.equal(ownerNotices[0].payload.reviewId, acceptedReviewId);
+    const ownerNotice = ownerNotices[0];
+    assert.equal(ownerNotice.payload.targetType, 'DISCUSSION');
+    assert.equal(ownerNotice.payload.targetId, acceptedTopic.data.topicId);
+    assert.equal(ownerNotice.payload.reason, 'confirmed spam topic');
+    const rejectedNotices = await notifications.find({
+      userId: author.userId,
+      'payload.targetId': rejectedTopic.data.topicId
+    }).toArray();
+    assert.equal(rejectedNotices.length, 0, 'rejected report sends no notification to the discussion author');
+  } finally {
+    if (server) await new Promise<void>(resolve => server!.close(() => resolve()));
+    await disconnectMongo().catch(() => undefined);
+    await disconnectPostgres();
+  }
+});
