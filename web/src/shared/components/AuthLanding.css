@@ -1,0 +1,824 @@
+/* StoryCraft Split-Screen Editorial Auth UI (Light & Warm Dark) */
+
+html:has(.sc-auth-shell) {
+  scrollbar-gutter: auto;
+}
+
+body:has(.sc-auth-shell) {
+  background: var(--auth-paper, #fcf2e9);
+}
+
+:root[data-theme='dark'] body:has(.sc-auth-shell) {
+  background: #211b19;
+}
+
+.sc-author-theme.auth-shell.sc-auth-shell {
+  --auth-paper: #fcf2e9;
+  --auth-paper-2: #f6e7da;
+  --auth-surface: #fffaf5;
+  --auth-tab-active: #fffaf5;
+  --auth-input-bg: rgba(255, 250, 246, 0.86);
+  --auth-text: #38231a;
+  --auth-muted: #76645a;
+  --auth-border: #e6d0be;
+  --auth-border-strong: #d8b398;
+  --auth-accent: #cf562c;
+  --auth-accent-hover: #b84621;
+  --auth-accent-glow: rgba(207, 86, 44, 0.22);
+  --auth-btn-grad: linear-gradient(105deg, #cc542b, #d66739);
+  --auth-btn-grad-hover: linear-gradient(105deg, #b84520, #c75a2e);
+  --auth-btn-text: #ffffff;
+  --auth-shadow-sm: 0 3px 10px rgba(120, 67, 42, 0.08);
+  --auth-shadow-btn: 0 6px 16px rgba(182, 78, 39, 0.18);
+  --auth-wave-fill: #f6cfb0;
+  --auth-wave-opacity: 0.44;
+  --auth-doodle-color: #df8c63;
+  --auth-doodle-opacity: 0.62;
+  --auth-seam-stroke: rgba(255, 255, 255, 0.78);
+  --auth-photo-overlay: linear-gradient(90deg, rgba(46, 24, 12, 0.03) 0%, transparent 62%);
+  --auth-mobile-fade: linear-gradient(to bottom, transparent 46%, rgba(252, 242, 233, 0.94) 100%);
+  --auth-error-text: #b43c25;
+  --auth-error-bg: #fff0ea;
+  --auth-error-border: #d97a66;
+
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr minmax(480px, 49.5%);
+  place-items: stretch;
+  min-height: 100dvh;
+  width: 100%;
+  padding: 0;
+  background: var(--auth-paper);
+  color: var(--auth-text);
+  overflow-x: clip;
+}
+
+:root[data-theme='dark'] .sc-author-theme.auth-shell.sc-auth-shell,
+:root[data-mantine-color-scheme='dark'] .sc-author-theme.auth-shell.sc-auth-shell,
+.dark .sc-author-theme.auth-shell.sc-auth-shell {
+  --auth-paper: #211b19;
+  --auth-paper-2: #302622;
+  --auth-surface: #3b302b;
+  --auth-tab-active: #473932;
+  --auth-input-bg: #40332d;
+  --auth-text: #f5e9df;
+  --auth-muted: #c4b2a6;
+  --auth-border: #5b4941;
+  --auth-border-strong: #7b6256;
+  --auth-accent: #e69b7f;
+  --auth-accent-hover: #f0ad94;
+  --auth-accent-glow: rgba(230, 155, 127, 0.25);
+  --auth-btn-grad: linear-gradient(105deg, #d97c5b, #e69b7f);
+  --auth-btn-grad-hover: linear-gradient(105deg, #e28969, #efab91);
+  --auth-btn-text: #211b19;
+  --auth-shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --auth-shadow-btn: 0 6px 18px rgba(0, 0, 0, 0.3);
+  --auth-wave-fill: #342924;
+  --auth-wave-opacity: 0.86;
+  --auth-doodle-color: #c98064;
+  --auth-doodle-opacity: 0.58;
+  --auth-seam-stroke: rgba(230, 155, 127, 0.16);
+  --auth-photo-overlay: linear-gradient(
+    90deg,
+    rgba(33, 22, 16, 0.14) 0%,
+    rgba(33, 22, 16, 0.22) 66%,
+    rgba(33, 27, 25, 0.45) 100%
+  );
+  --auth-mobile-fade: linear-gradient(to bottom, rgba(28, 19, 15, 0.16) 0%, rgba(33, 27, 25, 0.96) 100%);
+  --auth-error-text: #f9bfb0;
+  --auth-error-bg: #4a2b25;
+  --auth-error-border: #c46d5b;
+}
+
+/* Fixed left desk photo so tab switching never stretches or re-crops it */
+.sc-auth-photo-stage {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 58%;
+  height: 100dvh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sc-auth-photo {
+  position: absolute;
+  inset: 0;
+  background-color: #b68a64;
+  background-image: url('/images/auth-desk.webp');
+  background-size: cover;
+  background-position: left center;
+  background-repeat: no-repeat;
+  transition: filter 0.25s ease;
+}
+
+:root[data-theme='dark'] .sc-auth-photo,
+:root[data-mantine-color-scheme='dark'] .sc-auth-photo,
+.dark .sc-auth-photo {
+  filter: brightness(0.84) sepia(0.12) saturate(0.96);
+}
+
+.sc-auth-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--auth-photo-overlay);
+  transition: background 0.25s ease;
+}
+
+/* Subtle bottom-left literary brand anchor over the lower book edge */
+.sc-auth-photo-caption {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  padding: 72px 28px 26px 30px;
+  z-index: 2;
+  background: linear-gradient(to top, rgba(24, 15, 10, 0.54) 0%, rgba(24, 15, 10, 0.18) 58%, transparent 100%);
+  color: #fff9f3;
+}
+
+.sc-auth-quote {
+  margin: 0;
+  max-width: 380px;
+  font-size: 14.5px;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.5;
+  letter-spacing: 0.005em;
+  color: rgba(255, 249, 243, 0.96);
+  text-shadow: 0 1px 6px rgba(18, 10, 6, 0.45);
+}
+
+.sc-auth-tagline {
+  margin: 6px 0 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: rgba(250, 220, 196, 0.88);
+  text-shadow: 0 1px 4px rgba(18, 10, 6, 0.42);
+}
+
+/* Gentle organic curved SVG seam synced with active theme */
+.sc-auth-seam {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  z-index: 1;
+  pointer-events: none;
+  display: block;
+}
+
+.sc-auth-seam-fill {
+  fill: var(--auth-paper);
+  transition: fill 0.22s ease;
+}
+
+.sc-auth-seam-detail {
+  stroke: var(--auth-seam-stroke);
+  stroke-width: 1.6;
+  fill: none;
+  transition: stroke 0.22s ease;
+}
+
+/* Right Auth Panel — anchored top offset keeps brand, heading & tabs steady across tab switches */
+.sc-auth-panel {
+  grid-column: 2;
+  position: relative;
+  z-index: 2;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: clamp(36px, 14vh, 136px) 24px 48px;
+}
+
+.sc-auth-inner {
+  position: relative;
+  z-index: 3;
+  width: min(100%, 468px);
+  padding: 0 6px;
+}
+
+.sc-auth-brand-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.sc-auth-brand {
+  text-decoration: none;
+  color: var(--auth-accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.sc-auth-brand .material-symbols-outlined {
+  font-size: 26px;
+}
+
+.sc-auth-brand-name {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.sc-auth-edition {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--auth-border);
+  border-radius: 8px;
+  height: 23px;
+  padding: 0 8px;
+  font-weight: 700;
+  font-size: 10.5px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--auth-text);
+  background: var(--auth-surface);
+}
+
+/* Circular Segmented Sun / Moon Theme Toggle */
+.sc-author-theme.sc-auth-shell .sc-auth-theme-switch {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  gap: 3px;
+  border-radius: 999px;
+  background: var(--auth-paper-2);
+  border: 1px solid var(--auth-border);
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-theme-switch button.sc-auth-theme-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  aspect-ratio: 1 / 1;
+  flex: 0 0 30px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  padding: 0;
+  line-height: 1;
+  background: transparent;
+  color: var(--auth-muted);
+  cursor: pointer;
+  transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-theme-switch button.sc-auth-theme-btn:hover {
+  color: var(--auth-text);
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-theme-switch button.sc-auth-theme-btn.is-active {
+  background: var(--auth-tab-active);
+  color: var(--auth-accent);
+  border-color: var(--auth-border-strong);
+  box-shadow: var(--auth-shadow-sm);
+}
+
+.sc-auth-header {
+  margin-bottom: 18px;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner h1.sc-auth-headline {
+  margin: 0;
+  font-size: clamp(28px, 2.2vw, 31px);
+  line-height: 1.22;
+  font-weight: 800;
+  letter-spacing: -0.036em;
+  color: var(--auth-text);
+}
+
+.sc-auth-flair {
+  display: inline-block;
+  vertical-align: top;
+  width: 24px;
+  height: 24px;
+  margin-left: 5px;
+  background-image: url("data:image/svg+xml,%3Csvg%20width=%2239%22%20height=%2239%22%20viewBox=%220%200%2039%2039%22%20fill=%22none%22%20xmlns=%22http:%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d=%22M15%2016L17%203M24%2020L34%2010M27%2027L38%2028%22%20stroke=%22%23df6736%22%20stroke-width=%223.7%22%20stroke-linecap=%22round%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+:root[data-theme='dark'] .sc-auth-flair,
+:root[data-mantine-color-scheme='dark'] .sc-auth-flair,
+.dark .sc-auth-flair {
+  filter: brightness(1.18) saturate(0.85);
+}
+
+.sc-auth-subhead {
+  margin: 6px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--auth-muted);
+}
+
+/* Segmented Tabs (symmetric 4px inset on top, bottom, left, right) */
+.sc-auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  padding: 4px;
+  gap: 4px;
+  height: auto;
+  background: var(--auth-paper-2);
+  border: 1px solid var(--auth-border);
+  border-radius: 14px;
+  margin-bottom: 18px;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner button.sc-auth-tab {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: var(--auth-muted);
+  font-weight: 700;
+  font-size: 13.5px;
+  line-height: 1;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: color 0.16s ease;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner button.sc-auth-tab:hover {
+  color: var(--auth-text);
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner button.sc-auth-tab[aria-selected='true'] {
+  color: var(--auth-accent);
+}
+
+.sc-auth-tab-pill {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 10px;
+  background: var(--auth-tab-active);
+  border: 1px solid var(--auth-border-strong);
+  box-shadow: 0 1px 4px rgba(120, 67, 42, 0.08);
+}
+
+/* Mantine Input Styling (wins cleanly over global theme rules via specificity) */
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-InputWrapper-label {
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--auth-text);
+  margin-bottom: 5px;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-TextInput-input,
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-PasswordInput-input {
+  height: 45px;
+  min-height: 45px;
+  border-radius: 13px;
+  border: 1.5px solid var(--auth-border);
+  background: var(--auth-input-bg);
+  color: var(--auth-text);
+  font-size: 14px;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-TextInput-input:hover:not(:focus),
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-PasswordInput-input:hover:not(:focus-within) {
+  border-color: var(--auth-border-strong);
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-PasswordInput-innerInput {
+  height: 43px;
+  min-height: 43px;
+  font-size: 14px;
+  color: var(--auth-text);
+  background: transparent;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-TextInput-input::placeholder,
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-PasswordInput-innerInput::placeholder {
+  color: var(--auth-muted);
+  opacity: 0.85;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-Input-wrapper:focus-within .mantine-Input-section[data-position='left'] {
+  color: var(--auth-accent);
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-Input-section[data-position='left'] {
+  color: var(--auth-muted);
+  transition: color 0.16s ease;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-PasswordInput-visibilityToggle {
+  color: var(--auth-muted);
+  min-height: 0;
+  border-radius: 8px;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-PasswordInput-visibilityToggle:hover {
+  color: var(--auth-accent);
+  background: var(--auth-paper-2);
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-TextInput-input:focus,
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-PasswordInput-input:focus-within {
+  border-color: var(--auth-accent);
+  box-shadow: 0 0 0 3.5px var(--auth-accent-glow);
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-Input-input[data-error='true'],
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-PasswordInput-input[data-error='true'] {
+  border-color: var(--auth-error-border);
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-InputWrapper-error {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--auth-error-text);
+  margin-top: 4px;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-Alert-root[data-variant='light'] {
+  background: var(--auth-error-bg);
+  border: 1px solid var(--auth-error-border);
+  color: var(--auth-error-text);
+  border-radius: 12px;
+}
+
+/* Remember Me & Forgot Password Row (Login only) */
+.sc-auth-options-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: 14px;
+  margin-bottom: 2px;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .sc-auth-remember .mantine-Checkbox-body {
+  align-items: center;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .sc-auth-remember .mantine-Checkbox-input {
+  width: 17px;
+  height: 17px;
+  min-height: 17px;
+  border-radius: 5px;
+  border-color: var(--auth-border-strong);
+  background-color: var(--auth-input-bg);
+  cursor: pointer;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .sc-auth-remember .mantine-Checkbox-input:checked {
+  background-color: var(--auth-accent);
+  border-color: var(--auth-accent);
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .sc-auth-remember .mantine-Checkbox-icon {
+  color: var(--auth-btn-text);
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .sc-auth-remember .mantine-Checkbox-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--auth-text);
+  padding-left: 8px;
+  cursor: pointer;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner button.sc-auth-forgot-btn {
+  border: 0;
+  background: transparent;
+  padding: 2px 4px;
+  min-height: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--auth-accent);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.16s ease;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner button.sc-auth-forgot-btn:hover {
+  color: var(--auth-accent-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Primary Button (46px) */
+.sc-author-theme.sc-auth-shell .sc-auth-inner .sc-auth-submit.mantine-Button-root {
+  height: 46px;
+  min-height: 46px;
+  border-radius: 14px;
+  background: var(--auth-btn-grad);
+  color: var(--auth-btn-text);
+  font-size: 14.5px;
+  font-weight: 800;
+  border: 0;
+  box-shadow: var(--auth-shadow-btn);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .sc-auth-submit.mantine-Button-root:hover:not(:disabled) {
+  background: var(--auth-btn-grad-hover);
+  transform: translateY(-1px);
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .sc-auth-submit.mantine-Button-root:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Google Sign-In Section & Divider */
+.sc-auth-google-section {
+  margin-top: 16px;
+}
+
+.sc-auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 12px;
+  color: var(--auth-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.sc-auth-divider::before,
+.sc-auth-divider::after {
+  content: '';
+  height: 1px;
+  background: var(--auth-border);
+  flex: 1;
+}
+
+.sc-auth-google-wrap {
+  position: relative;
+  width: 100%;
+  height: 46px;
+}
+
+.sc-author-theme.sc-auth-shell .sc-auth-inner .sc-auth-google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 46px;
+  min-height: 46px;
+  border: 1.5px solid var(--auth-border);
+  border-radius: 14px;
+  color: var(--auth-text);
+  background: var(--auth-surface);
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--auth-shadow-sm);
+  transition: transform 0.15s ease, border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+}
+
+.sc-auth-google-visual {
+  pointer-events: none;
+  user-select: none;
+}
+
+.sc-auth-google-wrap:not([data-busy='true']):hover .sc-auth-google-visual,
+.sc-author-theme.sc-auth-shell .sc-auth-inner button.sc-auth-google-btn:hover:not(:disabled) {
+  border-color: var(--auth-accent);
+  transform: translateY(-1px);
+}
+
+.sc-auth-google-wrap:focus-within .sc-auth-google-visual {
+  border-color: var(--auth-accent);
+  box-shadow: 0 0 0 3.5px var(--auth-accent-glow);
+}
+
+.sc-auth-google-wrap[data-busy='true'] .sc-auth-google-visual,
+.sc-author-theme.sc-auth-shell .sc-auth-inner button.sc-auth-google-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sc-auth-google-g {
+  font-family: Arial, sans-serif;
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1;
+  background: conic-gradient(
+    #4285f4 0 90deg,
+    #34a853 90deg 175deg,
+    #fbbc05 175deg 250deg,
+    #ea4335 250deg 310deg,
+    #4285f4 310deg
+  );
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+/* Transparent GIS hit target covering the full rounded StoryCraft Google button */
+.sc-auth-google-gis-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  overflow: hidden;
+  opacity: 0.001;
+  cursor: pointer;
+}
+
+.sc-auth-google-gis-overlay > * {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(1.18);
+  transform-origin: center;
+}
+
+.sc-auth-google-gis-overlay button {
+  width: 100%;
+  height: 100%;
+  min-height: 46px;
+}
+
+/* Decorative Bottom Wave & Book Doodle */
+.sc-auth-wave {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 86px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.sc-auth-wave path {
+  fill: var(--auth-wave-fill);
+  opacity: var(--auth-wave-opacity);
+  transition: fill 0.22s ease, opacity 0.22s ease;
+}
+
+.sc-auth-doodle {
+  position: absolute;
+  right: 32px;
+  bottom: 26px;
+  width: 60px;
+  height: 44px;
+  color: var(--auth-doodle-color);
+  opacity: var(--auth-doodle-opacity);
+  overflow: visible;
+  pointer-events: none;
+  z-index: 2;
+  transition: color 0.22s ease, opacity 0.22s ease;
+}
+
+/* Compact Laptops (1366x768, 1280x720) — keep Register fit & preserve footer art without overlap */
+@media (max-height: 815px) and (min-width: 921px) {
+  .sc-auth-panel {
+    padding-top: 20px;
+    padding-bottom: 18px;
+  }
+  .sc-auth-brand-row {
+    margin-bottom: 12px;
+  }
+  .sc-auth-header {
+    margin-bottom: 10px;
+  }
+  .sc-author-theme.sc-auth-shell .sc-auth-inner h1.sc-auth-headline {
+    font-size: 27px;
+  }
+  .sc-auth-subhead {
+    font-size: 13.5px;
+  }
+  .sc-auth-tabs {
+    height: auto;
+    margin-bottom: 12px;
+  }
+  .sc-author-theme.sc-auth-shell .sc-auth-inner button.sc-auth-tab {
+    min-height: 34px;
+    height: 34px;
+  }
+  .sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-TextInput-input,
+  .sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-PasswordInput-input {
+    height: 41px;
+    min-height: 41px;
+  }
+  .sc-author-theme.sc-auth-shell .sc-auth-inner .mantine-PasswordInput-innerInput {
+    height: 39px;
+    min-height: 39px;
+  }
+  .sc-auth-google-section {
+    margin-top: 10px;
+  }
+  .sc-auth-wave {
+    height: 62px;
+  }
+  .sc-auth-doodle {
+    width: 52px;
+    height: 38px;
+    right: 26px;
+    bottom: 18px;
+  }
+}
+
+/* Medium Desktop */
+@media (max-width: 1200px) and (min-width: 921px) {
+  .sc-author-theme.auth-shell.sc-auth-shell {
+    grid-template-columns: 1fr minmax(460px, 52%);
+  }
+  .sc-auth-photo-caption {
+    padding: 52px 22px 20px;
+  }
+}
+
+/* Tablet & Mobile */
+@media (max-width: 920px) {
+  .sc-author-theme.auth-shell.sc-auth-shell {
+    display: block;
+    min-height: 100dvh;
+  }
+  .sc-auth-photo-stage {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: 196px;
+  }
+  .sc-auth-photo {
+    background-size: max(185%, 720px) auto;
+    background-position: 6% 45%;
+  }
+  .sc-auth-photo::after {
+    background: var(--auth-mobile-fade);
+  }
+  .sc-auth-photo-caption,
+  .sc-auth-seam,
+  .sc-auth-wave,
+  .sc-auth-doodle {
+    display: none;
+  }
+  .sc-auth-panel {
+    position: relative;
+    min-height: calc(100dvh - 168px);
+    margin-top: -28px;
+    border-radius: 26px 26px 0 0;
+    background: var(--auth-paper);
+    justify-content: flex-start;
+    padding: 24px 16px 36px;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+  }
+  .sc-auth-inner {
+    width: min(100%, 468px);
+  }
+}
+
+@media (max-width: 420px) {
+  .sc-auth-photo-stage {
+    height: 164px;
+  }
+  .sc-auth-panel {
+    margin-top: -22px;
+    padding: 20px 12px 32px;
+  }
+  .sc-auth-brand-row {
+    margin-bottom: 16px;
+  }
+  .sc-auth-brand-name {
+    font-size: 20px;
+  }
+  .sc-author-theme.sc-auth-shell .sc-auth-inner h1.sc-auth-headline {
+    font-size: 25px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-auth-photo,
+  .sc-auth-seam-fill,
+  .sc-auth-submit,
+  .sc-auth-google-btn {
+    transition: none !important;
+  }
+}

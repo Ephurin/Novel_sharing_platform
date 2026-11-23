@@ -37,6 +37,18 @@ export type ReaderChapter = {
   publishedAt?: string;
 };
 
+export type LatestPublishedChapter = {
+  chapterId: string;
+  novelId: string;
+  chapterNumber: number;
+  title: string;
+  publishedAt: string | null;
+  novelTitle: string;
+  coverImageUrl?: string | null;
+  genre?: string | null;
+  genres?: string[];
+};
+
 export type ReadingHistoryItem = {
   readChapterIds?: string[];
   novelId: string;
@@ -146,6 +158,21 @@ export async function searchPublishedNovels(input: SearchPublishedNovelsInput, s
   return (await searchPublishedNovelPage(input, signal)).items;
 }
 
+export async function listLatestPublishedChapters(limit = 10, signal?: AbortSignal) {
+  const response = await apiClient.get<ApiEnvelope<LatestPublishedChapter[]>>('/reading/chapters/latest', {
+    signal,
+    params: { limit }
+  });
+  return Array.isArray(response.data.data) ? response.data.data : [];
+}
+
+export async function getRandomPublishedNovel(signal?: AbortSignal) {
+  const response = await apiClient.get<ApiEnvelope<{ novelId: string; title: string } | null>>('/reading/novels/random', {
+    signal
+  });
+  return response.data.data ?? null;
+}
+
 export async function searchPublishedNovelPage(input: SearchPublishedNovelsInput & { page?: number; limit?: number }, signal?: AbortSignal) {
   const response = await apiClient.get<ApiEnvelope<ReaderNovel[]>>('/reading/search', {
     signal,
@@ -196,18 +223,32 @@ export async function addToLibrary(novelId: string) {
   return response.data.data;
 }
 
+export async function listLibraryPage(page = 1, limit = 20) {
+  const response = await apiClient.get<ApiEnvelope<ReaderNovel[]>>('/reading/library/me', { params: { page, limit } });
+  return {
+    items: response.data.data,
+    totalItems: Number(response.data.meta?.totalItems ?? response.data.data.length)
+  };
+}
+
 export async function listLibrary() {
-  const response = await apiClient.get<ApiEnvelope<ReaderNovel[]>>('/reading/library/me', { params: { page: 1, limit: 20 } });
-  return response.data.data;
+  return (await listLibraryPage(1, 20)).items;
 }
 
 export async function removeFromLibrary(novelId: string) {
   await apiClient.delete(`/reading/library/me/${novelId}`);
 }
 
+export async function listHistoryPage(page = 1, limit = 20) {
+  const response = await apiClient.get<ApiEnvelope<ReadingHistoryItem[]>>('/reading/history/me', { params: { page, limit } });
+  return {
+    items: response.data.data,
+    totalItems: Number(response.data.meta?.totalItems ?? response.data.data.length)
+  };
+}
+
 export async function listHistory() {
-  const response = await apiClient.get<ApiEnvelope<ReadingHistoryItem[]>>('/reading/history/me', { params: { page: 1, limit: 20 } });
-  return response.data.data;
+  return (await listHistoryPage(1, 20)).items;
 }
 
 export async function getHistoryForNovel(novelId: string) {

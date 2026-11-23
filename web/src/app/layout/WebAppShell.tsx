@@ -58,7 +58,6 @@ export function WebAppShell() {
       <Group className="web-topbar" justify="space-between">
         <Group gap="sm">
           <Text fw={700}>StoryCraft</Text>
-          <Badge variant="light">Văn Hoa</Badge>
         </Group>
         <Group gap="xs">
           {user && <SessionMarker role={user.role} username={user.username} />}

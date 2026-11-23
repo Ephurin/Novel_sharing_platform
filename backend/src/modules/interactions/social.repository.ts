@@ -58,8 +58,7 @@ export async function likeNovel(userId: string, novelId: string) {
     const countResult = await client.query(
       `
         update novels
-        set likes_count = likes_count + 1,
-            updated_at = now()
+        set likes_count = likes_count + 1
         where novel_id = $1
         returning likes_count
       `,
@@ -84,8 +83,7 @@ export async function unlikeNovel(userId: string, novelId: string) {
     const countResult = await client.query(
       `
         update novels
-        set likes_count = greatest(likes_count - 1, 0),
-            updated_at = now()
+        set likes_count = greatest(likes_count - 1, 0)
         where novel_id = $1
         returning likes_count
       `,

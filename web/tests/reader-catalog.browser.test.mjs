@@ -12,7 +12,9 @@ test('reader catalog: cover cards, unified sorting, selectable filters and scrol
   const browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
   const base = `http://127.0.0.1:${server.httpServer.address().port}`;
   const image = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="300"><rect width="200" height="300" fill="#775f55"/><circle cx="100" cy="110" r="60" fill="#e9c899"/><text x="100" y="225" text-anchor="middle" fill="white" font-size="20">StoryCraft</text></svg>');
-  const novels = Array.from({ length: 30 }, (_, index) => ({ novelId: `novel-${index}`, authorId: 'author-1', title: `Hành trình qua những mùa gió ${index + 1}`, coverImageUrl: index === 1 ? null : image, genre: 'Fantasy', tags: ['Magic'], authorName: 'Hidden author', synopsis: 'Hidden synopsis', status: index % 2 ? 'COMPLETED' : 'ONGOING', chaptersCount: 12, viewsCount: 1250, likesCount: 99 }));
+  const recentIso = new Date().toISOString();
+  const oldIso = '2025-01-01T00:00:00Z';
+  const novels = Array.from({ length: 30 }, (_, index) => ({ novelId: `novel-${index}`, authorId: 'author-1', title: `Hành trình qua những mùa gió ${index + 1}`, coverImageUrl: index === 1 ? null : image, genre: 'Fantasy', tags: ['Magic'], authorName: 'Hidden author', synopsis: 'Hidden synopsis', status: index % 2 ? 'COMPLETED' : 'ONGOING', chaptersCount: 12, viewsCount: 1250, likesCount: 99, updatedAt: oldIso, lastUpdatedAt: index === 0 ? recentIso : oldIso }));
   try {
     for (const width of [1440, 390]) for (const theme of ['light', 'dark']) {
       const context = await browser.newContext({ viewport: { width, height: 900 } });
@@ -37,44 +39,46 @@ test('reader catalog: cover cards, unified sorting, selectable filters and scrol
       });
       try {
         await page.goto(`${base}/reader`);
-        await expect(page.getByRole('heading', { name: 'Danh sách truyện', exact: true })).toBeVisible();
-        await expect(page.locator('.sc-reader-book')).toHaveCount(30);
-        const card = page.locator('.sc-reader-book').first();
+        await expect(page.getByRole('heading', { name: /DANH SÁCH TRUYỆN/i })).toBeVisible();
+        await expect(page.locator('.sc-catalog-title-count')).toHaveText('(30)');
+        await expect(page.locator('.sc-catalog-story')).toHaveCount(30);
+        const card = page.locator('.sc-catalog-story').first();
+        await expect(card.locator('.sc-catalog-new-badge')).toHaveText('Mới');
+        await expect(page.locator('.sc-catalog-story').nth(1).locator('.sc-catalog-new-badge')).toHaveCount(0);
         await expect(card).toContainText('12 chương');
         await expect(card).toContainText('1.250 lượt đọc');
         await expect(card).toContainText('Đang ra');
         await expect(card).toContainText('Fantasy');
-        await expect(card).not.toContainText(/Hidden author|Hidden synopsis|99|Xem truyện/);
-        const cover = await card.locator('.sc-book-cover').boundingBox();
-        assert.ok(cover.height / cover.width > 1.45);
-        if (width === 390) await page.getByRole('button', { name: 'Bộ lọc', exact: true }).click();
+        await expect(card).toContainText('Xem truyện');
+        const cover = await card.locator('.sc-catalog-cover').boundingBox();
+        assert.ok(cover.height / cover.width > 1.35);
         await expect(page.locator('#reader-sort')).toHaveCount(1);
         await expect(page.getByLabel('Thứ tự sắp xếp', { exact: true })).toHaveCount(0);
         await page.locator('#reader-sort').selectOption('wordCount:desc');
         await expect.poll(() => `${searchParams?.get('sort')}:${searchParams?.get('order')}`).toBe('wordCount:desc');
         await page.locator('#reader-sort').selectOption('title:asc');
         await expect.poll(() => `${searchParams?.get('sort')}:${searchParams?.get('order')}`).toBe('title:asc');
-        await page.getByRole('textbox', { name: 'Lọc theo thể loại', exact: true }).click();
-        await page.getByRole('option', { name: 'Fantasy', exact: true }).click();
+        if (width === 390) await page.locator('.sc-catalog-filter-open').click();
+        const sidebar = page.locator('#sc-catalog-sidebar');
+        await sidebar.getByRole('checkbox', { name: 'Fantasy', exact: true }).check();
         await expect.poll(() => searchParams?.get('genres')).toBe('Fantasy');
-        await page.getByRole('textbox', { name: 'Lọc theo thẻ', exact: true }).fill('Mag');
-        await page.getByRole('option', { name: 'Magic', exact: true }).click();
+        await sidebar.getByRole('checkbox', { name: 'Magic', exact: true }).check();
         await expect.poll(() => searchParams?.get('tags')).toBe('Magic');
-        await page.getByRole('button', { name: 'Bỏ lọc theo thể loại', exact: true }).click();
+        await sidebar.getByRole('checkbox', { name: 'Fantasy', exact: true }).uncheck();
         await expect.poll(() => searchParams?.get('genres')).toBe(null);
         if (width === 390) {
-          await page.getByRole('button', { name: 'Xem kết quả', exact: true }).click();
-          await expect(page.getByRole('dialog', { name: 'Bộ lọc', exact: true })).toHaveCount(0);
+          await sidebar.getByRole('button', { name: /Xem kết quả/ }).click();
+          await expect(sidebar).not.toHaveClass(/open/);
         }
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
         await page.screenshot({ path: path.join(output, `${width}-${theme}-catalog.png`) });
         await page.getByRole('navigation', { name: 'Điều hướng chính' }).getByRole('link', { name: 'Danh sách truyện', exact: true }).click();
         // Clearing the URL filters refetches the catalog. Wait for its final height
         // before scrolling; a transient skeleton can otherwise clamp scrollY to zero.
-        await expect(page.locator('.sc-reader-book')).toHaveCount(novels.length);
+        await expect(page.locator('.sc-catalog-story')).toHaveCount(novels.length);
         await expect(page.getByRole('region', { name: 'Kết quả truyện' })).toHaveAttribute('aria-busy', 'false');
         await page.evaluate(() => document.fonts.ready);
-        await page.getByRole('heading', { name: 'Danh sách truyện', exact: true }).click();
+        await page.getByRole('heading', { name: /DANH SÁCH TRUYỆN/i }).click();
         await page.evaluate(() => window.scrollTo(0, 0));
         await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
         await page.evaluate(() => window.scrollTo(0, 700));

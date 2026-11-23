@@ -40,6 +40,124 @@
 .sc-animated-menu-label { flex: 1; }
 .sc-animated-menu-heading { padding: 6px 12px; color: var(--sc-text-muted); font: 500 12px/18px var(--sc-font); }
 .sc-animated-menu-divider { margin: 4px -4px; height: 1px; background: var(--sc-border); }
+
+/* Grouped Avatar Account Dropdown */
+.sc-animated-menu.sc-account-menu {
+  width: 236px;
+  min-width: 224px;
+  max-width: calc(100vw - 24px);
+  max-height: min(78vh, var(--radix-dropdown-menu-content-available-height, 78vh));
+  padding: 5px;
+  border-radius: 12px;
+  background: var(--sc-surface);
+  border: 1px solid var(--sc-border);
+  box-shadow: 0 12px 30px rgba(43, 41, 39, 0.13), 0 2px 6px rgba(43, 41, 39, 0.05);
+}
+[data-sc-color-scheme="dark"] .sc-animated-menu.sc-account-menu {
+  background: var(--sc-surface-elevated);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+.sc-account-menu-user {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 5px 8px 4px;
+}
+.sc-account-menu-user strong {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--sc-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-account-menu-user span {
+  font-size: 11.5px;
+  line-height: 1.3;
+  color: var(--sc-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-account-menu .sc-animated-menu-heading {
+  padding: 3px 8px 2px;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 15px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--sc-text-muted);
+}
+.sc-account-menu .sc-animated-menu-divider {
+  margin: 4px 5px;
+  height: 1px;
+  background: var(--sc-border);
+}
+.sc-account-menu .sc-animated-menu-item {
+  min-height: 30px;
+  padding: 5px 8px;
+  gap: 8px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  color: var(--sc-text);
+  transition: none;
+}
+.sc-author-theme .sc-navbar .sc-animated-menu.sc-account-menu :is(a, button).sc-animated-menu-item {
+  min-height: 30px;
+  font-size: 13px;
+  line-height: 18px;
+}
+.sc-account-menu .sc-animated-menu-icon {
+  color: var(--sc-text-muted);
+  transition: none;
+}
+.sc-account-menu .sc-animated-menu-icon .material-symbols-outlined {
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  font-size: 16px;
+}
+.sc-account-menu .sc-animated-menu-item[data-highlighted],
+.sc-account-menu .sc-animated-menu-item:hover {
+  background: var(--sc-primary-soft);
+  color: var(--sc-primary-text);
+  outline: none;
+}
+.sc-account-menu .sc-animated-menu-item:focus,
+.sc-account-menu .sc-animated-menu-item:focus-visible,
+.sc-author-theme .sc-account-menu .sc-animated-menu-item:focus-visible,
+.sc-author-theme .sc-avatar:focus,
+.sc-author-theme .sc-avatar:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.sc-account-menu .sc-animated-menu-item[data-highlighted] .sc-animated-menu-icon,
+.sc-account-menu .sc-animated-menu-item:hover .sc-animated-menu-icon {
+  color: var(--sc-primary-text);
+}
+.sc-account-menu .sc-animated-menu-item.is-active {
+  background: var(--sc-primary-soft);
+  color: var(--sc-primary-text);
+  font-weight: 600;
+}
+.sc-account-menu .sc-animated-menu-item.is-active .sc-animated-menu-icon {
+  color: var(--sc-primary-text);
+}
+.sc-account-menu .sc-animated-menu-item[data-destructive] {
+  color: var(--sc-danger);
+  font-weight: 600;
+}
+.sc-account-menu .sc-animated-menu-item[data-destructive] .sc-animated-menu-icon {
+  color: var(--sc-danger);
+}
+.sc-account-menu .sc-animated-menu-item[data-destructive][data-highlighted],
+.sc-account-menu .sc-animated-menu-item[data-destructive]:hover {
+  background: var(--sc-danger-bg);
+  color: var(--sc-danger);
+}
 .sc-animated-modal-overlay { position: fixed; inset: 0; z-index: 200; background: var(--sc-overlay); }
 .sc-animated-modal-position {
   position: fixed;

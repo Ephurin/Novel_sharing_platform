@@ -106,7 +106,7 @@ export function ReaderNovelDetailPage() {
         />
       ) : null}
 
-      <section id="reader-reviews" className="sc-reader-detail-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact /></section>
+      <section id="reader-reviews" className="sc-reader-detail-section sc-reader-reviews-compact-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact reviewsPath={`/reader/novels/${novelId}/reviews`} /></section>
       <NovelChapterCatalog
         chapters={chapters}
         readChapterIds={readChapterIds}
@@ -155,7 +155,7 @@ export function PublicReaderNovelDetailPage() {
               </>
             }
           />
-          <section id="reader-reviews" className="sc-reader-detail-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact /></section>
+          <section id="reader-reviews" className="sc-reader-detail-section sc-reader-reviews-compact-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact reviewsPath={`/public/novels/${novelId}/reviews`} /></section>
           <NovelChapterCatalog chapters={chapters} publicMode readChapterIds={readChapterIds} />
           <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} authorFeedback={<AuthorPrivateFeedback target={{ kind: 'novel', id: novelId }} />} /></section>
         </>
