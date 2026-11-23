@@ -6,6 +6,7 @@ import { searchPublishedNovelPage, type ReaderNovel } from '../../features/reade
 import {
   ADVANCED_SEARCH_PATH,
   buildSearchUrl,
+  DEFAULT_SEARCH_STATE,
   parseSearchParams,
   SEARCH_PATH
 } from '../../features/reader/search-params';
@@ -105,7 +106,10 @@ export function GlobalSearchDropdown({ catalogPath }: { catalogPath: '/reader' |
     !waiting && suggestionsQuery.isSuccess ? suggestionsQuery.data.items.slice(0, SUGGESTION_LIMIT) : [];
   const selectedIndex = activeIndex >= 0 && activeIndex < items.length ? activeIndex : -1;
   const isLoading = shouldShowDropdown && (waiting || suggestionsQuery.isPending);
-  const allResultsPath = buildSearchUrl(SEARCH_PATH, { keywords: trimmed });
+  const allResultsPath = buildSearchUrl(SEARCH_PATH, {
+    keywords: trimmed,
+    sort: trimmed ? 'relevance:desc' : DEFAULT_SEARCH_STATE.sort
+  });
 
   useEffect(() => {
     if (shouldShowDropdown && selectedIndex >= 0) {

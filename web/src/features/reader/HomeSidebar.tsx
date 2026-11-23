@@ -192,7 +192,7 @@ export function HomeSidebar({
         <div className="sc-home-rank-tabs" role="tablist" aria-label="Tiêu chí xếp hạng">
           {([
             ['views', 'Truyện hot'],
-            ['recent', 'Truyện mới'],
+            ['recent', 'Mới cập nhật'],
             ['likes', 'Yêu thích'],
           ] as const).map(([key, label]) => (
             <button

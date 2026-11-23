@@ -136,7 +136,11 @@ export function SearchResultsPage({ advanced = false }: { advanced?: boolean }) 
 
   function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    navigate(buildSearchUrl(currentPath, { ...draft, page: 1 }));
+    const nextSort: SearchSortValue =
+      !urlState.keywords.trim() && draft.keywords.trim() && draft.sort === DEFAULT_SEARCH_STATE.sort
+        ? 'relevance:desc'
+        : draft.sort;
+    navigate(buildSearchUrl(currentPath, { ...draft, sort: nextSort, page: 1 }));
   }
 
   function handleReset() {

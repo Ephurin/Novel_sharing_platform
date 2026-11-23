@@ -22,7 +22,7 @@ test('reader catalog, published metadata and unified follow/library state', {
       await pool.query(`create table "${table}" (like public."${table}" including all)`);
     }
     await pool.query(await readFile(new URL('../../core/database/migrations/021_novel_notification_subscriptions.sql', import.meta.url), 'utf8'));
-    const { searchPublishedNovels, listLatestPublishedChapters, listReadingFilters, findPublishedNovelDetail } = await import('./reading.repository.js');
+    const { searchPublishedNovels, listLatestPublishedChapters, findRandomPublishedNovel, listReadingFilters, findPublishedNovelDetail } = await import('./reading.repository.js');
     const { searchNovelsSchema } = await import('./reading.schemas.js');
     const author = randomUUID();
     await pool.query(`insert into users (user_id, email, username, password_hash, role)
@@ -214,6 +214,32 @@ test('reader catalog, published metadata and unified follow/library state', {
     assert.deepEqual(relevance.items.map(item => item.novelId), [relExact, relPrefix, relSub, relSynopsis]);
     const relevanceUnaccent = await search({ q: 'kiem thanh', sort: 'relevance', order: 'desc' });
     assert.deepEqual(relevanceUnaccent.items.map(item => item.novelId), [relExact, relPrefix, relSub, relSynopsis]);
+
+    // Free-text query q must also match novels whose keyword only appears in genre or tag.
+    const metaOnlyNovel = randomUUID(), uniqueGenre = randomUUID(), uniqueTag = randomUUID();
+    await pool.query(`insert into genres (genre_id, name, slug) values ($1, 'Huyền Ảo Cổ Đại', 'huyen-ao-co-dai')`, [uniqueGenre]);
+    await pool.query(`insert into tags (tag_id, name, slug) values ($1, 'Nhiệt Huyết Độc Bản', 'nhiet-huyet-doc-ban')`, [uniqueTag]);
+    await pool.query(
+      `insert into novels (novel_id, author_id, title, slug, synopsis, status)
+       values ($1, $2, 'Chuyến Tàu Đêm', $3, 'Một câu chuyện ngắn', 'PUBLISHED')`,
+      [metaOnlyNovel, author, `slug-${metaOnlyNovel}`]
+    );
+    await pool.query(`insert into novel_genres (novel_id, genre_id) values ($1, $2)`, [metaOnlyNovel, uniqueGenre]);
+    await pool.query(`insert into novel_tags (novel_id, tag_id) values ($1, $2)`, [metaOnlyNovel, uniqueTag]);
+    const byGenreOnly = await search({ q: 'huyen ao co dai', sort: 'relevance', order: 'desc' });
+    assert.equal(byGenreOnly.totalItems, 1);
+    assert.deepEqual(byGenreOnly.items.map(item => item.novelId), [metaOnlyNovel]);
+    const byTagOnly = await search({ q: 'Nhiet Huyet Doc Ban', sort: 'relevance', order: 'desc' });
+    assert.equal(byTagOnly.totalItems, 1);
+    assert.deepEqual(byTagOnly.items.map(item => item.novelId), [metaOnlyNovel]);
+
+    // Random published novel picker must only return published non-deleted novels.
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      const picked = await findRandomPublishedNovel();
+      assert.ok(picked, 'Expected a published novel');
+      assert.notEqual(picked.novelId, ids[3]);
+      assert.notEqual(picked.novelId, ids[4]);
+    }
 
     // Latest published chapters must order by chapter published_at desc across novels
     // and include multiple chapters from the same novel while excluding drafts/deleted.

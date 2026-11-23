@@ -68,7 +68,8 @@ export function parseSearchParams(params: URLSearchParams): SearchQueryState {
   const status = (VALID_STATUSES.has(rawStatus) ? rawStatus : '') as SearchStatusValue;
 
   const rawSort = params.get('sort') ?? '';
-  const sort = (VALID_SORTS.has(rawSort) ? rawSort : DEFAULT_SEARCH_STATE.sort) as SearchSortValue;
+  const defaultSort: SearchSortValue = keywords.trim() ? 'relevance:desc' : DEFAULT_SEARCH_STATE.sort;
+  const sort = (VALID_SORTS.has(rawSort) ? rawSort : defaultSort) as SearchSortValue;
 
   const rawPage = params.get('page') ?? '1';
   const page = /^\d+$/.test(rawPage) ? Math.min(100_000, Math.max(1, Number(rawPage))) : 1;
@@ -89,7 +90,11 @@ export function buildSearchParams(patch: Partial<SearchQueryState>): URLSearchPa
     if (tag.trim()) next.append('tag', tag.trim());
   }
   if (state.status) next.set('status', state.status);
-  if (state.sort && state.sort !== DEFAULT_SEARCH_STATE.sort) next.set('sort', state.sort);
+  if (trimmedKeywords) {
+    if (state.sort) next.set('sort', state.sort);
+  } else if (state.sort && state.sort !== DEFAULT_SEARCH_STATE.sort) {
+    next.set('sort', state.sort);
+  }
   if (state.page > 1) next.set('page', String(state.page));
 
   return next;

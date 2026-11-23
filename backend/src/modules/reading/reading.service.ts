@@ -16,6 +16,7 @@ import {
   addBookmark,
   findOrCreateReadingPreference,
   findPublishedNovelDetail,
+  findRandomPublishedNovel,
   findReadableChapter,
   findReadingHistory,
   incrementNovelViews,
@@ -69,6 +70,10 @@ export async function searchNovels(input: SearchNovelsInput) {
 
 export async function getLatestPublishedChapters(input: LatestChaptersInput) {
   return listLatestPublishedChapters(input.limit);
+}
+
+export async function getRandomPublishedNovel() {
+  return findRandomPublishedNovel();
 }
 
 export async function getReaderNovel(novelId: string) {

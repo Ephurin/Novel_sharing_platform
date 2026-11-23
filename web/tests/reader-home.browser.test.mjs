@@ -70,6 +70,10 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
           data = { genres: ['Fantasy', 'Đời thường'], tags: ['Phiêu lưu'] };
         } else if (url.pathname.endsWith('/reading/chapters/latest')) {
           data = latestChapters;
+        } else if (url.pathname.endsWith('/reading/novels/random')) {
+          data = { novelId: 'outside-top-99', title: 'Truyện ngoài danh sách top' };
+        } else if (url.pathname.endsWith('/reading/novels/outside-top-99')) {
+          data = { ...novels[0], novelId: 'outside-top-99', title: 'Truyện ngoài danh sách top', chapters: [] };
         } else if (url.pathname.endsWith('/reading/search')) {
           const status = url.searchParams.get('status');
           data = novels.filter(novel => !status || novel.status === status);
@@ -99,6 +103,7 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
         await expect(firstCover).toHaveAttribute('href', `${catalog}/novels/novel-0`);
 
         const featureTabs = featuredSection.getByRole('tablist', { name: 'Lọc truyện nổi bật', exact: true });
+        await expect(featureTabs.getByRole('tab', { name: 'Mới cập nhật', exact: true })).toBeVisible();
         await featureTabs.getByRole('tab', { name: 'Được yêu thích', exact: true }).click();
         await expect(featureTabs.getByRole('tab', { name: 'Được yêu thích', exact: true })).toHaveAttribute('aria-selected', 'true');
         await expect(firstCover).toHaveAttribute('href', `${catalog}/novels/novel-15`);
@@ -106,6 +111,7 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
         await expect(firstCover).toHaveAttribute('href', `${catalog}/novels/novel-0`);
 
         const rankingSection = page.getByRole('region', { name: 'Bảng xếp hạng truyện', exact: true });
+        await expect(rankingSection.getByRole('tab', { name: 'Mới cập nhật', exact: true })).toBeVisible();
         await expect(rankingSection.locator('.sc-home-rank-list li')).toHaveCount(7);
         await rankingSection.getByRole('tab', { name: 'Yêu thích', exact: true }).click();
         await expect(rankingSection.locator('.sc-home-rank-row').first()).toHaveAttribute('href', `${catalog}/novels/novel-15`);
@@ -136,6 +142,11 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
           await journeyCard.click();
           await expect(page).toHaveURL(`${base}${catalog}?tag=${encodeURIComponent('Phiêu lưu')}&sort=views:desc`);
           await expect(page.locator('#sc-catalog-sidebar').getByRole('checkbox', { name: 'Phiêu lưu', exact: true })).toBeChecked();
+          await page.goto(base);
+
+          // Random button must pick from the dedicated full-catalog endpoint (including novels outside top lists).
+          await page.getByTestId('home-hero-random').click();
+          await expect(page).toHaveURL(`${base}${catalog}/novels/outside-top-99`);
           await page.goto(base);
         }
 

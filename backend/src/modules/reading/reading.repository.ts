@@ -271,7 +271,21 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
       left join tags t on t.tag_id = nt.tag_id
       where n.deleted_at is null
         and n.status = 'PUBLISHED'
-        and ($1::text is null or f_unaccent(n.title) ilike f_unaccent($1) or f_unaccent(n.synopsis) ilike f_unaccent($1) or f_unaccent(coalesce(up.display_name, u.username)) ilike f_unaccent($1))
+        and (
+          $1::text is null
+          or f_unaccent(n.title) ilike f_unaccent($1)
+          or f_unaccent(n.synopsis) ilike f_unaccent($1)
+          or f_unaccent(coalesce(up.display_name, u.username)) ilike f_unaccent($1)
+          or coalesce(f_unaccent(g.name) ilike f_unaccent($1), false)
+          or exists (
+            select 1 from novel_genres ngq join genres ggq on ggq.genre_id = ngq.genre_id
+            where ngq.novel_id = n.novel_id and f_unaccent(ggq.name) ilike f_unaccent($1)
+          )
+          or exists (
+            select 1 from novel_tags ntq join tags tq on tq.tag_id = ntq.tag_id
+            where ntq.novel_id = n.novel_id and f_unaccent(tq.name) ilike f_unaccent($1)
+          )
+        )
         and not exists (select 1 from unnest($2::text[]) as selected(value) where not (coalesce(lower(g.slug) = selected.value or lower(g.name) = selected.value, false) or exists (
           select 1 from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
           where ng.novel_id = n.novel_id and (lower(gg.slug) = selected.value or lower(gg.name) = selected.value))))
@@ -297,7 +311,21 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
       left join tags t on t.tag_id = nt.tag_id
       where n.deleted_at is null
         and n.status = 'PUBLISHED'
-        and ($1::text is null or f_unaccent(n.title) ilike f_unaccent($1) or f_unaccent(n.synopsis) ilike f_unaccent($1) or f_unaccent(coalesce(up.display_name, u.username)) ilike f_unaccent($1))
+        and (
+          $1::text is null
+          or f_unaccent(n.title) ilike f_unaccent($1)
+          or f_unaccent(n.synopsis) ilike f_unaccent($1)
+          or f_unaccent(coalesce(up.display_name, u.username)) ilike f_unaccent($1)
+          or coalesce(f_unaccent(g.name) ilike f_unaccent($1), false)
+          or exists (
+            select 1 from novel_genres ngq join genres ggq on ggq.genre_id = ngq.genre_id
+            where ngq.novel_id = n.novel_id and f_unaccent(ggq.name) ilike f_unaccent($1)
+          )
+          or exists (
+            select 1 from novel_tags ntq join tags tq on tq.tag_id = ntq.tag_id
+            where ntq.novel_id = n.novel_id and f_unaccent(tq.name) ilike f_unaccent($1)
+          )
+        )
         and not exists (select 1 from unnest($2::text[]) as selected(value) where not (coalesce(lower(g.slug) = selected.value or lower(g.name) = selected.value, false) or exists (
           select 1 from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
           where ng.novel_id = n.novel_id and (lower(gg.slug) = selected.value or lower(gg.name) = selected.value))))
@@ -354,6 +382,21 @@ export async function listLatestPublishedChapters(limit: number) {
     genre: (row.genre_name as string | null) ?? null,
     genres: row.genres?.length ? (row.genres as string[]) : row.genre_name ? [row.genre_name as string] : []
   }));
+}
+
+export async function findRandomPublishedNovel() {
+  const result = await getPostgresPool().query(
+    `
+      select novel_id, title
+      from novels
+      where deleted_at is null
+        and status = 'PUBLISHED'
+      order by random()
+      limit 1
+    `
+  );
+  const row = result.rows[0];
+  return row ? { novelId: row.novel_id as string, title: row.title as string } : null;
 }
 
 export async function findPublishedNovelDetail(novelId: string) {

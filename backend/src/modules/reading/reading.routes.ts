@@ -8,6 +8,7 @@ import {
   addToLibraryController,
   getHistoryForNovelController,
   getPreferencesController,
+  getRandomNovelController,
   getReaderChapterController,
   getReaderNovelController,
   getReadingFiltersController,
@@ -53,6 +54,7 @@ readingRoutes.put('/bookmarks/me/:novelId', requireAuth, validateRequest(reading
 readingRoutes.delete('/bookmarks/me/:novelId', requireAuth, validateRequest(novelIdParamSchema), removeReadingBookmarkController);
 readingRoutes.get('/search', validateRequest(searchNovelsSchema), searchNovelsController);
 readingRoutes.get('/filters', getReadingFiltersController);
+readingRoutes.get('/novels/random', getRandomNovelController);
 readingRoutes.get('/novels/:novelId', validateRequest(novelIdParamSchema), getReaderNovelController);
 readingRoutes.get('/chapters/latest', validateRequest(latestChaptersSchema), listLatestChaptersController);
 readingRoutes.get('/chapters/:chapterId', optionalAuth, validateRequest(chapterIdParamSchema), getReaderChapterController);

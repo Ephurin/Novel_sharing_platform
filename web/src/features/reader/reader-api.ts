@@ -166,6 +166,13 @@ export async function listLatestPublishedChapters(limit = 10, signal?: AbortSign
   return Array.isArray(response.data.data) ? response.data.data : [];
 }
 
+export async function getRandomPublishedNovel(signal?: AbortSignal) {
+  const response = await apiClient.get<ApiEnvelope<{ novelId: string; title: string } | null>>('/reading/novels/random', {
+    signal
+  });
+  return response.data.data ?? null;
+}
+
 export async function searchPublishedNovelPage(input: SearchPublishedNovelsInput & { page?: number; limit?: number }, signal?: AbortSignal) {
   const response = await apiClient.get<ApiEnvelope<ReaderNovel[]>>('/reading/search', {
     signal,

@@ -6,6 +6,7 @@ import {
   getHistoryForNovel,
   getLatestPublishedChapters,
   getPreferences,
+  getRandomPublishedNovel,
   getReaderChapter,
   getReaderNovel,
   getReadingFilters,
@@ -83,6 +84,14 @@ export const listLatestChaptersController: RequestHandler = async (request, resp
   try {
     const items = await getLatestPublishedChapters(request.query as never);
     response.json(successResponse(items));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getRandomNovelController: RequestHandler = async (_request, response, next) => {
+  try {
+    response.json(successResponse(await getRandomPublishedNovel()));
   } catch (error) {
     next(error);
   }

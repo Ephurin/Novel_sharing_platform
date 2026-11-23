@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { useAuthStore } from '../auth/useAuthStore';
-import { listLatestPublishedChapters, searchPublishedNovelPage, type LatestPublishedChapter, type ReaderNovel } from './reader-api';
+import { getRandomPublishedNovel, listLatestPublishedChapters, searchPublishedNovelPage, type LatestPublishedChapter, type ReaderNovel } from './reader-api';
 import { useListScroll, useUrlFilters } from '../../shared/components/WorkspacePreferences';
 import { ContinueReading } from './HomePersonalization';
 import { HomeNovelCover } from './HomeNovelCover';
@@ -18,7 +18,7 @@ type FeatureTabKey = 'hot' | 'liked' | 'new';
 const FEATURE_TABS: Array<{ key: FeatureTabKey; label: string }> = [
   { key: 'hot', label: 'Đang hot' },
   { key: 'liked', label: 'Được yêu thích' },
-  { key: 'new', label: 'Mới ra mắt' },
+  { key: 'new', label: 'Mới cập nhật' },
 ];
 
 function relativeTime(date?: string | null) {
@@ -198,22 +198,35 @@ export function ReaderHomePage() {
 
   async function handleRandomNovel() {
     if (pickingRandom) return;
-    if (catalogNovels.length > 0) {
-      const chosen = catalogNovels[Math.floor(Math.random() * catalogNovels.length)];
-      navigate(novelPath(chosen));
-      return;
-    }
     setPickingRandom(true);
     try {
-      const pageData = await searchPublishedNovelPage({ page: 1, limit: 20, sort: 'updatedAt', order: 'desc' });
-      if (pageData.items.length > 0) {
-        const chosen = pageData.items[Math.floor(Math.random() * pageData.items.length)];
+      const randomPick = await getRandomPublishedNovel();
+      if (randomPick?.novelId) {
+        navigate(`${catalogPath}/novels/${randomPick.novelId}`);
+        return;
+      }
+      const total = Math.max(latestQuery.data?.totalItems ?? 0, viewsQuery.data?.totalItems ?? 0);
+      if (total > 0) {
+        const randomPage = Math.floor(Math.random() * total) + 1;
+        const pageData = await searchPublishedNovelPage({ page: randomPage, limit: 1, sort: 'updatedAt', order: 'desc' });
+        if (pageData.items[0]) {
+          navigate(novelPath(pageData.items[0]));
+          return;
+        }
+      }
+      if (catalogNovels.length > 0) {
+        const chosen = catalogNovels[Math.floor(Math.random() * catalogNovels.length)];
+        navigate(novelPath(chosen));
+        return;
+      }
+      navigate(catalogPath);
+    } catch {
+      if (catalogNovels.length > 0) {
+        const chosen = catalogNovels[Math.floor(Math.random() * catalogNovels.length)];
         navigate(novelPath(chosen));
       } else {
         navigate(catalogPath);
       }
-    } catch {
-      navigate(catalogPath);
     } finally {
       setPickingRandom(false);
     }

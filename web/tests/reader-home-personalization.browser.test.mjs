@@ -101,6 +101,19 @@ test('home supports search cancellation, keyboard suggestions, URL restoration a
         await expect(page).toHaveURL(`${base}/public/novels/n-0`);
         await page.goBack();
 
+        // Submitting the live search form without selecting an option opens /tim-kiem preserving relevance sort.
+        if (width === 375) {
+          await page.getByRole('button', { name: 'Tìm kiếm truyện', exact: true }).click();
+        }
+        await search.fill('moi');
+        await expect(page.getByRole('option', { name: /Truyện mới 1/ })).toBeVisible();
+        const sortsBeforeSubmit = sorts.length;
+        await page.keyboard.press('Enter');
+        await expect(page).toHaveURL(`${base}/tim-kiem?keywords=moi&sort=relevance%3Adesc`);
+        await expect.poll(() => sorts.slice(sortsBeforeSubmit).includes('relevance')).toBe(true);
+        await expect(page.locator('#sc-search-quick-sort')).toHaveValue('relevance:desc');
+        await page.goBack();
+
         await page.locator('.sc-home-preview-trigger').first().click();
         await page.getByRole('dialog').getByRole('link', { name: 'Đăng nhập để theo dõi truyện', exact: true }).click();
         await expect(page).toHaveURL(`${base}/login`);
