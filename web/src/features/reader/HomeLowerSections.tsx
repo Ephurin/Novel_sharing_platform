@@ -125,24 +125,62 @@ function novelGenresAndTags(novel: ReaderNovel) {
   return { genres, tags };
 }
 
-function pickTopMatchingGenre(novels: ReaderNovel[], matcher: RegExp, preferredOrder: RegExp[]): string | null {
-  const counts = new Map<string, number>();
+type CollectionFilter = {
+  kind: 'genre' | 'tag';
+  value: string;
+  matchedCount: number;
+};
+
+function pickCollectionFilter(
+  novels: ReaderNovel[],
+  matcher: RegExp,
+  preferredGenres: RegExp[]
+): CollectionFilter | null {
+  const genreCounts = new Map<string, number>();
+  const tagCounts = new Map<string, number>();
+
   for (const novel of novels) {
-    const { genres } = novelGenresAndTags(novel);
+    const { genres, tags } = novelGenresAndTags(novel);
+    const seenGenres = new Set<string>();
     for (const genre of genres) {
-      if (matcher.test(genre)) {
-        counts.set(genre, (counts.get(genre) ?? 0) + 1);
+      const key = genre.toLowerCase();
+      if (matcher.test(genre) && !seenGenres.has(key)) {
+        seenGenres.add(key);
+        genreCounts.set(genre, (genreCounts.get(genre) ?? 0) + 1);
+      }
+    }
+    const seenTags = new Set<string>();
+    for (const tag of tags) {
+      const key = tag.toLowerCase();
+      if (matcher.test(tag) && !seenTags.has(key)) {
+        seenTags.add(key);
+        tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
       }
     }
   }
-  const available = [...counts.entries()];
-  if (available.length === 0) return null;
-  for (const pref of preferredOrder) {
-    const match = available.find(([name]) => pref.test(name));
-    if (match) return match[0];
+
+  const availableGenres = [...genreCounts.entries()];
+  if (availableGenres.length > 0) {
+    for (const pref of preferredGenres) {
+      const match = availableGenres.find(([name]) => pref.test(name));
+      if (match) return { kind: 'genre', value: match[0], matchedCount: match[1] };
+    }
+    availableGenres.sort((a, b) => b[1] - a[1]);
+    return { kind: 'genre', value: availableGenres[0][0], matchedCount: availableGenres[0][1] };
   }
-  available.sort((a, b) => b[1] - a[1]);
-  return available[0]?.[0] ?? null;
+
+  const availableTags = [...tagCounts.entries()];
+  if (availableTags.length > 0) {
+    availableTags.sort((a, b) => b[1] - a[1]);
+    return { kind: 'tag', value: availableTags[0][0], matchedCount: availableTags[0][1] };
+  }
+
+  return null;
+}
+
+function buildCollectionHref(catalogPath: string, filter: CollectionFilter, sort: string) {
+  const param = filter.kind === 'genre' ? 'genre' : 'tag';
+  return `${catalogPath}?${param}=${encodeURIComponent(filter.value)}&sort=${sort}`;
 }
 
 function buildReadingCollections(
@@ -155,28 +193,27 @@ function buildReadingCollections(
   );
 
   const fantasyPattern = /fantasy|kỳ ảo|huyền ảo|dị giới|khoa học|viễn tưởng|cultivation|tu tiên/i;
-  const fantasyMatches = catalogNovels.filter(novel => {
-    const { genres, tags } = novelGenresAndTags(novel);
-    return [...genres, ...tags].some(token => fantasyPattern.test(token));
-  });
-  const fantasyGenre = pickTopMatchingGenre(fantasyMatches, fantasyPattern, [/fantasy/i, /cultivation|tu tiên/i, /khoa học/i]);
+  const fantasyFilter = pickCollectionFilter(
+    catalogNovels,
+    fantasyPattern,
+    [/fantasy/i, /cultivation|tu tiên/i, /khoa học/i]
+  );
 
   const healingPattern = /đời thường|lãng mạn|chữa lành|slice|nhẹ nhàng|tình cảm/i;
-  const healingMatches = catalogNovels.filter(novel => {
-    const { genres, tags } = novelGenresAndTags(novel);
-    return [...genres, ...tags].some(token => healingPattern.test(token));
-  });
-  const healingGenre = pickTopMatchingGenre(healingMatches, healingPattern, [/đời thường/i, /lãng mạn/i]);
+  const healingFilter = pickCollectionFilter(
+    catalogNovels,
+    healingPattern,
+    [/đời thường/i, /lãng mạn/i]
+  );
 
   const journeyPattern = /trưởng thành|phiêu lưu|kiếm hiệp|tu tiên|cultivation|hành trình|hành động/i;
-  const journeyMatches = catalogNovels.filter(novel => {
-    if ((novel.chaptersCount ?? 0) < 3) return false;
-    const { genres, tags } = novelGenresAndTags(novel);
-    return [...genres, ...tags, novel.synopsis ?? ''].some(token => journeyPattern.test(token));
-  });
-  const journeyGenre = pickTopMatchingGenre(journeyMatches, journeyPattern, [/kiếm hiệp/i, /phiêu lưu/i, /cultivation|tu tiên/i]);
+  const journeyFilter = pickCollectionFilter(
+    catalogNovels,
+    journeyPattern,
+    [/kiếm hiệp/i, /phiêu lưu/i, /cultivation|tu tiên/i]
+  );
 
-  return [
+  const collections: ReadingCollectionItem[] = [
     {
       id: 'weekend',
       title: 'Đọc một mạch cuối tuần',
@@ -187,39 +224,44 @@ function buildReadingCollections(
       imageSrc: collectionWeekendArt,
       imagePosition: 'center 74%',
     },
-    {
+  ];
+
+  if (fantasyFilter) {
+    collections.push({
       id: 'fantasy',
       title: 'Dị giới kỳ ảo',
       description: 'Bước vào những thế giới khác, huyền ảo và giàu trí tưởng tượng.',
       icon: 'castle',
-      href: fantasyGenre
-        ? `${catalogPath}?genre=${encodeURIComponent(fantasyGenre)}&sort=views:desc`
-        : `${catalogPath}?sort=views:desc`,
-      matchedCount: fantasyMatches.length,
+      href: buildCollectionHref(catalogPath, fantasyFilter, 'views:desc'),
+      matchedCount: fantasyFilter.matchedCount,
       imageSrc: collectionFantasyArt,
       imagePosition: 'center 42%',
-    },
-    {
+    });
+  }
+
+  if (healingFilter) {
+    collections.push({
       id: 'healing',
       title: 'Chữa lành nhẹ nhàng',
       description: 'Những câu chuyện ấm áp, đời thường giúp bạn thư giãn và lắng lại.',
       icon: 'spa',
-      href: healingGenre
-        ? `${catalogPath}?genre=${encodeURIComponent(healingGenre)}&sort=likes:desc`
-        : `${catalogPath}?sort=likes:desc`,
-      matchedCount: healingMatches.length,
-    },
-    {
+      href: buildCollectionHref(catalogPath, healingFilter, 'likes:desc'),
+      matchedCount: healingFilter.matchedCount,
+    });
+  }
+
+  if (journeyFilter) {
+    collections.push({
       id: 'journey',
       title: 'Hành trình trưởng thành',
       description: 'Cùng nhân vật vượt thử thách, khám phá và hoàn thiện bản thân.',
       icon: 'hiking',
-      href: journeyGenre
-        ? `${catalogPath}?genre=${encodeURIComponent(journeyGenre)}&sort=views:desc`
-        : `${catalogPath}?sort=views:desc`,
-      matchedCount: journeyMatches.length,
-    },
-  ];
+      href: buildCollectionHref(catalogPath, journeyFilter, 'views:desc'),
+      matchedCount: journeyFilter.matchedCount,
+    });
+  }
+
+  return collections;
 }
 
 function CollectionVectorArtwork({ kind }: { kind: 'healing' | 'journey' }) {
@@ -359,8 +401,13 @@ export function HomeLowerSections({
     staleTime: 60_000,
     retry: false,
     queryFn: async (): Promise<CommunityEntry[]> => {
+      let attempted = 0;
+      let succeeded = 0;
+      let firstError: unknown = null;
+
       const results = await Promise.allSettled(
         communitySourceNovels.map(async novel => {
+          attempted += 2;
           const [reviewsRes, commentsRes] = await Promise.allSettled([
             listNovelReviews(novel.novelId, 1, 'newest'),
             listTargetComments({ kind: 'novel', id: novel.novelId }, 1),
@@ -369,6 +416,7 @@ export function HomeLowerSections({
           const entries: CommunityEntry[] = [];
 
           if (reviewsRes.status === 'fulfilled') {
+            succeeded += 1;
             for (const rev of reviewsRes.value.items) {
               const text = rev.review?.trim();
               if (!text) continue;
@@ -385,9 +433,12 @@ export function HomeLowerSections({
                 href: `${catalogPath}/novels/${novel.novelId}/reviews`,
               });
             }
+          } else if (!firstError) {
+            firstError = reviewsRes.reason;
           }
 
           if (commentsRes.status === 'fulfilled') {
+            succeeded += 1;
             for (const cmt of commentsRes.value.items) {
               const text = cmt.content?.trim();
               if (!text || cmt.isSpoiler) continue;
@@ -409,11 +460,17 @@ export function HomeLowerSections({
                 href: targetHref,
               });
             }
+          } else if (!firstError) {
+            firstError = commentsRes.reason;
           }
 
           return entries;
         })
       );
+
+      if (attempted > 0 && succeeded === 0) {
+        throw firstError instanceof Error ? firstError : new Error('Failed to load community activity');
+      }
 
       const merged: CommunityEntry[] = [];
       for (const res of results) {

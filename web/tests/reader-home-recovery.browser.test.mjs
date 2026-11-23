@@ -34,6 +34,7 @@ test('home recovers from failed requests, handles interrupted motion and exposes
       page.on('pageerror', error => errors.push(error.message));
       await page.addInitScript(reduced => localStorage.setItem('storycraft-theme', reduced ? 'dark' : 'light'), reduced);
       let failLikes = true;
+      let failCommunity = true;
       let previewRequests = 0;
       await page.route('**/api/v1/**', async route => {
         const url = new URL(route.request().url());
@@ -45,8 +46,24 @@ test('home recovers from failed requests, handles interrupted motion and exposes
             return;
           }
           data = url.searchParams.get('sort') === 'likes' ? [...novels].reverse() : novels;
+        } else if (url.pathname.endsWith('/reviews') || url.pathname.endsWith('/comments')) {
+          if (failCommunity) {
+            await route.fulfill({ status: 503, json: { success: false, error: { code: 'UNAVAILABLE', message: 'Tạm thời không khả dụng' } } });
+            return;
+          }
+          if (url.pathname.endsWith('/reviews')) {
+            data = [{
+              userId: 'rev-1',
+              displayName: 'Độc giả thử',
+              avatarUrl: null,
+              score: 9,
+              review: 'Nhịp truyện cuốn hút và giàu cảm xúc.',
+              createdAt: '2026-11-20T10:00:00Z',
+              updatedAt: '2026-11-20T10:00:00Z'
+            }];
+          }
         } else if (url.pathname.includes('/reading/novels/')) previewRequests++;
-        await route.fulfill({ json: { success: true, data } });
+        await route.fulfill({ json: { success: true, data, meta: { totalPages: 1, totalItems: Array.isArray(data) ? data.length : 0 } } });
       });
       try {
         await page.goto(base);
@@ -74,6 +91,15 @@ test('home recovers from failed requests, handles interrupted motion and exposes
         await expect(featured.locator('.sc-home-featured-card')).toHaveCount(9);
         await expect(featured.getByRole('alert')).toHaveCount(0);
         await expect(featured.locator('.sc-home-featured-cover-link').first()).toHaveAttribute('href', '/public/novels/book-8');
+
+        // Community section must surface an error state (not empty state) when all review/comment requests fail.
+        const community = page.getByRole('region', { name: 'Bình luận và đánh giá gần đây', exact: true });
+        await expect(community.getByRole('alert')).toContainText('Chưa tải được bình luận và đánh giá gần đây.');
+        failCommunity = false;
+        await community.getByRole('button', { name: 'Thử lại', exact: true }).click();
+        await expect(community.getByRole('alert')).toHaveCount(0);
+        await expect(community.locator('.sc-home-review-card').first()).toContainText('Nhịp truyện cuốn hút và giàu cảm xúc.');
+
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
         assert.deepEqual(errors, []);
       } finally { await context.close(); }

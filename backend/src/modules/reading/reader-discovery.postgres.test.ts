@@ -180,23 +180,40 @@ test('reader catalog, published metadata and unified follow/library state', {
     await assert.rejects(updateNovelEngagement({ userId: author, role: 'READER' }, ids[0], { notificationsEnabled: true }), { httpStatus: 403 });
     await assert.rejects(updateNovelEngagement(readerAuth, ids[3], { notificationsEnabled: true }), { httpStatus: 404 });
 
-    // Relevance ranking must prioritize title exact > title prefix > title substring > synopsis
-    // even when the synopsis-only novel has newer updated_at and higher views_count.
+    // Relevance ranking must strictly preserve title tier (exact > prefix > substring > synopsis)
+    // even when the prefix novel matches author + genre + tag + synopsis AND has higher views/newer updated_at.
     const [relExact, relPrefix, relSub, relSynopsis] = [randomUUID(), randomUUID(), randomUUID(), randomUUID()];
-    for (const [id, title, synopsis, views, updatedAt] of [
-      [relExact, 'Kiếm Thánh', 'Giới thiệu ngắn', 5, '2025-01-01T00:00:00Z'],
-      [relPrefix, 'Kiếm Thánh Truyền Kỳ', 'Giới thiệu ngắn', 50, '2026-01-01T00:00:00Z'],
-      [relSub, 'Hành Trình Kiếm Thánh', 'Giới thiệu ngắn', 500, '2026-06-01T00:00:00Z'],
-      [relSynopsis, 'Câu Chuyện Mùa Thu', 'Nhắc đến Kiếm Thánh huyền thoại', 99999, '2026-11-20T00:00:00Z']
+    const relAuthor = randomUUID();
+    await pool.query(
+      `insert into users (user_id, email, username, password_hash, role)
+       values ($1, 'kiem-thanh-author@example.invalid', 'kiem_thanh_author', 'unused', 'AUTHOR')`,
+      [relAuthor]
+    );
+    await pool.query(
+      `insert into user_profiles (user_id, display_name) values ($1, 'Tác giả Kiếm Thánh')`,
+      [relAuthor]
+    );
+    const relGenre = randomUUID(), relTag = randomUUID();
+    await pool.query(`insert into genres (genre_id, name, slug) values ($1, 'Kiếm Thánh Truyện', 'kiem-thanh-truyen')`, [relGenre]);
+    await pool.query(`insert into tags (tag_id, name, slug) values ($1, 'Kiếm Thánh Tag', 'kiem-thanh-tag')`, [relTag]);
+    for (const [id, novelAuthor, title, synopsis, views, updatedAt] of [
+      [relExact, author, 'Kiếm Thánh', 'Giới thiệu ngắn', 5, '2025-01-01T00:00:00Z'],
+      [relPrefix, relAuthor, 'Kiếm Thánh Truyền Kỳ', 'Câu chuyện về Kiếm Thánh mạnh nhất', 50000, '2026-11-19T00:00:00Z'],
+      [relSub, author, 'Hành Trình Kiếm Thánh', 'Giới thiệu ngắn', 500, '2026-06-01T00:00:00Z'],
+      [relSynopsis, author, 'Câu Chuyện Mùa Thu', 'Nhắc đến Kiếm Thánh huyền thoại', 99999, '2026-11-20T00:00:00Z']
     ] as const) {
       await pool.query(
         `insert into novels (novel_id, author_id, title, slug, synopsis, status, views_count, updated_at)
          values ($1, $2, $3, $4, $5, 'PUBLISHED', $6, $7)`,
-        [id, author, title, `slug-${id}`, synopsis, views, updatedAt]
+        [id, novelAuthor, title, `slug-${id}`, synopsis, views, updatedAt]
       );
     }
+    await pool.query(`insert into novel_genres (novel_id, genre_id) values ($1, $2)`, [relPrefix, relGenre]);
+    await pool.query(`insert into novel_tags (novel_id, tag_id) values ($1, $2)`, [relPrefix, relTag]);
     const relevance = await search({ q: 'Kiếm Thánh', sort: 'relevance', order: 'desc' });
     assert.deepEqual(relevance.items.map(item => item.novelId), [relExact, relPrefix, relSub, relSynopsis]);
+    const relevanceUnaccent = await search({ q: 'kiem thanh', sort: 'relevance', order: 'desc' });
+    assert.deepEqual(relevanceUnaccent.items.map(item => item.novelId), [relExact, relPrefix, relSub, relSynopsis]);
 
     // Latest published chapters must order by chapter published_at desc across novels
     // and include multiple chapters from the same novel while excluding drafts/deleted.

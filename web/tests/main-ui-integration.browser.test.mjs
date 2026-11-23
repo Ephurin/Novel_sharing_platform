@@ -48,15 +48,23 @@ test('main reader UI retains animated tools, themes and guest author profiles', 
         await expect(page.locator('.sc-catalog-story')).toHaveCount(1);
         await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
         if (width === 390) {
-          await page.locator('.sc-catalog-filter-open').click();
-          const sidebar = page.locator('#sc-catalog-sidebar');
-          await expect(sidebar).toHaveClass(/open/);
-          await expect(sidebar).toBeVisible();
-          const bounds = await sidebar.boundingBox();
+          const trigger = page.locator('.sc-catalog-filter-open');
+          await trigger.click();
+          const dialog = page.getByRole('dialog', { name: 'Bộ lọc', exact: true });
+          await expect(dialog).toBeVisible();
+          await expect(dialog).toHaveAttribute('aria-modal', 'true');
+          await expect.poll(() => page.evaluate(() => document.getElementById('sc-catalog-sidebar')?.contains(document.activeElement) ?? false)).toBe(true);
+          const bounds = await dialog.boundingBox();
           assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= width + 1);
           await page.screenshot({ path: path.join(output, `${width}-${theme}-filters.png`) });
-          await sidebar.getByRole('button', { name: /Xem kết quả/ }).click();
-          await expect(sidebar).not.toHaveClass(/open/);
+          await page.keyboard.press('Escape');
+          await expect(dialog).toHaveCount(0);
+          await expect(trigger).toBeFocused();
+          await trigger.click();
+          await expect(dialog).toBeVisible();
+          await dialog.getByRole('button', { name: /Xem kết quả/ }).click();
+          await expect(dialog).toHaveCount(0);
+          await expect(trigger).toBeFocused();
         }
         await noOverflow();
         await page.screenshot({ path: path.join(output, `${width}-${theme}-public.png`), fullPage: true });

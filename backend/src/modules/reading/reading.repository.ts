@@ -207,14 +207,14 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
   const orderByClause =
     input.sort === 'relevance'
       ? isRelevanceWithQuery
-        ? `(
-            case
-              when lower(f_unaccent(n.title)) = lower(f_unaccent($7::text)) then 100
-              when f_unaccent(n.title) ilike f_unaccent($8::text) then 70
-              when f_unaccent(n.title) ilike f_unaccent($1) then 40
-              else 0
-            end
-            + case when f_unaccent(coalesce(up.display_name, u.username)) ilike f_unaccent($1) then 25 else 0 end
+        ? `case
+            when lower(f_unaccent(n.title)) = lower(f_unaccent($7::text)) then 3
+            when f_unaccent(n.title) ilike f_unaccent($8::text) then 2
+            when f_unaccent(n.title) ilike f_unaccent($1) then 1
+            else 0
+          end ${orderDirection},
+          (
+            case when f_unaccent(coalesce(up.display_name, u.username)) ilike f_unaccent($1) then 25 else 0 end
             + case when coalesce(f_unaccent(g.name) ilike f_unaccent($1), false) or exists (
                 select 1 from novel_genres ngr join genres ggr on ggr.genre_id = ngr.genre_id
                 where ngr.novel_id = n.novel_id and f_unaccent(ggr.name) ilike f_unaccent($1)

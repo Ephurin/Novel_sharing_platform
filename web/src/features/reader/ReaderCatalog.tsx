@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { useDebouncedValue } from '@mantine/hooks';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { FocusTrap } from '@mantine/core';
+import { useDebouncedValue, useMediaQuery } from '@mantine/hooks';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { useListScroll, useUrlFilters } from '../../shared/components/WorkspacePreferences';
@@ -78,6 +79,17 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
   const waiting = q !== debounced;
   const [sortField, order] = sort.split(':');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const isMobileViewport = useMediaQuery('(max-width: 820px)');
+  const isMobileDrawer = Boolean(isMobileViewport && sidebarOpen);
+  const filterTriggerRef = useRef<HTMLButtonElement>(null);
+  const sidebarRef = useRef<HTMLElement>(null);
+
+  const closeSidebar = useCallback((restoreFocus = true) => {
+    setSidebarOpen(false);
+    if (restoreFocus) {
+      requestAnimationFrame(() => filterTriggerRef.current?.focus({ preventScroll: true }));
+    }
+  }, []);
 
   const key = ['reader-catalog', publicMode, debounced, genre, tag, status, sort, page];
   const result = useQuery({
@@ -116,13 +128,32 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
   }, [waiting, result.data?.totalPages, page]);
 
   useEffect(() => {
-    if (!sidebarOpen) return;
+    if (!isMobileViewport && sidebarOpen) {
+      setSidebarOpen(false);
+    }
+  }, [isMobileViewport, sidebarOpen]);
+
+  useEffect(() => {
+    if (!isMobileDrawer) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const focusTimer = requestAnimationFrame(() => {
+      const firstControl = sidebarRef.current?.querySelector<HTMLElement>('input, button, select, a[href], [tabindex]:not([tabindex="-1"])');
+      (firstControl ?? sidebarRef.current)?.focus({ preventScroll: true });
+    });
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setSidebarOpen(false);
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeSidebar(true);
+      }
     };
     document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [sidebarOpen]);
+    return () => {
+      cancelAnimationFrame(focusTimer);
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isMobileDrawer, closeSidebar]);
 
   const busy = waiting || result.isPending;
   useListScroll(!busy);
@@ -158,7 +189,7 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
   return (
     <div className="sc-catalog-page">
       <div className="sc-catalog-columns">
-        <section className="sc-catalog-left" aria-label="Kết quả truyện" aria-busy={busy || result.isFetching}>
+        <section className="sc-catalog-left" aria-label="Kết quả truyện" aria-busy={busy || result.isFetching} inert={isMobileDrawer}>
           <div className="sc-catalog-topbar">
             <h1 className="sc-catalog-title">
               DANH SÁCH TRUYỆN
@@ -167,6 +198,7 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
               )}
             </h1>
             <button
+              ref={filterTriggerRef}
               type="button"
               className="sc-catalog-filter-open"
               onClick={() => setSidebarOpen(true)}
@@ -280,15 +312,20 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
 
         <div
           className={`sc-catalog-sidebar-overlay${sidebarOpen ? ' open' : ''}`}
-          onClick={() => setSidebarOpen(false)}
+          onClick={() => closeSidebar(true)}
           aria-hidden="true"
         />
 
-        <aside
-          id="sc-catalog-sidebar"
-          className={`sc-catalog-sidebar${sidebarOpen ? ' open' : ''}`}
-          aria-label="Bộ lọc truyện"
-        >
+        <FocusTrap active={isMobileDrawer}>
+          <aside
+            ref={sidebarRef}
+            id="sc-catalog-sidebar"
+            className={`sc-catalog-sidebar${sidebarOpen ? ' open' : ''}`}
+            role={isMobileDrawer ? 'dialog' : undefined}
+            aria-modal={isMobileDrawer ? true : undefined}
+            aria-label={isMobileDrawer ? 'Bộ lọc' : 'Bộ lọc truyện'}
+            tabIndex={isMobileDrawer ? -1 : undefined}
+          >
           <div className="sc-catalog-side-head">
             <strong>☷ &nbsp; Bộ lọc nâng cao</strong>
             <span>{activeFilterCount} đang chọn</span>
@@ -376,14 +413,15 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
               type="button"
               className="sc-catalog-apply"
               onClick={() => {
-                setSidebarOpen(false);
+                closeSidebar(true);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
             >
               Xem kết quả →
             </button>
           </div>
-        </aside>
+          </aside>
+        </FocusTrap>
       </div>
     </div>
   );

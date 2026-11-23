@@ -128,6 +128,17 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
         await page.screenshot({ path: path.join(output, `${role}-${width}-${theme}.png`), fullPage: true });
 
+        // Tag-only collection ('Hành trình trưởng thành' matches tag 'Phiêu lưu', no matching genre) must link with ?tag=
+        const collections = page.getByRole('region', { name: 'Bộ sưu tập theo gu đọc', exact: true });
+        const journeyCard = collections.locator('.is-col-journey');
+        await expect(journeyCard).toHaveAttribute('href', `${catalog}?tag=${encodeURIComponent('Phiêu lưu')}&sort=views:desc`);
+        if (width === 1440 && theme === 'light') {
+          await journeyCard.click();
+          await expect(page).toHaveURL(`${base}${catalog}?tag=${encodeURIComponent('Phiêu lưu')}&sort=views:desc`);
+          await expect(page.locator('#sc-catalog-sidebar').getByRole('checkbox', { name: 'Phiêu lưu', exact: true })).toBeChecked();
+          await page.goto(base);
+        }
+
         await page.getByTestId('home-hero-explore').click();
         await expect(page).toHaveURL(`${base}${catalog}`);
         assert.deepEqual(errors, []);
