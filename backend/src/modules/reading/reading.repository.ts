@@ -195,6 +195,14 @@ export async function listReadingFilters() {
   return result.rows[0] as { genres: string[]; tags: string[] };
 }
 
+const CONTENT_UPDATED_AT_SQL = `coalesce(
+  (select max(coalesce(c.published_updated_at, c.published_at, c.updated_at)) from chapters c
+    where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null),
+  n.published_at,
+  n.updated_at,
+  n.created_at
+)`;
+
 export async function searchPublishedNovels(input: SearchNovelsInput) {
   const offset = (input.page - 1) * input.limit;
   const trimmedQuery = input.q?.trim() ?? '';
@@ -205,13 +213,6 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
   const tags = [...new Set([input.tag, ...(input.tags ?? [])].filter((value): value is string => Boolean(value)).map(value => value.toLowerCase()))];
   const orderDirection = input.order === 'asc' ? 'asc' : 'desc';
   const isRelevanceWithQuery = input.sort === 'relevance' && Boolean(trimmedQuery);
-  const contentUpdatedAtExpression = `coalesce(
-    (select max(coalesce(c.published_updated_at, c.published_at)) from chapters c
-      where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null),
-    n.published_at,
-    n.updated_at,
-    n.created_at
-  )`;
   const orderByClause =
     input.sort === 'relevance'
       ? isRelevanceWithQuery
@@ -232,8 +233,8 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
                 where ntr.novel_id = n.novel_id and f_unaccent(tr.name) ilike f_unaccent($1)
               ) then 15 else 0 end
             + case when f_unaccent(n.synopsis) ilike f_unaccent($1) then 10 else 0 end
-          ) ${orderDirection}, n.views_count desc, ${contentUpdatedAtExpression} desc, n.novel_id asc`
-        : `n.views_count ${orderDirection}, ${contentUpdatedAtExpression} desc, n.novel_id asc`
+          ) ${orderDirection}, n.views_count desc, ${CONTENT_UPDATED_AT_SQL} desc, n.novel_id asc`
+        : `n.views_count ${orderDirection}, ${CONTENT_UPDATED_AT_SQL} desc, n.novel_id asc`
       : `${
           input.sort === 'views'
             ? 'n.views_count'
@@ -244,7 +245,7 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
                 : input.sort === 'wordCount'
                   ? `(select coalesce(sum(c.word_count), 0) from chapters c
                       where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null)`
-                  : contentUpdatedAtExpression
+                  : CONTENT_UPDATED_AT_SQL
         } ${orderDirection}, n.novel_id asc`;
 
   const dataParams = isRelevanceWithQuery
@@ -267,7 +268,7 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
           where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null
           order by c.published_at desc nulls last, c.chapter_number desc
           limit 1) as latest_chapter,
-        ${contentUpdatedAtExpression} as last_updated_at,
+        ${CONTENT_UPDATED_AT_SQL} as last_updated_at,
         coalesce(
           json_agg(t.name order by t.name) filter (where t.tag_id is not null),
           '[]'::json
@@ -418,8 +419,7 @@ export async function findPublishedNovelDetail(novelId: string) {
         (select array_agg(gg.name order by (ng.genre_id = n.genre_id) desc, gg.name)
           from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
           where ng.novel_id = n.novel_id) as genres,
-        (select max(c.updated_at) from chapters c
-          where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null) as last_updated_at,
+        ${CONTENT_UPDATED_AT_SQL} as last_updated_at,
         coalesce(
           json_agg(distinct t.name) filter (where t.tag_id is not null),
           '[]'::json

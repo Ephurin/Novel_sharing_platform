@@ -18,7 +18,7 @@ test('reader catalog, published metadata and unified follow/library state', {
     const database = await import('../../core/database/postgres.js');
     disconnect = database.disconnectPostgres;
     const pool = database.getPostgresPool();
-    for (const table of ['users', 'user_profiles', 'novels', 'genres', 'tags', 'novel_tags', 'novel_genres', 'chapters', 'bookmarks', 'likes', 'novel_follows', 'novel_ratings', 'notification_events']) {
+    for (const table of ['users', 'user_profiles', 'novels', 'genres', 'tags', 'novel_tags', 'novel_genres', 'chapters', 'bookmarks', 'likes', 'novel_follows', 'novel_ratings', 'notification_events', 'moderation_reviews']) {
       await pool.query(`create table "${table}" (like public."${table}" including all)`);
     }
     await pool.query(await readFile(new URL('../../core/database/migrations/021_novel_notification_subscriptions.sql', import.meta.url), 'utf8'));
@@ -273,14 +273,16 @@ test('reader catalog, published metadata and unified follow/library state', {
     assert.deepEqual(orderedByUpdated.items.map(item => item.novelId), [newerNovel, olderNovel]);
 
     // Saving a private draft of an already-PUBLISHED chapter touches chapters.updated_at,
-    // which must NOT move the novel ahead in public 'Mới cập nhật' ordering.
+    // which must NOT move the novel ahead in public 'Mới cập nhật' ordering or detail 'Cập nhật'.
     await touchChapterUpdatedAt(olderChapter);
     const afterDraftSave = await search({ q: 'UpdateOrder', sort: 'updatedAt', order: 'desc' });
     assert.deepEqual(afterDraftSave.items.map(item => item.novelId), [newerNovel, olderNovel]);
     assert.equal(new Date(afterDraftSave.items[1].lastUpdatedAt).toISOString(), oldTime);
+    const olderDetailAfterDraft = await findPublishedNovelDetail(olderNovel);
+    assert.equal(new Date(olderDetailAfterDraft!.lastUpdatedAt).toISOString(), oldTime);
 
     // Approving/publishing a revision of that chapter updates published_updated_at, moving the
-    // novel to the top and exposing the same fresh lastUpdatedAt/updatedAt in search results.
+    // novel to the top and exposing the same fresh lastUpdatedAt/updatedAt in search & detail.
     await publishChapter(olderChapter, { title: 'Chap 1 (đã sửa)', content: 'Nội dung công khai mới', wordCount: 120 });
     const afterPublishRevision = await search({ q: 'UpdateOrder', sort: 'updatedAt', order: 'desc' });
     assert.deepEqual(afterPublishRevision.items.map(item => item.novelId), [olderNovel, newerNovel]);
@@ -289,6 +291,34 @@ test('reader catalog, published metadata and unified follow/library state', {
       new Date(afterPublishRevision.items[0].updatedAt).toISOString(),
       new Date(afterPublishRevision.items[0].lastUpdatedAt).toISOString()
     );
+    const olderDetailAfterPublish = await findPublishedNovelDetail(olderNovel);
+    assert.equal(
+      new Date(olderDetailAfterPublish!.lastUpdatedAt).toISOString(),
+      new Date(afterPublishRevision.items[0].lastUpdatedAt).toISOString()
+    );
+
+    // Migration 037 backfill must preserve the latest APPROVED revision review timestamp
+    // instead of regressing to initial published_at or promoting an unapproved draft save.
+    const backfillChapter = randomUUID();
+    const initialPub = '2026-01-10T00:00:00.000Z';
+    const approvedRev = '2026-03-15T12:00:00.000Z';
+    const laterReport = '2026-05-01T00:00:00.000Z';
+    const laterDraft = '2026-06-20T00:00:00.000Z';
+    await pool.query(
+      `insert into chapters (chapter_id, novel_id, title, chapter_number, content, word_count, status, published_at, published_updated_at, updated_at, created_at)
+       values ($1, $2, 'Chap backfill', 2, 'Nội dung đã duyệt sửa', 150, 'PUBLISHED', $3, null, $4, $3)`,
+      [backfillChapter, newerNovel, initialPub, laterDraft]
+    );
+    await pool.query(
+      `insert into moderation_reviews (target_type, target_id, source, status, reviewed_at, updated_at, created_at)
+       values
+         ('CHAPTER', $1, 'KEYWORD_FILTER', 'APPROVED', $2, $2, $2),
+         ('CHAPTER', $1, 'USER_REPORT', 'APPROVED', $3, $3, $3)`,
+      [backfillChapter, approvedRev, laterReport]
+    );
+    await pool.query(await readFile(new URL('../../core/database/migrations/037_chapter_content_published_updated_at.sql', import.meta.url), 'utf8'));
+    const backfilledRow = (await pool.query('select published_updated_at from chapters where chapter_id = $1', [backfillChapter])).rows[0];
+    assert.equal(new Date(backfilledRow.published_updated_at).toISOString(), approvedRev);
 
     // Latest published chapters must order by chapter published_at desc across novels
     // and include multiple chapters from the same novel while excluding drafts/deleted.
