@@ -412,14 +412,14 @@ export function DiscussionListPage() {
   const createPath = activeCategory ? `/discussions/new?categoryId=${activeCategory.categoryId}` : '/discussions/new';
   const items = topics.data?.items ?? [];
   // Pinned topics and announcements are promoted only on the unfiltered first page, so a
-  // paginated or searched view never hides a result the query asked for. They are
-  // listed in the sidebar's “Đáng chú ý” card and kept out of the chronological
-  // list, so the same thread never appears twice on the board.
+  // paginated or searched view never hides a result the query asked for. Only the four
+  // entries the “Đáng chú ý” card actually renders leave the chronological list; further
+  // pinned or announcement topics stay in it so no thread can fall out of the board.
   const noticePool = !filters.cursor && !filters.q
     ? items.filter(topic => topic.status === 'VISIBLE' && (topic.isPinned || topic.category.postAdminOnly))
     : [];
-  const noticeIds = new Set(noticePool.map(topic => topic.topicId));
   const notices = noticePool.slice(0, 4);
+  const noticeIds = new Set(notices.map(topic => topic.topicId));
   const listed = noticeIds.size ? items.filter(topic => !noticeIds.has(topic.topicId)) : items;
   const trending = (community.data?.trending ?? []).filter(topic => !noticeIds.has(topic.topicId)).slice(0, 3);
 
