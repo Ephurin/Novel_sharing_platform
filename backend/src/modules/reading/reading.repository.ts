@@ -204,6 +204,13 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
   const tags = [...new Set([input.tag, ...(input.tags ?? [])].filter((value): value is string => Boolean(value)).map(value => value.toLowerCase()))];
   const orderDirection = input.order === 'asc' ? 'asc' : 'desc';
   const isRelevanceWithQuery = input.sort === 'relevance' && Boolean(trimmedQuery);
+  const contentUpdatedAtExpression = `coalesce(
+    (select max(greatest(coalesce(c.published_at, c.updated_at), c.updated_at)) from chapters c
+      where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null),
+    n.published_at,
+    n.updated_at,
+    n.created_at
+  )`;
   const orderByClause =
     input.sort === 'relevance'
       ? isRelevanceWithQuery
@@ -224,8 +231,8 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
                 where ntr.novel_id = n.novel_id and f_unaccent(tr.name) ilike f_unaccent($1)
               ) then 15 else 0 end
             + case when f_unaccent(n.synopsis) ilike f_unaccent($1) then 10 else 0 end
-          ) ${orderDirection}, n.views_count desc, n.updated_at desc, n.novel_id asc`
-        : `n.views_count ${orderDirection}, n.updated_at desc, n.novel_id asc`
+          ) ${orderDirection}, n.views_count desc, ${contentUpdatedAtExpression} desc, n.novel_id asc`
+        : `n.views_count ${orderDirection}, ${contentUpdatedAtExpression} desc, n.novel_id asc`
       : `${
           input.sort === 'views'
             ? 'n.views_count'
@@ -236,7 +243,7 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
                 : input.sort === 'wordCount'
                   ? `(select coalesce(sum(c.word_count), 0) from chapters c
                       where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null)`
-                  : 'n.updated_at'
+                  : contentUpdatedAtExpression
         } ${orderDirection}, n.novel_id asc`;
 
   const dataParams = isRelevanceWithQuery
@@ -482,7 +489,7 @@ export async function findReadableChapter(chapterId: string) {
 
 export async function incrementNovelViews(novelId: string) {
   await getPostgresPool().query(
-    'update novels set views_count = views_count + 1, updated_at = now() where novel_id = $1',
+    'update novels set views_count = views_count + 1 where novel_id = $1',
     [novelId]
   );
 }

@@ -241,6 +241,36 @@ test('reader catalog, published metadata and unified follow/library state', {
       assert.notEqual(picked.novelId, ids[4]);
     }
 
+    // Reading a chapter (incrementing views) or liking a novel must NOT change updated_at
+    // or reorder the 'Mới cập nhật' (sort=updatedAt) listing.
+    const { getReaderChapter } = await import('./reading.service.js');
+    const { likeNovel } = await import('../interactions/social.repository.js');
+    const [olderNovel, newerNovel] = [randomUUID(), randomUUID()];
+    const [olderChapter, newerChapter] = [randomUUID(), randomUUID()];
+    const [oldTime, newTime] = ['2026-01-01T00:00:00.000Z', '2026-05-01T00:00:00.000Z'];
+    await pool.query(
+      `insert into novels (novel_id, author_id, title, slug, synopsis, status, views_count, published_at, updated_at, created_at)
+       values
+         ($1, $3, 'UpdateOrder Older', $4, 'Test', 'PUBLISHED', 0, $6, $6, $6),
+         ($2, $3, 'UpdateOrder Newer', $5, 'Test', 'PUBLISHED', 0, $7, $7, $7)`,
+      [olderNovel, newerNovel, author, `slug-${olderNovel}`, `slug-${newerNovel}`, oldTime, newTime]
+    );
+    await pool.query(
+      `insert into chapters (chapter_id, novel_id, title, chapter_number, content, word_count, status, published_at, updated_at, created_at)
+       values
+         ($1, $3, 'Chap 1', 1, 'Nội dung cũ', 100, 'PUBLISHED', $5, $5, $5),
+         ($2, $4, 'Chap 1', 1, 'Nội dung mới', 100, 'PUBLISHED', $6, $6, $6)`,
+      [olderChapter, newerChapter, olderNovel, newerNovel, oldTime, newTime]
+    );
+    await getReaderChapter(olderChapter);
+    await likeNovel(reader, olderNovel);
+    const olderRow = (await pool.query('select views_count, likes_count, updated_at from novels where novel_id = $1', [olderNovel])).rows[0];
+    assert.equal(olderRow.views_count, 1);
+    assert.equal(olderRow.likes_count, 1);
+    assert.equal(new Date(olderRow.updated_at).toISOString(), oldTime);
+    const orderedByUpdated = await search({ q: 'UpdateOrder', sort: 'updatedAt', order: 'desc' });
+    assert.deepEqual(orderedByUpdated.items.map(item => item.novelId), [newerNovel, olderNovel]);
+
     // Latest published chapters must order by chapter published_at desc across novels
     // and include multiple chapters from the same novel while excluding drafts/deleted.
     const [chOld, chMid, chNew, chDraft] = [randomUUID(), randomUUID(), randomUUID(), randomUUID()];
