@@ -16,7 +16,7 @@ assert.equal(process.env.EPHURIN_ALLOW_TEST_DB_MUTATIONS, '1', 'Disposable datab
 const output = process.env.READER_EVIDENCE_DIR || await mkdtemp(path.join(tmpdir(), 'reader-acceptance-'));
 await mkdir(output, { recursive: true });
 const env = { ...process.env, READER_EVIDENCE_DIR: output,
-  PLAYWRIGHT_CHANNEL: process.env.PLAYWRIGHT_CHANNEL || 'chrome', LLM_PROVIDER: 'fake', LLM_ENABLED: 'false', RUN_COMMENT_TESTS: '1',
+  PLAYWRIGHT_CHANNEL: process.env.PLAYWRIGHT_CHANNEL || 'chrome', LLM_PROVIDER: 'fake', LLM_ENABLED: 'false', RUN_COMMENT_TESTS: '1', DISCUSSIONS_TEST_DATABASE: '1',
   ADMIN_TEST_POSTGRES_URL: process.env.ADMIN_TEST_POSTGRES_URL || 'postgresql://postgres:postgres@127.0.0.1:5432/postgres',
   ADMIN_TEST_MONGO_URL: process.env.ADMIN_TEST_MONGO_URL || 'mongodb://127.0.0.1:27017' };
 for (const key of Object.keys(env)) if (/(?:API_KEY|PROVIDER_TOKEN)$/.test(key)) env[key] = '';
@@ -30,7 +30,8 @@ const requiredBrowsers = [
   'reader-catalog-pagination.browser.test.mjs', 'reader-catalog.browser.test.mjs',
   'reader-detail-enhancements.browser.test.mjs', 'reader-detail.browser.test.mjs',
   'reader-home-accessibility.browser.test.mjs', 'reader-home-personalization.browser.test.mjs',
-  'reader-home-recovery.browser.test.mjs', 'reader-home.browser.test.mjs'
+  'reader-home-recovery.browser.test.mjs', 'reader-home.browser.test.mjs',
+  'reader-discussions-board.browser.test.mjs'
 ];
 const browserFiles = (await readdir(path.join(root, 'web/tests')))
   .filter(name => /^reader-.*\.browser\.test\.mjs$/.test(name) || requiredBrowsers.includes(name)).sort();
@@ -70,7 +71,8 @@ const steps = [
     'src/modules/auth/auth-rate-limit.test.ts', 'src/modules/auth/email-registration.postgres.test.ts',
     'src/modules/auth/google-login.postgres.test.ts', 'src/modules/novels/srs-backend-rules.postgres.test.ts',
     'src/modules/interactions/comments.integration.test.ts', 'src/modules/interactions/private-comments.integration.test.ts',
-    'src/modules/users/connections.integration.test.ts', 'src/modules/media/media.test.ts']],
+    'src/modules/users/connections.integration.test.ts', 'src/modules/media/media.test.ts',
+    'src/modules/discussions/discussions.postgres.test.ts', 'src/modules/discussions/discussions-moderation.postgres.test.ts']],
   ['reader-browsers', 'web', process.execPath, ['--test', '--test-concurrency=1', ...browserFiles.map(name => `tests/${name}`)]],
   ['reader-contrast', 'web', process.execPath, ['--test', 'tests/contrast.test.mjs']]
 ];
@@ -100,7 +102,10 @@ try {
         'Google sign-in validates the web challenge and links only with the existing password',
         'clean novel requests are idempotent, private until approval and rechecked before publication',
         'chapter decisions apply only the submitted revision and keep the prior public version during review',
-        'a due chapter waits for admin approval and the schedule tracks the same review'
+        'a due chapter waits for admin approval and the schedule tracks the same review',
+        'discussions use Postgres for public pagination, reply trees, counters and permissions',
+        'moderation covers report dedupe, scoped admin review, hide and public visibility',
+        'accepted forum reports notify the discussion author once and rejections stay silent'
       ];
       const completed = new Set(log.split(/\r?\n/).flatMap(line => {
         const result = line.match(/^\s*ok \d+ - ([^#]+)$/);
