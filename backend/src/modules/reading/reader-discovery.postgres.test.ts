@@ -297,28 +297,36 @@ test('reader catalog, published metadata and unified follow/library state', {
       new Date(afterPublishRevision.items[0].lastUpdatedAt).toISOString()
     );
 
-    // Migration 037 backfill must preserve the latest APPROVED revision review timestamp
-    // instead of regressing to initial published_at or promoting an unapproved draft save.
-    const backfillChapter = randomUUID();
+    // Migration 037 backfill must preserve the latest APPROVED publication/revision review
+    // timestamp (both KEYWORD_FILTER and clean PUBLICATION_REQUEST) instead of regressing
+    // to initial published_at, USER_REPORT reviews, or later unapproved draft saves.
+    const [backfillKeywordChapter, backfillPubReqChapter] = [randomUUID(), randomUUID()];
     const initialPub = '2026-01-10T00:00:00.000Z';
-    const approvedRev = '2026-03-15T12:00:00.000Z';
+    const approvedKeywordRev = '2026-03-15T12:00:00.000Z';
+    const approvedPubReqRev = '2026-04-10T08:30:00.000Z';
     const laterReport = '2026-05-01T00:00:00.000Z';
     const laterDraft = '2026-06-20T00:00:00.000Z';
     await pool.query(
       `insert into chapters (chapter_id, novel_id, title, chapter_number, content, word_count, status, published_at, published_updated_at, updated_at, created_at)
-       values ($1, $2, 'Chap backfill', 2, 'Nội dung đã duyệt sửa', 150, 'PUBLISHED', $3, null, $4, $3)`,
-      [backfillChapter, newerNovel, initialPub, laterDraft]
+       values
+         ($1, $3, 'Chap backfill keyword', 2, 'Nội dung đã duyệt sửa', 150, 'PUBLISHED', $4, null, $5, $4),
+         ($2, $3, 'Chap backfill pubreq', 3, 'Nội dung sửa sạch qua publication request', 180, 'PUBLISHED', $4, null, $5, $4)`,
+      [backfillKeywordChapter, backfillPubReqChapter, newerNovel, initialPub, laterDraft]
     );
     await pool.query(
       `insert into moderation_reviews (target_type, target_id, source, status, reviewed_at, updated_at, created_at)
        values
-         ('CHAPTER', $1, 'KEYWORD_FILTER', 'APPROVED', $2, $2, $2),
-         ('CHAPTER', $1, 'USER_REPORT', 'APPROVED', $3, $3, $3)`,
-      [backfillChapter, approvedRev, laterReport]
+         ('CHAPTER', $1, 'KEYWORD_FILTER', 'APPROVED', $3, $3, $3),
+         ('CHAPTER', $1, 'USER_REPORT', 'APPROVED', $5, $5, $5),
+         ('CHAPTER', $2, 'PUBLICATION_REQUEST', 'APPROVED', $4, $4, $4),
+         ('CHAPTER', $2, 'USER_REPORT', 'APPROVED', $5, $5, $5)`,
+      [backfillKeywordChapter, backfillPubReqChapter, approvedKeywordRev, approvedPubReqRev, laterReport]
     );
     await pool.query(await readFile(new URL('../../core/database/migrations/037_chapter_content_published_updated_at.sql', import.meta.url), 'utf8'));
-    const backfilledRow = (await pool.query('select published_updated_at from chapters where chapter_id = $1', [backfillChapter])).rows[0];
-    assert.equal(new Date(backfilledRow.published_updated_at).toISOString(), approvedRev);
+    const keywordRow = (await pool.query('select published_updated_at from chapters where chapter_id = $1', [backfillKeywordChapter])).rows[0];
+    assert.equal(new Date(keywordRow.published_updated_at).toISOString(), approvedKeywordRev);
+    const pubReqRow = (await pool.query('select published_updated_at from chapters where chapter_id = $1', [backfillPubReqChapter])).rows[0];
+    assert.equal(new Date(pubReqRow.published_updated_at).toISOString(), approvedPubReqRev);
 
     // Latest published chapters must order by chapter published_at desc across novels
     // and include multiple chapters from the same novel while excluding drafts/deleted.

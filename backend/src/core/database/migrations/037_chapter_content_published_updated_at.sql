@@ -16,7 +16,7 @@ set published_updated_at = greatest(
       from moderation_reviews r
       where r.target_type = 'CHAPTER'
         and r.target_id = c.chapter_id::text
-        and r.source = 'KEYWORD_FILTER'
+        and r.source in ('KEYWORD_FILTER', 'PUBLICATION_REQUEST')
         and r.status = 'APPROVED'
     ),
     coalesce(c.published_at, c.updated_at)
