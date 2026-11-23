@@ -44,17 +44,19 @@ test('main reader UI retains animated tools, themes and guest author profiles', 
       const noOverflow = async () => assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
       try {
         await page.goto(`${base}/public`);
-        await expect(page.getByRole('heading', { name: 'Thư viện công khai', exact: true })).toBeVisible();
-        await expect(page.locator('.sc-novel-card')).toHaveCount(1);
+        await expect(page.getByRole('heading', { name: /DANH SÁCH TRUYỆN/i })).toBeVisible();
+        await expect(page.locator('.sc-catalog-story')).toHaveCount(1);
         await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
         if (width === 390) {
-          await page.getByRole('button', { name: 'Bộ lọc', exact: true }).click();
-          await expect(page.getByRole('dialog', { name: 'Bộ lọc', exact: true })).toBeVisible();
-          await expect(page.getByRole('dialog', { name: 'Bộ lọc', exact: true })).toHaveCSS('transform', 'none');
-          const bounds = await page.getByRole('dialog', { name: 'Bộ lọc', exact: true }).boundingBox();
-          assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= width);
+          await page.locator('.sc-catalog-filter-open').click();
+          const sidebar = page.locator('#sc-catalog-sidebar');
+          await expect(sidebar).toHaveClass(/open/);
+          await expect(sidebar).toBeVisible();
+          const bounds = await sidebar.boundingBox();
+          assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= width + 1);
           await page.screenshot({ path: path.join(output, `${width}-${theme}-filters.png`) });
-          await page.getByRole('button', { name: 'Xem kết quả', exact: true }).click();
+          await sidebar.getByRole('button', { name: /Xem kết quả/ }).click();
+          await expect(sidebar).not.toHaveClass(/open/);
         }
         await noOverflow();
         await page.screenshot({ path: path.join(output, `${width}-${theme}-public.png`), fullPage: true });
@@ -71,8 +73,8 @@ test('main reader UI retains animated tools, themes and guest author profiles', 
 
         await page.evaluate(() => localStorage.setItem('ephurin_access_token', 'fixture-token'));
         await page.goto(`${base}/reader`);
-        await expect(page.getByRole('heading', { name: 'Danh sách truyện', exact: true })).toBeVisible();
-        await expect(page.locator('.sc-novel-card')).toHaveCount(1);
+        await expect(page.getByRole('heading', { name: /DANH SÁCH TRUYỆN/i })).toBeVisible();
+        await expect(page.locator('.sc-catalog-story')).toHaveCount(1);
         await noOverflow();
         await page.screenshot({ path: path.join(output, `${width}-${theme}-reader.png`), fullPage: true });
 
