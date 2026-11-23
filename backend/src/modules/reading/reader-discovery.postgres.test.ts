@@ -245,6 +245,7 @@ test('reader catalog, published metadata and unified follow/library state', {
     // or reorder the 'Mới cập nhật' (sort=updatedAt) listing.
     const { getReaderChapter } = await import('./reading.service.js');
     const { likeNovel } = await import('../interactions/social.repository.js');
+    const { publishChapter, touchChapterUpdatedAt } = await import('../novels/chapters.repository.js');
     const [olderNovel, newerNovel] = [randomUUID(), randomUUID()];
     const [olderChapter, newerChapter] = [randomUUID(), randomUUID()];
     const [oldTime, newTime] = ['2026-01-01T00:00:00.000Z', '2026-05-01T00:00:00.000Z'];
@@ -256,10 +257,10 @@ test('reader catalog, published metadata and unified follow/library state', {
       [olderNovel, newerNovel, author, `slug-${olderNovel}`, `slug-${newerNovel}`, oldTime, newTime]
     );
     await pool.query(
-      `insert into chapters (chapter_id, novel_id, title, chapter_number, content, word_count, status, published_at, updated_at, created_at)
+      `insert into chapters (chapter_id, novel_id, title, chapter_number, content, word_count, status, published_at, published_updated_at, updated_at, created_at)
        values
-         ($1, $3, 'Chap 1', 1, 'Nội dung cũ', 100, 'PUBLISHED', $5, $5, $5),
-         ($2, $4, 'Chap 1', 1, 'Nội dung mới', 100, 'PUBLISHED', $6, $6, $6)`,
+         ($1, $3, 'Chap 1', 1, 'Nội dung cũ', 100, 'PUBLISHED', $5, $5, $5, $5),
+         ($2, $4, 'Chap 1', 1, 'Nội dung mới', 100, 'PUBLISHED', $6, $6, $6, $6)`,
       [olderChapter, newerChapter, olderNovel, newerNovel, oldTime, newTime]
     );
     await getReaderChapter(olderChapter);
@@ -270,6 +271,24 @@ test('reader catalog, published metadata and unified follow/library state', {
     assert.equal(new Date(olderRow.updated_at).toISOString(), oldTime);
     const orderedByUpdated = await search({ q: 'UpdateOrder', sort: 'updatedAt', order: 'desc' });
     assert.deepEqual(orderedByUpdated.items.map(item => item.novelId), [newerNovel, olderNovel]);
+
+    // Saving a private draft of an already-PUBLISHED chapter touches chapters.updated_at,
+    // which must NOT move the novel ahead in public 'Mới cập nhật' ordering.
+    await touchChapterUpdatedAt(olderChapter);
+    const afterDraftSave = await search({ q: 'UpdateOrder', sort: 'updatedAt', order: 'desc' });
+    assert.deepEqual(afterDraftSave.items.map(item => item.novelId), [newerNovel, olderNovel]);
+    assert.equal(new Date(afterDraftSave.items[1].lastUpdatedAt).toISOString(), oldTime);
+
+    // Approving/publishing a revision of that chapter updates published_updated_at, moving the
+    // novel to the top and exposing the same fresh lastUpdatedAt/updatedAt in search results.
+    await publishChapter(olderChapter, { title: 'Chap 1 (đã sửa)', content: 'Nội dung công khai mới', wordCount: 120 });
+    const afterPublishRevision = await search({ q: 'UpdateOrder', sort: 'updatedAt', order: 'desc' });
+    assert.deepEqual(afterPublishRevision.items.map(item => item.novelId), [olderNovel, newerNovel]);
+    assert.ok(Date.parse(afterPublishRevision.items[0].lastUpdatedAt) > Date.parse(newTime));
+    assert.equal(
+      new Date(afterPublishRevision.items[0].updatedAt).toISOString(),
+      new Date(afterPublishRevision.items[0].lastUpdatedAt).toISOString()
+    );
 
     // Latest published chapters must order by chapter published_at desc across novels
     // and include multiple chapters from the same novel while excluding drafts/deleted.

@@ -12,7 +12,9 @@ test('reader catalog: cover cards, unified sorting, selectable filters and scrol
   const browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
   const base = `http://127.0.0.1:${server.httpServer.address().port}`;
   const image = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="300"><rect width="200" height="300" fill="#775f55"/><circle cx="100" cy="110" r="60" fill="#e9c899"/><text x="100" y="225" text-anchor="middle" fill="white" font-size="20">StoryCraft</text></svg>');
-  const novels = Array.from({ length: 30 }, (_, index) => ({ novelId: `novel-${index}`, authorId: 'author-1', title: `Hành trình qua những mùa gió ${index + 1}`, coverImageUrl: index === 1 ? null : image, genre: 'Fantasy', tags: ['Magic'], authorName: 'Hidden author', synopsis: 'Hidden synopsis', status: index % 2 ? 'COMPLETED' : 'ONGOING', chaptersCount: 12, viewsCount: 1250, likesCount: 99 }));
+  const recentIso = new Date().toISOString();
+  const oldIso = '2025-01-01T00:00:00Z';
+  const novels = Array.from({ length: 30 }, (_, index) => ({ novelId: `novel-${index}`, authorId: 'author-1', title: `Hành trình qua những mùa gió ${index + 1}`, coverImageUrl: index === 1 ? null : image, genre: 'Fantasy', tags: ['Magic'], authorName: 'Hidden author', synopsis: 'Hidden synopsis', status: index % 2 ? 'COMPLETED' : 'ONGOING', chaptersCount: 12, viewsCount: 1250, likesCount: 99, updatedAt: oldIso, lastUpdatedAt: index === 0 ? recentIso : oldIso }));
   try {
     for (const width of [1440, 390]) for (const theme of ['light', 'dark']) {
       const context = await browser.newContext({ viewport: { width, height: 900 } });
@@ -41,6 +43,8 @@ test('reader catalog: cover cards, unified sorting, selectable filters and scrol
         await expect(page.locator('.sc-catalog-title-count')).toHaveText('(30)');
         await expect(page.locator('.sc-catalog-story')).toHaveCount(30);
         const card = page.locator('.sc-catalog-story').first();
+        await expect(card.locator('.sc-catalog-new-badge')).toHaveText('Mới');
+        await expect(page.locator('.sc-catalog-story').nth(1).locator('.sc-catalog-new-badge')).toHaveCount(0);
         await expect(card).toContainText('12 chương');
         await expect(card).toContainText('1.250 lượt đọc');
         await expect(card).toContainText('Đang ra');

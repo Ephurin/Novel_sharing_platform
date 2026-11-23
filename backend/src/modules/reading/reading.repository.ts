@@ -40,7 +40,8 @@ function mapNovelSummary(row: QueryResultRow) {
     viewsCount: row.views_count,
     chaptersCount: row.chapters_count,
     latestChapter: row.latest_chapter ?? null,
-    updatedAt: row.updated_at
+    lastUpdatedAt: row.last_updated_at ?? null,
+    updatedAt: row.last_updated_at ?? row.updated_at
   };
 }
 
@@ -205,7 +206,7 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
   const orderDirection = input.order === 'asc' ? 'asc' : 'desc';
   const isRelevanceWithQuery = input.sort === 'relevance' && Boolean(trimmedQuery);
   const contentUpdatedAtExpression = `coalesce(
-    (select max(greatest(coalesce(c.published_at, c.updated_at), c.updated_at)) from chapters c
+    (select max(coalesce(c.published_updated_at, c.published_at)) from chapters c
       where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null),
     n.published_at,
     n.updated_at,
@@ -266,6 +267,7 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
           where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null
           order by c.published_at desc nulls last, c.chapter_number desc
           limit 1) as latest_chapter,
+        ${contentUpdatedAtExpression} as last_updated_at,
         coalesce(
           json_agg(t.name order by t.name) filter (where t.tag_id is not null),
           '[]'::json
