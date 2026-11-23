@@ -1,7 +1,9 @@
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { findCommentRecordById } from '../interactions/comments.repository.js';
+import { getDiscussionReviewTarget, isDiscussionTarget } from '../discussions/discussions.admin.js';
 
 export async function getAdminReviewTarget(type: string, targetId: string) {
+  if (isDiscussionTarget(type)) return getDiscussionReviewTarget(type, targetId);
   const pool = getPostgresPool();
   if (type === 'COMMENT') {
     const comment = await findCommentRecordById(targetId);

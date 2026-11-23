@@ -96,6 +96,7 @@ export function AuthorNavbar() {
   // admins get the writing workspace links.
   const isWriter = user?.role === 'AUTHOR' || user?.role === 'ADMIN';
   const path = location.pathname;
+  const discussionsActive = path === '/discussions' || path.startsWith('/discussions/');
   const catalogPath: '/reader' | '/public' = user ? '/reader' : '/public';
   const [navbarHidden, setNavbarHidden] = useState(false);
   const navbarRef = useRef<HTMLElement>(null);
@@ -135,7 +136,7 @@ export function AuthorNavbar() {
   }
 
   return (
-    <header ref={navbarRef} className={`sc-navbar${navbarHidden ? ' sc-navbar-hidden' : ''}`} inert={navbarHidden} onFocusCapture={() => setNavbarHidden(false)}>
+    <header ref={navbarRef} className={`sc-navbar${discussionsActive ? ' sc-navbar-discussions' : ''}${navbarHidden ? ' sc-navbar-hidden' : ''}`} inert={navbarHidden} onFocusCapture={() => setNavbarHidden(false)}>
       <div className="sc-navbar-inner">
         <Link to="/" className="sc-brand" aria-label={`StoryCraft — ${navigationLabels.home}`}>
           <span className="material-symbols-outlined">menu_book</span>
@@ -158,6 +159,10 @@ export function AuthorNavbar() {
                       {readerActive && navPill}
                       <span>{navigationLabels.readerHome}</span>
                     </NavLink>
+                    <NavLink to="/discussions" className={readerLink(discussionsActive)}>
+                      {discussionsActive && navPill}
+                      <span>Thảo luận</span>
+                    </NavLink>
                     <NavLink to="/author/profile" className={profileActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
                       {profileActive && navPill}
                       <span>{navigationLabels.authorProfile}</span>
@@ -171,6 +176,7 @@ export function AuthorNavbar() {
               {[
                 { to: '/', label: navigationLabels.home, active: path === '/' },
                 { to: '/reader', label: navigationLabels.readerHome, active: path === '/reader' || path.startsWith('/reader/novels') || path.startsWith('/reader/chapters') || path.startsWith('/authors/') },
+                { to: '/discussions', label: 'Thảo luận', active: discussionsActive },
               ].map((item) => (
                 <Link key={item.to} to={item.to} className={readerLink(item.active)}>
                   {item.active && navPill}
@@ -183,6 +189,7 @@ export function AuthorNavbar() {
               {[
                 { to: '/', label: navigationLabels.home, active: path === '/' },
                 { to: '/public', label: navigationLabels.readerHome, active: path.startsWith('/public') && !path.startsWith('/public/bookmarks') },
+                { to: '/discussions', label: 'Thảo luận', active: discussionsActive },
               ].map((item) => (
                 <Link key={item.to} to={item.to} className={readerLink(item.active)}>
                   {item.active && navPill}

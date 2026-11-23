@@ -100,3 +100,91 @@ for (const theme of ['light', 'dark']) {
     });
   }
 }
+
+// Community board (features/discussions/discussions.css). The board keeps its own
+// `--forum-*` palette scoped to `.sc-discussions-shell`, so the ink/wash pairs are
+// checked the same way as the global tokens: every category ink against the page
+// wash, the 10% category wash it labels, and the two section cards.
+const forumCss = readFileSync(new URL('../src/features/discussions/discussions.css', import.meta.url), 'utf8');
+
+// Anchored at the start of a line so `.sc-discussions-shell` does not also match
+// the dark rule, whose selector ends with the same substring.
+function forumTokens(selector) {
+  const merged = {};
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const rule = new RegExp(`^${escaped} \\{([^}]*)\\}`, 'gm');
+  for (const block of forumCss.matchAll(rule)) {
+    for (const match of block[1].matchAll(/(--forum-[\w-]+)\s*:\s*([^;]+);/g)) merged[match[1]] = match[2].trim();
+  }
+  return merged;
+}
+
+const forumLight = forumTokens('.sc-discussions-shell');
+const forumDark = forumTokens(':root[data-theme="dark"] .sc-discussions-shell');
+const FORUM_HUES = ['coral', 'sage', 'blue', 'plum', 'amber'];
+
+for (const [theme, forum] of [['light', forumLight], ['dark', forumDark]]) {
+  const sc = tokensFor(theme);
+  const merged = { ...sc, ...forum };
+  // One level of `var(--token)` indirection is enough: `--forum-coral-ink` points at
+  // the global primary text token so the brand colour is declared once.
+  const v = (name) => {
+    // Follow the `var()` chain (forum ink → primary text → its rgb triple).
+    let current = name;
+    for (let hop = 0; hop < 4; hop += 1) {
+      const value = merged[current];
+      const alias = typeof value === 'string' && value.match(/^(?:rgb\()?var\((--[\w-]+)\)\)?$/);
+      if (!alias) break;
+      current = alias[1];
+    }
+    return rgb(merged, current);
+  };
+  const surface = v('--sc-surface-rgb');
+  const page = v('--forum-page');
+  const paper = v('--forum-paper');
+  const field = v('--forum-field');
+  const notice = v('--forum-notice');
+  const pairs = FORUM_HUES.map((hue) => [
+    `${hue} ink on page wash`,
+    v(`--forum-${hue}-ink`),
+    page
+  ]).concat(FORUM_HUES.map((hue) => [
+    `${hue} ink on its 10% wash`,
+    v(`--forum-${hue}-ink`),
+    blend(v(`--forum-${hue}`), surface, 0.10)
+  ])).concat(FORUM_HUES.map((hue) => [
+    // Selected tab pill: 12% of the hue over the paper surface.
+    `${hue} ink on its selected tab pill`,
+    v(`--forum-${hue}-ink`),
+    blend(v(`--forum-${hue}`), paper, 0.12)
+  ])).concat([
+    ['body text on page wash', v('--sc-text-rgb'), page],
+    ['muted strong on page wash', v('--forum-muted-strong'), page],
+    ['muted strong on sage card', v('--forum-muted-strong'), v('--forum-tint-sage')],
+    ['muted strong on plum card', v('--forum-muted-strong'), v('--forum-tint-plum')],
+    ['sage heading on sage card', v('--forum-sage-ink'), v('--forum-tint-sage')],
+    ['plum heading on plum card', v('--forum-plum-ink'), v('--forum-tint-plum')],
+    ['feature title on featured wash', v('--sc-text-rgb'), v('--forum-tint-sage')],
+    // Paper surfaces: the article, the comment panel and the composer field.
+    ['body text on paper', v('--sc-text-rgb'), paper],
+    ['muted strong on paper', v('--forum-muted-strong'), paper],
+    ['body text on composer field', v('--sc-text-rgb'), field],
+    ['placeholder on composer field', v('--forum-muted-strong'), field],
+    // Secondary notices sit on their own surface inside the sage panel.
+    ['notice title on notice surface', v('--sc-text-rgb'), notice],
+    ['notice meta on notice surface', v('--forum-muted-strong'), notice],
+    ['coral kicker on notice surface', v('--forum-coral-ink'), notice],
+    ['sage kicker on notice surface', v('--forum-sage-ink'), notice],
+    ['amber kicker on notice surface', v('--forum-amber-ink'), notice],
+    // Trending ranks ride a 15% plum chip (24% for the lead row).
+    ['plum rank on 15% chip', v('--forum-plum-ink'), blend(v('--forum-plum'), paper, 0.15)],
+    ['plum rank on 24% chip', v('--forum-plum-ink'), blend(v('--forum-plum'), paper, 0.24)]
+  ]);
+
+  for (const [label, foreground, background] of pairs) {
+    test(`${theme}: community ${label} reaches 4.5:1`, () => {
+      const ratio = contrast(foreground, background);
+      assert.ok(ratio >= 4.5, `${label} is ${ratio.toFixed(2)}:1 (${foreground} on ${background})`);
+    });
+  }
+}

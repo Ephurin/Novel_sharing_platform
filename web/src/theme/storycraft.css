@@ -10,6 +10,9 @@
   --sc-reader-dark-bg: #24221f;
   --sc-reader-dark-text: #f2efea;
   --sc-font: "Be Vietnam Pro", system-ui, sans-serif;
+  /* Editorial display face for community headings only (self-hosted Literata, see
+     features/discussions). Falls back to the UI font if the chunk is unavailable. */
+  --sc-font-display: "Literata", "Be Vietnam Pro", system-ui, sans-serif;
   --sc-bg-rgb: 248 247 244;
   --sc-surface-rgb: 255 255 255;
   --sc-subtle-rgb: 252 251 248;

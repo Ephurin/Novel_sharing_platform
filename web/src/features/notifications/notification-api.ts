@@ -15,6 +15,7 @@ const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   NOVEL_CHAPTER_PUBLISHED: 'Chương mới',
   NEW_CHAPTER: 'Chương mới',
   COMMENT_REPLY: 'Trả lời bình luận',
+  DISCUSSION_REPLY: 'Phản hồi thảo luận',
   AUTHOR_REPLY: 'Phản hồi từ tác giả',
   READER_COMMENT: 'Bình luận mới',
   PUBLICATION_REVIEW: 'Kiểm duyệt xuất bản',
@@ -56,6 +57,13 @@ export function notificationTypeLabel(type: string): string {
 }
 
 export function notificationHref(item: AppNotification, reader = false) {
+  if (item.type === 'DISCUSSION_REPLY') {
+    const { topicId, commentId } = item.payload;
+    const uuid = /^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i;
+    if (typeof topicId !== 'string' || !uuid.test(topicId) ||
+        typeof commentId !== 'string' || !uuid.test(commentId)) return null;
+    return `/discussions/${topicId}?commentId=${commentId}#comment-${commentId}`;
+  }
   const href = item.payload.href;
   if (typeof href !== 'string' || !(/^\/(author|reader|public)\//.test(href) || href === '/wallet')) return null;
   if (!['COMMENT_REPLY', 'AUTHOR_REPLY'].includes(item.type) || typeof item.payload.commentId !== 'string') return href;

@@ -37,7 +37,7 @@ export function AdminModerationDetailPage() {
         decision!,
         reason,
         query.data?.source === 'USER_REPORT'
-          ? reportAction || (query.data.targetType === 'COMMENT' ? 'HIDE' : 'WARN')
+          ? (query.data.targetType.startsWith('DISCUSSION') ? 'HIDE' : reportAction || (query.data.targetType === 'COMMENT' ? 'HIDE' : 'WARN'))
           : undefined
       ),
     onSuccess: async () => {
@@ -66,6 +66,8 @@ export function AdminModerationDetailPage() {
   if (!review) return <EmptyState description="Không tìm thấy mục kiểm duyệt." />;
   const report = review.source === 'USER_REPORT';
   const commentReport = report && review.targetType === 'COMMENT';
+  const discussionReport = report && review.targetType.startsWith('DISCUSSION');
+  const selectedAction = discussionReport ? 'HIDE' : reportAction || (commentReport ? 'HIDE' : 'WARN');
   const content = review.target?.content || '';
   const publication = !report && (review.targetType === 'NOVEL' || review.targetType === 'CHAPTER');
   const approveLabel = report ? 'Chấp nhận báo cáo' : publication ? 'Duyệt xuất bản' : 'Duyệt nội dung';
@@ -188,8 +190,8 @@ export function AdminModerationDetailPage() {
               <Select
                 label="Hành động khi tiếp nhận báo cáo"
                 mb="md"
-                value={reportAction || (commentReport ? 'HIDE' : 'WARN')}
-                data={[
+                value={selectedAction}
+                data={discussionReport ? [{ value: 'HIDE', label: 'Ẩn nội dung vi phạm' }] : [
                   { value: 'WARN', label: 'Cảnh báo, giữ nguyên nội dung' },
                   ...(review.targetType === 'USER'
                     ? access.data?.permissions.includes('users')
@@ -263,7 +265,7 @@ export function AdminModerationDetailPage() {
           decision === 'REJECTED' ||
           (Boolean(report) &&
             decision === 'APPROVED' &&
-            (reportAction || (commentReport ? 'HIDE' : 'WARN')) !== 'WARN')
+            selectedAction !== 'WARN')
         }
         opened={!!decision}
         title={decision === 'APPROVED' ? approveLabel : rejectLabel}
@@ -279,7 +281,7 @@ export function AdminModerationDetailPage() {
         <p>
           {report
             ? decision === 'APPROVED'
-              ? (reportAction || (commentReport ? 'HIDE' : 'WARN')) === 'WARN'
+              ? selectedAction === 'WARN'
                 ? 'Gửi cảnh báo và đánh dấu báo cáo đã xử lý. Nội dung được giữ nguyên.'
                 : reportAction === 'LOCK'
                   ? 'Khóa tài khoản và ghi nhận lý do.'

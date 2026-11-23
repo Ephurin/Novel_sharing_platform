@@ -6,6 +6,7 @@ import { applySanction } from '../admin/admin-sanctions.js';
 import { drainAdminJobs, queueAdminNotification } from '../admin/admin-jobs.js';
 import { findCommentRecordById } from '../interactions/comments.repository.js';
 import type { ResolveReviewInput } from './content-control.schemas.js';
+import { hideDiscussionForReport, isDiscussionTarget } from '../discussions/discussions.admin.js';
 
 // User reports address violations. They must never publish/reject publication snapshots.
 export async function resolveUserReport(
@@ -26,10 +27,11 @@ export async function resolveUserReport(
     if (input.decision === 'REVISION_REQUIRED')
       throw new AppError(422, 'REPORT_DECISION', 'Chọn tiếp nhận hoặc bác báo cáo.');
     const accepted = input.decision === 'APPROVED';
+    const discussionTarget = isDiscussionTarget(review.target_type) ? review.target_type : null;
     const action = accepted
-      ? (input.action ?? (review.target_type === 'COMMENT' ? 'HIDE' : 'WARN'))
+      ? (input.action ?? (review.target_type === 'COMMENT' || discussionTarget ? 'HIDE' : 'WARN'))
       : 'DISMISS';
-    const allowed = review.target_type === 'USER' ? ['WARN', 'LOCK'] : ['WARN', 'HIDE'];
+    const allowed = discussionTarget ? ['HIDE'] : review.target_type === 'USER' ? ['WARN', 'LOCK'] : ['WARN', 'HIDE'];
     if (accepted && !allowed.includes(action))
       throw new AppError(422, 'REPORT_ACTION', 'Hành động không phù hợp với đối tượng.');
     const reason = requiredReason(input.reason);
@@ -38,7 +40,10 @@ export async function resolveUserReport(
     const reports = (
       await client.query('select * from reports where review_id=$1 order by created_at', [reviewId])
     ).rows;
-    const sanction = accepted
+    const discussionAuthorId = accepted && discussionTarget
+      ? await hideDiscussionForReport(client, discussionTarget, review.target_id)
+      : undefined;
+    const sanction = accepted && !discussionTarget
       ? await applySanction(client, auth, {
           targetType: review.target_type,
           targetId: review.target_id,
@@ -59,7 +64,7 @@ export async function resolveUserReport(
       action: `REPORT_${accepted ? 'ACCEPTED' : 'DISMISSED'}`,
       targetType: review.target_type,
       targetId: review.target_id,
-      affectedUserId: sanction?.owner_id,
+      affectedUserId: discussionAuthorId ?? sanction?.owner_id,
       reason,
       before: { status: 'PENDING', reviewId },
       after: { status: input.decision, action }
@@ -89,7 +94,25 @@ export async function resolveUserReport(
           reason
         }
       });
-    const notified = new Set<string>(comment ? [comment.userId] : []);
+    if (discussionAuthorId)
+      await queueAdminNotification(client, {
+        userId: discussionAuthorId,
+        type: 'DISCUSSION_REMOVED_BY_REPORT',
+        title: 'Nội dung thảo luận của bạn đã bị ẩn',
+        content: reason,
+        payload: {
+          reviewId,
+          targetType: review.target_type,
+          targetId: review.target_id,
+          decision: input.decision,
+          adminId: auth.userId,
+          reason
+        }
+      });
+    const notified = new Set<string>([
+      ...(comment ? [comment.userId] : []),
+      ...(discussionAuthorId ? [discussionAuthorId] : [])
+    ]);
     for (const report of reports) {
       if (notified.has(report.reporter_id)) continue;
       notified.add(report.reporter_id);
