@@ -208,19 +208,21 @@ export function ModeratorReviewDetailPage() {
               >
                 {report ? 'Chấp nhận báo cáo' : publication ? 'Duyệt xuất bản' : 'Duyệt nội dung'}
               </Button>
-              <Button
-                color="orange"
-                variant="light"
-                disabled={review.status !== 'PENDING' || mutation.isPending}
-                data-testid="moderator-revision-review-btn"
-                onClick={() => {
-                  mutation.reset();
-                  setReason('');
-                  setDecision('REVISION_REQUIRED');
-                }}
-              >
-                Yêu cầu sửa
-              </Button>
+              {publication && (
+                <Button
+                  color="orange"
+                  variant="light"
+                  disabled={review.status !== 'PENDING' || mutation.isPending}
+                  data-testid="moderator-revision-review-btn"
+                  onClick={() => {
+                    mutation.reset();
+                    setReason('');
+                    setDecision('REVISION_REQUIRED');
+                  }}
+                >
+                  Yêu cầu sửa
+                </Button>
+              )}
               <Button
                 color="red"
                 className="admin-danger"

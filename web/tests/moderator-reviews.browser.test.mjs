@@ -14,6 +14,7 @@ const moderatorUser = {
 };
 
 const reviewId = '11111111-2222-3333-4444-555555555555';
+const commentReviewId = '12121212-2323-4343-5454-656565656565';
 
 const listReview = {
   reviewId,
@@ -53,6 +54,31 @@ const detailReview = {
   evidenceSummary: { matchedRules: [], reportCount: 0, summary: null }
 };
 
+const commentReviewDetail = {
+  reviewId: commentReviewId,
+  targetType: 'COMMENT',
+  targetId: '65656565-7575-8686-9797-a8a8a8a8a8a8',
+  status: 'PENDING',
+  source: 'KEYWORD_FILTER',
+  createdAt: '2026-01-21T10:00:00.000Z',
+  reason: null,
+  reviewedAt: null,
+  target: {
+    title: null,
+    content: 'Bình luận chứa từ khóa bị lọc và đang chờ điều hành viên xử lý.',
+    username: 'reader_b',
+    novelTitle: 'Truyện chờ duyệt của tác giả A',
+    chapterTitle: null,
+    novelId: '99999999-8888-7777-6666-555555555555',
+    isSubmittedVersion: false
+  },
+  sanctions: [],
+  reportReasons: [],
+  reportDescriptions: [],
+  ownerViolations: [],
+  evidenceSummary: { matchedRules: ['harassment'], reportCount: 0, summary: 'Từ khóa bị lọc: harassment' }
+};
+
 test('PR-02: the moderator workspace lists reviews, requires decisions with reasons, and hides the LOCK path', { timeout: 90000 }, async () => {
   const server = await createServer({
     root: fileURLToPath(new URL('../', import.meta.url)),
@@ -82,15 +108,16 @@ test('PR-02: the moderator workspace lists reviews, requires decisions with reas
         return;
       }
       if (/\/moderator\/reviews\/[^/]+$/.test(url.pathname)) {
-        await route.fulfill({ json: { success: true, data: detailReview } });
+        const isCommentReview = url.pathname.endsWith(commentReviewId);
+        await route.fulfill({ json: { success: true, data: isCommentReview ? commentReviewDetail : detailReview } });
         return;
       }
       if (url.pathname.endsWith('/moderator/reviews')) {
         await route.fulfill({
           json: {
             success: true,
-            data: [listReview],
-            meta: { page: 1, limit: 8, totalItems: 1, totalPages: 1 }
+            data: [listReview, { ...listReview, reviewId: commentReviewId, targetType: 'COMMENT', source: 'KEYWORD_FILTER', targetTitle: null }],
+            meta: { page: 1, limit: 8, totalItems: 2, totalPages: 1 }
           }
         });
         return;
@@ -134,6 +161,13 @@ test('PR-02: the moderator workspace lists reviews, requires decisions with reas
     assert.equal(resolveCalls[0].action, undefined, 'publication reviews carry no report action');
 
     assert.deepEqual(errors, [], 'uncaught page errors during the moderator workspace flow');
+
+    await page.goto(base + `/moderator/reviews/${commentReviewId}`);
+    await expect(page.getByRole('heading', { name: 'Chi tiết hồ sơ điều hành' })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByTestId('moderator-approve-review-btn')).toBeVisible();
+    await expect(page.getByTestId('moderator-reject-review-btn')).toBeVisible();
+    assert.equal(await page.getByTestId('moderator-revision-review-btn').count(), 0, 'comment reviews have no revision decision');
+    assert.deepEqual(errors, [], 'uncaught page errors during the comment review visit');
   } finally {
     await browser.close();
     await server.close();
