@@ -72,7 +72,8 @@ const steps = [
     'src/modules/auth/google-login.postgres.test.ts', 'src/modules/novels/srs-backend-rules.postgres.test.ts',
     'src/modules/interactions/comments.integration.test.ts', 'src/modules/interactions/private-comments.integration.test.ts',
     'src/modules/users/connections.integration.test.ts', 'src/modules/media/media.test.ts',
-    'src/modules/discussions/discussions.postgres.test.ts', 'src/modules/discussions/discussions-moderation.postgres.test.ts']],
+    'src/modules/discussions/discussions.postgres.test.ts', 'src/modules/discussions/discussions-moderation.postgres.test.ts',
+    'src/modules/discussions/discussions-moderator.postgres.test.ts', 'src/modules/discussions/discussions-sanctions.postgres.test.ts']],
   ['reader-browsers', 'web', process.execPath, ['--test', '--test-concurrency=1', ...browserFiles.map(name => `tests/${name}`)]],
   ['reader-contrast', 'web', process.execPath, ['--test', 'tests/contrast.test.mjs']]
 ];
