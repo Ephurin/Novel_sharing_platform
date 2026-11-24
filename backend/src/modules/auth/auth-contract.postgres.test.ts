@@ -199,6 +199,53 @@ describe('PR-01: moderator role capability and access-version session contract',
     assert.equal((await bearerCall(base, '/admin/access', { token: mint(reader, 'ADMIN', 2) })).status, 200);
   });
 
+  test('E09: an appeal session is rejected once the access version moves', async () => {
+    const open = async () =>
+      await fetch(base + '/account/appeal-session', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ identifier: `pr01-${reader}@example.test`, password: PASSWORD })
+      });
+    const opened = await open();
+    assert.equal(opened.status, 200);
+    const appealToken = ((await opened.json()) as { data: { token: string } }).data.token;
+    const decisions = await bearerCall(base, '/account/decisions', { token: appealToken });
+    assert.equal(decisions.status, 200);
+
+    await pool.query('update users set access_version = access_version + 1 where user_id = $1', [reader]);
+    const stale = await bearerCall(base, '/account/decisions', { token: appealToken });
+    assert.equal(stale.status, 401);
+    assert.equal((stale.body as { error?: { code?: string } }).error?.code, 'AUTH_009');
+
+    const reopened = await open();
+    assert.equal(reopened.status, 200);
+    const freshToken = ((await reopened.json()) as { data: { token: string } }).data.token;
+    assert.equal((await bearerCall(base, '/account/decisions', { token: freshToken })).status, 200);
+  });
+
+  test('E16: VIP chapters still require the Moderator personal wallet unlock', async () => {
+    const vipChapter = randomUUID();
+    await pool.query(
+      "insert into chapters(chapter_id,novel_id,chapter_number,title,content,status,is_vip,price_coins,published_at) values($1,$2,1,'PR-01 chương VIP','Nội dung chương VIP để kiểm quyền cá nhân.','PUBLISHED',true,199,now())",
+      [vipChapter, strangerNovel]
+    );
+    const denied = await bearerCall(base, `/reading/chapters/${vipChapter}`, { token: moderatorToken() });
+    assert.equal(denied.status, 402);
+    assert.equal((denied.body as { error?: { code?: string } }).error?.code, 'PAYMENT_002');
+
+    const unlock = await bearerCall(base, `/chapters/${vipChapter}/unlock`, {
+      method: 'POST',
+      token: moderatorToken()
+    });
+    assert.equal(unlock.status, 200);
+    const unlocked = await bearerCall(base, `/reading/chapters/${vipChapter}`, { token: moderatorToken() });
+    assert.equal(unlocked.status, 200);
+    assert.equal((unlocked.body as { data?: { content?: string } }).data?.content, 'Nội dung chương VIP để kiểm quyền cá nhân.');
+    // Restore the seeded wallet state so the later E16/E17 wallet assertions keep their baseline.
+    await pool.query('update wallets set coins_balance = 200 where user_id = $1', [moderator]);
+    await pool.query('update wallets set coins_balance = 50000 where user_id = $1', [stranger]);
+  });
+
   test('E09: a moderator session before revocation stops working after the version moves', async () => {
     const beforeRevoke = await bearerCall(base, '/auth/me', { token: moderatorToken(0) });
     assert.equal(beforeRevoke.status, 200);

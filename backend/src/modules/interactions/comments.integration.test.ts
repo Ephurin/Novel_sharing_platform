@@ -22,9 +22,9 @@ test('novel/chapter comments: permissions, moderation, pagination and isolation'
     const pg=await import('../../core/database/postgres.js'), mongo=await import('../../core/database/mongo.js');
     closePostgres=pg.disconnectPostgres; closeMongo=mongo.disconnectMongo; dropMongo=()=>mongo.getMongoDatabase().dropDatabase();
     const pool=pg.getPostgresPool();
-    for(const name of ['001_auth_user_wallet','002_novels','003_chapters','004_content_control','005_reports_description','006_reading_interactions','012_reports_unique_open','012_novel_engagement','013_novel_review_text','014_novel_editorial_metadata','015_author_workflow','016_author_launch_checklist','017_transactional_moderation_evidence','021_novel_notification_subscriptions']) await pool.query(await readFile(new URL(`../../core/database/migrations/${name}.sql`,import.meta.url),'utf8'));
-    const author=randomUUID(),reader=randomUUID(),other=randomUUID(),admin=randomUUID(),outsider=randomUUID();
-    for(const [id,role] of [[author,'AUTHOR'],[reader,'READER'],[other,'READER'],[admin,'ADMIN'],[outsider,'AUTHOR']]) {
+    for(const name of ['001_auth_user_wallet','002_novels','003_chapters','004_content_control','005_reports_description','006_reading_interactions','012_reports_unique_open','012_novel_engagement','013_novel_review_text','014_novel_editorial_metadata','015_author_workflow','016_author_launch_checklist','017_transactional_moderation_evidence','021_novel_notification_subscriptions','042_moderator_role','043_user_access_version','044_chapter_notifications_moderator_capability']) await pool.query(await readFile(new URL(`../../core/database/migrations/${name}.sql`,import.meta.url),'utf8'));
+    const author=randomUUID(),reader=randomUUID(),other=randomUUID(),admin=randomUUID(),outsider=randomUUID(),mod=randomUUID();
+    for(const [id,role] of [[author,'AUTHOR'],[reader,'READER'],[other,'READER'],[admin,'ADMIN'],[outsider,'AUTHOR'],[mod,'MODERATOR']]) {
       await pool.query(`insert into users (user_id,email,username,password_hash,role) values ($1::uuid,$2,$1::text,'hash',$3)`,[id,id+'@test.invalid',role]);
       await pool.query('insert into user_profiles (user_id,display_name) values ($1,$2)',[id,'Account '+role]);
     }
@@ -54,7 +54,7 @@ test('novel/chapter comments: permissions, moderation, pagination and isolation'
     server=createApp().listen(0);await new Promise<void>(r=>server!.once('listening',r));
     const base='http://127.0.0.1:'+(server.address() as AddressInfo).port+'/api/v1';
     const token=(id:string,role='READER')=>jwt.sign({sub:id,role},env.JWT_ACCESS_SECRET);
-    const readerToken=token(reader),otherToken=token(other),authorToken=token(author,'AUTHOR'),adminToken=token(admin,'ADMIN'),outsiderToken=token(outsider,'AUTHOR');
+    const readerToken=token(reader),otherToken=token(other),authorToken=token(author,'AUTHOR'),adminToken=token(admin,'ADMIN'),outsiderToken=token(outsider,'AUTHOR'),modToken=token(mod,'MODERATOR');
     async function req(path:string,method='GET',body?:unknown,auth?:string){const r=await fetch(base+path,{method,headers:{'Content-Type':'application/json',...(auth?{Authorization:'Bearer '+auth}:{})},...(body!==undefined?{body:JSON.stringify(body)}:{})});return {status:r.status,body:r.status===204?null:await r.json() as any};}
     const n='/novels/'+novel+'/comments',c='/chapters/'+chapter+'/comments';
     assert.equal((await req(n,'POST',{content:'guest'})).status,401);
@@ -386,6 +386,19 @@ test('novel/chapter comments: permissions, moderation, pagination and isolation'
     const readerOnChapter=await req(c,'POST',{content:'Reader for owner removal'},readerToken);
     assert.equal((await req('/comments/'+readerOnChapter.body.data.commentId,'DELETE',undefined,outsiderToken)).status,403);
     assert.equal((await req('/comments/'+readerOnChapter.body.data.commentId,'DELETE',undefined,authorToken)).status,204);
+
+    const modNovel=(await pool.query("insert into novels (author_id,title,slug,synopsis,status) values ($1,'Mod novel','mod-novel','Moderator novel synopsis','PUBLISHED') returning novel_id",[mod])).rows[0].novel_id;
+    const modManage='/novels/'+modNovel+'/comments/manage';
+    const readerOnModNovel=await req('/novels/'+modNovel+'/comments','POST',{content:'Reader comment on moderator novel'},readerToken);
+    const modOwnComment=await req('/novels/'+modNovel+'/comments','POST',{content:'Moderator comment on own novel'},modToken);
+    assert.equal((await req(modManage,'GET',undefined,outsiderToken)).status,403);
+    const modManaged=await req(modManage,'GET',undefined,modToken);
+    assert.equal(modManaged.status,200);
+    const readerEntry=modManaged.body.data.find((row:any)=>row.commentId===readerOnModNovel.body.data.commentId);
+    assert.equal(readerEntry.userId,reader);assert.equal(readerEntry.canDelete,false,'Moderator-owner cannot delete someone else comment');
+    const modConflict=await req('/comments/'+readerOnModNovel.body.data.commentId,'DELETE',undefined,modToken);
+    assert.equal(modConflict.status,403);assert.equal(modConflict.body.error.code,'MOD_CONFLICT');
+    assert.equal((await req('/comments/'+modOwnComment.body.data.commentId,'DELETE',undefined,modToken)).status,204);
 
     for(const t of [authorToken,adminToken])assert.equal((await req('/comments/'+id,'PATCH',{content:'hijack'},t)).status,403);
     assert.equal((await req('/comments/'+id,'DELETE',undefined,otherToken)).status,403);

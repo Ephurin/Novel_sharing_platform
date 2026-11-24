@@ -40,7 +40,7 @@ accountAppealsRoutes.post('/appeal-session', async (req, res, next) => {
     res.json(
       successResponse({
         token: jwt.sign(
-          { sub: user.userId, role: user.role, purpose: 'APPEAL_ONLY' },
+          { sub: user.userId, role: user.role, ver: user.accessVersion ?? 0, purpose: 'APPEAL_ONLY' },
           env.JWT_ACCESS_SECRET,
           { expiresIn: '15m' }
         ),
@@ -66,12 +66,14 @@ const identity: RequestHandler = async (req, _res, next) => {
       throw new AppError(401, 'AUTH_002', 'Phiên không hợp lệ.');
     const user = (
       await getPostgresPool().query(
-        "select user_id,role from users where user_id::text=$1 and status<>'DELETED' and deleted_at is null",
+        "select user_id,role,access_version from users where user_id::text=$1 and status<>'DELETED' and deleted_at is null",
         [payload.sub]
       )
     ).rows[0];
     if (!user) throw new AppError(403, 'AUTH_ACCOUNT_INACTIVE', 'Tài khoản không tồn tại.');
     if (!userRoles.includes(user.role)) throw new AppError(403, 'AUTH_ACCOUNT_INACTIVE', 'Tài khoản không hợp lệ.');
+    const claimVersion = typeof payload.ver === 'number' && Number.isInteger(payload.ver) && payload.ver >= 0 ? payload.ver : 0;
+    if (claimVersion !== Number(user.access_version ?? 0)) throw new AppError(401, 'AUTH_009', 'Phiên khiếu nại đã đổi quyền. Hãy mở phiên khiếu nại mới.');
     req.auth = { userId: user.user_id, role: user.role };
     next();
   } catch (error) {
