@@ -307,14 +307,14 @@ test('PR-03 moderator discussion operations: reads, single-change commands, move
     assert.equal(hiddenList.status, 200);
     assert.ok(hiddenList.data.items.some(item => item.topicId === topicId));
 
-    const auditsBeforeRepeat = await auditCount('DISCUSSION_TOPIC_MODERATE', topicId);
+    const hideAuditsBeforeRepeat = await auditCount('DISCUSSION_HIDE', topicId);
     const hiddenRepeat = await call('PATCH', '/moderator/discussions/' + topicId + '/moderation',
       { status: 'HIDDEN', reason: 'ẩn topic', expected: 'VISIBLE' }, moderatorToken
     );
     assert.equal(hiddenRepeat.status, 200);
     assert.equal(
-      await auditCount('DISCUSSION_TOPIC_MODERATE', topicId),
-      auditsBeforeRepeat,
+      await auditCount('DISCUSSION_HIDE', topicId),
+      hideAuditsBeforeRepeat,
       're-sending the achieved topic status adds no second audit'
     );
 

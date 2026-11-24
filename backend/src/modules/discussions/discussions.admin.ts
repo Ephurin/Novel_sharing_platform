@@ -14,7 +14,7 @@ import {
   requiredReason,
   requireAdminPermission
 } from '../admin/admin-access.js';
-import { drainAdminJobs } from '../admin/admin-jobs.js';
+import { drainAdminJobsSafely } from '../admin/admin-jobs.js';
 import { isPublicDiscussionTarget } from './discussions.read.js';
 import { refreshTopicActivity } from './discussions.write.js';
 import { moderateDiscussionHide, restoreDiscussionSanction } from './discussions.sanctions.js';
@@ -510,7 +510,7 @@ discussionAdminRoutes.patch(
           isLocked: row.is_locked
         };
       });
-      if (jobsQueued) await drainAdminJobs();
+      if (jobsQueued) await drainAdminJobsSafely();
       response.json(successResponse(data));
     } catch (error) {
       next(error);
@@ -586,7 +586,7 @@ discussionAdminRoutes.patch(
         });
         return { commentId, topicId, status: updated.rows[0].status };
       });
-      if (jobsQueued) await drainAdminJobs();
+      if (jobsQueued) await drainAdminJobsSafely();
       response.json(successResponse(data));
     } catch (error) {
       next(error);

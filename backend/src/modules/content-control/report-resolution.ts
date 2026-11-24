@@ -4,7 +4,7 @@ import { AppError } from '../../core/errors/app-error.js';
 import { assertIndependentActor } from '../../core/security/moderation-policy.js';
 import { audit, requiredReason } from '../admin/admin-access.js';
 import { applySanction } from '../admin/admin-sanctions.js';
-import { drainAdminJobs, queueAdminNotification } from '../admin/admin-jobs.js';
+import { drainAdminJobsSafely, queueAdminNotification } from '../admin/admin-jobs.js';
 import { findCommentRecordById } from '../interactions/comments.repository.js';
 import type { ResolveReviewInput } from './content-control.schemas.js';
 import {
@@ -124,23 +124,42 @@ export async function resolveUserReport(
       });
     if (discussionOutcome && !discussionOutcome.sanction && discussionOutcome.skipped === 'achieved') {
       // The report was accepted on content a direct moderation already hid; the
-      // existing sanction covers the effect, and the author still learns the
-      // report outcome once.
-      await queueAdminNotification(client, {
-        userId: discussionOutcome.ownerId,
-        type: 'DISCUSSION_REMOVED_BY_REPORT',
-        title: 'Nội dung thảo luận của bạn đã bị ẩn',
-        content: reason,
-        payload: {
-          reviewId,
-          targetType: review.target_type,
-          targetId: review.target_id,
-          decision: input.decision,
-          adminId: auth.userId,
-          reason,
-          appealsUrl: '/appeals'
-        }
-      });
+      // existing sanction covers the effect, and the author learns the report
+      // outcome once per effective sanction, not once per duplicate review.
+      const activeSanctionId = discussionOutcome.activeSanctionId ?? null;
+      let alreadyNotified = false;
+      if (activeSanctionId)
+        alreadyNotified = Boolean(
+          (
+            await client.query(
+              `select 1 from admin_jobs
+                 where kind='NOTIFY'
+                   and payload->>'type'='DISCUSSION_REMOVED_BY_REPORT'
+                   and payload->>'userId'=$1
+                   and payload->'payload'->>'sanctionId'=$2
+                 limit 1`,
+              [discussionOutcome.ownerId, activeSanctionId]
+            )
+          ).rows[0]
+        );
+      if (!alreadyNotified)
+        await queueAdminNotification(client, {
+          userId: discussionOutcome.ownerId,
+          type: 'DISCUSSION_REMOVED_BY_REPORT',
+          title: 'Nội dung thảo luận của bạn đã bị ẩn',
+          content: reason,
+          payload: {
+            sanctionId: activeSanctionId ?? undefined,
+            auditId: discussionOutcome.activeAuditId ?? undefined,
+            reviewId,
+            targetType: review.target_type,
+            targetId: review.target_id,
+            topicId: discussionOutcome.topicId,
+            adminId: auth.userId,
+            reason,
+            appealsUrl: '/appeals'
+          }
+        });
     }
     const notified = new Set<string>([
       ...(comment ? [comment.userId] : []),
@@ -181,6 +200,6 @@ export async function resolveUserReport(
     };
   });
   // SQL decision + jobs are committed together; Mongo effects retry safely after failure/restart.
-  await drainAdminJobs();
+  await drainAdminJobsSafely();
   return result;
 }

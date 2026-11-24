@@ -6,6 +6,7 @@ import { withPostgresTransaction } from '../../core/database/transaction.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { assertAdminPermission, audit } from './admin-access.js';
 import { AppError } from '../../core/errors/app-error.js';
+import { logger } from '../../core/logger/logger.js';
 import { z } from 'zod';
 
 const maxAttempts = 6;
@@ -209,6 +210,16 @@ export async function drainAdminJobs() {
     } finally {
       client.release();
     }
+  }
+}
+
+// Route handlers call this after their transaction commits: the SQL decision is
+// durable, so a drain infrastructure failure must not turn into a 5xx.
+export async function drainAdminJobsSafely() {
+  try {
+    await drainAdminJobs();
+  } catch (error) {
+    logger.error(error);
   }
 }
 

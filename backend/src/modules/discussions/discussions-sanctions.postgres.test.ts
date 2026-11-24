@@ -445,6 +445,16 @@ test('the two hide paths converge on one sanction: races, achieved report accept
     assert.equal(achievedNotices.filter(item => item.type === 'DISCUSSION_CONTENT_HIDDEN').length, 1);
     assert.equal(achievedNotices.filter(item => item.type === 'DISCUSSION_REMOVED_BY_REPORT').length, 1);
     assert.equal(achievedNotices.length, 2, 'each decision notifies once, once per type');
+    const removedNotice = achievedNotices.find(item => item.type === 'DISCUSSION_REMOVED_BY_REPORT')!;
+    const effectiveSanction = (
+      await db.query<{ sanction_id: string; audit_id: string }>(
+        'select sanction_id,audit_id from admin_sanctions where target_type=$1 and target_id=$2 and active',
+        ['DISCUSSION', achievedTopic.data.topicId]
+      )
+    ).rows[0];
+    assert.equal(removedNotice.payload.sanctionId, effectiveSanction.sanction_id, 'the report notice carries the effective sanction');
+    assert.equal(removedNotice.payload.auditId, effectiveSanction.audit_id);
+    assert.equal(removedNotice.payload.topicId, achievedTopic.data.topicId);
 
     // 3. A failure inside the transaction leaves no sanction, audit, job or notification.
     const rollbackTopic = await call<{ topicId: string }>('POST', '/discussions', {
@@ -523,5 +533,174 @@ test('the two hide paths converge on one sanction: races, achieved report accept
     if (server) await new Promise<void>(resolve => server!.close(() => resolve()));
     await disconnectMongo().catch(() => undefined);
     await disconnectPostgres();
+  }
+});
+
+test('involved actors are blocked in achieved states and repeated accepted reviews notify the owner once', {
+  skip: process.env.DISCUSSIONS_TEST_DATABASE !== '1'
+}, async () => {
+  const { getPostgresPool, disconnectPostgres } = await import('../../core/database/postgres.js');
+  const { connectMongo, disconnectMongo, getMongoDatabase } = await import('../../core/database/mongo.js');
+  const { createApp } = await import('../../app.js');
+  const { env } = await import('../../core/config/env.js');
+  const db = getPostgresPool();
+  let server: Server | undefined;
+  const previousModeratorEnabled = env.MODERATOR_ENABLED;
+  env.MODERATOR_ENABLED = true;
+  try {
+    await connectMongo();
+    const stamp = randomUUID().slice(0, 8);
+    const bcrypt = (await import('bcryptjs')).default;
+    const hash = await bcrypt.hash('Fixture1Pass', 4);
+    const insertUser = async (role: string, scope?: string): Promise<Fixture> => {
+      const name = role.toLowerCase() + randomUUID().slice(0, 8);
+      const { rows } = await db.query<{ user_id: string }>(
+        "insert into users(email, username, password_hash, role, status) values($1, $2, $3, $4, 'ACTIVE') returning user_id",
+        [name + '@test.invalid', name, hash, role]
+      );
+      if (scope) {
+        await db.query("insert into admin_access(user_id, scope) values($1, $2)", [rows[0].user_id, scope]);
+      }
+      return { userId: rows[0].user_id, identifier: name, password: 'Fixture1Pass' };
+    };
+    const author = await insertUser('READER');
+    const reporter = await insertUser('READER');
+    const secondReporter = await insertUser('READER');
+    const moderator = await insertUser('MODERATOR');
+    const authorModerator = await insertUser('MODERATOR');
+    const contentAdmin = await insertUser('ADMIN', 'MODERATOR');
+    server = createApp().listen(0, '127.0.0.1');
+    await new Promise<void>(resolve => server!.once('listening', resolve));
+    const address = server.address();
+    assert.ok(address && typeof address === 'object');
+    const base = 'http://127.0.0.1:' + address.port + '/api/v1';
+    const call = async <T = unknown>(method: string, path: string, body?: unknown, token?: string) => {
+      const response = await fetch(base + path, {
+        method,
+        headers: {
+          'content-type': 'application/json',
+          ...(token ? { authorization: 'Bearer ' + token } : {})
+        },
+        body: body === undefined ? undefined : JSON.stringify(body)
+      });
+      const payload = await response.json() as { data: T; error?: { code?: string } };
+      return { status: response.status, data: payload.data, code: payload.error?.code };
+    };
+    const login = async (user: Fixture) => {
+      const result = await call<{ accessToken: string }>('POST', '/auth/login', { identifier: user.identifier, password: user.password });
+      assert.equal(result.status, 200);
+      return result.data.accessToken;
+    };
+    const authorToken = await login(author);
+    const reporterToken = await login(reporter);
+    const secondReporterToken = await login(secondReporter);
+    const moderatorToken = await login(moderator);
+    const authorModeratorToken = await login(authorModerator);
+    const contentAdminToken = await login(contentAdmin);
+    const categories = await call<Array<{ slug: string; categoryId: string }>>('GET', '/discussions/categories');
+    const categoryId = categories.data.find(item => item.slug === 'thao-luan-chung')!.categoryId;
+    const noticesFor = async (userId: string, topicId: string) =>
+      getMongoDatabase().collection('notifications').find({
+        userId,
+        'payload.targetId': topicId
+      }).toArray();
+
+    // 1. An involved moderator cannot re-hide their own already hidden topic.
+    const ownHiddenTopic = await call<{ topicId: string }>('POST', '/discussions', {
+      categoryId, title: 'Own hidden topic ' + stamp, body: 'Written by a moderator'
+    }, authorModeratorToken);
+    assert.equal(ownHiddenTopic.status, 200);
+    const hiddenByPeer = await call('PATCH', '/moderator/discussions/' + ownHiddenTopic.data.topicId + '/moderation',
+      { status: 'HIDDEN', reason: 'ẩn hộ tác giả là mod', expected: 'VISIBLE' }, moderatorToken);
+    assert.equal(hiddenByPeer.status, 200);
+    const selfAchievedHide = await call('PATCH', '/moderator/discussions/' + ownHiddenTopic.data.topicId + '/moderation',
+      { status: 'HIDDEN', reason: 'thử ẩn lại bài của chính mình', expected: 'HIDDEN' }, authorModeratorToken);
+    assert.equal(selfAchievedHide.status, 403, 'an involved moderator cannot touch an already hidden target');
+    assert.equal(selfAchievedHide.code, 'MOD_CONFLICT');
+
+    // 2. An involved moderator cannot restore their own already visible topic.
+    const ownVisibleTopic = await call<{ topicId: string }>('POST', '/discussions', {
+      categoryId, title: 'Own visible topic ' + stamp, body: 'Written by a moderator'
+    }, authorModeratorToken);
+    assert.equal(ownVisibleTopic.status, 200);
+    const selfAchievedRestore = await call('PATCH', '/moderator/discussions/' + ownVisibleTopic.data.topicId + '/moderation',
+      { status: 'VISIBLE', reason: 'thử khôi phục bài của chính mình', expected: 'VISIBLE' }, authorModeratorToken);
+    assert.equal(selfAchievedRestore.status, 403, 'an involved moderator cannot touch an achieved restore');
+    assert.equal(selfAchievedRestore.code, 'MOD_CONFLICT');
+    const statusRow = (
+      await db.query<{ status: string }>('select status from discussion_topics where topic_id=$1', [ownVisibleTopic.data.topicId])
+    ).rows[0];
+    assert.equal(statusRow.status, 'VISIBLE');
+
+    // 3. Two accepted report reviews on one target leave one sanction and one
+    // owner notice of the report type, while each reporter still learns the outcome.
+    const reportedTopic = await call<{ topicId: string }>('POST', '/discussions', {
+      categoryId, title: 'Repeated reports topic ' + stamp, body: 'Reported twice'
+    }, authorToken);
+    assert.equal(reportedTopic.status, 200);
+    const firstReport = await call<{ moderationReviewId: string }>('POST', '/reports', {
+      targetType: 'DISCUSSION', targetId: reportedTopic.data.topicId, reason: 'spam topic'
+    }, reporterToken);
+    assert.equal(firstReport.status, 201);
+    const firstReviewId = firstReport.data.moderationReviewId;
+    const firstResolve = await call('POST', '/admin/moderation/reviews/' + firstReviewId + '/resolve', {
+      decision: 'APPROVED', action: 'HIDE', reason: 'xác nhận vi phạm'
+    }, contentAdminToken);
+    assert.equal(firstResolve.status, 200);
+    const firstNotices = await noticesFor(author.userId, reportedTopic.data.topicId);
+    assert.equal(firstNotices.filter(item => item.type === 'DISCUSSION_REMOVED_BY_REPORT').length, 1);
+
+    const secondReport = await call<{ moderationReviewId: string }>('POST', '/reports', {
+      targetType: 'DISCUSSION', targetId: reportedTopic.data.topicId, reason: 'vẫn spam'
+    }, secondReporterToken);
+    assert.equal(secondReport.status, 404, 'hidden content is not publicly reportable');
+    assert.equal(secondReport.code, 'DISCUSSION_TARGET_HIDDEN');
+    // A review queued before the effective hide may still be resolved afterwards,
+    // so the achieved branch must dedupe the owner notice by effective sanction.
+    const reviewId2 = randomUUID();
+    await db.query(
+      `insert into moderation_reviews(review_id,target_type,target_id,source,status)
+       values($1,'DISCUSSION',$2,'USER_REPORT','PENDING')`,
+      [reviewId2, reportedTopic.data.topicId]
+    );
+    await db.query(
+      `insert into reports(report_id,target_type,target_id,review_id,reporter_id,reason,status)
+       values($1,'DISCUSSION',$2,$3,$4,'vẫn spam','OPEN')`,
+      [randomUUID(), reportedTopic.data.topicId, reviewId2, secondReporter.userId]
+    );
+    const secondResolve = await call('POST', '/admin/moderation/reviews/' + reviewId2 + '/resolve', {
+      decision: 'APPROVED', action: 'HIDE', reason: 'xác nhận lần hai'
+    }, contentAdminToken);
+    assert.equal(secondResolve.status, 200);
+    const secondNotices = await noticesFor(author.userId, reportedTopic.data.topicId);
+    assert.equal(
+      secondNotices.filter(item => item.type === 'DISCUSSION_REMOVED_BY_REPORT').length,
+      1,
+      'a repeated accepted review does not re-notify the owner under one effective sanction'
+    );
+    const activeSanctions = (
+      await db.query<{ count: string }>(
+        "select count(*)::text as count from admin_sanctions where target_type='DISCUSSION' and target_id=$1 and active",
+        [reportedTopic.data.topicId]
+      )
+    ).rows[0].count;
+    assert.equal(activeSanctions, '1', 'both decisions share the single effective sanction');
+    const hideAudits = (
+      await db.query<{ count: string }>(
+        "select count(*)::text as count from admin_audit where action='DISCUSSION_HIDE' and target_id=$1",
+        [reportedTopic.data.topicId]
+      )
+    ).rows[0].count;
+    assert.equal(hideAudits, '1', 'one hide audit covers the effective sanction');
+    const reporterNotices = await getMongoDatabase().collection('notifications').find({
+      userId: secondReporter.userId,
+      type: 'REPORT_RESOLVED'
+    }).toArray();
+    assert.equal(reporterNotices.length, 1, 'the second reporter still learns the decision once');
+  } finally {
+    env.MODERATOR_ENABLED = previousModeratorEnabled;
+    if (server) await new Promise<void>(resolve => server!.close(() => resolve()));
+    await disconnectMongo().catch(() => undefined);
+    await disconnectPostgres().catch(() => undefined);
   }
 });

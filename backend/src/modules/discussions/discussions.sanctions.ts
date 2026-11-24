@@ -21,6 +21,8 @@ export type DiscussionSanctionOutcome = {
   topicId: string;
   status: DiscussionStatus;
   skipped: 'achieved' | 'deleted' | null;
+  activeSanctionId?: string | null;
+  activeAuditId?: string | null;
   topicRow: {
     topic_id: string;
     category_id: string;
@@ -237,6 +239,10 @@ export async function applyDiscussionSanction(
   const reason = requiredReason(input.reason);
   const target = await lockDiscussionSanctionTarget(client, input.kind, input.id, input.expectedTopicId);
   await assertDiscussionSanctionAuthority(auth, client, input.permission);
+  // Identity before content state: involved actors may not probe achieved or
+  // deleted targets through either operational route.
+  await assertDiscussionIndependence(auth, client, input.kind, input.id);
+  const active = await findActiveDiscussionSanction(client, input.kind, input.id);
   if (target.topicStatus === 'DELETED')
     return {
       sanction: null,
@@ -244,6 +250,8 @@ export async function applyDiscussionSanction(
       topicId: target.topicId,
       status: 'DELETED',
       skipped: 'deleted',
+      activeSanctionId: active?.sanction_id ?? null,
+      activeAuditId: active?.audit_id ?? null,
       topicRow: target.topicRow
     };
   if (target.topicStatus === 'HIDDEN')
@@ -253,16 +261,16 @@ export async function applyDiscussionSanction(
       topicId: target.topicId,
       status: 'HIDDEN',
       skipped: 'achieved',
+      activeSanctionId: active?.sanction_id ?? null,
+      activeAuditId: active?.audit_id ?? null,
       topicRow: target.topicRow
     };
-  const active = await findActiveDiscussionSanction(client, input.kind, input.id);
   if (active)
     throw new AppError(
       409,
       'ADMIN_SANCTION_ACTIVE',
       'Đối tượng đã bị hạn chế. Hãy xem quyết định trước đó.'
     );
-  await assertDiscussionIndependence(auth, client, input.kind, input.id);
   if (input.expectedStatus !== undefined && target.topicStatus !== input.expectedStatus) {
     throw new AppError(
       409,
@@ -415,6 +423,8 @@ export async function restoreDiscussionSanction(
     if (!active || active.active !== true) active = null;
   }
   const target = await lockDiscussionSanctionTarget(client, input.kind, input.id, input.expectedTopicId);
+  // Identity before content state, ordered like applyDiscussionSanction.
+  await assertDiscussionIndependence(auth, client, input.kind, input.id);
   if (target.topicStatus === 'DELETED') throw deletedError(input.kind);
   if (target.topicStatus === 'VISIBLE' && !active)
     return { topicId: target.topicId, status: 'VISIBLE', mode: 'achieved', topicRow: target.topicRow };
@@ -425,7 +435,6 @@ export async function restoreDiscussionSanction(
       'Trạng thái chủ đề đã thay đổi so với giá trị bạn đang xem. Hãy tải lại.'
     );
   }
-  await assertDiscussionIndependence(auth, client, input.kind, input.id);
   await assertDiscussionSanctionAuthority(auth, client, input.permission);
   if (target.topicStatus !== 'HIDDEN')
     throw new AppError(
