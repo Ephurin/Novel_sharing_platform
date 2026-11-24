@@ -23,7 +23,7 @@ test('a new chapter reuses the number of a deleted last chapter', {
   const pool = new pg.Pool({ connectionString: url.href, connectionTimeoutMillis: 3000 });
   await admin.query(`create schema "${schema}"`);
   try {
-    for (const migration of ['001_auth_user_wallet', '002_novels', '003_chapters']) {
+    for (const migration of ['001_auth_user_wallet', '002_novels', '003_chapters', '042_moderator_role', '043_user_access_version', '044_chapter_notifications_moderator_capability']) {
       await pool.query(await readFile(new URL(`../../core/database/migrations/${migration}.sql`, import.meta.url), 'utf8'));
     }
     await pool.query('alter table chapters add column if not exists import_key varchar(128), add column if not exists import_hash varchar(64)');
@@ -83,7 +83,7 @@ test('an author re-analysis closes the failed background analysis of the same re
   const { getPostgresPool, disconnectPostgres } = await import('../../core/database/postgres.js');
   try {
     const pool = getPostgresPool();
-    await migrations(['001_auth_user_wallet', '002_novels', '003_chapters', '009_chapter_revisions', '010_analysis_outbox', '011_outbox_claim_token'], pool);
+    await migrations(['001_auth_user_wallet', '002_novels', '003_chapters', '009_chapter_revisions', '010_analysis_outbox', '011_outbox_claim_token', '042_moderator_role', '043_user_access_version', '044_chapter_notifications_moderator_capability'], pool);
     const { listLatestChapterAnalysis, supersedeBackgroundAnalysis } = await import('./outbox.repository.js');
     const author = randomUUID();
     await pool.query("insert into users(user_id,email,username,role) values($1,$2,$3,'AUTHOR')", [author, `${author}@example.invalid`, `st-${author.slice(0, 8)}`]);

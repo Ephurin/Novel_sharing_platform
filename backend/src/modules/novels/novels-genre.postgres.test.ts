@@ -23,7 +23,7 @@ test('novel creation reuses seeded genre names and handles concurrent genre crea
     const { getPostgresPool, disconnectPostgres } = await import('../../core/database/postgres.js');
     disconnect = disconnectPostgres;
     const pool = getPostgresPool();
-    for (const migration of ['001_auth_user_wallet', '002_novels', '003_chapters', '014_novel_editorial_metadata']) {
+    for (const migration of ['001_auth_user_wallet', '002_novels', '003_chapters', '014_novel_editorial_metadata', '042_moderator_role', '043_user_access_version', '044_chapter_notifications_moderator_capability']) {
       await pool.query(await readFile(new URL(`../../core/database/migrations/${migration}.sql`, import.meta.url), 'utf8'));
     }
     const { upsertGenre } = await import('./novels.repository.js');

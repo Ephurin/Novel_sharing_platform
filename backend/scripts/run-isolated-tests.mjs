@@ -34,6 +34,7 @@ try {
   if (run(['src/core/database/migrate.ts']) !== 0) throw new Error('Migration failed');
   result = run([
     '--test',
+    '--test-reporter=tap',
     '--test-concurrency=1',
     ...(process.argv.slice(2).length ? process.argv.slice(2) : ['src/**/*.test.ts'])
   ]);
