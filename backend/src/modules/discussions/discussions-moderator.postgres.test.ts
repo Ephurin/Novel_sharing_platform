@@ -244,8 +244,14 @@ test('PR-03 moderator discussion operations: reads, single-change commands, move
       { status: 'HIDDEN', reason: 'lặp trạng thái', }, moderatorToken
     );
     assert.equal(selfHide.status, 200);
-    const commentModerateAudits = await auditCount('DISCUSSION_COMMENT_MODERATE', commentId);
-    assert.equal(commentModerateAudits, '1', 're-sending the achieved state adds no second audit');
+    const commentHideAudits = await auditCount('DISCUSSION_COMMENT_HIDE', commentId);
+    assert.equal(commentHideAudits, '1', 'the hide sanction audit records once');
+    assert.equal(await auditCount('DISCUSSION_COMMENT_MODERATE', commentId), '0',
+      'status HIDE runs through the sanction audit, not the operational moderation audit');
+    const commentSanctionRow = await db.query<any>(
+      'select * from admin_sanctions where target_type=$1 and target_id=$2', ['DISCUSSION_COMMENT', commentId]
+    );
+    assert.equal(commentSanctionRow.rows.length, 1, 'one reversible sanction covers the hidden comment');
 
     const independentTopic = await call<{ topicId: string }>(
       'POST', '/discussions',

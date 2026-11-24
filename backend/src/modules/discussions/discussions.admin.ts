@@ -14,8 +14,10 @@ import {
   requiredReason,
   requireAdminPermission
 } from '../admin/admin-access.js';
+import { drainAdminJobs } from '../admin/admin-jobs.js';
 import { isPublicDiscussionTarget } from './discussions.read.js';
 import { refreshTopicActivity } from './discussions.write.js';
+import { moderateDiscussionHide, restoreDiscussionSanction } from './discussions.sanctions.js';
 import type { DiscussionStatus, DiscussionTargetKind } from './discussions.types.js';
 
 export const discussionAdminRoutes = Router();
@@ -444,8 +446,28 @@ discussionAdminRoutes.patch(
       const auth = request.auth as AuthContext;
       const { topicId } = request.params as { topicId: string };
       const body = request.body as z.infer<typeof topicModerationSchema>['body'];
+      let jobsQueued = false;
       const data = await withPostgresTransaction(async (client) => {
         await assertAdminPermission(auth, 'content', client);
+        // The legacy route shares the reversible HIDE/RESTORE sanction workflow.
+        if (body.status === 'HIDDEN' || body.status === 'VISIBLE') {
+          if (body.status === 'HIDDEN') {
+            const outcome = await moderateDiscussionHide(auth, client, {
+              kind: 'DISCUSSION',
+              id: topicId,
+              reason: body.reason ?? '',
+              permission: 'discussion.operate'
+            });
+            jobsQueued = outcome.skipped === null;
+          } else {
+            await restoreDiscussionSanction(auth, client, {
+              kind: 'DISCUSSION',
+              id: topicId,
+              reason: body.reason ?? '',
+              permission: 'discussion.operate'
+            });
+          }
+        }
         const before = await lockTopic(client, topicId);
         if (before.status === 'DELETED' && body.status !== undefined && body.status !== 'DELETED')
           throw new AppError(
@@ -453,26 +475,34 @@ discussionAdminRoutes.patch(
             'DISCUSSION_TOPIC_DELETED',
             'Không thể khôi phục chủ đề đã bị xóa.'
           );
-        const updated: QueryResult<TopicModerationRow> = await client.query(
-          `update discussion_topics
-              set status=coalesce($2,status),
-                  is_pinned=coalesce($3,is_pinned),
-                  is_locked=coalesce($4,is_locked)
-            where topic_id=$1
-            returning topic_id,category_id,author_id,title,status,is_pinned,is_locked`,
-          [topicId, body.status ?? null, body.isPinned ?? null, body.isLocked ?? null]
-        );
-        const row = updated.rows[0];
-        await refreshTopicActivity(client, topicId);
-        await audit(client, auth, {
-          action: 'DISCUSSION_TOPIC_MODERATE',
-          targetType: 'DISCUSSION',
-          targetId: topicId,
-          affectedUserId: before.author_id,
-          reason: requiredReason(body.reason),
-          before: { status: before.status, isPinned: before.is_pinned, isLocked: before.is_locked },
-          after: { status: row.status, isPinned: row.is_pinned, isLocked: row.is_locked }
-        });
+        if (body.status === 'DELETED' || body.isPinned !== undefined || body.isLocked !== undefined) {
+          const updated: QueryResult<TopicModerationRow> = await client.query(
+            `update discussion_topics
+                set status=coalesce($2,status),
+                    is_pinned=coalesce($3,is_pinned),
+                    is_locked=coalesce($4,is_locked)
+              where topic_id=$1
+              returning topic_id,category_id,author_id,title,status,is_pinned,is_locked`,
+            [topicId, body.status === 'DELETED' ? body.status : null, body.isPinned ?? null, body.isLocked ?? null]
+          );
+          const row = updated.rows[0];
+          if (
+            row.status !== before.status ||
+            row.is_pinned !== before.is_pinned ||
+            row.is_locked !== before.is_locked
+          )
+            await refreshTopicActivity(client, topicId);
+          await audit(client, auth, {
+            action: 'DISCUSSION_TOPIC_MODERATE',
+            targetType: 'DISCUSSION',
+            targetId: topicId,
+            affectedUserId: before.author_id,
+            reason: requiredReason(body.reason),
+            before: { status: before.status, isPinned: before.is_pinned, isLocked: before.is_locked },
+            after: { status: row.status, isPinned: row.is_pinned, isLocked: row.is_locked }
+          });
+        }
+        const row = await lockTopic(client, topicId);
         return {
           topicId: row.topic_id,
           status: row.status,
@@ -480,6 +510,7 @@ discussionAdminRoutes.patch(
           isLocked: row.is_locked
         };
       });
+      if (jobsQueued) await drainAdminJobs();
       response.json(successResponse(data));
     } catch (error) {
       next(error);
@@ -495,8 +526,35 @@ discussionAdminRoutes.patch(
       const auth = request.auth as AuthContext;
       const { topicId, commentId } = request.params as { topicId: string; commentId: string };
       const body = request.body as z.infer<typeof commentModerationSchema>['body'];
+      let jobsQueued = false;
       const data = await withPostgresTransaction(async (client) => {
         await assertAdminPermission(auth, 'content', client);
+        if (body.status === 'HIDDEN' || body.status === 'VISIBLE') {
+          // The legacy route shares the reversible HIDE/RESTORE sanction workflow.
+          if (body.status === 'HIDDEN') {
+            const outcome = await moderateDiscussionHide(auth, client, {
+              kind: 'DISCUSSION_COMMENT',
+              id: commentId,
+              reason: body.reason ?? '',
+              expectedTopicId: topicId,
+              permission: 'discussion.operate'
+            });
+            jobsQueued = outcome.skipped === null;
+          } else {
+            await restoreDiscussionSanction(auth, client, {
+              kind: 'DISCUSSION_COMMENT',
+              id: commentId,
+              reason: body.reason ?? '',
+              expectedTopicId: topicId,
+              permission: 'discussion.operate'
+            });
+          }
+          const row = await client.query<{ comment_id: string; topic_id: string; status: DiscussionStatus }>(
+            'select comment_id,topic_id,status from discussion_comments where comment_id=$1',
+            [commentId]
+          );
+          return { commentId, topicId, status: row.rows[0].status };
+        }
         const topic = await lockTopic(client, topicId);
         const locked: QueryResult<CommentModerationRow> = await client.query(
           `select comment_id,topic_id,author_id,body,status
@@ -528,6 +586,7 @@ discussionAdminRoutes.patch(
         });
         return { commentId, topicId, status: updated.rows[0].status };
       });
+      if (jobsQueued) await drainAdminJobs();
       response.json(successResponse(data));
     } catch (error) {
       next(error);
@@ -662,47 +721,4 @@ export async function assertDiscussionReportable(
   if (rows[0]?.author_id === reporterId) {
     throw new AppError(409, 'DISCUSSION_SELF_REPORT', 'Bạn không thể báo cáo nội dung của chính mình.');
   }
-}
-
-/** Auto-hide a reported target; returns the affected author id. Idempotent, never un-deletes. */
-export async function hideDiscussionForReport(
-  client: PoolClient,
-  kind: DiscussionTargetKind,
-  id: string
-): Promise<string> {
-  const boundedId = uuidParam.parse(id);
-  const topicRow: QueryResult<{ topic_id: string; author_id: string; status: DiscussionStatus }> =
-    await client.query(
-      `select t.topic_id,t.author_id,t.status
-         from discussion_topics t
-        where t.topic_id = case when $2::boolean then $1::uuid
-          else (select topic_id from discussion_comments where comment_id = $1) end
-        for update`,
-      [boundedId, kind === 'DISCUSSION']
-    );
-  const topic = topicRow.rows[0];
-  if (!topic) throw new AppError(404, 'DISCUSSION_TOPIC_001', 'Không tìm thấy chủ đề.');
-  if (kind === 'DISCUSSION') {
-    if (topic.status === 'VISIBLE') {
-      await client.query("update discussion_topics set status = 'HIDDEN' where topic_id = $1", [topic.topic_id]);
-      await refreshTopicActivity(client, topic.topic_id);
-    }
-    return topic.author_id;
-  }
-  const commentRow: QueryResult<{ comment_id: string; author_id: string; status: DiscussionStatus }> =
-    await client.query(
-      `select comment_id,author_id,status from discussion_comments
-        where comment_id=$1 and topic_id=$2 for update`,
-      [boundedId, topic.topic_id]
-    );
-  const comment = commentRow.rows[0];
-  if (!comment) throw new AppError(404, 'DISCUSSION_COMMENT_001', 'Không tìm thấy bình luận.');
-  if (comment.status === 'DELETED') return comment.author_id;
-  if (comment.status !== 'HIDDEN') {
-    await client.query(`update discussion_comments set status='HIDDEN', updated_at=now() where comment_id=$1`, [
-      comment.comment_id
-    ]);
-    await refreshTopicActivity(client, topic.topic_id);
-  }
-  return comment.author_id;
 }

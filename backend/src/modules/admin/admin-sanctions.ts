@@ -4,6 +4,13 @@ import { AppError } from '../../core/errors/app-error.js';
 import { assertAdminPermission, audit, protectAccount, requiredReason } from './admin-access.js';
 import { queueAdminNotification } from './admin-jobs.js';
 import { findCommentRecordById } from '../interactions/comments.repository.js';
+import {
+  advisoryDiscussionSanctionLock,
+  applyDiscussionSanction,
+  discussionTargetKind,
+  revertDiscussionSanctionEffect,
+  type DiscussionOperationalPermission
+} from '../discussions/discussions.sanctions.js';
 
 export type SanctionAction = 'WARN' | 'HIDE' | 'LOCK';
 export async function applySanction(
@@ -15,9 +22,31 @@ export async function applySanction(
     action: SanctionAction;
     reason: string;
     reviewId?: string;
+    permission?: DiscussionOperationalPermission;
+    expectedTopicId?: string;
+    expectedStatus?: string;
   }
 ) {
   const reason = requiredReason(input.reason);
+  const discussionKind = discussionTargetKind(input.targetType);
+  if (discussionKind) {
+    // Forum HIDE shares this one sanction workflow for reports and direct
+    // moderation; the caller states which operational permission it carries.
+    if (!input.permission)
+      throw new AppError(422, 'ADMIN_TARGET', 'Thao tác chế tài thảo luận cần quyền tác nghiệp rõ ràng.');
+    if (input.action !== 'HIDE')
+      throw new AppError(422, 'ADMIN_ACTION', 'Hành động không phù hợp với đối tượng.');
+    await advisoryDiscussionSanctionLock(client, discussionKind, input.targetId);
+    return applyDiscussionSanction(client, auth, {
+      kind: discussionKind,
+      id: input.targetId,
+      reason,
+      reviewId: input.reviewId,
+      permission: input.permission,
+      expectedTopicId: input.expectedTopicId,
+      expectedStatus: input.expectedStatus
+    });
+  }
   if (input.targetType === 'USER')
     await client.query("select pg_advisory_xact_lock(hashtext('storycraft-admin-access'))");
   await client.query('select pg_advisory_xact_lock(hashtext($1))', [
@@ -212,6 +241,8 @@ export async function restoreSanction(
         row.target_id,
         row.previous_state.status
       ]);
+  } else if (row.action === 'HIDE' && discussionTargetKind(row.target_type)) {
+    await revertDiscussionSanctionEffect(client, row);
   } else if (row.action === 'HIDE' && row.target_type !== 'COMMENT') {
     const table = row.target_type === 'NOVEL' ? 'novels' : 'chapters';
     const column = row.target_type === 'NOVEL' ? 'novel_id' : 'chapter_id';

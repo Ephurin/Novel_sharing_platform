@@ -13,8 +13,7 @@ import {
   assertReportModeratorConstraints,
   assertResolverAccess
 } from './review-authorization.js';
-import { hideDiscussionForReport, isDiscussionTarget } from '../discussions/discussions.admin.js';
-
+import { isDiscussionTarget } from '../discussions/discussions.admin.js';
 // User reports address violations. They must never publish/reject publication snapshots.
 export async function resolveUserReport(
   auth: AuthContext,
@@ -61,9 +60,16 @@ export async function resolveUserReport(
     if (auth.role === 'MODERATOR') {
       await assertReportModeratorConstraints(auth, client, review, { accepted, action });
     }
-    const discussionAuthorId = accepted && discussionTarget
-      ? await hideDiscussionForReport(client, discussionTarget, review.target_id)
-      : undefined;
+    const discussionOutcome = accepted && discussionTarget
+      ? await applySanction(client, auth, {
+          targetType: discussionTarget,
+          targetId: review.target_id,
+          action: 'HIDE',
+          reason,
+          reviewId,
+          permission: 'sanction.hide'
+        })
+      : null;
     const sanction = accepted && !discussionTarget
       ? await applySanction(client, auth, {
           targetType: review.target_type,
@@ -73,6 +79,7 @@ export async function resolveUserReport(
           reviewId
         })
       : null;
+    const discussionAuthorId = discussionOutcome ? discussionOutcome.ownerId : undefined;
     await client.query(
       'update moderation_reviews set status=$2,reason=$3,reviewed_by=$4,reviewed_at=now(),updated_at=now(),notification_pending=false where review_id=$1',
       [reviewId, input.decision, reason, auth.userId]
@@ -115,9 +122,12 @@ export async function resolveUserReport(
           reason
         }
       });
-    if (discussionAuthorId)
+    if (discussionOutcome && !discussionOutcome.sanction && discussionOutcome.skipped === 'achieved') {
+      // The report was accepted on content a direct moderation already hid; the
+      // existing sanction covers the effect, and the author still learns the
+      // report outcome once.
       await queueAdminNotification(client, {
-        userId: discussionAuthorId,
+        userId: discussionOutcome.ownerId,
         type: 'DISCUSSION_REMOVED_BY_REPORT',
         title: 'Nội dung thảo luận của bạn đã bị ẩn',
         content: reason,
@@ -127,9 +137,11 @@ export async function resolveUserReport(
           targetId: review.target_id,
           decision: input.decision,
           adminId: auth.userId,
-          reason
+          reason,
+          appealsUrl: '/appeals'
         }
       });
+    }
     const notified = new Set<string>([
       ...(comment ? [comment.userId] : []),
       ...(discussionAuthorId ? [discussionAuthorId] : [])

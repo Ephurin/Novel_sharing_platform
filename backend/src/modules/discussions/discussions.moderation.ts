@@ -3,11 +3,13 @@ import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { audit, requiredReason } from '../admin/admin-access.js';
+import { drainAdminJobs } from '../admin/admin-jobs.js';
 import { assertModeratorOperational } from '../moderator/moderator-access.js';
 import { assertFreshIdentityUnderLock } from '../content-control/review-authorization.js';
 import { assertIndependentActor } from '../../core/security/moderation-policy.js';
 import { refreshTopicActivity } from './discussions.write.js';
 import { discussionInvolvedUserIds } from './discussions.admin.js';
+import { moderateDiscussionHide, restoreDiscussionSanction } from './discussions.sanctions.js';
 import type { DiscussionStatus } from './discussions.types.js';
 
 export type ModeratorOperationalStatus = 'VISIBLE' | 'HIDDEN';
@@ -63,8 +65,36 @@ export async function moderateDiscussionTopicOperational(
   auth: AuthContext,
   input: { topicId: string; patch: TopicOperationalPatch; reason: string }
 ) {
-  return withPostgresTransaction(async (client) => {
+  const { data, jobsQueued } = await withPostgresTransaction(async (client) => {
     await assertOperationalModerator(auth, client);
+    if (input.patch.field === 'status') {
+      // HIDE and RESTORE run through the one reversible sanction workflow.
+      let jobsQueued = false;
+      if (input.patch.value === 'HIDDEN') {
+        const outcome = await moderateDiscussionHide(auth, client, {
+          kind: 'DISCUSSION',
+          id: input.topicId,
+          reason: input.reason,
+          permission: 'discussion.operate',
+          expectedStatus: input.patch.expected
+        });
+        jobsQueued = outcome.skipped === null;
+      } else {
+        await restoreDiscussionSanction(auth, client, {
+          kind: 'DISCUSSION',
+          id: input.topicId,
+          reason: input.reason,
+          permission: 'discussion.operate',
+          expectedStatus: input.patch.expected
+        });
+      }
+      const row = await client.query<ModeratorTopicRow>(
+        `select topic_id,category_id,author_id,title,status,is_pinned,is_locked
+           from discussion_topics where topic_id=$1`,
+        [input.topicId]
+      );
+      return { data: topicState(row.rows[0]), jobsQueued };
+    }
     const before = await lockModeratorTopic(client, input.topicId);
     assertIndependentActor(
       auth.userId,
@@ -73,7 +103,7 @@ export async function moderateDiscussionTopicOperational(
     const reason = requiredReason(input.reason);
     if (input.patch.field === 'destinationCategoryId') {
       const destinationId = input.patch.value;
-      if (before.category_id === destinationId) return topicState(before);
+      if (before.category_id === destinationId) return { data: topicState(before), jobsQueued: false };
       assertExpected(before.category_id, input.patch.expected);
       const { rows: categories } = await client.query<{
         category_id: string;
@@ -110,40 +140,11 @@ export async function moderateDiscussionTopicOperational(
         before: { categoryId: source.category_id, slug: source.slug },
         after: { categoryId: destination.category_id, slug: destination.slug }
       });
-      return topicState({ ...before, category_id: destination.category_id });
-    }
-    if (input.patch.field === 'status') {
-      if (before.status === 'DELETED')
-        throw new AppError(
-          409,
-          'DISCUSSION_TOPIC_DELETED',
-          'Không thể khôi phục chủ đề đã bị xóa.'
-        );
-      if (before.status === input.patch.value) return topicState(before);
-      assertExpected(before.status, input.patch.expected);
-      const updated = await client.query(
-        'update discussion_topics set status=$2 where topic_id=$1 returning status',
-        [input.topicId, input.patch.value]
-      );
-      await refreshTopicActivity(client, input.topicId);
-      await audit(client, auth, {
-        action: 'DISCUSSION_TOPIC_MODERATE',
-        targetType: 'DISCUSSION',
-        targetId: input.topicId,
-        affectedUserId: before.author_id,
-        reason,
-        before: { status: before.status, isPinned: before.is_pinned, isLocked: before.is_locked },
-        after: {
-          status: updated.rows[0].status,
-          isPinned: before.is_pinned,
-          isLocked: before.is_locked
-        }
-      });
-      return topicState({ ...before, status: updated.rows[0].status });
+      return { data: topicState({ ...before, category_id: destination.category_id }), jobsQueued: false };
     }
     const column = input.patch.field === 'isPinned' ? 'is_pinned' : 'is_locked';
     const current = input.patch.field === 'isPinned' ? before.is_pinned : before.is_locked;
-    if (current === input.patch.value) return topicState(before);
+    if (current === input.patch.value) return { data: topicState(before), jobsQueued: false };
     assertExpected(current, input.patch.expected);
     await client.query(`update discussion_topics set ${column}=$2 where topic_id=$1`, [
       input.topicId,
@@ -162,59 +163,59 @@ export async function moderateDiscussionTopicOperational(
         isLocked: input.patch.field === 'isLocked' ? input.patch.value : before.is_locked
       }
     });
-    return topicState({
-      ...before,
-      is_pinned: input.patch.field === 'isPinned' ? input.patch.value : before.is_pinned,
-      is_locked: input.patch.field === 'isLocked' ? input.patch.value : before.is_locked
-    });
-  });
+    return {
+      data: topicState({
+        ...before,
+        is_pinned: input.patch.field === 'isPinned' ? input.patch.value : before.is_pinned,
+        is_locked: input.patch.field === 'isLocked' ? input.patch.value : before.is_locked
+      }),
+      jobsQueued: false
+    };
+ });
+  // The notification job commits with the sanction; workers retry safely alone.
+  if (jobsQueued) await drainAdminJobs();
+  return data;
 }
 
 export async function moderateDiscussionCommentOperational(
   auth: AuthContext,
   input: { topicId: string; commentId: string; status: ModeratorOperationalStatus; reason: string }
 ) {
-  return withPostgresTransaction(async (client) => {
+  const { data, jobsQueued } = await withPostgresTransaction(async (client) => {
     await assertOperationalModerator(auth, client);
-    const before = await lockModeratorTopic(client, input.topicId);
-    const locked = await client.query<{
-      comment_id: string;
-      topic_id: string;
-      author_id: string;
-      body: string;
-      status: DiscussionStatus;
-    }>(
-      `select comment_id,topic_id,author_id,body,status
-         from discussion_comments where comment_id=$1 and topic_id=$2 for update`,
-      [input.commentId, input.topicId]
-    );
-    const comment = locked.rows[0];
-    if (!comment) throw new AppError(404, 'DISCUSSION_COMMENT_001', 'Không tìm thấy bình luận.');
-    assertIndependentActor(
-      auth.userId,
-      await discussionInvolvedUserIds('DISCUSSION_COMMENT', input.commentId, client)
-    );
-    if (comment.status === 'DELETED')
-      throw new AppError(409, 'DISCUSSION_COMMENT_DELETED', 'Không thể khôi phục bình luận đã bị xóa.');
-    if (comment.status === input.status) {
-      return { commentId: comment.comment_id, topicId: before.topic_id, status: comment.status };
+    let jobsQueued = false;
+    if (input.status === 'HIDDEN') {
+      const outcome = await moderateDiscussionHide(auth, client, {
+        kind: 'DISCUSSION_COMMENT',
+        id: input.commentId,
+        reason: input.reason,
+        permission: 'discussion.operate',
+        expectedTopicId: input.topicId,
+        expectedStatus: undefined
+      });
+      jobsQueued = outcome.skipped === null;
+    } else {
+      await restoreDiscussionSanction(auth, client, {
+        kind: 'DISCUSSION_COMMENT',
+        id: input.commentId,
+        reason: input.reason,
+        permission: 'discussion.operate',
+        expectedTopicId: input.topicId,
+        expectedStatus: undefined
+      });
     }
-    const updated = await client.query(
-      'update discussion_comments set status=$2, updated_at=now() where comment_id=$1 returning status',
-      [input.commentId, input.status]
+    const comment = await client.query<{ comment_id: string; topic_id: string; status: DiscussionStatus }>(
+      'select comment_id,topic_id,status from discussion_comments where comment_id=$1',
+      [input.commentId]
     );
-    await refreshTopicActivity(client, before.topic_id);
-    await audit(client, auth, {
-      action: 'DISCUSSION_COMMENT_MODERATE',
-      targetType: 'DISCUSSION_COMMENT',
-      targetId: input.commentId,
-      affectedUserId: comment.author_id,
-      reason: requiredReason(input.reason),
-      before: { status: comment.status, topicId: before.topic_id },
-      after: { status: updated.rows[0].status, topicId: before.topic_id }
-    });
-    return { commentId: comment.comment_id, topicId: before.topic_id, status: updated.rows[0].status };
+    const row = comment.rows[0];
+    return {
+      data: { commentId: row.comment_id, topicId: row.topic_id, status: row.status },
+      jobsQueued
+    };
   });
+  if (jobsQueued) await drainAdminJobs();
+  return data;
 }
 
 function topicState(row: ModeratorTopicRow) {
