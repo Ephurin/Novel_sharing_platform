@@ -180,20 +180,127 @@ discussionAdminRoutes.use(
   requireAdminPermission('content')
 );
 
+export async function listDiscussionCategories() {
+  return withPostgresTransaction(async (client) => {
+    const rows: QueryResult<CategoryRow> = await client.query(
+      `select category_id,slug,name,sort_order,is_active,post_admin_only
+         from discussion_categories
+        order by sort_order asc, name asc
+        limit 200`
+    );
+    return rows.rows.map(mapCategory);
+  });
+}
+
+export type DiscussionTopicSummary = {
+  topicId: string;
+  title: string;
+  status: DiscussionStatus;
+  isPinned: boolean;
+  isLocked: boolean;
+  categoryId: string;
+  categoryName: string | null;
+  authorName: string | null;
+  createdAt: string;
+};
+
+export async function listDiscussionTopics(query: {
+  status?: DiscussionStatus;
+  page: number;
+  limit: number;
+}): Promise<{ items: DiscussionTopicSummary[]; hasNext: boolean }> {
+  const { page, limit } = query;
+  const offset = (page - 1) * limit;
+  return withPostgresTransaction(async (client) => {
+    const rows: QueryResult<{
+      topic_id: string;
+      title: string;
+      status: DiscussionStatus;
+      is_pinned: boolean;
+      is_locked: boolean;
+      category_id: string;
+      category_name: string | null;
+      author_name: string | null;
+      created_at: Date;
+    }> = await client.query(
+      `select t.topic_id,t.title,t.status,t.is_pinned,t.is_locked,t.category_id,
+              c.name as category_name,
+              coalesce(nullif(p.display_name, ''), u.username, 'Người dùng') as author_name,
+              t.created_at
+         from discussion_topics t
+         left join discussion_categories c on c.category_id=t.category_id
+         left join users u on u.user_id=t.author_id
+         left join user_profiles p on p.user_id = u.user_id
+        where ($1::text is null or t.status=$1::discussion_topic_status)
+        order by t.is_pinned desc, t.last_activity_at desc, t.topic_id desc
+        limit $2 offset $3`,
+      [query.status ?? null, limit + 1, offset]
+    );
+    const items = rows.rows.slice(0, limit).map((row) => ({
+      topicId: row.topic_id,
+      title: row.title,
+      status: row.status,
+      isPinned: row.is_pinned,
+      isLocked: row.is_locked,
+      categoryId: row.category_id,
+      categoryName: row.category_name,
+      authorName: row.author_name,
+      createdAt: new Date(row.created_at).toISOString()
+    }));
+    return { items, hasNext: rows.rows.length > limit };
+  });
+}
+
+export type DiscussionCommentSummary = {
+  commentId: string;
+  body: string;
+  status: DiscussionStatus;
+  authorName: string | null;
+  createdAt: string;
+};
+
+export async function listDiscussionTopicComments(
+  topicId: string,
+  query: { status?: DiscussionStatus; page: number; limit: number }
+): Promise<{ items: DiscussionCommentSummary[]; hasNext: boolean }> {
+  const { page, limit } = query;
+  const offset = (page - 1) * limit;
+  return withPostgresTransaction(async (client) => {
+    const rows: QueryResult<{
+      comment_id: string;
+      body: string;
+      status: DiscussionStatus;
+      author_name: string | null;
+      created_at: Date;
+    }> = await client.query(
+      `select m.comment_id,left(m.body,$4) as body,m.status,
+              coalesce(nullif(p.display_name, ''), u.username, 'Người dùng') as author_name,
+              m.created_at
+         from discussion_comments m
+         left join users u on u.user_id=m.author_id
+         left join user_profiles p on p.user_id = u.user_id
+        where m.topic_id=$1 and ($2::text is null or m.status=$2::discussion_comment_status)
+        order by m.created_at asc, m.comment_id asc
+        limit $3 offset $5`,
+      [topicId, query.status ?? null, limit + 1, EXCERPT_MAX + 1, offset]
+    );
+    const items = rows.rows.slice(0, limit).map((row) => ({
+      commentId: row.comment_id,
+      body: excerpt(row.body),
+      status: row.status,
+      authorName: row.author_name,
+      createdAt: new Date(row.created_at).toISOString()
+    }));
+    return { items, hasNext: rows.rows.length > limit };
+  });
+}
+
 discussionAdminRoutes.get(
   '/admin/discussions/categories',
   validateRequest(listCategoriesSchema),
   async (_request, response, next) => {
     try {
-      const data = await withPostgresTransaction(async (client) => {
-        const rows: QueryResult<CategoryRow> = await client.query(
-          `select category_id,slug,name,sort_order,is_active,post_admin_only
-             from discussion_categories
-            order by sort_order asc, name asc
-            limit 200`
-        );
-        return rows.rows.map(mapCategory);
-      });
+      const data = await listDiscussionCategories();
       response.json(successResponse(data));
     } catch (error) {
       next(error);
@@ -306,44 +413,7 @@ discussionAdminRoutes.get(
   async (request, response, next) => {
     try {
       const query = request.query as unknown as z.infer<typeof listAdminTopicsSchema>['query'];
-      const { page, limit } = query;
-      const offset = (page - 1) * limit;
-      const data = await withPostgresTransaction(async (client) => {
-        const rows: QueryResult<{
-          topic_id: string;
-          title: string;
-          status: DiscussionStatus;
-          is_pinned: boolean;
-          is_locked: boolean;
-          category_name: string | null;
-          author_name: string | null;
-          created_at: Date;
-        }> = await client.query(
-          `select t.topic_id,t.title,t.status,t.is_pinned,t.is_locked,
-                  c.name as category_name,
-                  coalesce(nullif(p.display_name, ''), u.username, 'Người dùng') as author_name,
-                  t.created_at
-             from discussion_topics t
-             left join discussion_categories c on c.category_id=t.category_id
-             left join users u on u.user_id=t.author_id
-             left join user_profiles p on p.user_id = u.user_id
-            where ($1::text is null or t.status=$1::discussion_topic_status)
-            order by t.is_pinned desc, t.last_activity_at desc, t.topic_id desc
-            limit $2 offset $3`,
-          [query.status ?? null, limit + 1, offset]
-        );
-        const items = rows.rows.slice(0, limit).map((row) => ({
-          topicId: row.topic_id,
-          title: row.title,
-          status: row.status,
-          isPinned: row.is_pinned,
-          isLocked: row.is_locked,
-          categoryName: row.category_name,
-          authorName: row.author_name,
-          createdAt: new Date(row.created_at).toISOString()
-        }));
-        return { items, hasNext: rows.rows.length > limit };
-      });
+      const data = await listDiscussionTopics(query);
       response.json(successResponse(data));
     } catch (error) {
       next(error);
@@ -358,36 +428,7 @@ discussionAdminRoutes.get(
     try {
       const { topicId } = request.params as { topicId: string };
       const query = request.query as unknown as z.infer<typeof listAdminCommentsSchema>['query'];
-      const { page, limit } = query;
-      const offset = (page - 1) * limit;
-      const data = await withPostgresTransaction(async (client) => {
-        const rows: QueryResult<{
-          comment_id: string;
-          body: string;
-          status: DiscussionStatus;
-          author_name: string | null;
-          created_at: Date;
-        }> = await client.query(
-          `select m.comment_id,left(m.body,$4) as body,m.status,
-                  coalesce(nullif(p.display_name, ''), u.username, 'Người dùng') as author_name,
-                  m.created_at
-             from discussion_comments m
-             left join users u on u.user_id=m.author_id
-             left join user_profiles p on p.user_id = u.user_id
-            where m.topic_id=$1 and ($2::text is null or m.status=$2::discussion_comment_status)
-            order by m.created_at asc, m.comment_id asc
-            limit $3 offset $5`,
-          [topicId, query.status ?? null, limit + 1, EXCERPT_MAX + 1, offset]
-        );
-        const items = rows.rows.slice(0, limit).map((row) => ({
-          commentId: row.comment_id,
-          body: excerpt(row.body),
-          status: row.status,
-          authorName: row.author_name,
-          createdAt: new Date(row.created_at).toISOString()
-        }));
-        return { items, hasNext: rows.rows.length > limit };
-      });
+      const data = await listDiscussionTopicComments(topicId, query);
       response.json(successResponse(data));
     } catch (error) {
       next(error);

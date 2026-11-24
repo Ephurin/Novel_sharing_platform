@@ -18,6 +18,7 @@ import {
   reportsRoutes
 } from './modules/content-control/content-control.routes.js';
 import { moderatorRoutes } from './modules/moderator/moderator.routes.js';
+import { moderatorDiscussionsRoutes } from './modules/moderator/moderator-discussions.routes.js';
 import { discussionsRoutes } from './modules/discussions/discussions.routes.js';
 import { discussionAdminRoutes } from './modules/discussions/discussions.admin.js';
 import { commentsRoutes } from './modules/interactions/comments.routes.js';
@@ -79,6 +80,7 @@ export function createApp() {
   app.use(`${env.API_PREFIX}/admin`, adminRoutes);
   app.use(`${env.API_PREFIX}/admin/moderation`, adminModerationRoutes);
   app.use(`${env.API_PREFIX}/moderator`, moderatorRoutes);
+  app.use(`${env.API_PREFIX}/moderator/discussions`, moderatorDiscussionsRoutes);
   app.use(`${env.API_PREFIX}`, authorsRoutes);
   app.use(`${env.API_PREFIX}`, commentsRoutes);
   app.use(env.API_PREFIX, discussionsRoutes);

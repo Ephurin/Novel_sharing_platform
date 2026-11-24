@@ -19,6 +19,7 @@ const navItems: Array<{ to: string; label: string; roles: UserRole[] }> = [
   { to: '/appeals', label: 'Khiếu nại', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
   { to: '/profile/me', label: 'Hồ sơ & cài đặt', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
   { to: '/moderator/reviews', label: 'Hồ sơ điều hành', roles: ['MODERATOR'] },
+  { to: '/moderator/discussions', label: 'Điều hành thảo luận', roles: ['MODERATOR'] },
   { to: '/admin', label: 'Tổng quan quản trị', roles: ['ADMIN'] },
   { to: '/admin/novels', label: 'Tác phẩm', roles: ['ADMIN'] },
   { to: '/admin/users', label: 'Người dùng', roles: ['ADMIN'] },
