@@ -1,3 +1,4 @@
+import { hasAuthorCapability } from '../../features/auth/auth-types';
 import { NotificationBell } from '../../features/notifications/NotificationBell';
 import { readerCollections } from '../../features/reader/ReaderCollectionsLayout';
 import { GlobalSearchDropdown } from './GlobalSearchDropdown';
@@ -94,7 +95,7 @@ export function AuthorNavbar() {
   const name = user?.displayName || user?.username || 'Tài khoản';
   // Readers and guests share this navbar so every StoryCraft page has one header; only authors and
   // admins get the writing workspace links.
-  const isWriter = user?.role === 'AUTHOR' || user?.role === 'ADMIN';
+  const isWriter = hasAuthorCapability(user?.role);
   const path = location.pathname;
   const discussionsActive = path === '/discussions' || path.startsWith('/discussions/');
   const catalogPath: '/reader' | '/public' = user ? '/reader' : '/public';

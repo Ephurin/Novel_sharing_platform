@@ -47,7 +47,8 @@ function useSessionRestore() {
 const roleLabels: Record<UserRole, string> = {
   READER: 'Độc giả',
   AUTHOR: 'Tác giả',
-  ADMIN: 'Quản trị viên'
+  ADMIN: 'Quản trị viên',
+  MODERATOR: 'Điều hành viên'
 };
 
 export function AuthGate({ children }: PropsWithChildren) {

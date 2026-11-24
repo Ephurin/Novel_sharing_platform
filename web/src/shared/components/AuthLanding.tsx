@@ -557,7 +557,7 @@ function getAuthErrorMessage(error: unknown) {
     ? error.message : getApiErrorMessage(error);
 }
 
-function getRoleHome(role: 'READER' | 'AUTHOR' | 'ADMIN') {
+function getRoleHome(role: AuthSession['user']['role']) {
   if (role === 'ADMIN') return '/admin';
   if (role === 'AUTHOR') return '/author';
   return '/';

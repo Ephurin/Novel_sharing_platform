@@ -43,7 +43,7 @@ function assertOwner(resource: { authorId: string }, auth: AuthContext) {
 
 async function assertDraftReader(auth?: AuthContext) {
   if (!auth?.userId) throw new AppError(401, 'AUTH_002', 'Missing access token');
-  if (!['AUTHOR', 'ADMIN'].includes(auth.role)) {
+  if (!['AUTHOR', 'ADMIN', 'MODERATOR'].includes(auth.role)) {
     throw new AppError(403, 'AUTH_008', 'Unauthorized action');
   }
   const result = await getPostgresPool().query('select role, status from users where user_id=$1 and deleted_at is null', [auth.userId]);

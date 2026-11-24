@@ -1,3 +1,4 @@
+import { hasReaderCapability } from '../auth/auth-types';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { animate, motion, useReducedMotion } from 'motion/react';
 import { Link, useLocation } from 'react-router-dom';
@@ -63,7 +64,7 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
   const score = typeof stats?.ratingAverage === 'number' ? `${stats.ratingAverage.toLocaleString('vi-VN', { maximumFractionDigits: 1 })}/10` : 'Chưa có';
   const updated = novel.lastUpdatedAt;
   const shareUrl = `${window.location.origin}/public/novels/${encodeURIComponent(novel.novelId)}`;
-  const canFollow = user?.role === 'READER' && user.status === 'ACTIVE' && user.userId !== novel.authorId;
+  const canFollow = hasReaderCapability(user) && user?.status === 'ACTIVE' && user?.userId !== novel.authorId;
   const catalogPath = location.pathname.startsWith('/reader') ? '/reader' : '/public';
   const reviewsPath = `${catalogPath}/novels/${novel.novelId}/reviews`;
   const followLabel = stats?.isFollowing ? 'Bỏ theo dõi truyện' : 'Theo dõi truyện';

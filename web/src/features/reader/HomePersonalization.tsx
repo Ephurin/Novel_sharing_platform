@@ -1,3 +1,4 @@
+import { hasReaderCapability } from '../auth/auth-types';
 import { useIsMutating, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -10,7 +11,7 @@ export function PreviewLibraryAction({ novelId, authorId }: { novelId: string; a
   const user = useAuthStore(state => state.user);
   const client = useQueryClient();
   const { showToast } = useToast();
-  const canSave = user?.role === 'READER' && user.status === 'ACTIVE' && user.userId !== authorId;
+  const canSave = hasReaderCapability(user) && user?.status === 'ACTIVE' && user?.userId !== authorId;
   const key = ['novel-statistics', novelId, user?.userId ?? 'guest'];
   const mutationKey = ['home-library-toggle', novelId, user?.userId ?? 'guest'];
   const statistics = useQuery({ queryKey: key, queryFn: () => getNovelStatistics(novelId), enabled: canSave, staleTime: 15_000, retry: false });

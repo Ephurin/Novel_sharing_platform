@@ -28,6 +28,7 @@ export const labels: Record<string, string> = {
   ADMIN: 'Quản trị viên',
   AUTHOR: 'Tác giả',
   READER: 'Độc giả',
+  MODERATOR: 'Điều hành viên',
   WARN: 'Cảnh báo',
   HIDE: 'Ẩn nội dung',
   LOCK: 'Khóa tài khoản',

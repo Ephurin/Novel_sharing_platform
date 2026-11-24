@@ -1,3 +1,4 @@
+import { hasAuthorCapability } from '../auth/auth-types';
 import { ImageLightbox } from '../../shared/components/InteractionWidgets';
 import { LoadedImage } from '../../shared/components/AuthorAdminMotion';
 import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
@@ -452,7 +453,7 @@ export function MyProfilePage() {
   const [language, setLanguage] = useState('vi');
   const [notificationEnabled, setNotificationEnabled] = useState(true);
   const { showToast } = useToast();
-  const isAuthorOrAdmin = account?.role === 'AUTHOR' || account?.role === 'ADMIN';
+  const isAuthorOrAdmin = hasAuthorCapability(account?.role);
 
   React.useEffect(() => {
     if (profileQuery.data) {

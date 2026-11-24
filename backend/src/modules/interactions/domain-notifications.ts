@@ -34,7 +34,7 @@ export async function deliverDomainNotifications() {
           join users u on u.user_id=s.user_id join novels n on n.novel_id=s.novel_id
           join chapters c on c.novel_id=n.novel_id and c.chapter_id=$3
           where s.novel_id=$1 and s.user_id=$2 and s.enabled
-            and u.role='READER' and u.status='ACTIVE' and u.deleted_at is null
+            and u.role in ('READER','MODERATOR') and u.status='ACTIVE' and u.deleted_at is null
             and n.status='PUBLISHED' and n.deleted_at is null and c.status='PUBLISHED' and c.deleted_at is null`,
         [event.payload.novelId,event.user_id,event.payload.chapterId]);
         if (!eligible.rowCount) {

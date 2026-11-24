@@ -163,10 +163,15 @@ adminOperationsRoutes.patch(
       throw new AppError(422, 'ADMIN_SCOPE', 'Chọn nhóm quyền admin.');
     return withPostgresTransaction(async (client) => {
       const before = await protectAccount(client, req.auth!, userId, 'access');
-      await client.query('update users set role=$2,updated_at=now() where user_id=$1', [
-        userId,
-        input.role
-      ]);
+      const accessChanged =
+        before.role !== input.role ||
+        (input.role === 'ADMIN' && before.admin_scope !== (input.scope ?? null));
+      await client.query(
+        `update users set role=$2,updated_at=now()${
+          accessChanged ? ',access_version=access_version+1' : ''
+        } where user_id=$1`,
+        [userId, input.role]
+      );
       if (input.role === 'ADMIN')
         await client.query(
           'insert into admin_access(user_id,scope,updated_by) values($1,$2,$3) on conflict(user_id) do update set scope=excluded.scope,updated_by=excluded.updated_by,updated_at=now()',
@@ -186,7 +191,7 @@ adminOperationsRoutes.patch(
         before: { role: before.role, scope: before.admin_scope },
         after: input
       });
-      return { userId, ...input };
+      return { userId, ...input, accessVersion: accessChanged ? before.access_version + 1 : before.access_version };
     });
   })
 );

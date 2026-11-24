@@ -1,3 +1,4 @@
+import { hasReaderCapability } from '../auth/auth-types';
 import { AuthorPrivateFeedback } from './PrivateComments';
 import { ReaderCatalog } from './ReaderCatalog';
 import { ChapterReader } from './ChapterReader';
@@ -185,7 +186,7 @@ export function ReaderLibraryPage() {
   const libraryQuery = useQuery({ queryKey: ['reader-library'], queryFn: listLibrary });
   const removeMutation = useMutation({
     mutationFn: async (novelId: string) => {
-      if (user?.role === 'READER') await followNovel(novelId, false);
+      if (hasReaderCapability(user?.role)) await followNovel(novelId, false);
       else await removeFromLibrary(novelId);
     },
     onSuccess: async () => {

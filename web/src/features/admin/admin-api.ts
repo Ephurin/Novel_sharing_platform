@@ -1,4 +1,5 @@
 import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
+import type { UserRole } from '../auth/auth-types';
 import type { PageMeta } from './AdminShared';
 
 export type Paged<T> = { items: T[]; meta: PageMeta };
@@ -32,7 +33,7 @@ export type AdminUser = {
   userId: string;
   email: string;
   username: string;
-  role: 'READER' | 'AUTHOR' | 'ADMIN';
+  role: UserRole;
   status: 'ACTIVE' | 'LOCKED' | 'DELETED';
   displayName?: string | null;
 };

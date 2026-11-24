@@ -13,6 +13,7 @@ function mapAuthUser(row: QueryResultRow): AuthUser {
     avatarUrl: row.avatar_url,
     role: row.role,
     status: row.status,
+    accessVersion: Number(row.access_version ?? 0),
     passwordHash: row.password_hash
   };
 }
@@ -291,22 +292,25 @@ export async function createRefreshToken(
   );
 }
 
-export async function findValidRefreshToken(tokenHash: string) {
+export async function findRefreshSession(tokenHash: string) {
   const result = await getPostgresPool().query(
     `
-      select rt.*, u.status
+      select u.*, p.display_name, p.avatar_url
       from refresh_tokens rt
       join users u on u.user_id = rt.user_id
+      left join user_profiles p on p.user_id = u.user_id
       where rt.token_hash = $1
         and rt.revoked_at is null
         and rt.expires_at > now()
         and u.deleted_at is null
+        and u.status = 'ACTIVE'
       limit 1
     `,
     [tokenHash]
   );
 
-  return result.rows[0] ?? null;
+  const row = result.rows[0];
+  return row ? mapAuthUser(row) : null;
 }
 
 export async function revokeRefreshToken(tokenHash: string) {

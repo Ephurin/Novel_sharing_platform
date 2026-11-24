@@ -10,6 +10,7 @@ export type AuthUser = {
   avatarUrl: string | null;
   role: UserRole;
   status: UserStatus;
+  accessVersion: number;
   passwordHash: string | null;
 };
 

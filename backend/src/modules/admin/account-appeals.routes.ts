@@ -6,6 +6,7 @@ import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { successResponse } from '../../core/response/response.js';
+import { userRoles } from '../../shared/constants/roles.js';
 import { findAuthUserByEmailOrUsername } from '../auth/auth.repository.js';
 
 export const accountAppealsRoutes = Router();
@@ -70,6 +71,7 @@ const identity: RequestHandler = async (req, _res, next) => {
       )
     ).rows[0];
     if (!user) throw new AppError(403, 'AUTH_ACCOUNT_INACTIVE', 'Tài khoản không tồn tại.');
+    if (!userRoles.includes(user.role)) throw new AppError(403, 'AUTH_ACCOUNT_INACTIVE', 'Tài khoản không hợp lệ.');
     req.auth = { userId: user.user_id, role: user.role };
     next();
   } catch (error) {

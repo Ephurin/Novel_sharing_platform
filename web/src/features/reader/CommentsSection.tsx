@@ -1,3 +1,4 @@
+import { hasReaderCapability } from '../auth/auth-types';
 import { Alert, Avatar, Badge, Button, Group, Pagination, Paper, Stack, Text, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
@@ -117,7 +118,7 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
   const active = user?.status === 'ACTIVE';
   const counts = reaction ?? comment;
   const spoiler = Boolean(comment.isSpoiler || forceSpoiler);
-  const base = user?.role === 'READER' ? '/reader' : '/public';
+  const base = hasReaderCapability(user?.role) ? '/reader' : '/public';
   const source = comment.chapterId ? `Chương ${comment.chapterNumber ?? 'đã xóa'}` : 'Thảo luận chung';
   return <Paper ref={article} component="article" withBorder p="md" tabIndex={focused ? -1 : undefined}
     className={`sc-comment-item${focused ? ' is-focused' : ''}`} data-comment-id={comment.commentId}>

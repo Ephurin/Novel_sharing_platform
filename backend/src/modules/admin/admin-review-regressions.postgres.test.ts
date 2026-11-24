@@ -213,60 +213,87 @@ describe('PR74: queue liveness and fail-closed Admin entitlements', { concurrenc
   test('R74-02 RED regression: a scope-less internal context has no content-admin privilege', () => {
     assert.equal(isContentAdmin({ userId: missing, role: 'ADMIN' }), false);
   });
-  test('R74-02: explicit promotion and scope demotion take effect for stale tokens', async () => {
+  test('R74-02: promotion and scope demotion take effect with versioned sessions (D04)', async () => {
+    const call = (path: string, token: string, init?: { method?: string; body?: unknown }) =>
+      fetch(base + path, {
+        method: init?.method ?? (init?.body ? 'PATCH' : 'GET'),
+        headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+        ...(init?.body ? { body: JSON.stringify(init.body) } : {})
+      });
+    const accessVersion = async () =>
+      (await pool.query('select access_version from users where user_id=$1', [promoted])).rows[0]
+        .access_version;
+    const pam = (ver: number) =>
+      jwt.sign({ sub: promoted, role: 'ADMIN', ver }, env.JWT_ACCESS_SECRET);
+
     assert.equal(
       (
-        await request(`/admin/users/${promoted}/access`, root, {
-          role: 'ADMIN',
-          scope: 'MODERATOR',
-          reason: 'Explicit promotion'
+        await call(`/admin/users/${promoted}/access`, token(root), {
+          body: { role: 'ADMIN', scope: 'MODERATOR', reason: 'Explicit promotion' }
         })
       ).status,
       200
     );
     const staleReaderToken = jwt.sign({ sub: promoted, role: 'READER' }, env.JWT_ACCESS_SECRET);
+    assert.equal((await call('/admin/access', staleReaderToken)).status, 401);
+
+    const promotedScope = await call('/admin/access', pam(await accessVersion()));
+    assert.equal(promotedScope.status, 200);
+    assert.equal(((await promotedScope.json()) as { data: { scope?: string } }).data.scope, 'MODERATOR');
+
     assert.equal(
       (
-        await fetch(base + '/admin/access', {
-          headers: { authorization: `Bearer ${staleReaderToken}` }
+        await call(`/admin/users/${promoted}/access`, token(root), {
+          body: { role: 'ADMIN', scope: 'FINANCE', reason: 'Scope demotion' }
         })
       ).status,
       200
     );
-    assert.equal((await request('/admin/access', promoted)).body.data.scope, 'MODERATOR');
-    assert.equal(
-      (
-        await request(`/admin/users/${promoted}/access`, root, {
-          role: 'ADMIN',
-          scope: 'FINANCE',
-          reason: 'Scope demotion'
-        })
-      ).status,
-      200
-    );
-    assert.equal((await request('/admin/moderation/reviews', promoted)).status, 403);
-    assert.equal((await request('/admin/withdraw-requests', promoted)).status, 200);
+    assert.equal((await call('/admin/moderation/reviews', pam(await accessVersion() - 1))).status, 401);
+    const demotedToken = pam(await accessVersion());
+    assert.equal((await call('/admin/moderation/reviews', demotedToken)).status, 403);
+    assert.equal((await call('/admin/withdraw-requests', demotedToken)).status, 200);
     await pool.query('delete from admin_access where user_id=$1', [promoted]);
-    assert.equal((await request('/admin/access', promoted)).status, 403);
+    assert.equal((await call('/admin/access', demotedToken)).status, 403);
   });
   test('R74-02: concurrent changes retain an explicitly entitled last SUPER_ADMIN', async () => {
     await pool.query("insert into admin_access(user_id,scope) values($1,'SUPER_ADMIN')", [
       promoted
     ]);
+    const concurrentVersion = (
+      await pool.query('select access_version from users where user_id=$1', [promoted])
+    ).rows[0].access_version;
+    const promotedSession = jwt.sign(
+      { sub: promoted, role: 'ADMIN', ver: concurrentVersion },
+      env.JWT_ACCESS_SECRET
+    );
     const responses = await Promise.all([
-      request(`/admin/users/${promoted}/access`, root, {
-        role: 'ADMIN',
-        scope: 'MODERATOR',
-        reason: 'Concurrent demotion'
-      }),
-      request(`/admin/users/${root}/access`, promoted, {
-        role: 'ADMIN',
-        scope: 'MODERATOR',
-        reason: 'Concurrent demotion'
-      })
+      (async () => {
+        const raw = await fetch(base + `/admin/users/${promoted}/access`, {
+          method: 'PATCH',
+          headers: { authorization: `Bearer ${token(root)}`, 'content-type': 'application/json' },
+          body: JSON.stringify({ role: 'ADMIN', scope: 'MODERATOR', reason: 'Concurrent demotion' })
+        });
+        await raw.json();
+        return raw;
+      })(),
+      (async () => {
+        const raw = await fetch(base + `/admin/users/${root}/access`, {
+          method: 'PATCH',
+          headers: {
+            authorization: `Bearer ${promotedSession}`,
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({ role: 'ADMIN', scope: 'MODERATOR', reason: 'Concurrent demotion' })
+        });
+        await raw.json();
+        return raw;
+      })()
     ]);
+    // One change wins; the loser is rejected at the session gate (401), the permission gate (403)
+    // or the last-admin protection (409) depending on commit interleaving.
     assert.equal(responses.filter((r) => r.status === 200).length, 1);
-    assert.ok(responses.some((r) => [403, 409].includes(r.status)));
+    assert.ok(responses.some((r) => [401, 403, 409].includes(r.status)));
     assert.equal(
       (
         await pool.query(

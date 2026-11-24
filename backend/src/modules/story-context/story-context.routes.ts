@@ -38,7 +38,7 @@ import {
 
 export const storyContextRoutes = Router();
 
-const requireAuthor = [requireAuth, requireRoles(['AUTHOR', 'ADMIN'])];
+const requireAuthor = [requireAuth, requireRoles(['AUTHOR', 'ADMIN', 'MODERATOR'])];
 
 storyContextRoutes.post('/novels/:novelId/story-bible/sync', ...requireAuthor,
   validateRequest(novelIdParamSchema), syncStoryBibleController);

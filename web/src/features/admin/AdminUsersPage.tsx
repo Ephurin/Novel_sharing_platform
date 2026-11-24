@@ -26,7 +26,7 @@ export function AdminUsersPage() {
   const cache = useQueryClient();
   const currentUser = useAuthStore((s) => s.user);
   const [reason, setReason] = useState('');
-  const urlFilters = useUrlFilters({ q: '', role: '', status: '', page: 1 }, { role: ['', 'ADMIN', 'AUTHOR', 'READER'], status: ['', 'ACTIVE', 'LOCKED'] });
+  const urlFilters = useUrlFilters({ q: '', role: '', status: '', page: 1 }, { role: ['', 'ADMIN', 'AUTHOR', 'READER', 'MODERATOR'], status: ['', 'ACTIVE', 'LOCKED'] });
   const [q, setQ] = urlFilters.field('q');
   const [role, setRole] = urlFilters.field('role');
   const [status, setStatus] = urlFilters.field('status');

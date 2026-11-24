@@ -16,7 +16,7 @@ import {
   findAuthUserByEmailOrUsername,
   findAuthUserById,
   findGoogleAccount,
-  findValidRefreshToken,
+  findRefreshSession,
   linkGoogleAccount,
   lockPendingRegistration,
   findRegistrationContext,
@@ -64,6 +64,7 @@ function createAccessToken(user: AuthUser) {
     {
       sub: user.userId,
       role: user.role,
+      ver: user.accessVersion,
       jti: randomUUID()
     },
     env.JWT_ACCESS_SECRET,
@@ -397,13 +398,8 @@ export async function refreshAccessToken(refreshToken: string | undefined) {
   }
 
   const tokenHash = hashToken(refreshToken);
-  const tokenRow = await findValidRefreshToken(tokenHash);
+  const user = await findRefreshSession(tokenHash);
 
-  if (!tokenRow || tokenRow.status !== 'ACTIVE') {
-    throw new AppError(401, 'AUTH_006', 'Invalid refresh token');
-  }
-
-  const user = await findAuthUserById(tokenRow.user_id);
   if (!user) {
     throw new AppError(401, 'AUTH_006', 'Invalid refresh token');
   }
