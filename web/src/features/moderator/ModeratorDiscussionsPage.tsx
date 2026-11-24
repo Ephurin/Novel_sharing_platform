@@ -252,7 +252,7 @@ function CommentList({ query, page, disabled, onPage, onModerate }: {
   page: number;
   disabled: boolean;
   onPage: (page: number) => void;
-  onModerate: (comment: ModeratorDiscussionComment, status: 'VISIBLE' | 'HIDDEN' | 'DELETED', action: string) => void;
+  onModerate: (comment: ModeratorDiscussionComment, status: 'VISIBLE' | 'HIDDEN', action: string) => void;
 }) {
   if (query.isPending) return <Group gap="xs" p="sm"><Loader size="xs" /><Text size="sm" c="dimmed">Đang tải bình luận…</Text></Group>;
   if (query.isError) return <ErrorState title="Không thể tải bình luận" error={query.error} onRetry={() => void query.refetch()} />;
@@ -279,11 +279,6 @@ function CommentList({ query, page, disabled, onPage, onModerate }: {
                 <Button size="compact-xs" color="teal" variant="subtle" disabled={disabled}
                   data-testid={`moderator-comment-restore-${comment.commentId}`}
                   onClick={() => onModerate(comment, 'VISIBLE', 'Khôi phục bình luận')}>Khôi phục</Button>
-              )}
-              {deleted || disabled ? null : (
-                <Button size="compact-xs" color="red" variant="subtle"
-                  data-testid={`moderator-comment-delete-${comment.commentId}`}
-                  onClick={() => onModerate(comment, 'DELETED', 'Xoá bình luận')}>Xoá</Button>
               )}
             </Group>
           </Group>

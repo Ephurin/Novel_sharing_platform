@@ -276,13 +276,33 @@ test('PR-03 moderator discussion operations: reads, single-change commands, move
     assert.equal(hiddenList.status, 200);
     assert.ok(hiddenList.data.items.some(item => item.topicId === topicId));
 
+    const auditsBeforeRepeat = await auditCount('DISCUSSION_TOPIC_MODERATE', topicId);
     const hiddenRepeat = await call('PATCH', '/moderator/discussions/' + topicId + '/moderation',
       { status: 'HIDDEN', reason: 'ẩn lần nữa', expected: 'HIDDEN' }, moderatorToken
     );
     assert.equal(hiddenRepeat.status, 200);
-    const statusAudits = await auditCount('DISCUSSION_TOPIC_MODERATE', topicId);
-    const statusAuditsAfterRepeat = await auditCount('DISCUSSION_TOPIC_MODERATE', topicId);
-    assert.equal(statusAuditsAfterRepeat, statusAudits);
+    assert.equal(
+      await auditCount('DISCUSSION_TOPIC_MODERATE', topicId),
+      auditsBeforeRepeat,
+      're-sending the achieved topic status adds no second audit'
+    );
+
+    const deleteTopic = await call('PATCH', '/moderator/discussions/' + topicId + '/moderation',
+      { status: 'DELETED', reason: 'định xoá vĩnh viễn', expected: 'HIDDEN' }, moderatorToken
+    );
+    assert.equal(deleteTopic.status, 400, 'moderators cannot permanently delete someone else\'s topic');
+    const topicStatusRow = await db.query<{ status: string }>(
+      'select status from discussion_topics where topic_id=$1', [topicId]
+    );
+    assert.equal(topicStatusRow.rows[0].status, 'HIDDEN');
+    const deleteComment = await call('PATCH', '/moderator/discussions/' + topicId + '/comments/' + commentId + '/moderation',
+      { status: 'DELETED', reason: 'định xoá vĩnh viễn' }, moderatorToken
+    );
+    assert.equal(deleteComment.status, 400, 'moderators cannot permanently delete someone else\'s comment');
+    const commentStateRow = await db.query<{ status: string }>(
+      'select status from discussion_comments where comment_id=$1', [commentId]
+    );
+    assert.equal(commentStateRow.rows[0].status, 'HIDDEN');
 
     assert.equal((await call('POST', '/moderator/discussions/categories',
       { slug: 'khong-co-' + stamp, name: 'Không có' }, moderatorToken)).status, 404);

@@ -123,7 +123,7 @@ test('PR-03: the moderator workspace operates discussions with one change per ca
     await expect(page.getByTestId('moderator-reason-input')).toBeVisible();
     await page.getByTestId('moderator-reason-input').fill('Chủ đề quan trọng với cộng đồng.');
     await page.getByTestId('moderator-reason-confirm').click();
-    await expect(page.getByRole('status')).toContainText('Đã ghi thao tác điều hành.', { timeout: 15_000 });
+    await expect(page.getByRole('status').last()).toContainText('Đã ghi thao tác điều hành.', { timeout: 15_000 });
     assert.equal(topicPatches.length, 1, 'the pin action sends exactly one request');
     assert.deepEqual(
       topicPatches[0],
@@ -141,7 +141,7 @@ test('PR-03: the moderator workspace operates discussions with one change per ca
     await expect(page.getByTestId('moderator-reason-input')).toBeVisible();
     await page.getByTestId('moderator-reason-input').fill('Chủ đề thuộc chuyên mục hỏi đáp hơn.');
     await page.getByTestId('moderator-reason-confirm').click();
-    await expect(page.getByRole('status')).toContainText('Đã ghi thao tác điều hành.', { timeout: 15_000 });
+    await expect(page.getByRole('status').last()).toContainText('Đã ghi thao tác điều hành.', { timeout: 15_000 });
     assert.equal(topicPatches.length, 2, 'the move action sends a second request');
     assert.deepEqual(
       topicPatches[1],
@@ -151,11 +151,16 @@ test('PR-03: the moderator workspace operates discussions with one change per ca
 
     await page.getByTestId(`moderator-topic-comments-toggle-${topicId}`).click();
     await expect(page.getByText(comment.body)).toBeVisible({ timeout: 15_000 });
+    assert.equal(
+      await page.getByTestId(`moderator-comment-delete-${commentId}`).count(),
+      0,
+      'the workspace never offers a permanent comment delete'
+    );
     await page.getByTestId(`moderator-comment-hide-${commentId}`).click();
     await expect(page.getByTestId('moderator-reason-input')).toBeVisible();
     await page.getByTestId('moderator-reason-input').fill('Bình luận spam quảng cáo.');
     await page.getByTestId('moderator-reason-confirm').click();
-    await expect(page.getByRole('status')).toContainText('Đã ghi thao tác điều hành.', { timeout: 15_000 });
+    await expect(page.getByRole('status').last()).toContainText('Đã ghi thao tác điều hành.', { timeout: 15_000 });
     assert.equal(commentPatches.length, 1, 'the comment hide sends one request');
     assert.deepEqual(
       commentPatches[0],

@@ -10,8 +10,10 @@ import { refreshTopicActivity } from './discussions.write.js';
 import { discussionInvolvedUserIds } from './discussions.admin.js';
 import type { DiscussionStatus } from './discussions.types.js';
 
+export type ModeratorOperationalStatus = 'VISIBLE' | 'HIDDEN';
+
 export type TopicOperationalPatch =
-  | { field: 'status'; value: DiscussionStatus; expected: string }
+  | { field: 'status'; value: ModeratorOperationalStatus; expected: string }
   | { field: 'isPinned' | 'isLocked'; value: boolean; expected: boolean }
   | { field: 'destinationCategoryId'; value: string; expected: string };
 
@@ -115,7 +117,7 @@ export async function moderateDiscussionTopicOperational(
     }
     if (input.patch.field === 'status') {
       assertExpected(before.status, input.patch.expected);
-      if (before.status === 'DELETED' && input.patch.value !== 'DELETED')
+      if (before.status === 'DELETED')
         throw new AppError(
           409,
           'DISCUSSION_TOPIC_DELETED',
@@ -173,7 +175,7 @@ export async function moderateDiscussionTopicOperational(
 
 export async function moderateDiscussionCommentOperational(
   auth: AuthContext,
-  input: { topicId: string; commentId: string; status: DiscussionStatus; reason: string }
+  input: { topicId: string; commentId: string; status: ModeratorOperationalStatus; reason: string }
 ) {
   return withPostgresTransaction(async (client) => {
     await assertOperationalModerator(auth, client);
@@ -195,7 +197,7 @@ export async function moderateDiscussionCommentOperational(
       auth.userId,
       await discussionInvolvedUserIds('DISCUSSION_COMMENT', input.commentId, client)
     );
-    if (comment.status === 'DELETED' && input.status !== 'DELETED')
+    if (comment.status === 'DELETED')
       throw new AppError(409, 'DISCUSSION_COMMENT_DELETED', 'Không thể khôi phục bình luận đã bị xóa.');
     if (comment.status === input.status) {
       return { commentId: comment.comment_id, topicId: before.topic_id, status: comment.status };

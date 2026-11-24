@@ -91,7 +91,7 @@ export async function listModeratorDiscussionTopicComments(topicId: string, para
 
 export type ModeratorTopicChange =
   | { field: 'isPinned' | 'isLocked'; value: boolean; expected: boolean }
-  | { field: 'status'; value: 'VISIBLE' | 'HIDDEN' | 'DELETED'; expected: string }
+  | { field: 'status'; value: 'VISIBLE' | 'HIDDEN'; expected: string }
   | { field: 'destinationCategoryId'; value: string; expected: string };
 
 export async function moderateModeratorDiscussionTopic(
@@ -117,7 +117,7 @@ export async function moderateModeratorDiscussionTopic(
 export async function moderateModeratorDiscussionComment(
   topicId: string,
   commentId: string,
-  status: 'VISIBLE' | 'HIDDEN' | 'DELETED',
+  status: 'VISIBLE' | 'HIDDEN',
   reason: string
 ) {
   const response = await apiClient.patch<ApiEnvelope<{ commentId: string; status: string }>>(

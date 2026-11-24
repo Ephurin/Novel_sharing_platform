@@ -23,14 +23,15 @@ moderatorDiscussionsRoutes.use(requireAuth);
 
 const requireDiscussionOperator = requireModeratorOperational('discussion.operate');
 
-const statusSchema = z.enum(['VISIBLE', 'HIDDEN', 'DELETED']);
+const listStatusSchema = z.enum(['VISIBLE', 'HIDDEN', 'DELETED']);
+const patchStatusSchema = z.enum(['VISIBLE', 'HIDDEN']);
 const pageSchema = z.coerce.number().int().min(1).max(1000).default(1);
 const limitSchema = z.coerce.number().int().min(1).max(50).default(20);
 const uuidParam = z.string().uuid();
 
 const listTopicsSchema = z.object({
   query: z.object({
-    status: statusSchema.optional(),
+    status: listStatusSchema.optional(),
     page: pageSchema,
     limit: limitSchema
   })
@@ -39,7 +40,7 @@ const listTopicsSchema = z.object({
 const listCommentsSchema = z.object({
   params: z.object({ topicId: uuidParam }),
   query: z.object({
-    status: statusSchema.optional(),
+    status: listStatusSchema.optional(),
     page: pageSchema,
     limit: limitSchema
   })
@@ -49,7 +50,7 @@ const topicModerationSchema = z.object({
   params: z.object({ topicId: uuidParam }),
   body: z
     .object({
-      status: statusSchema.optional(),
+      status: patchStatusSchema.optional(),
       isPinned: z.boolean().optional(),
       isLocked: z.boolean().optional(),
       destinationCategoryId: uuidParam.optional(),
@@ -68,7 +69,7 @@ const topicModerationSchema = z.object({
 const commentModerationSchema = z.object({
   params: z.object({ topicId: uuidParam, commentId: uuidParam }),
   body: z.object({
-    status: statusSchema,
+    status: patchStatusSchema,
     reason: z.string().trim().min(1).max(500)
   })
 });
