@@ -79,6 +79,25 @@ const commentReviewDetail = {
   evidenceSummary: { matchedRules: ['harassment'], reportCount: 0, summary: 'Từ khóa bị lọc: harassment' }
 };
 
+const reportReviewId = '13131313-2424-4545-5656-676767676767';
+
+const reportReviewDetail = {
+  reviewId: reportReviewId,
+  targetType: 'USER',
+  targetId: '76767676-8787-9898-8989-b8b8b8b8b8b8',
+  status: 'PENDING',
+  source: 'USER_REPORT',
+  createdAt: '2026-01-22T11:00:00.000Z',
+  reason: null,
+  reviewedAt: null,
+  target: null,
+  sanctions: [],
+  reportReasons: [{ reason: 'SPAM', count: 2 }],
+  reportDescriptions: [{ reason: 'SPAM', description: 'Người này spam nhóm.' }],
+  ownerViolations: [],
+  evidenceSummary: { matchedRules: [], reportCount: 2, summary: null }
+};
+
 test('PR-02: the moderator workspace lists reviews, requires decisions with reasons, and hides the LOCK path', { timeout: 90000 }, async () => {
   const server = await createServer({
     root: fileURLToPath(new URL('../', import.meta.url)),
@@ -109,7 +128,9 @@ test('PR-02: the moderator workspace lists reviews, requires decisions with reas
       }
       if (/\/moderator\/reviews\/[^/]+$/.test(url.pathname)) {
         const isCommentReview = url.pathname.endsWith(commentReviewId);
-        await route.fulfill({ json: { success: true, data: isCommentReview ? commentReviewDetail : detailReview } });
+        const isReportReview = url.pathname.endsWith(reportReviewId);
+        const data = isCommentReview ? commentReviewDetail : isReportReview ? reportReviewDetail : detailReview;
+        await route.fulfill({ json: { success: true, data } });
         return;
       }
       if (url.pathname.endsWith('/moderator/reviews')) {
@@ -167,7 +188,27 @@ test('PR-02: the moderator workspace lists reviews, requires decisions with reas
     await expect(page.getByTestId('moderator-approve-review-btn')).toBeVisible();
     await expect(page.getByTestId('moderator-reject-review-btn')).toBeVisible();
     assert.equal(await page.getByTestId('moderator-revision-review-btn').count(), 0, 'comment reviews have no revision decision');
-    assert.deepEqual(errors, [], 'uncaught page errors during the comment review visit');
+
+    await page.goto(base + `/moderator/reviews/${reportReviewId}`);
+    const actionInput = page.getByRole('textbox', { name: 'Hành động khi tiếp nhận báo cáo' });
+    await expect(actionInput).toBeVisible({ timeout: 20_000 });
+    await expect(actionInput).toHaveValue(/Cảnh báo/, { timeout: 10_000 });
+    assert.equal(await page.getByText('Khóa tài khoản').count(), 0, 'the report never offers LOCK');
+    assert.equal(await page.getByText('Ẩn nội dung vi phạm').count(), 0, 'a USER report only offers WARN');
+
+    await page.getByTestId('moderator-approve-review-btn').click();
+    const acceptButton = page.getByRole('button', { name: 'Xác nhận xử lý' });
+    await expect(acceptButton).toBeVisible();
+    await expect(acceptButton).toBeDisabled();
+    await page.getByLabel('Lý do xử lý').fill('Cảnh cáo vì spam theo báo cáo.');
+    await expect(acceptButton).toBeEnabled();
+    await acceptButton.click();
+    await expect(page.getByRole('status')).toContainText('Đã lưu quyết định xử lý.', { timeout: 15_000 });
+    assert.equal(resolveCalls.length, 2, 'the publication and report decisions each send one request');
+    assert.equal(resolveCalls[1].decision, 'APPROVED');
+    assert.equal(resolveCalls[1].action, 'WARN', 'the report decision carries the selected action');
+    assert.equal(resolveCalls[1].reason, 'Cảnh cáo vì spam theo báo cáo.');
+    assert.deepEqual(errors, [], 'uncaught page errors during the report decision flow');
   } finally {
     await browser.close();
     await server.close();

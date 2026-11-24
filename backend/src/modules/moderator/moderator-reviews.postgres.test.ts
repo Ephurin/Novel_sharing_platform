@@ -21,6 +21,7 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
   const modIndependent = randomUUID();
   const modReporter = randomUUID();
   const modBump = randomUUID();
+  const modTou = randomUUID();
   const authorX = randomUUID();
   const reader1 = randomUUID();
   const reader2 = randomUUID();
@@ -28,8 +29,34 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
   let authorNovelId = '';
   let authorReviewId = '';
   let publishedNovelId = '';
+  let modPublicNovelId = '';
+  let touReviewId = '';
+  const discussionCategoryId = randomUUID();
+  const discussionTopicId = randomUUID();
+  const discussionCommentId = randomUUID();
   let server: Server;
   let base = '';
+
+  async function seedPublicComment(novelId: string, commenterId: string) {
+    const commentId = randomUUID();
+    await getMongoDatabase().collection('comments').insertOne({
+      commentId,
+      chapterId: null,
+      novelId,
+      userId: commenterId,
+      audience: 'PUBLIC',
+      recipientUserIds: [],
+      content: 'Bình luận công khai để kiểm tra báo cáo của điều hành viên.',
+      paragraphOffset: null,
+      parentCommentId: null,
+      status: 'APPROVED',
+      moderationReviewId: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null
+    });
+    return commentId;
+  }
 
   const mint = (userId: string, role: string, ver?: number) =>
     jwt.sign({ sub: userId, role, ...(ver === undefined ? {} : { ver }) }, env.JWT_ACCESS_SECRET);
@@ -60,11 +87,11 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
     ).rows[0].novel_id;
   }
 
-  async function insertPendingReview(targetType: 'NOVEL' | 'CHAPTER', targetId: string, evidenceTag: string) {
+  async function insertPendingReview(targetType: 'NOVEL' | 'CHAPTER', targetId: string, _tag: string) {
     return (
       await pool.query(
-        "insert into moderation_reviews(target_type,target_id,source,evidence_id) values($1,$2,'PUBLICATION_REQUEST',$3) returning review_id",
-        [targetType, targetId, evidenceTag]
+        "insert into moderation_reviews(target_type,target_id,source) values($1,$2,'PUBLICATION_REQUEST') returning review_id",
+        [targetType, targetId]
       )
     ).rows[0].review_id;
   }
@@ -92,6 +119,7 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
       [modIndependent, 'MODERATOR', undefined],
       [modReporter, 'MODERATOR', undefined],
       [modBump, 'MODERATOR', undefined],
+      [modTou, 'MODERATOR', undefined],
       [authorX, 'AUTHOR', undefined],
       [reader1, 'READER', undefined],
       [reader2, 'READER', undefined],
@@ -134,6 +162,28 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
         action: 'WARN',
         reason: 'Lịch sử vi phạm mẫu cho hiển thị hồ sơ.'
       })
+    );
+
+    // Discussion fixtures: the moderator-owned topic links to the moderator's own published novel,
+    // with one visible comment from another reader under it.
+    modPublicNovelId = await insertNovel(
+      modOwner,
+      'PR-02 mod public novel',
+      'Truyện đã phát hành của điều hành viên để kiểm tra độc lập bình luận và chủ đề thảo luận.',
+      'PUBLISHED'
+    );
+    await pool.query(
+      "insert into discussion_categories(category_id,slug,name) values($1,'pr02-rang-chuyen-muc','Rãng chuyện PR-02')",
+      [discussionCategoryId]
+    );
+    await pool.query(
+      `insert into discussion_topics(topic_id,category_id,author_id,novel_id,title,body)
+       values($1,$2,$3,$4,'Chủ đề của điều hành viên','Nội dung chủ đề để kiểm tra độc lập hồ sơ bình luận thảo luận.')`,
+      [discussionTopicId, discussionCategoryId, modOwner, modPublicNovelId]
+    );
+    await pool.query(
+      'insert into discussion_comments(comment_id,topic_id,author_id,body) values($1,$2,$3,$4)',
+      [discussionCommentId, discussionTopicId, reader3, 'Bình luận thảo luận để báo cáo và duyệt.']
     );
 
     server = createApp().listen(0, '127.0.0.1');
@@ -238,6 +288,13 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
     assert.equal(resolved.body.data.status, 'APPROVED');
     const novel = (await pool.query('select status from novels where novel_id=$1', [authorNovelId])).rows[0];
     assert.equal(novel.status, 'PUBLISHED');
+    const resolvedTwo = await bearerCall(`/moderator/reviews/${authorReviewId}/resolve`, {
+      method: 'POST',
+      token: mint(modOwner, 'MODERATOR'),
+      body: { decision: 'REJECTED', reason: 'Thử lại một hồ sơ đã duyệt.' }
+    });
+    assert.equal(resolvedTwo.status, 409);
+    assert.equal(resolvedTwo.body.error.code, 'ADMIN_002');
     const auditRow = (
       await pool.query('select actor_id from admin_audit where action=$1 and target_id=$2', ['PUBLICATION_APPROVED', authorNovelId])
     ).rows[0];
@@ -246,6 +303,7 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
 
   test('E03: two moderators race one entry and exactly one decision wins', async () => {
     const reviewId = await insertPendingReview('NOVEL', publishedNovelId, 'pr02-race');
+    const racers = [modOwner, modIndependent];
     const outcomes = await Promise.all([
       bearerCall(`/moderator/reviews/${reviewId}/resolve`, {
         method: 'POST',
@@ -260,11 +318,12 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
     ]);
     const byStatus = outcomes.map((outcome) => outcome.status).sort((a, b) => a - b);
     assert.deepEqual(byStatus, [200, 409], 'exactly one resolve wins');
+    const winnerIndex = outcomes.findIndex((outcome) => outcome.status === 200);
     const stored = (
       await pool.query('select status,reviewed_by from moderation_reviews where review_id=$1', [reviewId])
     ).rows[0];
     assert.equal(stored.status, 'REJECTED');
-    assert.ok([modOwner, modIndependent].includes(stored.reviewed_by));
+    assert.equal(stored.reviewed_by, racers[winnerIndex], 'the audit trail names the request that won');
   });
 
   test('E03: REVISION_REQUIRED demands a reason and leaves the live version untouched', async () => {
@@ -446,8 +505,166 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
     assert.equal(selfAttempt.body.error.code, 'MOD_CONFLICT');
   });
 
+  test('D04-B: the decision re-verifies the session under the target lock', async () => {
+    const reviewId = await insertPendingReview('NOVEL', publishedNovelId, 'pr02-toc');
+    touReviewId = reviewId;
+    const gate = await pool.connect();
+    try {
+      await gate.query('begin');
+      await gate.query('select novel_id from novels where novel_id=$1 for update', [publishedNovelId]);
+      const inFlight = bearerCall(`/moderator/reviews/${reviewId}/resolve`, {
+        method: 'POST',
+        token: mint(modTou, 'MODERATOR'),
+        body: { decision: 'REJECTED', reason: 'Đối chiếu phiên trong giao dịch.' }
+      });
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      await pool.query('update users set access_version=access_version+1 where user_id=$1', [modTou]);
+      await gate.query('commit');
+      const result = await inFlight;
+      assert.equal(result.status, 401);
+      assert.equal(result.body.error.code, 'AUTH_009');
+      const still = (await pool.query('select status,reviewed_by from moderation_reviews where review_id=$1', [reviewId])).rows[0];
+      assert.equal(still.status, 'PENDING');
+      assert.equal(still.reviewed_by, null);
+    } finally {
+      await gate.query('commit').catch(() => undefined);
+      await gate.release();
+    }
+  });
+
+  test('E03: moderator detail views land in the access log', async () => {
+    assert.ok(touReviewId, 'the under-lock test leaves one pending entry to read');
+    const detail = await bearerCall(`/moderator/reviews/${touReviewId}`, { token: mint(modIndependent, 'MODERATOR') });
+    assert.equal(detail.status, 200);
+    const audits = (
+      await pool.query(
+        "select count(*)::int as n from admin_audit where action='REVIEW_DETAIL_VIEW' and target_id=$1 and actor_id=$2",
+        [publishedNovelId, modIndependent]
+      )
+    ).rows[0];
+    assert.ok(audits.n >= 1, 'the moderator detail reading is access-logged');
+  });
+
+  test('D01: a moderator cannot decide a reader report inside their own discussion', async () => {
+    const report = await bearerCall('/reports', {
+      method: 'POST',
+      token: mint(reader1, 'READER'),
+      body: { targetType: 'DISCUSSION_COMMENT', targetId: discussionCommentId, reason: 'SPAM', description: 'Bình luận rác trong chủ đề.' }
+    });
+    assert.equal(report.status, 201);
+    const reviewId = report.body.data.moderationReviewId as string;
+    const involved = await bearerCall(`/moderator/reviews/${reviewId}/resolve`, {
+      method: 'POST',
+      token: mint(modOwner, 'MODERATOR'),
+      body: { decision: 'APPROVED', reason: 'Chủ đề này là của tôi.' }
+    });
+    assert.equal(involved.status, 403);
+    assert.equal(involved.body.error.code, 'MOD_CONFLICT');
+    const stillVisible = (
+      await pool.query('select status from discussion_comments where comment_id=$1', [discussionCommentId])
+    ).rows[0];
+    assert.equal(stillVisible.status, 'VISIBLE');
+
+    const independent = await bearerCall(`/moderator/reviews/${reviewId}/resolve`, {
+      method: 'POST',
+      token: mint(modIndependent, 'MODERATOR'),
+      body: { decision: 'APPROVED', reason: 'Ẩn bình luận rác theo báo cáo.' }
+    });
+    assert.equal(independent.status, 200);
+    assert.equal(independent.body.data.action, 'HIDE');
+    const hidden = (
+      await pool.query('select status from discussion_comments where comment_id=$1', [discussionCommentId])
+    ).rows[0];
+    assert.equal(hidden.status, 'HIDDEN');
+  });
+
+  test('D01: a moderator cannot decide reports on comments in their own novel', async () => {
+    const commentId = await seedPublicComment(modPublicNovelId, reader3);
+    const report = await bearerCall('/reports', {
+      method: 'POST',
+      token: mint(reader1, 'READER'),
+      body: { targetType: 'COMMENT', targetId: commentId, reason: 'SPAM', description: 'Bình luận rác dưới truyện.' }
+    });
+    assert.equal(report.status, 201);
+    const reviewId = report.body.data.moderationReviewId as string;
+    const involved = await bearerCall(`/moderator/reviews/${reviewId}/resolve`, {
+      method: 'POST',
+      token: mint(modOwner, 'MODERATOR'),
+      body: { decision: 'APPROVED', action: 'WARN', reason: 'Cảnh cáo trong truyện của tôi.' }
+    });
+    assert.equal(involved.status, 403);
+    assert.equal(involved.body.error.code, 'MOD_CONFLICT');
+    const sanction = (await pool.query('select count(*)::int as n from admin_sanctions where review_id=$1', [reviewId])).rows[0];
+    assert.equal(sanction.n, 0, 'the conflicted decision must not sanction anyone');
+  });
+
+  test('E04: moderators cannot dismiss reports about privileged accounts', async () => {
+    const witness = await insertReader();
+    const privileged = await bearerCall('/reports', {
+      method: 'POST',
+      token: mint(reader1, 'READER'),
+      body: { targetType: 'USER', targetId: modReporter, reason: 'ABUSE', description: 'Nghi lạm quyền khi xử lý báo cáo.' }
+    });
+    assert.equal(privileged.status, 201);
+    const dismissed = await bearerCall(`/moderator/reviews/${privileged.body.data.moderationReviewId}/resolve`, {
+      method: 'POST',
+      token: mint(modIndependent, 'MODERATOR'),
+      body: { decision: 'REJECTED', reason: 'Bác báo cáo nhắm điều hành viên.' }
+    });
+    assert.equal(dismissed.status, 403);
+    assert.equal(dismissed.body.error.code, 'MOD_PRIVILEGED_TARGET');
+    const open = (
+      await pool.query('select count(*)::int as n from reports where review_id=$1 and status=$2', [
+        privileged.body.data.moderationReviewId,
+        'OPEN'
+      ])
+    ).rows[0];
+    assert.equal(open.n, 1, 'the privileged-target report stays open for Admin escalation');
+    assert.ok(witness, 'seeded reader exists');
+  });
+
+  test('E04: an accepted comment report warns once and notifies everyone once', async () => {
+    const commentId = await seedPublicComment(publishedNovelId, reader3);
+    const first = await bearerCall('/reports', {
+      method: 'POST',
+      token: mint(reader1, 'READER'),
+      body: { targetType: 'COMMENT', targetId: commentId, reason: 'SPAM', description: 'Báo cáo lần một.' }
+    });
+    const second = await bearerCall('/reports', {
+      method: 'POST',
+      token: mint(modIndependent, 'MODERATOR'),
+      body: { targetType: 'COMMENT', targetId: commentId, reason: 'SPAM', description: 'Báo cáo lần hai.' }
+    });
+    assert.equal(first.status, 201);
+    assert.equal(second.status, 201);
+    const reviewId = first.body.data.moderationReviewId as string;
+    const resolved = await bearerCall(`/moderator/reviews/${reviewId}/resolve`, {
+      method: 'POST',
+      token: mint(modOwner, 'MODERATOR'),
+      body: { decision: 'APPROVED', action: 'WARN', reason: 'Cảnh cáo bình luận rác.' }
+    });
+    assert.equal(resolved.status, 200);
+    assert.equal(resolved.body.data.action, 'WARN');
+    const warnings = await getMongoDatabase()
+      .collection('notifications')
+      .countDocuments({ type: 'COMMENT_WARNING_BY_REPORT', 'payload.reviewId': reviewId });
+    assert.equal(warnings, 1, 'the commenter is warned exactly once');
+    const reporterNotices = await getMongoDatabase()
+      .collection('notifications')
+      .countDocuments({ type: 'COMMENT_REPORT_APPROVED', 'payload.reviewId': reviewId });
+    assert.equal(reporterNotices, 2, 'each distinct reporter is notified exactly once');
+    const sanction = (await pool.query('select count(*)::int as n from admin_sanctions where review_id=$1', [reviewId])).rows[0];
+    assert.equal(sanction.n, 1, 'exactly one sanction row is recorded');
+  });
+
   test('E09: the admin moderation contract is unchanged on the shared service', async () => {
-    const reviewId = await insertPendingReview('NOVEL', publishedNovelId, 'pr02-admin');
+    const chapter = (
+      await pool.query(
+        "insert into chapters(novel_id,chapter_number,title,content,status) values($1,3,'Chương ba','Nội dung chương ba công khai cho hợp đồng admin.','PUBLISHED') returning chapter_id",
+        [publishedNovelId]
+      )
+    ).rows[0];
+    const reviewId = await insertPendingReview('CHAPTER', chapter.chapter_id, 'pr02-admin');
     const adminResolve = await bearerCall(`/admin/moderation/reviews/${reviewId}/resolve`, {
       method: 'POST',
       token: mint(admin, 'ADMIN'),

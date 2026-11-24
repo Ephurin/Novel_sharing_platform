@@ -34,15 +34,19 @@ export async function applySanction(
   } else if (input.targetType === 'USER') {
     if (input.action === 'LOCK') await assertAdminPermission(auth, 'users', client);
     if (auth.role === 'MODERATOR') {
-      // Review resolutions already gated sanction.warn/sanction.hide and the privileged-target
+      // The report-resolution path gates sanction.warn/sanction.hide and the privileged-target
       // ban upstream; direct account management still belongs to Admin's protectAccount.
+      if (!input.reviewId)
+        throw new AppError(403, 'ADMIN_PERMISSION', 'Chỉ quản trị trực tiếp xử phạt tài khoản.');
       const row = (
         await client.query(
-          "select user_id,status from users where user_id=$1 and deleted_at is null and status<>'DELETED' for update",
+          "select user_id,status,role from users where user_id=$1 and deleted_at is null and status<>'DELETED' for update",
           [input.targetId]
         )
       ).rows[0];
       if (!row) throw new AppError(404, 'USER_001', 'Không tìm thấy tài khoản.');
+      if (row.role === 'ADMIN' || row.role === 'MODERATOR')
+        throw new AppError(403, 'MOD_PRIVILEGED_TARGET', 'Báo cáo nhắm tài khoản đặc quyền phải chuyển cấp cho Admin.');
       if (String(row.user_id).toLowerCase() === auth.userId.toLowerCase())
         throw new AppError(409, 'ADMIN_SELF', 'Không thể tự xử phạt tài khoản đang dùng.');
       before = { status: row.status };

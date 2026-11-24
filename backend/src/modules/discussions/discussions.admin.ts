@@ -3,6 +3,7 @@ import type { PoolClient, QueryResult } from 'pg';
 import { z } from 'zod';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
+import { getPostgresPool } from '../../core/database/postgres.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { validateRequest } from '../../core/validation/validate.js';
 import { requireAuth } from '../../core/security/auth.middleware.js';
@@ -560,6 +561,47 @@ export async function getDiscussionReviewTarget(
       authorId: row.author_id
     };
   });
+}
+
+/**
+ * Independence subjects of a discussion report: the comment author, the topic author and the
+ * author of a novel attached to the topic. Runs on the caller's client because decision
+ * transactions read it under their lock; opening a second pooled connection there deadlocks
+ * the write path under load.
+ */
+export async function discussionInvolvedUserIds(
+  kind: DiscussionTargetKind,
+  id: string,
+  client?: PoolClient
+): Promise<string[]> {
+  const boundedId = uuidParam.parse(id);
+  const query = (text: string, params: unknown[]) =>
+    (client ?? getPostgresPool()).query(text, params);
+  type InvolvedRow = { comment_author?: string | null; topic_author: string; novel_author: string | null };
+  const rows: Array<InvolvedRow> =
+    kind === 'DISCUSSION'
+      ? (await query(
+          `select t.author_id as topic_author, n.author_id as novel_author
+             from discussion_topics t
+             left join novels n on n.novel_id = t.novel_id
+            where t.topic_id = $1`,
+          [boundedId]
+        )).rows
+      : (await query(
+          `select m.author_id as comment_author, t.author_id as topic_author, n.author_id as novel_author
+             from discussion_comments m
+             join discussion_topics t on t.topic_id = m.topic_id
+             left join novels n on n.novel_id = t.novel_id
+            where m.comment_id = $1`,
+          [boundedId]
+        )).rows;
+  return Array.from(
+    new Set(
+      rows
+        .flatMap((row) => [row.comment_author ?? null, row.topic_author, row.novel_author])
+        .filter((userId): userId is string => Boolean(userId))
+    )
+  );
 }
 
 /** Reporters may only flag visible targets they do not own. */

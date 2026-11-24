@@ -318,6 +318,15 @@ export async function getModerationReview(reviewId: string, auth?: AuthContext) 
 
   if (auth?.role === 'MODERATOR') {
     assertModeratorOperational(auth, reviewPermissionFor(review));
+    // The moderator workspace serves target evidence and bounded violation history,
+    // so each detail reading keeps an access-log row next to the decision audit trail.
+    await withPostgresTransaction((client) =>
+      audit(client, auth, {
+        action: 'REVIEW_DETAIL_VIEW',
+        targetType: review.target_type,
+        targetId: review.target_id
+      })
+    );
   }
 
   if (review.target_type === 'COMMENT') {
@@ -393,6 +402,13 @@ async function recoverResolvedCommentReview(
   decision: ResolveReviewInput['decision']
 ) {
   return withCommentWriteLock(commentId, async (client) => {
+    const identity = (
+      await client.query(
+        'select role, status, access_version from users where user_id=$1 and deleted_at is null',
+        [auth.userId]
+      )
+    ).rows[0];
+    assertFreshIdentityUnderLock(auth, identity);
     const review = await findReviewById(reviewId, client);
     if (
       !review || review.source !== 'KEYWORD_FILTER' || review.target_type !== 'COMMENT' ||
@@ -529,9 +545,10 @@ export async function resolveModerationReview(
     await lockPublicationTarget(client, review.target_type, review.target_id, input.decision === 'APPROVED');
     if (auth.role === 'MODERATOR') {
       const identity = (
-        await client.query('select role, access_version from users where user_id=$1 and deleted_at is null', [
-          auth.userId
-        ])
+        await client.query(
+          'select role, status, access_version from users where user_id=$1 and deleted_at is null',
+          [auth.userId]
+        )
       ).rows[0];
       assertFreshIdentityUnderLock(auth, identity);
       await assertResolverAccess(auth, review, client);

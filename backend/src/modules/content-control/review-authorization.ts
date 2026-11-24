@@ -9,10 +9,7 @@ import {
 import { assertAdminPermission } from '../admin/admin-access.js';
 import { assertModeratorOperational } from '../moderator/moderator-access.js';
 import { findCommentRecordById } from '../interactions/comments.repository.js';
-import {
-  getDiscussionReviewTarget,
-  isDiscussionTarget
-} from '../discussions/discussions.admin.js';
+import { discussionInvolvedUserIds, isDiscussionTarget } from '../discussions/discussions.admin.js';
 
 export type ResolvedReviewRow = {
   review_id: string;
@@ -70,16 +67,23 @@ export async function reviewInvolvedUserIds(
   }
   if (review.target_type === 'USER') return [review.target_id];
   if (isDiscussionTarget(review.target_type)) {
-    const target = await getDiscussionReviewTarget(review.target_type, review.target_id);
-    return [target.authorId];
+    return discussionInvolvedUserIds(review.target_type, review.target_id, client);
   }
   return [];
 }
 
 // Operational commands re-verify role and access version under the decision lock,
 // so a role that changed after the request started cannot finish its own decision.
-export function assertFreshIdentityUnderLock(auth: AuthContext, row: { role: string; access_version: number | string } | undefined) {
-  if (!row || row.role !== auth.role || Number(row.access_version) !== (auth.accessVersion ?? 0)) {
+export function assertFreshIdentityUnderLock(
+  auth: AuthContext,
+  row: { role: string; access_version: number | string; status?: string } | undefined
+) {
+  if (
+    !row ||
+    row.role !== auth.role ||
+    row.status !== 'ACTIVE' ||
+    Number(row.access_version) !== (auth.accessVersion ?? 0)
+  ) {
     throw new AppError(401, 'AUTH_009', 'Phiên đã đổi quyền trong lúc thao tác. Hãy đăng nhập lại.');
   }
 }
@@ -103,13 +107,6 @@ export async function assertReportModeratorConstraints(
   input: { accepted: boolean; action: string; reporters: Array<{ reporter_id: string }> }
 ) {
   assertIndependentActor(auth.userId, input.reporters.map((report) => report.reporter_id));
-  if (!input.accepted) return;
-  const actionPermission: ModeratorPermission | null =
-    input.action === 'WARN' ? 'sanction.warn' : input.action === 'HIDE' ? 'sanction.hide' : null;
-  if (!actionPermission) {
-    throw new AppError(403, 'MOD_LOCK_ADMIN', 'Chỉ quản trị được khóa tài khoản. Hãy chuyển hồ sơ lên Admin.');
-  }
-  assertModeratorOperational(auth, actionPermission);
   if (review.target_type === 'USER') {
     const subject = (await client.query('select role from users where user_id=$1', [review.target_id])).rows[0];
     if (subject && (subject.role === 'ADMIN' || subject.role === 'MODERATOR')) {
@@ -120,4 +117,11 @@ export async function assertReportModeratorConstraints(
       );
     }
   }
+  if (!input.accepted) return;
+  const actionPermission: ModeratorPermission | null =
+    input.action === 'WARN' ? 'sanction.warn' : input.action === 'HIDE' ? 'sanction.hide' : null;
+  if (!actionPermission) {
+    throw new AppError(403, 'MOD_LOCK_ADMIN', 'Chỉ quản trị được khóa tài khoản. Hãy chuyển hồ sơ lên Admin.');
+  }
+  assertModeratorOperational(auth, actionPermission);
 }

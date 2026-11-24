@@ -100,7 +100,8 @@ requireSnippet(
   'if (!userRoles.includes(user.role))'
 );
 
-// Shell navigation shows Moderator items only together with ordinary capability anchors.
+// Shell navigation shows Moderator items only together with ordinary capability anchors,
+// except the moderated workspace itself which is exactly ['MODERATOR'].
 const shell = readFileSync('web/src/app/layout/WebAppShell.tsx', 'utf8');
 const navGuards = roleArraysOf(shell, /roles: \[([^\]]+)\]/g);
 if (navGuards.length === 0) {
@@ -112,8 +113,8 @@ for (const nav of navGuards) {
     console.error(`Role contract drift in web shell nav roles [${nav.join(', ')}]: unknown role value`);
     process.exitCode = 1;
   }
-  if (nav.includes('MODERATOR') && !nav.some((role) => ['READER', 'AUTHOR'].includes(role))) {
-    console.error(`Role contract drift in web shell nav roles [${nav.join(', ')}]: Moderator must accompany an ordinary capability anchor`);
+  if (nav.includes('MODERATOR') && JSON.stringify(nav) !== JSON.stringify(['MODERATOR']) && !nav.some((role) => ['READER', 'AUTHOR'].includes(role))) {
+    console.error(`Role contract drift in web shell nav roles [${nav.join(', ')}]: Moderator must accompany an ordinary capability anchor unless the item is exactly ['MODERATOR']`);
     process.exitCode = 1;
   }
 }

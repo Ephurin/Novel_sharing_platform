@@ -31,9 +31,10 @@ export async function resolveUserReport(
     await assertResolverAccess(auth, review, client);
     if (auth.role === 'MODERATOR') {
       const identity = (
-        await client.query('select role, access_version from users where user_id=$1 and deleted_at is null', [
-          auth.userId
-        ])
+        await client.query(
+          'select role, status, access_version from users where user_id=$1 and deleted_at is null',
+          [auth.userId]
+        )
       ).rows[0];
       assertFreshIdentityUnderLock(auth, identity);
       await assertIndependentResolver(auth, review, client);
