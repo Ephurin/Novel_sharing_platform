@@ -1,6 +1,7 @@
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { AppError } from '../../core/errors/app-error.js';
+import { assertIndependentActor } from '../../core/security/moderation-policy.js';
 import { audit, requiredReason } from '../admin/admin-access.js';
 import { applySanction } from '../admin/admin-sanctions.js';
 import { drainAdminJobs, queueAdminNotification } from '../admin/admin-jobs.js';
@@ -37,7 +38,6 @@ export async function resolveUserReport(
         )
       ).rows[0];
       assertFreshIdentityUnderLock(auth, identity);
-      await assertIndependentResolver(auth, review, client);
     }
     if (review.status !== 'PENDING') throw new AppError(409, 'ADMIN_002', 'Báo cáo đã được xử lý.');
     if (input.decision === 'REVISION_REQUIRED')
@@ -56,12 +56,10 @@ export async function resolveUserReport(
     const reports = (
       await client.query('select * from reports where review_id=$1 order by created_at', [reviewId])
     ).rows;
+    await assertIndependentResolver(auth, review, client);
+    assertIndependentActor(auth.userId, reports.map((report) => report.reporter_id));
     if (auth.role === 'MODERATOR') {
-      await assertReportModeratorConstraints(auth, client, review, {
-        accepted,
-        action,
-        reporters: reports.map((report) => ({ reporter_id: report.reporter_id }))
-      });
+      await assertReportModeratorConstraints(auth, client, review, { accepted, action });
     }
     const discussionAuthorId = accepted && discussionTarget
       ? await hideDiscussionForReport(client, discussionTarget, review.target_id)

@@ -74,13 +74,13 @@ export async function reviewInvolvedUserIds(
     const comment = await findCommentRecordById(review.target_id);
     if (!comment) return assertResolvable([]);
     const novel = await query('select author_id from novels where novel_id=$1', [comment.novelId]);
-    return assertResolvable([comment.userId, ...(novel.rows[0] ? [novel.rows[0].author_id] : [])]);
+    return assertResolvable(novel.rows[0] ? [comment.userId, novel.rows[0].author_id] : []);
   }
   if (review.target_type === 'USER') return [review.target_id];
   if (isDiscussionTarget(review.target_type)) {
     return assertResolvable(await discussionInvolvedUserIds(review.target_type, review.target_id, client));
   }
-  return [];
+  return assertResolvable([]);
 }
 
 // Operational commands re-verify role and access version under the decision lock,
@@ -99,25 +99,21 @@ export function assertFreshIdentityUnderLock(
   }
 }
 
-// An independent Moderator decides every operational case; Admin supervision stays on the legacy contract.
 export async function assertIndependentResolver(
   auth: AuthContext,
   review: { target_type: string; target_id: string; source: string },
-  client?: PoolClient
+  client: PoolClient
 ) {
-  if (auth.role !== 'MODERATOR') return;
   assertIndependentActor(auth.userId, await reviewInvolvedUserIds(review, client));
 }
 
-// Report-specific moderator limits: reporters never decide their own report,
-// executable actions need their sanction permission, LOCK and privileged targets go to Admin.
+// Executable moderator actions need their sanction permission. LOCK and privileged targets go to Admin.
 export async function assertReportModeratorConstraints(
   auth: AuthContext,
   client: PoolClient,
   review: { target_type: string; target_id: string },
-  input: { accepted: boolean; action: string; reporters: Array<{ reporter_id: string }> }
+  input: { accepted: boolean; action: string }
 ) {
-  assertIndependentActor(auth.userId, input.reporters.map((report) => report.reporter_id));
   if (review.target_type === 'USER') {
     const subject = (await client.query('select role from users where user_id=$1', [review.target_id])).rows[0];
     if (subject && (subject.role === 'ADMIN' || subject.role === 'MODERATOR')) {

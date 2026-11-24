@@ -828,6 +828,42 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
     assert.equal(approved.status, 200);
   });
 
+  test('D01: the legacy review API requires an independent Admin', async () => {
+    const novelId = await insertNovel(admin, 'Review independence fixture', 'Admin-owned fixture.', 'DRAFT');
+    const reviewId = await insertPendingReview('NOVEL', novelId, 'admin-independence');
+    const decision = { decision: 'REJECTED', reason: 'Lý do xét duyệt.' };
+    const denied = await bearerCall(`/admin/moderation/reviews/${reviewId}/resolve`, {
+      token: mint(admin, 'ADMIN'),
+      body: decision
+    });
+    assert.equal(denied.status, 403);
+    assert.equal(denied.body.error.code, 'MOD_CONFLICT');
+    const { rows: [unchanged] } = await pool.query(
+      'select status, reviewed_by from moderation_reviews where review_id=$1', [reviewId]
+    );
+    assert.equal(unchanged.status, 'PENDING');
+    assert.equal(unchanged.reviewed_by, null);
+  });
+
+  test('D01: the legacy report API requires an Admin other than the reporter', async () => {
+    const token = mint(admin, 'ADMIN');
+    const targetId = await insertReader();
+    const report = await bearerCall('/reports', {
+      token,
+      body: { targetType: 'USER', targetId, reason: 'SPAM', description: 'Báo cáo cần người khác xét.' }
+    });
+    assert.equal(report.status, 201);
+    const reviewId = report.body.data.moderationReviewId;
+    const denied = await bearerCall(`/admin/moderation/reviews/${reviewId}/resolve`, {
+      token,
+      body: { decision: 'REJECTED', reason: 'Lý do xét duyệt.' }
+    });
+    assert.equal(denied.status, 403);
+    assert.equal(denied.body.error.code, 'MOD_CONFLICT');
+    const { rows: [unchanged] } = await pool.query('select status from reports where review_id=$1', [reviewId]);
+    assert.equal(unchanged.status, 'OPEN');
+  });
+
   test('E09: the admin moderation contract is unchanged on the shared service', async () => {
     const chapter = (
       await pool.query(

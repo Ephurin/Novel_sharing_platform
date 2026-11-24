@@ -421,10 +421,12 @@ async function recoverResolvedCommentReview(
     ) {
       throw new AppError(409, 'ADMIN_002', 'Review item already resolved');
     }
+    await assertResolverAccess(auth, review, client);
     const comment = await findCommentRecordById(commentId);
     if (!comment || comment.deletedAt !== null || comment.moderationReviewId !== reviewId) {
       throw new AppError(409, 'CONTENT_REVIEW_STALE', 'Comment no longer matches the reviewed version');
     }
+    await assertIndependentResolver(auth, review, client);
     const commentStatus: CommentStatus = review.status === 'APPROVED' ? 'APPROVED' : 'REJECTED';
     const result = {
       reviewId: review.review_id,
@@ -565,11 +567,13 @@ export async function resolveModerationReview(
         )
       ).rows[0];
       assertFreshIdentityUnderLock(auth, identity);
-      await assertResolverAccess(auth, review, client);
-      await assertIndependentResolver(auth, review, client);
     }
+    await assertResolverAccess(auth, review, client);
     if (review.target_type === 'COMMENT') {
       await client.query("select pg_advisory_xact_lock(hashtextextended('comment:' || $1, 0))", [review.target_id]);
+    }
+    await assertIndependentResolver(auth, review, client);
+    if (review.target_type === 'COMMENT') {
       const comment = await findCommentRecordById(review.target_id);
       if (comment?.status === 'PENDING_MODERATION' && comment.moderationReviewId === reviewId && input.decision === 'APPROVED') {
         if (comment.imageUrl) throw new AppError(409, 'GIF_UPLOAD_DISABLED', 'Remove the uploaded GIF before review.');
