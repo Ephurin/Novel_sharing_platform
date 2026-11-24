@@ -25,15 +25,12 @@ type ModeratorTopicRow = {
   status: DiscussionStatus;
   is_pinned: boolean;
   is_locked: boolean;
-  category_slug: string | null;
 };
 
 async function lockModeratorTopic(client: PoolClient, topicId: string): Promise<ModeratorTopicRow> {
   const result: QueryResult<ModeratorTopicRow> = await client.query(
-    `select t.topic_id,t.category_id,t.author_id,t.title,t.status,t.is_pinned,t.is_locked,c.slug as category_slug
-       from discussion_topics t
-       left join discussion_categories c on c.category_id=t.category_id
-      where t.topic_id=$1 for update of t`,
+    `select topic_id,category_id,author_id,title,status,is_pinned,is_locked
+       from discussion_topics where topic_id=$1 for update`,
     [topicId]
   );
   const row = result.rows[0];
@@ -45,7 +42,7 @@ async function assertOperationalModerator(auth: AuthContext, client: PoolClient)
   assertModeratorOperational(auth, 'discussion.operate');
   const identity = (
     await client.query<{ role: string; status: string; access_version: number }>(
-      'select role, status, access_version from users where user_id=$1 and deleted_at is null',
+      'select role, status, access_version from users where user_id=$1 and deleted_at is null for share',
       [auth.userId]
     )
   ).rows[0];
@@ -75,31 +72,31 @@ export async function moderateDiscussionTopicOperational(
     );
     const reason = requiredReason(input.reason);
     if (input.patch.field === 'destinationCategoryId') {
-      const destination = (
-        await client.query<{
-          category_id: string;
-          slug: string;
-          is_active: boolean;
-          post_admin_only: boolean;
-        }>(
-          `select category_id,slug,is_active,post_admin_only
-             from discussion_categories where category_id=$1 for update`,
-          [input.patch.value]
-        )
-      ).rows[0];
-      if (!destination) throw new AppError(404, 'DISCUSSION_CATEGORY_001', 'Không tìm thấy danh mục.');
-      if (!destination.is_active)
-        throw new AppError(422, 'DISCUSSION_CATEGORY_INACTIVE', 'Chuyên mục đích không còn hoạt động.');
-      if (destination.post_admin_only)
+      const destinationId = input.patch.value;
+      if (before.category_id === destinationId) return topicState(before);
+      assertExpected(before.category_id, input.patch.expected);
+      const { rows: categories } = await client.query<{
+        category_id: string;
+        slug: string;
+        is_active: boolean;
+        post_admin_only: boolean;
+      }>(
+        `select category_id,slug,is_active,post_admin_only from discussion_categories
+          where category_id in ($1, $2) order by category_id for share`,
+        [before.category_id, destinationId]
+      );
+      const source = categories.find((category) => category.category_id === before.category_id);
+      const destination = categories.find((category) => category.category_id === destinationId);
+      if (!source || !destination)
+        throw new AppError(404, 'DISCUSSION_CATEGORY_001', 'Không tìm thấy danh mục.');
+      if (!source.is_active || !destination.is_active)
+        throw new AppError(422, 'DISCUSSION_CATEGORY_INACTIVE', 'Cả hai chuyên mục phải đang hoạt động.');
+      if (source.post_admin_only || destination.post_admin_only)
         throw new AppError(
           422,
           'DISCUSSION_CATEGORY_OFFICIAL',
-          'Không thể chuyển chủ đề vào chuyên mục chính thức.'
+          'Không thể chuyển chủ đề vào hoặc ra khỏi chuyên mục chính thức.'
         );
-      assertExpected(before.category_id, input.patch.expected);
-      if (destination.category_id === before.category_id) {
-        return topicState(before);
-      }
       await client.query('update discussion_topics set category_id=$2 where topic_id=$1', [
         input.topicId,
         destination.category_id
@@ -110,13 +107,12 @@ export async function moderateDiscussionTopicOperational(
         targetId: input.topicId,
         affectedUserId: before.author_id,
         reason,
-        before: { categoryId: before.category_id, slug: before.category_slug },
+        before: { categoryId: source.category_id, slug: source.slug },
         after: { categoryId: destination.category_id, slug: destination.slug }
       });
       return topicState({ ...before, category_id: destination.category_id });
     }
     if (input.patch.field === 'status') {
-      assertExpected(before.status, input.patch.expected);
       if (before.status === 'DELETED')
         throw new AppError(
           409,
@@ -124,6 +120,7 @@ export async function moderateDiscussionTopicOperational(
           'Không thể khôi phục chủ đề đã bị xóa.'
         );
       if (before.status === input.patch.value) return topicState(before);
+      assertExpected(before.status, input.patch.expected);
       const updated = await client.query(
         'update discussion_topics set status=$2 where topic_id=$1 returning status',
         [input.topicId, input.patch.value]
@@ -146,8 +143,8 @@ export async function moderateDiscussionTopicOperational(
     }
     const column = input.patch.field === 'isPinned' ? 'is_pinned' : 'is_locked';
     const current = input.patch.field === 'isPinned' ? before.is_pinned : before.is_locked;
-    assertExpected(current, input.patch.expected);
     if (current === input.patch.value) return topicState(before);
+    assertExpected(current, input.patch.expected);
     await client.query(`update discussion_topics set ${column}=$2 where topic_id=$1`, [
       input.topicId,
       input.patch.value

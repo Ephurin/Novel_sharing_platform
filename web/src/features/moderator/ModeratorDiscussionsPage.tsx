@@ -170,7 +170,7 @@ export function ModeratorDiscussionsPage() {
                             </ActionIcon>
                           </Tooltip>
                           <Tooltip label="Chuyển chuyên mục">
-                            <ActionIcon size="sm" variant="subtle" disabled={isDeleted}
+                            <ActionIcon size="sm" variant="subtle" disabled={isDeleted || !moveOptions.some(option => option.value === topic.categoryId)}
                               aria-label="Chuyển chuyên mục"
                               data-testid={`moderator-topic-move-${topic.topicId}`}
                               onClick={() => setMoveTarget(topic)}>

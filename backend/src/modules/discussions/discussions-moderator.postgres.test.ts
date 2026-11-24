@@ -130,7 +130,7 @@ test('PR-03 moderator discussion operations: reads, single-change commands, move
     assert.equal(pinned.data.isPinned, true);
     const auditsAfterPin = await auditCount('DISCUSSION_TOPIC_MODERATE', topicId);
     const repeatPin = await call<{ isPinned: boolean }>('PATCH', '/moderator/discussions/' + topicId + '/moderation',
-      { isPinned: true, reason: 'lần nữa', expected: true }, moderatorToken
+      { isPinned: true, reason: 'quan trọng', expected: false }, moderatorToken
     );
     assert.equal(repeatPin.status, 200);
     assert.equal(repeatPin.data.isPinned, true);
@@ -158,6 +158,12 @@ test('PR-03 moderator discussion operations: reads, single-change commands, move
     );
     assert.equal(moved.status, 200);
     assert.equal(moved.data.categoryId, hoiDapId);
+    const repeatMove = await call<{ categoryId: string }>(
+      'PATCH', '/moderator/discussions/' + topicId + '/moderation',
+      { destinationCategoryId: hoiDapId, reason: 'đúng chuyên mục hơn', expected: gocTacGiaId }, moderatorToken
+    );
+    assert.equal(repeatMove.status, 200);
+    assert.equal(repeatMove.data.categoryId, hoiDapId);
     const likeCount = await db.query<{ count: string }>(
       'select count(*)::text as count from discussion_comment_likes where comment_id=$1', [commentId]
     );
@@ -186,6 +192,25 @@ test('PR-03 moderator discussion operations: reads, single-change commands, move
       'select category_id from discussion_topics where topic_id=$1', [topicId]
     );
     assert.equal(categoryAfterDenied.rows[0].category_id, hoiDapId);
+
+    const restrictedCategories: Array<[string, string]> = [
+      [retiredId, 'DISCUSSION_CATEGORY_INACTIVE'],
+      [officialId, 'DISCUSSION_CATEGORY_OFFICIAL']
+    ];
+    for (const [categoryId, code] of restrictedCategories) {
+      await db.query('update discussion_topics set category_id=$2 where topic_id=$1', [topicId, categoryId]);
+      const moveFromRestricted: { status: number; code?: string } = await call('PATCH', '/moderator/discussions/' + topicId + '/moderation',
+        { destinationCategoryId: gocTacGiaId, reason: 'chuyển chuyên mục', expected: categoryId }, moderatorToken
+      );
+      assert.equal(moveFromRestricted.status, 422);
+      assert.equal(moveFromRestricted.code, code);
+      const retained = await db.query<{ category_id: string }>(
+        'select category_id from discussion_topics where topic_id=$1', [topicId]
+      );
+      assert.equal(retained.rows[0].category_id, categoryId);
+    }
+    assert.equal(await auditCount('DISCUSSION_TOPIC_MOVE', topicId), '1');
+    await db.query('update discussion_topics set category_id=$2 where topic_id=$1', [topicId, hoiDapId]);
 
     const hiddenComment = await call<{ status: string }>(
       'PATCH', '/moderator/discussions/' + topicId + '/comments/' + commentId + '/moderation',
@@ -278,7 +303,7 @@ test('PR-03 moderator discussion operations: reads, single-change commands, move
 
     const auditsBeforeRepeat = await auditCount('DISCUSSION_TOPIC_MODERATE', topicId);
     const hiddenRepeat = await call('PATCH', '/moderator/discussions/' + topicId + '/moderation',
-      { status: 'HIDDEN', reason: 'ẩn lần nữa', expected: 'HIDDEN' }, moderatorToken
+      { status: 'HIDDEN', reason: 'ẩn topic', expected: 'VISIBLE' }, moderatorToken
     );
     assert.equal(hiddenRepeat.status, 200);
     assert.equal(
