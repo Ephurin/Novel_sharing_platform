@@ -400,6 +400,23 @@ test('novel/chapter comments: permissions, moderation, pagination and isolation'
     assert.equal(modConflict.status,403);assert.equal(modConflict.body.error.code,'MOD_CONFLICT');
     assert.equal((await req('/comments/'+modOwnComment.body.data.commentId,'DELETE',undefined,modToken)).status,204);
 
+    for (const scope of ['FINANCE', 'USER_MANAGER']) {
+      const scopedAdmin=randomUUID();
+      await pool.query(`insert into users (user_id,email,username,password_hash,role) values ($1::uuid,$2,$1::text,'hash','ADMIN')`,[scopedAdmin,scopedAdmin+'@test.invalid']);
+      await pool.query('insert into user_profiles (user_id,display_name) values ($1,$2)',[scopedAdmin,'Account '+scope]);
+      await pool.query('insert into admin_access (user_id,scope) values ($1,$2)',[scopedAdmin,scope]);
+      const scopedToken=token(scopedAdmin,'ADMIN');
+      const ownedNovel=(await pool.query("insert into novels (author_id,title,slug,synopsis,status) values ($1,$2,$3,'Scoped admin owned novel','PUBLISHED') returning novel_id",[scopedAdmin,'Admin owned '+scope,'admin-owned-'+scope.toLowerCase()])).rows[0].novel_id;
+      const scopedReaderComment=await req('/novels/'+ownedNovel+'/comments','POST',{content:'Scoped admin novel comment'},readerToken);
+      assert.equal((await req('/novels/'+ownedNovel+'/comments/manage','GET',undefined,scopedToken)).status,403,scope+' admin cannot manage comments on own novel via ownership');
+      const scopedDelete=await req('/comments/'+scopedReaderComment.body.data.commentId,'DELETE',undefined,scopedToken);
+      assert.equal(scopedDelete.status,403,scope+' admin cannot delete another person comment on own novel via ownership');
+      const keptComment=await repo.findCommentById(scopedReaderComment.body.data.commentId);
+      assert.ok(keptComment,scope+' denial left the comment intact');
+      assert.equal(keptComment?.status,scopedReaderComment.body.data.status,scope+' denial left the comment unchanged');
+      assert.equal((await req('/comments/'+scopedReaderComment.body.data.commentId,'DELETE',undefined,adminToken)).status,204,'content-admin route still moderates the admin-owned novel');
+    }
+
     for(const t of [authorToken,adminToken])assert.equal((await req('/comments/'+id,'PATCH',{content:'hijack'},t)).status,403);
     assert.equal((await req('/comments/'+id,'DELETE',undefined,otherToken)).status,403);
     await pool.query("insert into content_filter_rules (name,pattern,category,severity) values ('Test','qa-blocked','TEST','HIGH')");
