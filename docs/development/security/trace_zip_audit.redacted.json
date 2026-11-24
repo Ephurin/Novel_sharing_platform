@@ -1,0 +1,119 @@
+{
+  "docs/development/PR-54-55-REVIEW/draft-trace.zip": {
+    "path": "docs/development/PR-54-55-REVIEW/draft-trace.zip",
+    "size_bytes": 738705,
+    "total_entries": 96,
+    "scanned_text_entries": 29,
+    "skipped_binary_entries": 67,
+    "unreadable_entries": 0,
+    "entry_errors": [],
+    "emails_synthetic": [],
+    "emails_potential_real": [],
+    "jwt_count": 23,
+    "undecodable_jwt_count": 0,
+    "jwt_contexts": [
+      {
+        "iss": "none",
+        "aud": "none",
+        "role": "AUTHOR",
+        "sub_is_uuid": true,
+        "has_email": false,
+        "email_domain": null
+      }
+    ],
+    "passwords_count": 0,
+    "passwords_redacted_or_fixture": 0,
+    "phone_numbers_found": []
+  },
+  "docs/development/integration/p1-author/evidence/playwright-trace-s09-s11.zip": {
+    "path": "docs/development/integration/p1-author/evidence/playwright-trace-s09-s11.zip",
+    "size_bytes": 10309159,
+    "total_entries": 311,
+    "scanned_text_entries": 48,
+    "skipped_binary_entries": 263,
+    "unreadable_entries": 0,
+    "entry_errors": [],
+    "emails_synthetic": [
+      "author_e2e_0652d0@example.invalid"
+    ],
+    "emails_potential_real": [],
+    "jwt_count": 62,
+    "undecodable_jwt_count": 0,
+    "jwt_contexts": [
+      {
+        "iss": "ephurin-api",
+        "aud": "ephurin-client",
+        "role": "AUTHOR",
+        "sub_is_uuid": true,
+        "has_email": false,
+        "email_domain": null
+      }
+    ],
+    "passwords_count": 0,
+    "passwords_redacted_or_fixture": 0,
+    "phone_numbers_found": []
+  },
+  "docs/development/integration/p1-author/final-fe-acceptance/evidence/browser/playwright-trace.zip": {
+    "path": "docs/development/integration/p1-author/final-fe-acceptance/evidence/browser/playwright-trace.zip",
+    "size_bytes": 84589930,
+    "total_entries": 2867,
+    "scanned_text_entries": 193,
+    "skipped_binary_entries": 2674,
+    "unreadable_entries": 0,
+    "entry_errors": [],
+    "emails_synthetic": [
+      "admin-5842707bf73b@example.invalid",
+      "admin-7108b28dfbda@example.invalid",
+      "admin-8a2a5f80dfa3@example.invalid",
+      "admin-91f7abc84e8f@example.invalid",
+      "author-191d1292936a@example.invalid",
+      "author-1f3370b40ad1@example.invalid",
+      "author-2520ca7d4b9b@example.invalid",
+      "author-31eafedf0150@example.invalid",
+      "author-494864301d1c@example.invalid",
+      "author-568e0c978993@example.invalid",
+      "author-5c66bcb62404@example.invalid",
+      "author-8843dc16ccdd@example.invalid",
+      "author-8975d1daf106@example.invalid",
+      "author-9b5aae203739@example.invalid",
+      "author-9fa1bc707c17@example.invalid",
+      "author-c808460ae7bd@example.invalid",
+      "author-ca15f408356c@example.invalid",
+      "author-ddb5e3e8eec4@example.invalid",
+      "author-edc7b237633a@example.invalid",
+      "author-ee24268bc611@example.invalid",
+      "author-ee6a9afc7ea1@example.invalid",
+      "author-f7118653dd27@example.invalid",
+      "author-f83410a71e36@example.invalid",
+      "author-fc68f2ad77d3@example.invalid",
+      "reader-5fcad97bb4b8@example.invalid",
+      "reader-8914697b0807@example.invalid",
+      "reader-b922ace2d7d0@example.invalid",
+      "reader-dc82095573ab@example.invalid"
+    ],
+    "emails_potential_real": [],
+    "jwt_count": 0,
+    "undecodable_jwt_count": 0,
+    "jwt_contexts": [],
+    "passwords_count": 4,
+    "passwords_redacted_or_fixture": 4,
+    "phone_numbers_found": []
+  },
+  "docs/development/integration/p1-author/final-fe-acceptance/evidence/components/draft-persistence-browser/draft-trace.zip": {
+    "path": "docs/development/integration/p1-author/final-fe-acceptance/evidence/components/draft-persistence-browser/draft-trace.zip",
+    "size_bytes": 838811,
+    "total_entries": 104,
+    "scanned_text_entries": 29,
+    "skipped_binary_entries": 75,
+    "unreadable_entries": 0,
+    "entry_errors": [],
+    "emails_synthetic": [],
+    "emails_potential_real": [],
+    "jwt_count": 0,
+    "undecodable_jwt_count": 0,
+    "jwt_contexts": [],
+    "passwords_count": 0,
+    "passwords_redacted_or_fixture": 0,
+    "phone_numbers_found": []
+  }
+}
