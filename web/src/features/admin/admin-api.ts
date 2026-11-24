@@ -60,6 +60,13 @@ export type ModerationReviewFilters = {
 
 export type ModerationReviewDetail = ModerationReview & {
   sanctions?: Array<{ sanction_id: string; action: string; active: boolean; pending: boolean }>;
+  ownerViolations?: Array<{
+    sanction_id: string;
+    action: string;
+    active: boolean;
+    created_at: string;
+    reason?: string | null;
+  }>;
   reportDescriptions?: Array<{ reason: string; description: string | null }>;
   reviewedAt?: string | null;
   target?: {

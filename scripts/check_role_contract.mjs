@@ -78,7 +78,8 @@ if (routerGuards.length === 0) {
 const allowedGuards = new Set([
   JSON.stringify(authorCapabilityRoles),
   JSON.stringify(readerCapabilityRoles),
-  JSON.stringify(['ADMIN'])
+  JSON.stringify(['ADMIN']),
+  JSON.stringify(['MODERATOR'])
 ]);
 for (const guard of routerGuards) {
   if (!allowedGuards.has(JSON.stringify(guard))) {

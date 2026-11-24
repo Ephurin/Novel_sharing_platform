@@ -1,6 +1,14 @@
 import { authorizeComment, privateComment } from '../interactions/comment-privacy.js';
 import { assertAdminPermission, audit } from '../admin/admin-access.js';
 import { resolveUserReport } from './report-resolution.js';
+import {
+  assertFreshIdentityUnderLock,
+  assertIndependentResolver,
+  assertResolverAccess,
+  reviewInvolvedUserIds,
+  reviewPermissionFor
+} from './review-authorization.js';
+import { assertModeratorOperational } from '../moderator/moderator-access.js';
 import type { PoolClient } from 'pg';
 import { getAdminReviewTarget } from './admin-target.repository.js';
 import { assertDiscussionReportable, isDiscussionTarget } from '../discussions/discussions.admin.js';
@@ -56,6 +64,20 @@ import { validateGiphyGif } from '../media/giphy.service.js';
 import { blockingRules, builtInFilterRules, highestSeverity, scanContent } from './content-filter.js';
 
 const uuidPattern = /^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i;
+
+async function listOwnerViolations(review: { target_type: string; target_id: string }) {
+  const involved = await reviewInvolvedUserIds(review).catch(() => [] as string[]);
+  if (!involved.length) return [];
+  const violations = await getPostgresPool().query(
+    `select s.sanction_id, s.action, s.active, s.created_at, a.reason
+       from admin_sanctions s join admin_audit a using(audit_id)
+      where s.owner_id = any($1::uuid[])
+      order by s.created_at desc
+      limit 10`,
+    [involved]
+  );
+  return violations.rows;
+}
 
 export async function checkContent(
   input: ContentControlCheckInput & {
@@ -294,19 +316,28 @@ export async function getModerationReview(reviewId: string, auth?: AuthContext) 
     throw new AppError(404, 'ADMIN_001', 'Review item not found');
   }
 
+  if (auth?.role === 'MODERATOR') {
+    assertModeratorOperational(auth, reviewPermissionFor(review));
+  }
+
   if (review.target_type === 'COMMENT') {
     const comment = await findCommentRecordById(review.target_id);
     if (comment && privateComment(comment)) {
       if (!auth) throw new AppError(403,'ADMIN_PERMISSION','Content review permission required');
-      await assertAdminPermission(auth,'content');
+      if (auth.role === 'MODERATOR') {
+        assertModeratorOperational(auth, 'comment.review');
+      } else {
+        await assertAdminPermission(auth,'content');
+      }
       await withPostgresTransaction(client=>audit(client,auth,{action:'PRIVATE_COMMENT_REVIEW_VIEW',targetType:'COMMENT',targetId:review.target_id}));
     }
   }
-  const [evidence, reportCount, reports, target] = await Promise.all([
+  const [evidence, reportCount, reports, target, ownerViolations] = await Promise.all([
     findModerationEvidence(review.evidence_id),
     countReportsForReview(reviewId),
     listReportsForReview(reviewId),
-    getAdminReviewTarget(review.target_type, review.target_id)
+    getAdminReviewTarget(review.target_type, review.target_id),
+    listOwnerViolations(review)
   ]);
   const submitted = review.submitted_content ??
     (review.target_type === 'CHAPTER' && review.source === 'KEYWORD_FILTER' &&
@@ -348,7 +379,8 @@ export async function getModerationReview(reviewId: string, auth?: AuthContext) 
       matchedRules: evidence?.matchedRules ?? [],
       reportCount,
       summary: evidence?.summary ?? null
-    }
+    },
+    ownerViolations
   };
 }
 
@@ -479,7 +511,7 @@ export async function resolveModerationReview(
     throw new AppError(404, 'ADMIN_001', 'Review item not found');
   }
 
-  await assertAdminPermission(auth, 'content');
+  await assertResolverAccess(auth, review);
   if (review.source === 'USER_REPORT') return resolveUserReport(auth, reviewId, input);
 
   if (review.status !== 'PENDING') {
@@ -489,12 +521,22 @@ export async function resolveModerationReview(
     throw new AppError(409, 'ADMIN_002', 'Review item already resolved');
   }
 
-  if (input.decision === 'REJECTED' && !input.reason) {
+  if ((input.decision === 'REJECTED' || input.decision === 'REVISION_REQUIRED') && !input.reason) {
     throw new AppError(422, 'ADMIN_003', 'Rejection reason required');
   }
 
   const resolved = await withPostgresTransaction(async (client) => {
     await lockPublicationTarget(client, review.target_type, review.target_id, input.decision === 'APPROVED');
+    if (auth.role === 'MODERATOR') {
+      const identity = (
+        await client.query('select role, access_version from users where user_id=$1 and deleted_at is null', [
+          auth.userId
+        ])
+      ).rows[0];
+      assertFreshIdentityUnderLock(auth, identity);
+      await assertResolverAccess(auth, review, client);
+      await assertIndependentResolver(auth, review, client);
+    }
     if (review.target_type === 'COMMENT') {
       await client.query("select pg_advisory_xact_lock(hashtextextended('comment:' || $1, 0))", [review.target_id]);
       const comment = await findCommentRecordById(review.target_id);

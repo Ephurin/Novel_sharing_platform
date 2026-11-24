@@ -150,12 +150,19 @@ export function AuthorNavbar() {
                 const authorActive = (path === '/author' || path.startsWith('/author/')) && path !== '/author/profile';
                 const readerActive = path === '/reader';
                 const profileActive = path === '/author/profile';
+                const moderatorActive = path === '/moderator/reviews' || path.startsWith('/moderator/reviews/');
                 return (
                   <>
                     <NavLink to="/author/projects" className={authorActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
                       {authorActive && navPill}
                       <span>{navigationLabels.authorHome}</span>
                     </NavLink>
+                    {user?.role === 'MODERATOR' && (
+                      <NavLink to="/moderator/reviews" className={moderatorActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
+                        {moderatorActive && navPill}
+                        <span>Hồ sơ điều hành</span>
+                      </NavLink>
+                    )}
                     <NavLink to="/reader" end className={readerActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
                       {readerActive && navPill}
                       <span>{navigationLabels.readerHome}</span>

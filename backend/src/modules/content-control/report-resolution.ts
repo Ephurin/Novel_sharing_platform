@@ -1,11 +1,17 @@
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { AppError } from '../../core/errors/app-error.js';
-import { assertAdminPermission, audit, requiredReason } from '../admin/admin-access.js';
+import { audit, requiredReason } from '../admin/admin-access.js';
 import { applySanction } from '../admin/admin-sanctions.js';
 import { drainAdminJobs, queueAdminNotification } from '../admin/admin-jobs.js';
 import { findCommentRecordById } from '../interactions/comments.repository.js';
 import type { ResolveReviewInput } from './content-control.schemas.js';
+import {
+  assertFreshIdentityUnderLock,
+  assertIndependentResolver,
+  assertReportModeratorConstraints,
+  assertResolverAccess
+} from './review-authorization.js';
 import { hideDiscussionForReport, isDiscussionTarget } from '../discussions/discussions.admin.js';
 
 // User reports address violations. They must never publish/reject publication snapshots.
@@ -15,7 +21,6 @@ export async function resolveUserReport(
   input: ResolveReviewInput
 ) {
   const result = await withPostgresTransaction(async (client) => {
-    await assertAdminPermission(auth, 'content', client);
     const review = (
       await client.query('select * from moderation_reviews where review_id=$1 for update', [
         reviewId
@@ -23,6 +28,16 @@ export async function resolveUserReport(
     ).rows[0];
     if (!review || review.source !== 'USER_REPORT')
       throw new AppError(404, 'ADMIN_001', 'Không tìm thấy báo cáo.');
+    await assertResolverAccess(auth, review, client);
+    if (auth.role === 'MODERATOR') {
+      const identity = (
+        await client.query('select role, access_version from users where user_id=$1 and deleted_at is null', [
+          auth.userId
+        ])
+      ).rows[0];
+      assertFreshIdentityUnderLock(auth, identity);
+      await assertIndependentResolver(auth, review, client);
+    }
     if (review.status !== 'PENDING') throw new AppError(409, 'ADMIN_002', 'Báo cáo đã được xử lý.');
     if (input.decision === 'REVISION_REQUIRED')
       throw new AppError(422, 'REPORT_DECISION', 'Chọn tiếp nhận hoặc bác báo cáo.');
@@ -40,6 +55,13 @@ export async function resolveUserReport(
     const reports = (
       await client.query('select * from reports where review_id=$1 order by created_at', [reviewId])
     ).rows;
+    if (auth.role === 'MODERATOR') {
+      await assertReportModeratorConstraints(auth, client, review, {
+        accepted,
+        action,
+        reporters: reports.map((report) => ({ reporter_id: report.reporter_id }))
+      });
+    }
     const discussionAuthorId = accepted && discussionTarget
       ? await hideDiscussionForReport(client, discussionTarget, review.target_id)
       : undefined;
