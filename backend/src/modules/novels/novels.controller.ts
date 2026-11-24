@@ -12,6 +12,7 @@ import {
   updateNovel
 } from './novels.service.js';
 import { listGenres } from './novels.repository.js';
+import { listLatestPublicationReviews } from '../content-control/content-control.repository.js';
 
 function requireRequestAuth(request: Parameters<RequestHandler>[0]) {
   if (!request.auth) {
@@ -59,7 +60,12 @@ export const listMyNovelsController: RequestHandler = async (request, response, 
 export const getNovelController: RequestHandler = async (request, response, next) => {
   try {
     const result = await readNovel(String(request.params.novelId), request.auth);
-    response.json(successResponse(result));
+    if (request.auth?.userId === result.authorId) {
+      const reviews = await listLatestPublicationReviews('NOVEL', [result.novelId]);
+      response.json(successResponse({ ...result, publicationReview: reviews.get(result.novelId) ?? null }));
+    } else {
+      response.json(successResponse(result));
+    }
   } catch (error) {
     next(error);
   }

@@ -290,6 +290,11 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
     assert.equal(resolved.body.data.status, 'APPROVED');
     const novel = (await pool.query('select status from novels where novel_id=$1', [authorNovelId])).rows[0];
     assert.equal(novel.status, 'PUBLISHED');
+    const authorNovel = await bearerCall(`/novels/${authorNovelId}`, { token: mint(authorX, 'AUTHOR') });
+    assert.deepEqual(authorNovel.body.data.publicationReview, { status: 'APPROVED', reason: null });
+    const readerNovel = await bearerCall(`/novels/${authorNovelId}`, { token: mint(reader1, 'READER') });
+    assert.equal(readerNovel.status, 200);
+    assert.ok(!Object.hasOwn(readerNovel.body.data, 'publicationReview'));
     const resolvedTwo = await bearerCall(`/moderator/reviews/${authorReviewId}/resolve`, {
       method: 'POST',
       token: mint(modOwner, 'MODERATOR'),
@@ -358,6 +363,40 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
     const publicChapter = (await pool.query('select content,status from chapters where chapter_id=$1', [chapter.chapter_id])).rows[0];
     assert.equal(publicChapter.content, 'Nội dung chương hai công khai trước khi yêu cầu sửa.');
     assert.equal(publicChapter.status, 'PUBLISHED');
+
+    await pool.query(
+      "insert into moderation_reviews(target_type,target_id,source,status,reason,created_at) values('CHAPTER',$1,'USER_REPORT','REJECTED','Lý do của báo cáo.',now()+interval '1 second')",
+      [chapter.chapter_id]
+    );
+    await pool.query(
+      "insert into moderation_reviews(target_type,target_id,source,status,created_at) values('CHAPTER',$1,'KEYWORD_FILTER','PENDING',now()-interval '1 day')",
+      [chapter.chapter_id]
+    );
+    const authorToken = mint(authorX, 'AUTHOR');
+    const expectedReview = { status: 'REVISION_REQUIRED', reason: 'Cần chỉnh diễn đạt trước khi xuất bản.' };
+    const detail = await bearerCall(`/chapters/${chapter.chapter_id}`, { token: authorToken });
+    assert.equal(detail.status, 200);
+    assert.deepEqual(detail.body.data.publicationReview, expectedReview);
+    const chaptersPath = `/novels/${publishedNovelId}/chapters`;
+    const list = await bearerCall(chaptersPath, { token: authorToken });
+    assert.deepEqual(list.body.data.find((row: { chapterId: string }) => row.chapterId === chapter.chapter_id)?.publicationReview, expectedReview);
+    const publicList = await bearerCall(chaptersPath, { token: mint(reader1, 'READER') });
+    assert.equal(publicList.status, 200);
+    assert.ok(publicList.body.data.every((row: object) => !Object.hasOwn(row, 'publicationReview')));
+    const publicDetail = await bearerCall(`/reading/chapters/${chapter.chapter_id}`);
+    assert.equal(publicDetail.status, 200);
+    assert.ok(!JSON.stringify(publicDetail.body).includes(expectedReview.reason));
+
+    const edit = await bearerCall(`/chapters/${chapter.chapter_id}`, {
+      method: 'PATCH', token: authorToken,
+      body: { content: 'Tác giả đã sửa lại phần diễn đạt theo yêu cầu. '.repeat(16), expectedVersion: 0 }
+    });
+    assert.equal(edit.status, 200);
+    const resubmit = await bearerCall(`/chapters/${chapter.chapter_id}/submit-publish`, { method: 'POST', token: authorToken });
+    assert.equal(resubmit.status, 200);
+    const pending = await bearerCall(`/chapters/${chapter.chapter_id}`, { token: authorToken });
+    assert.equal(pending.body.data.pendingPublicationRevision, true);
+    assert.deepEqual(pending.body.data.publicationReview, { status: 'PENDING', reason: null });
   });
 
   test('D04-B: a bumped access version invalidates the stale decision', async () => {

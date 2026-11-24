@@ -32,7 +32,8 @@ import {
   NOVEL_SYNOPSIS_MIN,
   NOVEL_TITLE_MAX
 } from '../novels/novel-api';
-import type { Chapter, ChapterStatus } from '../novels/novel-types';
+import type { Chapter, ChapterStatus, PublicationReview } from '../novels/novel-types';
+import { chapterPublicationDecision, publicationDecisionLabel } from '../novels/publication-review';
 
 type AgeRating = 'EVERYONE' | 'TEEN' | 'MATURE';
 // UAT 2026-11-21 (BUG-010): the server only reorders a manuscript with nothing released
@@ -258,7 +259,7 @@ export function AuthorNovelMetadataPage() {
   const novel = novelQuery.data;
   const coverImage = novel?.coverImageUrl;
 
-  const renderStatusBadge = (status: ChapterStatus) => {
+  const renderStatusBadge = (status: ChapterStatus, review?: PublicationReview | null) => {
     switch (status) {
       case 'PUBLISHED':
         return (
@@ -282,6 +283,14 @@ export function AuthorNovelMetadataPage() {
           </span>
         );
       case 'REJECTED':
+        if (review?.status === 'REVISION_REQUIRED') {
+          return (
+            <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-meta font-medium"
+              style={{ color: 'var(--sc-warning)', background: 'var(--sc-warning-bg)' }}>
+              {publicationDecisionLabel(review)}
+            </span>
+          );
+        }
         return (
           <span className="inline-flex items-center gap-1 text-meta font-medium text-rose-700 bg-rose-500/10 px-2 py-0.5 rounded-full">
             <span className="material-symbols-outlined text-table">cancel</span>
@@ -297,6 +306,17 @@ export function AuthorNovelMetadataPage() {
           </span>
         );
     }
+  };
+
+  const renderChapterFeedback = (chapter: Chapter) => {
+    const decision = chapterPublicationDecision(chapter);
+    if (!decision || (chapter.status !== 'PUBLISHED' && !decision.reason)) return null;
+    return (
+      <div className="mx-auto mt-1 max-w-[14rem] break-words text-meta" style={{ color: 'var(--sc-text-muted)' }}>
+        {chapter.status === 'PUBLISHED' && <p>Bản gửi mới: {decision.label}</p>}
+        {decision.reason && <p>Lý do: {decision.reason}</p>}
+      </div>
+    );
   };
 
   const serialStatusLabel =
@@ -377,9 +397,12 @@ export function AuthorNovelMetadataPage() {
                 </button>
                 <div className="sc-novel-description">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <span className={`sc-novel-status ${novel.status === 'PUBLISHED' ? 'sc-novel-status-public' : ''}`}>{novel.status === 'PUBLISHED' ? serialStatusLabel : novel.status === 'PENDING_MODERATION' ? 'Chờ duyệt' : novel.status === 'REJECTED' ? 'Từ chối' : 'Bản nháp'}</span>
+                    <span className={`sc-novel-status ${novel.status === 'PUBLISHED' ? 'sc-novel-status-public' : ''}`}>{novel.status === 'PUBLISHED' ? serialStatusLabel : novel.status === 'PENDING_MODERATION' ? 'Chờ duyệt' : novel.status === 'REJECTED' ? (publicationDecisionLabel(novel.publicationReview) ?? 'Từ chối') : 'Bản nháp'}</span>
                     <span className="text-meta text-stone-500">{ageRatingLabel}</span>
                   </div>
+                  {novel.status === 'REJECTED' && publicationDecisionLabel(novel.publicationReview) && novel.publicationReview?.reason && (
+                    <p className="mb-2 break-words text-meta" style={{ color: 'var(--sc-text-muted)' }}>Lý do: {novel.publicationReview.reason}</p>
+                  )}
                   <h1 className="text-page-title text-stone-900 mb-2">{novel.title}</h1>
                   <div className="flex flex-wrap items-center gap-2 mb-2 text-body">
                     <span className="text-stone-500">Thể loại:</span>
@@ -769,7 +792,10 @@ export function AuthorNovelMetadataPage() {
                             </span>
                           )}
                         </td>
-                        <td className="py-3 px-3.5 text-center">{renderStatusBadge(chapter.status)}</td>
+                        <td className="py-3 px-3.5 text-center">
+                          {renderStatusBadge(chapter.status, chapter.publicationReview)}
+                          {renderChapterFeedback(chapter)}
+                        </td>
                         <td className="py-3 px-3.5 text-stone-500 text-meta">
                           {new Date(chapter.draft?.updatedAt ?? chapter.updatedAt).toLocaleDateString('vi-VN')}
                         </td>

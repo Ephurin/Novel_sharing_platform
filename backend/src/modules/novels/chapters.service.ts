@@ -8,6 +8,7 @@ import { getPostgresPool } from '../../core/database/postgres.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { checkContent } from '../content-control/content-control.service.js';
+import { listLatestPublicationReviews } from '../content-control/content-control.repository.js';
 import { CHAPTER_CONTENT_MIN, CHAPTER_TITLE_MAX, type CreateChapterInput, type UpdateChapterInput } from './chapters.schemas.js';
 import { findNovelById } from './novels.repository.js';
 import {
@@ -121,13 +122,16 @@ export async function listChapters(novelId: string, auth?: AuthContext) {
   const novel = await readNovel(novelId, auth);
   const rows = await listChaptersByNovelId(novelId);
   if (auth && (auth.userId === novel.authorId || isContentAdmin(auth))) {
-    const [schedules, pendingRevisions] = await Promise.all([
-      listPublicationSchedules(novelId), listPendingChapterRevisions(novelId)
+    const [schedules, pendingRevisions, reviews] = await Promise.all([
+      listPublicationSchedules(novelId),
+      listPendingChapterRevisions(novelId),
+      listLatestPublicationReviews('CHAPTER', rows.map(chapter => chapter.chapterId))
     ]);
     return rows.map(chapter => ({
       ...chapter,
       publicationSchedule: schedules.get(chapter.chapterId) ?? null,
-      pendingPublicationRevision: pendingRevisions.has(chapter.chapterId)
+      pendingPublicationRevision: pendingRevisions.has(chapter.chapterId),
+      publicationReview: reviews.get(chapter.chapterId) ?? null
     }));
   }
   return rows.filter(chapter => chapter.status === 'PUBLISHED').map(({ publicationSchedule: _schedule, ...chapter }) => ({ ...chapter, content: null }));
@@ -143,16 +147,18 @@ export async function getChapter(chapterId: string, auth: AuthContext) {
 
   const novel = await getNovel(chapter.novelId);
   assertOwner(novel, auth);
-  const [draft, schedules, pendingRevisions] = await Promise.all([
+  const [draft, schedules, pendingRevisions, reviews] = await Promise.all([
     findDraftChapterByChapterId(chapterId),
     listPublicationSchedules(chapter.novelId),
-    chapter.status === 'PUBLISHED' ? listPendingChapterRevisions(chapter.novelId) : null
+    chapter.status === 'PUBLISHED' ? listPendingChapterRevisions(chapter.novelId) : null,
+    listLatestPublicationReviews('CHAPTER', [chapterId])
   ]);
 
   return {
     ...chapter,
     publicationSchedule: schedules.get(chapterId) ?? null,
     pendingPublicationRevision: pendingRevisions?.has(chapterId) ?? false,
+    publicationReview: reviews.get(chapterId) ?? null,
     draft: draft
       ? {
           title: draft.title,
