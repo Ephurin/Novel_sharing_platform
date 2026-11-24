@@ -29,7 +29,7 @@ const STATUS_COLOR: Record<ModeratorDiscussionTopic['status'], string> = {
 
 type ReasonTarget =
   | { kind: 'topic'; topic: ModeratorDiscussionTopic; change: ModeratorTopicChange; label: string }
-  | { kind: 'comment'; topic: ModeratorDiscussionTopic; comment: ModeratorDiscussionComment; status: 'VISIBLE' | 'HIDDEN' | 'DELETED'; label: string };
+  | { kind: 'comment'; topic: ModeratorDiscussionTopic; comment: ModeratorDiscussionComment; status: 'VISIBLE' | 'HIDDEN'; label: string };
 
 export function ModeratorDiscussionsPage() {
   const [status, setStatus] = useState<ModeratorDiscussionTopic['status']>('VISIBLE');
