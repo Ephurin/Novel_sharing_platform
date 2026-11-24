@@ -66,7 +66,12 @@ import { blockingRules, builtInFilterRules, highestSeverity, scanContent } from 
 const uuidPattern = /^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i;
 
 async function listOwnerViolations(review: { target_type: string; target_id: string }) {
-  const involved = await reviewInvolvedUserIds(review).catch(() => [] as string[]);
+  // Read-only supporting panel: a failed lookup must not break the detail view,
+  // but it stays visible in logs so an empty panel is never mistaken for clean data.
+  const involved = await reviewInvolvedUserIds(review).catch((error) => {
+    console.error('moderation: owner violation history unavailable', error);
+    return [] as string[];
+  });
   if (!involved.length) return [];
   const violations = await getPostgresPool().query(
     `select s.sanction_id, s.action, s.active, s.created_at, a.reason
@@ -528,6 +533,15 @@ export async function resolveModerationReview(
   }
 
   await assertResolverAccess(auth, review);
+  // Each variant carries its own decision set: revision decisions exist only for
+  // publication requests of novels and chapters.
+  if (
+    input.decision === 'REVISION_REQUIRED' &&
+    !(review.source === 'PUBLICATION_REQUEST' &&
+      (review.target_type === 'NOVEL' || review.target_type === 'CHAPTER'))
+  ) {
+    throw new AppError(422, 'VARIANT_DECISION', 'Hồ sơ này không nhận quyết định yêu cầu sửa. Chọn duyệt hoặc từ chối.');
+  }
   if (review.source === 'USER_REPORT') return resolveUserReport(auth, reviewId, input);
 
   if (review.status !== 'PENDING') {

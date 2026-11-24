@@ -42,32 +42,43 @@ export async function assertResolverAccess(
 }
 
 // Subjects trace back to the owning author: comment novel, chapter novel, forum target author.
+// An unresolvable target stops the decision for reconciliation instead of resolving silently.
 export async function reviewInvolvedUserIds(
   review: { target_type: string; target_id: string },
   client?: PoolClient
 ): Promise<string[]> {
   const query = (text: string, params: unknown[]) =>
     (client ?? getPostgresPool()).query(text, params);
+  const assertResolvable = (userIds: string[]) => {
+    if (!userIds.length) {
+      throw new AppError(
+        422,
+        'MOD_SUBJECT_UNRESOLVED',
+        'Không xác định được chủ thể hồ sơ. Hãy đối soát trước khi xử lý.'
+      );
+    }
+    return userIds;
+  };
   if (review.target_type === 'NOVEL') {
     const result = await query('select author_id from novels where novel_id=$1', [review.target_id]);
-    return result.rows[0] ? [result.rows[0].author_id] : [];
+    return assertResolvable(result.rows[0] ? [result.rows[0].author_id] : []);
   }
   if (review.target_type === 'CHAPTER') {
     const result = await query(
       'select n.author_id from chapters c join novels n on n.novel_id=c.novel_id where c.chapter_id=$1',
       [review.target_id]
     );
-    return result.rows[0] ? [result.rows[0].author_id] : [];
+    return assertResolvable(result.rows[0] ? [result.rows[0].author_id] : []);
   }
   if (review.target_type === 'COMMENT') {
     const comment = await findCommentRecordById(review.target_id);
-    if (!comment) return [];
+    if (!comment) return assertResolvable([]);
     const novel = await query('select author_id from novels where novel_id=$1', [comment.novelId]);
-    return [comment.userId, ...(novel.rows[0] ? [novel.rows[0].author_id] : [])];
+    return assertResolvable([comment.userId, ...(novel.rows[0] ? [novel.rows[0].author_id] : [])]);
   }
   if (review.target_type === 'USER') return [review.target_id];
   if (isDiscussionTarget(review.target_type)) {
-    return discussionInvolvedUserIds(review.target_type, review.target_id, client);
+    return assertResolvable(await discussionInvolvedUserIds(review.target_type, review.target_id, client));
   }
   return [];
 }

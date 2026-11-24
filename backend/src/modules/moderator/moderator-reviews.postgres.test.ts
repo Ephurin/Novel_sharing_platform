@@ -22,6 +22,7 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
   const modReporter = randomUUID();
   const modBump = randomUUID();
   const modTou = randomUUID();
+  const modLocked = randomUUID();
   const authorX = randomUUID();
   const reader1 = randomUUID();
   const reader2 = randomUUID();
@@ -120,6 +121,7 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
       [modReporter, 'MODERATOR', undefined],
       [modBump, 'MODERATOR', undefined],
       [modTou, 'MODERATOR', undefined],
+      [modLocked, 'MODERATOR', undefined],
       [authorX, 'AUTHOR', undefined],
       [reader1, 'READER', undefined],
       [reader2, 'READER', undefined],
@@ -655,6 +657,175 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
     assert.equal(reporterNotices, 2, 'each distinct reporter is notified exactly once');
     const sanction = (await pool.query('select count(*)::int as n from admin_sanctions where review_id=$1', [reviewId])).rows[0];
     assert.equal(sanction.n, 1, 'exactly one sanction row is recorded');
+  });
+
+  test('D04-B: a mid-flight account lock fails the decision under the lock', async () => {
+    const reviewId = await insertPendingReview('NOVEL', modPublicNovelId, 'pr02-locked');
+    const gate = await pool.connect();
+    try {
+      await gate.query('begin');
+      await gate.query('select novel_id from novels where novel_id=$1 for update', [modPublicNovelId]);
+      const inFlight = bearerCall(`/moderator/reviews/${reviewId}/resolve`, {
+        method: 'POST',
+        token: mint(modLocked, 'MODERATOR'),
+        body: { decision: 'REJECTED', reason: 'Tài khoản bị khóa khi đang xử lý.' }
+      });
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      await pool.query("update users set status='LOCKED' where user_id=$1", [modLocked]);
+      await gate.query('commit');
+      const result = await inFlight;
+      assert.equal(result.status, 401, 'the under-lock check fails, not the request-entry status check');
+      assert.equal(result.body.error.code, 'AUTH_009');
+      const still = (await pool.query('select status,reviewed_by from moderation_reviews where review_id=$1', [reviewId])).rows[0];
+      assert.equal(still.status, 'PENDING');
+      assert.equal(still.reviewed_by, null);
+    } finally {
+      await gate.query('commit').catch(() => undefined);
+      await gate.release();
+    }
+  });
+
+  test('D01: the linked novel author leg blocks a moderator deciding a foreign topic', async () => {
+    const topicId = randomUUID();
+    await pool.query(
+      `insert into discussion_topics(topic_id,category_id,author_id,novel_id,title,body)
+       values($1,$2,$3,$4,'Chủ đề gắn truyện của mod','Nội dung chủ đề do tác giả khác tạo nhưng gắn truyện của điều hành viên.')`,
+      [topicId, discussionCategoryId, authorX, modPublicNovelId]
+    );
+    const commentId = randomUUID();
+    await pool.query(
+      'insert into discussion_comments(comment_id,topic_id,author_id,body) values($1,$2,$3,$4)',
+      [commentId, topicId, reader3, 'Bình luận trong chủ đề gắn truyện của điều hành viên.']
+    );
+    const report = await bearerCall('/reports', {
+      method: 'POST',
+      token: mint(reader1, 'READER'),
+      body: { targetType: 'DISCUSSION_COMMENT', targetId: commentId, reason: 'SPAM', description: 'Bình luận rác.' }
+    });
+    assert.equal(report.status, 201);
+    const conflict = await bearerCall(`/moderator/reviews/${report.body.data.moderationReviewId}/resolve`, {
+      method: 'POST',
+      token: mint(modOwner, 'MODERATOR'),
+      body: { decision: 'APPROVED', reason: 'Truyện gắn với chủ đề này là của tôi.' }
+    });
+    assert.equal(conflict.status, 403);
+    assert.equal(conflict.body.error.code, 'MOD_CONFLICT', 'the linked-novel author leg alone blocks the decision');
+  });
+
+  test('D01: the comment author leg blocks a moderator deciding their own forum comment', async () => {
+    const topicId = randomUUID();
+    await pool.query(
+      `insert into discussion_topics(topic_id,category_id,author_id,title,body)
+       values($1,$2,$3,'Chủ đề của tác giả khác','Nội dung chủ đề không gắn truyện.')`,
+      [topicId, discussionCategoryId, authorX]
+    );
+    const commentId = randomUUID();
+    await pool.query(
+      'insert into discussion_comments(comment_id,topic_id,author_id,body) values($1,$2,$3,$4)',
+      [commentId, topicId, modReporter, 'Bình luận của chính điều hành viên.']
+    );
+    const report = await bearerCall('/reports', {
+      method: 'POST',
+      token: mint(reader1, 'READER'),
+      body: { targetType: 'DISCUSSION_COMMENT', targetId: commentId, reason: 'SPAM', description: 'Bình luận rác.' }
+    });
+    assert.equal(report.status, 201);
+    const conflict = await bearerCall(`/moderator/reviews/${report.body.data.moderationReviewId}/resolve`, {
+      method: 'POST',
+      token: mint(modReporter, 'MODERATOR'),
+      body: { decision: 'APPROVED', reason: 'Xử lý bình luận của mình.' }
+    });
+    assert.equal(conflict.status, 403);
+    assert.equal(conflict.body.error.code, 'MOD_CONFLICT');
+  });
+
+  test('D01: a topic-level discussion report hides through the independent moderator', async () => {
+    const topicId = randomUUID();
+    await pool.query(
+      `insert into discussion_topics(topic_id,category_id,author_id,title,body)
+       values($1,$2,$3,'Chủ đề cấp độ topic bị báo cáo','Nội dung chủ đề để kiểm tra đường DISCUSSION của báo cáo thảo luận.')`,
+      [topicId, discussionCategoryId, modOwner]
+    );
+    const report = await bearerCall('/reports', {
+      method: 'POST',
+      token: mint(reader1, 'READER'),
+      body: { targetType: 'DISCUSSION', targetId: topicId, reason: 'SPAM', description: 'Chủ đề rác.' }
+    });
+    assert.equal(report.status, 201);
+    const conflict = await bearerCall(`/moderator/reviews/${report.body.data.moderationReviewId}/resolve`, {
+      method: 'POST',
+      token: mint(modOwner, 'MODERATOR'),
+      body: { decision: 'APPROVED', reason: 'Chủ đề là của tôi.' }
+    });
+    assert.equal(conflict.status, 403);
+    assert.equal(conflict.body.error.code, 'MOD_CONFLICT');
+    const independent = await bearerCall(`/moderator/reviews/${report.body.data.moderationReviewId}/resolve`, {
+      method: 'POST',
+      token: mint(modIndependent, 'MODERATOR'),
+      body: { decision: 'APPROVED', reason: 'Ẩn chủ đề rác theo báo cáo.' }
+    });
+    assert.equal(independent.status, 200);
+    const topic = (await pool.query('select status from discussion_topics where topic_id=$1', [topicId])).rows[0];
+    assert.equal(topic.status, 'HIDDEN');
+  });
+
+  test('E03: an unresolvable target stops the decision for reconciliation', async () => {
+    const topicId = randomUUID();
+    await pool.query(
+      `insert into discussion_topics(topic_id,category_id,author_id,title,body)
+       values($1,$2,$3,'Chủ đề bình luận biến mất','Nội dung chủ đề để kiểm tra hồ sơ không thể xác định chủ thể.')`,
+      [topicId, discussionCategoryId, authorX]
+    );
+    const commentId = randomUUID();
+    await pool.query(
+      'insert into discussion_comments(comment_id,topic_id,author_id,body) values($1,$2,$3,$4)',
+      [commentId, topicId, reader3, 'Bình luận sẽ bị xóa trước khi xử lý.']
+    );
+    const report = await bearerCall('/reports', {
+      method: 'POST',
+      token: mint(reader1, 'READER'),
+      body: { targetType: 'DISCUSSION_COMMENT', targetId: commentId, reason: 'SPAM', description: 'Bình luận rác.' }
+    });
+    assert.equal(report.status, 201);
+    await pool.query('delete from discussion_comments where comment_id=$1', [commentId]);
+    const stopped = await bearerCall(`/moderator/reviews/${report.body.data.moderationReviewId}/resolve`, {
+      method: 'POST',
+      token: mint(modIndependent, 'MODERATOR'),
+      body: { decision: 'REJECTED', reason: 'Bác báo cáo cho nội dung đã biến mất.' }
+    });
+    assert.equal(stopped.status, 422);
+    assert.equal(stopped.body.error.code, 'MOD_SUBJECT_UNRESOLVED');
+    const review = (
+      await pool.query('select status from moderation_reviews where review_id=$1', [report.body.data.moderationReviewId])
+    ).rows[0];
+    assert.equal(review.status, 'PENDING');
+    const open = (
+      await pool.query('select count(*)::int as n from reports where review_id=$1 and status=$2', [report.body.data.moderationReviewId, 'OPEN'])
+    ).rows[0];
+    assert.equal(open.n, 1, 'the vanished-target report stays open for reconciliation');
+  });
+
+  test('E03: filtered comment reviews reject the revision decision', async () => {
+    const flagged = await bearerCall(`/novels/${publishedNovelId}/comments`, {
+      method: 'POST',
+      token: mint(reader3, 'READER'),
+      body: { content: 'Another harassment token closes the review decision set test.' }
+    });
+    assert.equal(flagged.status, 201);
+    const reviewId = flagged.body.data.moderationReviewId as string;
+    const revision = await bearerCall(`/moderator/reviews/${reviewId}/resolve`, {
+      method: 'POST',
+      token: mint(modIndependent, 'MODERATOR'),
+      body: { decision: 'REVISION_REQUIRED', reason: 'Yêu cầu sửa bình luận bị lọc.' }
+    });
+    assert.equal(revision.status, 422);
+    assert.equal(revision.body.error.code, 'VARIANT_DECISION');
+    const approved = await bearerCall(`/moderator/reviews/${reviewId}/resolve`, {
+      method: 'POST',
+      token: mint(modIndependent, 'MODERATOR'),
+      body: { decision: 'APPROVED' }
+    });
+    assert.equal(approved.status, 200);
   });
 
   test('E09: the admin moderation contract is unchanged on the shared service', async () => {

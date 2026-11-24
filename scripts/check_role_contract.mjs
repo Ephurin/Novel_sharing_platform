@@ -83,7 +83,7 @@ const allowedGuards = new Set([
 ]);
 for (const guard of routerGuards) {
   if (!allowedGuards.has(JSON.stringify(guard))) {
-    console.error(`Role contract drift in web router roles={[${guard.join(', ')}]}: use a capability list or ['ADMIN']`);
+    console.error(`Role contract drift in web router roles={[${guard.join(', ')}]}: use a capability list or exactly ['ADMIN'] or ['MODERATOR']`);
     process.exitCode = 1;
   }
 }
