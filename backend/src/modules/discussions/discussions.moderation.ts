@@ -70,6 +70,13 @@ export async function moderateDiscussionTopicOperational(
     if (input.patch.field === 'status') {
       // HIDE and RESTORE run through the one reversible sanction workflow.
       let jobsQueued = false;
+      let statusResponse: {
+        topic_id: string;
+        category_id: string;
+        status: DiscussionStatus;
+        is_pinned: boolean;
+        is_locked: boolean;
+      };
       if (input.patch.value === 'HIDDEN') {
         const outcome = await moderateDiscussionHide(auth, client, {
           kind: 'DISCUSSION',
@@ -79,21 +86,30 @@ export async function moderateDiscussionTopicOperational(
           expectedStatus: input.patch.expected
         });
         jobsQueued = outcome.skipped === null;
+        statusResponse = {
+          topic_id: input.topicId,
+          category_id: outcome.topicRow!.category_id,
+          status: outcome.status,
+          is_pinned: outcome.topicRow!.is_pinned,
+          is_locked: outcome.topicRow!.is_locked
+        };
       } else {
-        await restoreDiscussionSanction(auth, client, {
+        const restored = await restoreDiscussionSanction(auth, client, {
           kind: 'DISCUSSION',
           id: input.topicId,
           reason: input.reason,
           permission: 'discussion.operate',
           expectedStatus: input.patch.expected
         });
+        statusResponse = {
+          topic_id: input.topicId,
+          category_id: restored.topicRow!.category_id,
+          status: restored.status,
+          is_pinned: restored.topicRow!.is_pinned,
+          is_locked: restored.topicRow!.is_locked
+        };
       }
-      const row = await client.query<ModeratorTopicRow>(
-        `select topic_id,category_id,author_id,title,status,is_pinned,is_locked
-           from discussion_topics where topic_id=$1`,
-        [input.topicId]
-      );
-      return { data: topicState(row.rows[0]), jobsQueued };
+      return { data: topicStateLike(statusResponse), jobsQueued };
     }
     const before = await lockModeratorTopic(client, input.topicId);
     assertIndependentActor(
@@ -216,6 +232,22 @@ export async function moderateDiscussionCommentOperational(
   });
   if (jobsQueued) await drainAdminJobs();
   return data;
+}
+
+function topicStateLike(row: {
+  topic_id: string;
+  category_id: string;
+  status: DiscussionStatus;
+  is_pinned: boolean;
+  is_locked: boolean;
+}) {
+  return {
+    topicId: row.topic_id,
+    status: row.status,
+    isPinned: row.is_pinned,
+    isLocked: row.is_locked,
+    categoryId: row.category_id
+  };
 }
 
 function topicState(row: ModeratorTopicRow) {

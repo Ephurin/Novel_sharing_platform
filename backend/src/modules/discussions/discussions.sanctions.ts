@@ -21,6 +21,12 @@ export type DiscussionSanctionOutcome = {
   topicId: string;
   status: DiscussionStatus;
   skipped: 'achieved' | 'deleted' | null;
+  topicRow: {
+    topic_id: string;
+    category_id: string;
+    is_pinned: boolean;
+    is_locked: boolean;
+  } | null;
 };
 
 type LockedDiscussionTarget = {
@@ -29,6 +35,12 @@ type LockedDiscussionTarget = {
   topicId: string;
   topicStatus: DiscussionStatus;
   authorId: string;
+  topicRow: {
+    topic_id: string;
+    category_id: string;
+    is_pinned: boolean;
+    is_locked: boolean;
+  } | null;
 };
 
 export function discussionTargetKind(type: string): DiscussionTargetKind | null {
@@ -68,11 +80,18 @@ export async function lockDiscussionSanctionTarget(
 ): Promise<LockedDiscussionTarget> {
   const boundedId = uuidParam.parse(id);
   if (kind === 'DISCUSSION') {
-    const topic: QueryResult<{ topic_id: string; author_id: string; status: DiscussionStatus }> =
-      await client.query(
-        'select topic_id,author_id,status from discussion_topics where topic_id=$1 for update',
-        [boundedId]
-      );
+    const topic: QueryResult<{
+      topic_id: string;
+      category_id: string;
+      author_id: string;
+      status: DiscussionStatus;
+      is_pinned: boolean;
+      is_locked: boolean;
+    }> = await client.query(
+      `select topic_id,category_id,author_id,status,is_pinned,is_locked
+         from discussion_topics where topic_id=$1 for update`,
+      [boundedId]
+    );
     const row = topic.rows[0];
     if (!row) throw new AppError(404, 'DISCUSSION_TOPIC_001', 'Không tìm thấy chủ đề.');
     return {
@@ -80,7 +99,13 @@ export async function lockDiscussionSanctionTarget(
       targetId: boundedId,
       topicId: row.topic_id,
       topicStatus: row.status,
-      authorId: row.author_id
+      authorId: row.author_id,
+      topicRow: {
+        topic_id: row.topic_id,
+        category_id: row.category_id,
+        is_pinned: row.is_pinned,
+        is_locked: row.is_locked
+      }
     };
   }
   const topic: QueryResult<{ topic_id: string; author_id: string }> = await client.query(
@@ -106,7 +131,8 @@ export async function lockDiscussionSanctionTarget(
     targetId: boundedId,
     topicId: commentRow.topic_id,
     topicStatus: commentRow.status,
-    authorId: commentRow.author_id
+    authorId: commentRow.author_id,
+    topicRow: null
   };
 }
 
@@ -217,7 +243,8 @@ export async function applyDiscussionSanction(
       ownerId: target.authorId,
       topicId: target.topicId,
       status: 'DELETED',
-      skipped: 'deleted'
+      skipped: 'deleted',
+      topicRow: target.topicRow
     };
   if (target.topicStatus === 'HIDDEN')
     return {
@@ -225,7 +252,8 @@ export async function applyDiscussionSanction(
       ownerId: target.authorId,
       topicId: target.topicId,
       status: 'HIDDEN',
-      skipped: 'achieved'
+      skipped: 'achieved',
+      topicRow: target.topicRow
     };
   const active = await findActiveDiscussionSanction(client, input.kind, input.id);
   if (active)
@@ -292,7 +320,8 @@ export async function applyDiscussionSanction(
     ownerId: target.authorId,
     topicId: target.topicId,
     status: 'HIDDEN',
-    skipped: null
+    skipped: null,
+    topicRow: target.topicRow
   };
 }
 
@@ -365,7 +394,12 @@ export async function restoreDiscussionSanction(
     expectedTopicId?: string;
     expectedStatus?: string;
   }
-): Promise<{ topicId: string; status: DiscussionStatus; mode: 'achieved' | 'legacy' | 'sanction' }> {
+): Promise<{
+  topicId: string;
+  status: DiscussionStatus;
+  mode: 'achieved' | 'legacy' | 'sanction';
+  topicRow: LockedDiscussionTarget['topicRow'];
+}> {
   const reason = requiredReason(input.reason);
   await advisoryDiscussionSanctionLock(client, input.kind, input.id);
   // Lock order shared with restoreSanction (appeals path): advisory key, then
@@ -383,7 +417,7 @@ export async function restoreDiscussionSanction(
   const target = await lockDiscussionSanctionTarget(client, input.kind, input.id, input.expectedTopicId);
   if (target.topicStatus === 'DELETED') throw deletedError(input.kind);
   if (target.topicStatus === 'VISIBLE' && !active)
-    return { topicId: target.topicId, status: 'VISIBLE', mode: 'achieved' };
+    return { topicId: target.topicId, status: 'VISIBLE', mode: 'achieved', topicRow: target.topicRow };
   if (input.expectedStatus !== undefined && target.topicStatus !== input.expectedStatus) {
     throw new AppError(
       409,
@@ -416,7 +450,12 @@ export async function restoreDiscussionSanction(
       before: active,
       after: { active: false, status: active.previous_state?.status ?? 'VISIBLE' }
     });
-    return { topicId: target.topicId, status: active.previous_state?.status ?? 'VISIBLE', mode: 'sanction' };
+    return {
+      topicId: target.topicId,
+      status: active.previous_state?.status ?? 'VISIBLE',
+      mode: 'sanction',
+      topicRow: target.topicRow
+    };
   }
   // Legacy audit-only hide: no sanctioned snapshot exists, so the operator
   // chooses the replacement status directly instead of restoring a snapshot.
@@ -441,5 +480,5 @@ export async function restoreDiscussionSanction(
     before: { status: 'HIDDEN', topicId: target.topicId },
     after: { status: 'VISIBLE', topicId: target.topicId }
   });
-  return { topicId: target.topicId, status: 'VISIBLE', mode: 'legacy' };
+  return { topicId: target.topicId, status: 'VISIBLE', mode: 'legacy', topicRow: target.topicRow };
 }
