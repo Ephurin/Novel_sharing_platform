@@ -53,25 +53,9 @@ import {
 import { findDraftChapterByChapterId } from '../novels/draft-chapters.repository.js';
 import { notifyFollowersOfPublishedChapter } from '../interactions/new-chapter-notifications.js';
 import { validateGiphyGif } from '../media/giphy.service.js';
+import { blockingRules, builtInFilterRules, highestSeverity, scanContent } from './content-filter.js';
 
 const uuidPattern = /^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i;
-
-function scanContent(content: string, rules: MatchedRule[]) {
-  const normalizedContent = content.toLowerCase();
-  return rules.filter((rule) => normalizedContent.includes(rule.pattern.toLowerCase()));
-}
-
-function highestSeverity(rules: MatchedRule[]) {
-  if (rules.some((rule) => rule.severity === 'HIGH')) {
-    return 'HIGH';
-  }
-
-  if (rules.some((rule) => rule.severity === 'MEDIUM')) {
-    return 'MEDIUM';
-  }
-
-  return 'LOW';
-}
 
 export async function checkContent(
   input: ContentControlCheckInput & {
@@ -92,10 +76,11 @@ export async function checkContent(
     });
   }
 
-  const rules = await listActiveFilterRules(client);
+  const rules = [...(await listActiveFilterRules(client)), ...builtInFilterRules];
   const matchedRules = scanContent(input.content, rules);
+  const blocking = blockingRules(matchedRules);
 
-  if (!matchedRules.length && !input.forceReview && !input.publicationRequest) {
+  if (!blocking.length && !input.forceReview && !input.publicationRequest) {
     return {
       result: 'PASS',
       moderationRequired: false,
@@ -136,7 +121,7 @@ export async function checkContent(
     } as const;
   }
 
-  const source = input.publicationRequest && !matchedRules.length ? 'PUBLICATION_REQUEST' : 'KEYWORD_FILTER';
+  const source = input.publicationRequest && !blocking.length ? 'PUBLICATION_REQUEST' : 'KEYWORD_FILTER';
   const evidenceId = await createModerationEvidence(
     {
       targetType: input.targetType,
@@ -145,7 +130,8 @@ export async function checkContent(
       source,
       matchedRules,
       summary: source === 'PUBLICATION_REQUEST'
-        ? 'Bộ lọc tự động không phát hiện vi phạm. Nội dung đang chờ quản trị viên duyệt xuất bản.'
+        ? 'Bộ lọc tự động không phát hiện vi phạm. Nội dung đang chờ quản trị viên duyệt xuất bản.' +
+          (matchedRules.length ? ` Có ${matchedRules.length} từ lóng nhẹ (mức LOW), không tính là vi phạm.` : '')
         : input.forceReview
           ? 'GIF đính kèm cần quản trị viên kiểm duyệt.'
           : `${matchedRules.length} content filter rule(s) matched.`
