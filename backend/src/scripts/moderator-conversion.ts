@@ -32,10 +32,10 @@ const reason = option('reason');
 const accountsArg = option('accounts');
 const startedAt = new Date().toISOString();
 
-const fail = (message: string) => {
+const fail = (message: string): never => {
   logger.error(message);
   process.exitCode = 1;
-  return undefined;
+  throw new Error(message);
 };
 
 async function main() {

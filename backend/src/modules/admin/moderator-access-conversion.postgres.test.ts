@@ -99,7 +99,7 @@ describe('PR-07: legacy moderator access conversion', { concurrency: false }, ()
   });
 
   test('PR-07: dry-run inventories only matching legacy pairs', async () => {
-    const fixtureIds = [legacy, lockedLegacy, missingScopeAdmin, author, reader];
+    const fixtureIds: string[] = [legacy, lockedLegacy, missingScopeAdmin, author, reader];
     // The isolated runner shares one database across test files, so scope the
     // inventory assertions to this suite's own fixtures.
     const accounts = (await inventoryLegacyModeratorConversion(pool)).filter((account) =>

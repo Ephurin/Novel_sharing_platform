@@ -27,6 +27,8 @@ export function ModeratorHistoryPage() {
       <AdminPanel>
         <TextInput
           className="admin-search"
+          label="Tìm kiếm"
+          aria-label="Tìm kiếm trong lịch sử thao tác"
           placeholder="Tìm theo lý do hoặc mã đối tượng"
           value={q}
           onChange={(event) => {
@@ -55,7 +57,13 @@ export function ModeratorHistoryPage() {
         {query.isLoading && <LoadingState variant="table" label="Đang tải lịch sử thao tác..." />}
         {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
         {query.data && !query.data.items.length && (
-          <EmptyState description="Chưa có quyết định điều hành nào của bạn." />
+          <EmptyState
+            description={
+              q.trim()
+                ? 'Không có mục nào khớp với bộ lọc hiện tại.'
+                : 'Chưa có quyết định điều hành nào của bạn.'
+            }
+          />
         )}
         {!!query.data?.items.length && (
           <>

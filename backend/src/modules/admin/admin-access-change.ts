@@ -23,18 +23,11 @@ export type AccessChangeOutcome = {
   accessVersion: number;
 };
 
-export function assertGrantableRole(role: string) {
-  if (role === 'MODERATOR' && !env.MODERATOR_ENABLED) {
-    throw new AppError(403, 'MODERATOR_DISABLED', 'Chức năng điều hành viên chưa được mở trên hệ thống này.');
-  }
-}
-
 export async function applyUserAccessChange(
   client: PoolClient,
   actor: { userId: string },
   targetUserId: string,
-  input: UserAccessChange,
-  options: { auditAction?: string } = {}
+  input: UserAccessChange
 ): Promise<AccessChangeOutcome> {
   if (input.role === 'ADMIN' && !input.scope) {
     throw new AppError(422, 'ADMIN_SCOPE', 'Chọn nhóm quyền admin.');
@@ -42,7 +35,9 @@ export async function applyUserAccessChange(
   if (input.role !== 'ADMIN' && input.scope) {
     throw new AppError(422, 'ADMIN_SCOPE_ONLY', 'Chỉ vai trò quản trị viên cần nhóm quyền.');
   }
-  if (input.role === 'MODERATOR') assertGrantableRole('MODERATOR');
+  if (input.role === 'MODERATOR' && !env.MODERATOR_ENABLED) {
+    throw new AppError(403, 'MODERATOR_DISABLED', 'Chức năng điều hành viên chưa được mở trên hệ thống này.');
+  }
 
   const before = await protectAccount(client, actor, targetUserId, 'access');
   const currentRole = String(before.role);
@@ -76,7 +71,7 @@ export async function applyUserAccessChange(
     targetUserId
   ]);
   await audit(client, actor, {
-    action: options.auditAction ?? 'USER_ACCESS_CHANGED',
+    action: 'USER_ACCESS_CHANGED',
     targetType: 'USER',
     targetId: targetUserId,
     affectedUserId: targetUserId,
