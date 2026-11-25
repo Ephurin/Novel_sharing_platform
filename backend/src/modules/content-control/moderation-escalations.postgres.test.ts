@@ -638,6 +638,20 @@ describe('PR-05: moderation escalations between moderators and Admin', { concurr
     assert.equal((await escalationRow(reviewId)).length, 0);
   });
 
+  test('propose stops on a dangling legacy target instead of failing mid-audit', async () => {
+    // A legacy review may reference an account that no longer resolves; the
+    // audit names the reported account, so the proposal stops before it.
+    const reviewId = randomUUID();
+    await pool.query(
+      "insert into moderation_reviews(review_id,target_type,target_id,source,status) values($1,'USER',$2,'USER_REPORT','PENDING')",
+      [reviewId, randomUUID()]
+    );
+    const stopped = await escalate(reviewId, mint(modProposer, 'MODERATOR'));
+    assert.equal(stopped.status, 404);
+    assert.equal(stopped.body.error.code, 'USER_001');
+    assert.equal((await escalationRow(reviewId)).length, 0, 'no escalation row leaks');
+  });
+
   test('propose on a previously resolved review stays rejected', async () => {
     const { reviewId } = await openReportReview([reporterA]);
     await pool.query("update moderation_reviews set status='REJECTED',reason='Quyết định trước PR-05.' where review_id=$1", [reviewId]);

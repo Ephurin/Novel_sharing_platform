@@ -114,6 +114,16 @@ export async function proposeModerationEscalation(
         'ESCALATION_TARGET',
         'Chỉ chuyển cấp hồ sơ báo cáo tài khoản người dùng.'
       );
+    // The escalation audit names the reported account, so a dangling legacy
+    // target stops here with the same answer the report route gives.
+    const subject = (
+      await client.query(
+        "select 1 from users where user_id::text=$1 and deleted_at is null and status<>'DELETED'",
+        [review.target_id]
+      )
+    ).rows[0];
+    if (!subject)
+      throw new AppError(404, 'USER_001', 'Không tìm thấy tài khoản bị báo cáo để chuyển cấp.');
     const reports = (
       await client.query('select * from reports where review_id=$1 order by created_at', [reviewId])
     ).rows;
