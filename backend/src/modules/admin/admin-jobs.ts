@@ -223,6 +223,10 @@ export async function drainAdminJobsSafely() {
   }
 }
 
+export function scheduleAdminJobsDrain() {
+  setImmediate(() => void drainAdminJobsSafely());
+}
+
 export async function retryAdminJob(auth: AuthContext, jobId: string) {
   return withPostgresTransaction(async (client) => {
     await assertAdminPermission(auth, 'audit', client);

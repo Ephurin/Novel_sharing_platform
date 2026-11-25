@@ -4,7 +4,7 @@ import { AppError } from '../../core/errors/app-error.js';
 import { assertIndependentActor } from '../../core/security/moderation-policy.js';
 import { audit, requiredReason } from '../admin/admin-access.js';
 import { applySanction } from '../admin/admin-sanctions.js';
-import { drainAdminJobsSafely, queueAdminNotification } from '../admin/admin-jobs.js';
+import { drainAdminJobsSafely, queueAdminNotification, scheduleAdminJobsDrain } from '../admin/admin-jobs.js';
 import { findCommentRecordById } from '../interactions/comments.repository.js';
 import type { ResolveReviewInput } from './content-control.schemas.js';
 import {
@@ -201,6 +201,7 @@ export async function resolveUserReport(
     };
   });
   // SQL decision + jobs are committed together; Mongo effects retry safely after failure/restart.
-  await drainAdminJobsSafely();
+  if (result.action === 'HIDE' && isDiscussionTarget(result.targetType)) scheduleAdminJobsDrain();
+  else await drainAdminJobsSafely();
   return result;
 }

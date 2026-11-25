@@ -3,7 +3,7 @@ import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { audit, requiredReason } from '../admin/admin-access.js';
-import { drainAdminJobsSafely } from '../admin/admin-jobs.js';
+import { drainAdminJobsSafely, scheduleAdminJobsDrain } from '../admin/admin-jobs.js';
 import { assertModeratorOperational } from '../moderator/moderator-access.js';
 import { assertFreshIdentityUnderLock } from '../content-control/review-authorization.js';
 import { assertIndependentActor } from '../../core/security/moderation-policy.js';
@@ -188,8 +188,8 @@ export async function moderateDiscussionTopicOperational(
       jobsQueued: false
     };
  });
-  // The notification job commits with the sanction; workers retry safely alone.
-  if (jobsQueued) await drainAdminJobsSafely();
+  // The notification job is already durable. Let the response finish while the worker delivers it.
+  if (jobsQueued) scheduleAdminJobsDrain();
   return data;
 }
 

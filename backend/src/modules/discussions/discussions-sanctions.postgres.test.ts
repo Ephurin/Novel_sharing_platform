@@ -2,8 +2,21 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import type { Server } from 'node:http';
 import { test } from 'node:test';
+import { setTimeout as delay } from 'node:timers/promises';
+import type { Collection } from 'mongodb';
 
 type Fixture = { userId: string; identifier: string; password: string };
+
+async function waitForNotices(collection: Collection, userId: string, targetId: string, expected: number) {
+  const deadline = Date.now() + 5_000;
+  const filter = { userId, 'payload.targetId': targetId };
+  let notices = await collection.find(filter).toArray();
+  while (notices.length < expected && Date.now() < deadline) {
+    await delay(20);
+    notices = await collection.find(filter).toArray();
+  }
+  return notices;
+}
 
 test('direct discussion moderation hides through one reversible sanction shared with reports', {
   skip: process.env.DISCUSSIONS_TEST_DATABASE !== '1'
@@ -116,10 +129,9 @@ test('direct discussion moderation hides through one reversible sanction shared 
     assert.equal(topicSanction.previous_state.status, 'VISIBLE');
     assert.equal(await auditCount('DISCUSSION_HIDE', topicId), '1');
     assert.equal(await jobCount(topicId), '1');
-    const authorNotices = await getMongoDatabase().collection('notifications').find({
-      userId: author.userId,
-      'payload.targetId': topicId
-    }).toArray();
+    const authorNotices = await waitForNotices(
+      getMongoDatabase().collection('notifications'), author.userId, topicId, 1
+    );
     assert.equal(authorNotices.length, 1, 'the hidden author is notified exactly once');
     assert.equal(authorNotices[0].type, 'DISCUSSION_CONTENT_HIDDEN');
     assert.equal(authorNotices[0].payload.reason, 'ẩn trực tiếp');
@@ -406,6 +418,10 @@ test('the two hide paths converge on one sanction: races, achieved report accept
     assert.equal(directResult.status, 200, 'the direct hide resolves even when the report wins the race');
     assert.equal(reportResult.status, 200, 'the report resolves even when the direct hide wins the race');
     assert.equal(await activeCount('DISCUSSION_COMMENT', raceComment.data.commentId), '1');
+    const raceReporterNotices = await waitForNotices(
+      getMongoDatabase().collection('notifications'), reporter.userId, raceComment.data.commentId, 1
+    );
+    assert.equal(raceReporterNotices.length, 1, 'the reporter learns the outcome once');
     const raceNotices = await getMongoDatabase().collection('notifications').find({
       userId: author.userId,
       'payload.targetId': raceComment.data.commentId
@@ -438,10 +454,9 @@ test('the two hide paths converge on one sanction: races, achieved report accept
     }, contentAdminToken);
     assert.equal(achievedResolve.status, 200);
     assert.equal(await activeCount('DISCUSSION', achievedTopic.data.topicId), '1', 'no second sanction for one content');
-    const achievedNotices = await getMongoDatabase().collection('notifications').find({
-      userId: author.userId,
-      'payload.targetId': achievedTopic.data.topicId
-    }).toArray();
+    const achievedNotices = await waitForNotices(
+      getMongoDatabase().collection('notifications'), author.userId, achievedTopic.data.topicId, 2
+    );
     assert.equal(achievedNotices.filter(item => item.type === 'DISCUSSION_CONTENT_HIDDEN').length, 1);
     assert.equal(achievedNotices.filter(item => item.type === 'DISCUSSION_REMOVED_BY_REPORT').length, 1);
     assert.equal(achievedNotices.length, 2, 'each decision notifies once, once per type');
@@ -659,7 +674,9 @@ test('involved actors are blocked in achieved states and repeated accepted revie
       decision: 'APPROVED', action: 'HIDE', reason: 'xác nhận vi phạm'
     }, contentAdminToken);
     assert.equal(firstResolve.status, 200);
-    const firstNotices = await noticesFor(author.userId, reportedTopic.data.topicId);
+    const firstNotices = await waitForNotices(
+      getMongoDatabase().collection('notifications'), author.userId, reportedTopic.data.topicId, 1
+    );
     assert.equal(firstNotices.filter(item => item.type === 'DISCUSSION_REMOVED_BY_REPORT').length, 1);
 
     const secondReport = await call<{ moderationReviewId: string }>('POST', '/reports', {
@@ -684,6 +701,11 @@ test('involved actors are blocked in achieved states and repeated accepted revie
       decision: 'APPROVED', action: 'HIDE', reason: 'xác nhận lần hai'
     }, contentAdminToken);
     assert.equal(secondResolve.status, 200);
+    const reporterNotices = await waitForNotices(
+      getMongoDatabase().collection('notifications'), secondReporter.userId, reportedTopic.data.topicId, 1
+    );
+    assert.equal(reporterNotices.filter(item => item.type === 'REPORT_RESOLVED').length, 1,
+      'the second reporter still learns the decision once');
     const secondNotices = await noticesFor(author.userId, reportedTopic.data.topicId);
     assert.equal(
       secondNotices.filter(item => item.type === 'DISCUSSION_REMOVED_BY_REPORT').length,
@@ -704,11 +726,6 @@ test('involved actors are blocked in achieved states and repeated accepted revie
       )
     ).rows[0].count;
     assert.equal(hideAudits, '1', 'one hide audit covers the effective sanction');
-    const reporterNotices = await getMongoDatabase().collection('notifications').find({
-      userId: secondReporter.userId,
-      type: 'REPORT_RESOLVED'
-    }).toArray();
-    assert.equal(reporterNotices.length, 1, 'the second reporter still learns the decision once');
   } finally {
     env.MODERATOR_ENABLED = previousModeratorEnabled;
     if (server) await new Promise<void>(resolve => server!.close(() => resolve()));
