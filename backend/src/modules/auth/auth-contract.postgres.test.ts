@@ -305,15 +305,148 @@ describe('PR-01: moderator role capability and access-version session contract',
     assert.equal((me.body as { data: { role?: string } }).data.role, 'AUTHOR');
   });
 
-  test('PR-01: the platform access API cannot grant the MODERATOR role yet', async () => {
-    const attempt = await bearerCall(base, `/admin/users/${reader}/access`, {
+  test('PR-07: MODERATOR grants stay blocked while the rollout flag is off', async () => {
+    env.MODERATOR_ENABLED = false;
+    const denied = await bearerCall(base, `/admin/users/${reader}/access`, {
       method: 'PATCH',
       token: mint(root, 'ADMIN', 0),
-      body: { role: 'MODERATOR', reason: 'should be rejected' }
+      body: { role: 'MODERATOR', reason: 'should be blocked while the rollout flag is off' }
     });
-    assert.equal(attempt.status, 400);
-    const row = (await pool.query('select role from users where user_id=$1', [reader])).rows[0];
-    assert.equal(row.role, 'ADMIN');
+    assert.equal(denied.status, 403);
+    assert.equal((denied.body as { error?: { code?: string } }).error?.code, 'MODERATOR_DISABLED');
+    const unchanged = (
+      await pool.query(
+        'select u.role,a.scope from users u left join admin_access a using(user_id) where u.user_id=$1',
+        [reader]
+      )
+    ).rows[0];
+    assert.equal(unchanged.role, 'ADMIN');
+    assert.equal(unchanged.scope, 'MODERATOR');
+    env.MODERATOR_ENABLED = true;
+  });
+
+  test('PR-07: granting MODERATOR to a reader keeps personal scope without session carry-over', async () => {
+    const grantee = randomUUID();
+    await insertUser(pool, { id: grantee, role: 'READER', passwordHash: await bcrypt.hash(PASSWORD, 4) });
+    const grant = await bearerCall(base, `/admin/users/${grantee}/access`, {
+      method: 'PATCH',
+      token: mint(root, 'ADMIN', 0),
+      body: { role: 'MODERATOR', reason: 'PR-07 cấp moderator mới' }
+    });
+    assert.equal(grant.status, 200);
+    assert.equal(grant.body.data.accessVersion, 1);
+    const row = (
+      await pool.query(
+        'select u.role,u.access_version,a.scope from users u left join admin_access a using(user_id) where u.user_id=$1',
+        [grantee]
+      )
+    ).rows[0];
+    assert.equal(row.role, 'MODERATOR');
+    assert.equal(row.access_version, 1);
+    assert.equal(row.scope, null);
+    assert.equal((await bearerCall(base, '/auth/me', { token: mint(grantee, 'READER', 0) })).status, 401);
+
+    const fresh = await login(`pr01-${grantee}@example.test`, PASSWORD);
+    assert.equal(fresh.status, 200);
+    assert.equal(fresh.body.data.user.role, 'MODERATOR');
+    const access = await bearerCall(base, '/moderator/access', { token: fresh.body.data.accessToken });
+    assert.equal(access.status, 200);
+    assert.ok((access.body.data.permissions as string[]).includes('publication.review'));
+    assert.equal((await bearerCall(base, '/admin/access', { token: fresh.body.data.accessToken })).status, 403);
+    assert.equal((await bearerCall(base, '/admin/withdraw-requests', { token: fresh.body.data.accessToken })).status, 403);
+  });
+
+  test('PR-07: MODERATOR rejects an admin scope payload', async () => {
+    const rejected = await bearerCall(base, `/admin/users/${reader}/access`, {
+      method: 'PATCH',
+      token: mint(root, 'ADMIN', 0),
+      body: { role: 'MODERATOR', scope: 'SUPER_ADMIN', reason: 'PR-07 scope không hợp lệ' }
+    });
+    assert.equal(rejected.status, 422);
+    assert.equal((rejected.body as { error?: { code?: string } }).error?.code, 'ADMIN_SCOPE_ONLY');
+  });
+
+  test('PR-07: legacy ADMIN scope MODERATOR converts through the shared grant command', async () => {
+    const beforeRow = (
+      await pool.query('select role,access_version from users where user_id=$1', [reader])
+    ).rows[0];
+    assert.equal(beforeRow.role, 'ADMIN');
+    const liveTokenBefore = mint(reader, 'ADMIN', beforeRow.access_version);
+    assert.equal((await bearerCall(base, '/admin/access', { token: liveTokenBefore })).status, 200);
+    const convert = await bearerCall(base, `/admin/users/${reader}/access`, {
+      method: 'PATCH',
+      token: mint(root, 'ADMIN', 0),
+      body: { role: 'MODERATOR', reason: 'PR-07 chuyển đổi legacy scope MODERATOR' }
+    });
+    assert.equal(convert.status, 200);
+    assert.equal(convert.body.data.accessVersion, beforeRow.access_version + 1);
+    const row = (
+      await pool.query(
+        'select u.role,u.access_version,a.scope from users u left join admin_access a using(user_id) where u.user_id=$1',
+        [reader]
+      )
+    ).rows[0];
+    assert.equal(row.role, 'MODERATOR');
+    assert.equal(row.access_version, beforeRow.access_version + 1);
+    assert.equal(row.scope, null);
+    assert.equal((await bearerCall(base, '/auth/me', { token: liveTokenBefore })).status, 401);
+    const renewed = await login(`pr01-${reader}@example.test`, PASSWORD);
+    assert.equal(renewed.status, 200);
+    assert.equal(renewed.body.data.user.role, 'MODERATOR');
+  });
+
+  test('PR-07: repeating the same MODERATOR state is a no-op', async () => {
+    const session = await login(`pr01-${reader}@example.test`, PASSWORD);
+    assert.equal(session.status, 200);
+    const convertedVersion = (
+      await pool.query('select access_version from users where user_id=$1', [reader])
+    ).rows[0].access_version;
+    const auditsBefore = (
+      await pool.query(
+        "select count(*)::int as count from admin_audit where affected_user_id=$1 and action='USER_ACCESS_CHANGED'",
+        [reader]
+      )
+    ).rows[0].count;
+    const repeat = await bearerCall(base, `/admin/users/${reader}/access`, {
+      method: 'PATCH',
+      token: mint(root, 'ADMIN', 0),
+      body: { role: 'MODERATOR', reason: 'PR-07 lặp cùng trạng thái' }
+    });
+    assert.equal(repeat.status, 200);
+    assert.equal(repeat.body.data.accessVersion, convertedVersion);
+    const auditsAfter = (
+      await pool.query(
+        "select count(*)::int as count from admin_audit where affected_user_id=$1 and action='USER_ACCESS_CHANGED'",
+        [reader]
+      )
+    ).rows[0].count;
+    assert.equal(auditsAfter, auditsBefore);
+    const refresh = await bearerCall(base, '/auth/refresh-token', {
+      method: 'POST',
+      cookie: `${env.REFRESH_TOKEN_COOKIE_NAME}=${session.refreshToken}`
+    });
+    assert.equal(refresh.status, 200);
+  });
+
+  test('PR-07: revoking MODERATOR requires a valid target role and reason', async () => {
+    const beforeVersion = (
+      await pool.query('select access_version from users where user_id=$1', [reader])
+    ).rows[0].access_version;
+    const revoke = await bearerCall(base, `/admin/users/${reader}/access`, {
+      method: 'PATCH',
+      token: mint(root, 'ADMIN', 0),
+      body: { role: 'AUTHOR', reason: 'PR-07 thu hồi moderator' }
+    });
+    assert.equal(revoke.status, 200);
+    assert.equal(revoke.body.data.accessVersion, beforeVersion + 1);
+    assert.equal(
+      (await bearerCall(base, '/admin/access', { token: mint(reader, 'MODERATOR', beforeVersion) })).status,
+      401
+    );
+    const after = await login(`pr01-${reader}@example.test`, PASSWORD);
+    assert.equal(after.status, 200);
+    assert.equal(after.body.data.user.role, 'AUTHOR');
+    env.MODERATOR_ENABLED = false;
   });
 
   test('E16: a moderator keeps ordinary reader capabilities on public novels', async () => {

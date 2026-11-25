@@ -12,6 +12,7 @@ import {
   protectAccount,
   requireAdminPermission
 } from './admin-access.js';
+import { applyUserAccessChange, userAccessChangeSchema } from './admin-access-change.js';
 import { applySanction, restoreSanction } from './admin-sanctions.js';
 import { assertNotOriginalDecider } from './sanction-guard.js';
 import { drainAdminJobs, drainAdminJobsSafely, queueAdminNotification, retryAdminJob } from './admin-jobs.js';
@@ -153,46 +154,10 @@ adminOperationsRoutes.patch(
   requireAdminPermission('access'),
   http(async (req) => {
     const userId = uuid(req.params.userId);
-    const input = z
-      .object({
-        role: z.enum(['ADMIN', 'AUTHOR', 'READER']),
-        scope: z.enum(['SUPER_ADMIN', 'MODERATOR', 'USER_MANAGER', 'FINANCE']).optional(),
-        reason: reasonSchema
-      })
-      .parse(req.body);
-    if (input.role === 'ADMIN' && !input.scope)
-      throw new AppError(422, 'ADMIN_SCOPE', 'Chọn nhóm quyền admin.');
+    const input = userAccessChangeSchema.parse(req.body);
     return withPostgresTransaction(async (client) => {
-      const before = await protectAccount(client, req.auth!, userId, 'access');
-      const accessChanged =
-        before.role !== input.role ||
-        (input.role === 'ADMIN' && before.admin_scope !== (input.scope ?? null));
-      await client.query(
-        `update users set role=$2,updated_at=now()${
-          accessChanged ? ',access_version=access_version+1' : ''
-        } where user_id=$1`,
-        [userId, input.role]
-      );
-      if (input.role === 'ADMIN')
-        await client.query(
-          'insert into admin_access(user_id,scope,updated_by) values($1,$2,$3) on conflict(user_id) do update set scope=excluded.scope,updated_by=excluded.updated_by,updated_at=now()',
-          [userId, input.scope, req.auth!.userId]
-        );
-      else await client.query('delete from admin_access where user_id=$1', [userId]);
-      await client.query(
-        'update refresh_tokens set revoked_at=now() where user_id=$1 and revoked_at is null',
-        [userId]
-      );
-      await audit(client, req.auth!, {
-        action: 'USER_ACCESS_CHANGED',
-        targetType: 'USER',
-        targetId: userId,
-        affectedUserId: userId,
-        reason: input.reason,
-        before: { role: before.role, scope: before.admin_scope },
-        after: input
-      });
-      return { userId, ...input, accessVersion: accessChanged ? before.access_version + 1 : before.access_version };
+      const outcome = await applyUserAccessChange(client, req.auth!, userId, input);
+      return { userId, ...input, accessVersion: outcome.accessVersion };
     });
   })
 );

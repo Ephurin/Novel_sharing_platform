@@ -150,7 +150,8 @@ export function AuthorNavbar() {
                 const authorActive = (path === '/author' || path.startsWith('/author/')) && path !== '/author/profile';
                 const readerActive = path === '/reader';
                 const profileActive = path === '/author/profile';
-                const moderatorActive = path === '/moderator/reviews' || path.startsWith('/moderator/reviews/');
+                const moderatorActive = path.startsWith('/moderator/reviews');
+                const moderatorHistoryActive = path.startsWith('/moderator/history');
                 return (
                   <>
                     <NavLink to="/author/projects" className={authorActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
@@ -161,6 +162,12 @@ export function AuthorNavbar() {
                       <NavLink to="/moderator/reviews" className={moderatorActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
                         {moderatorActive && navPill}
                         <span>Hồ sơ điều hành</span>
+                      </NavLink>
+                    )}
+                    {user?.role === 'MODERATOR' && (
+                      <NavLink to="/moderator/history" className={moderatorHistoryActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
+                        {moderatorHistoryActive && navPill}
+                        <span>Lịch sử thao tác</span>
                       </NavLink>
                     )}
                     <NavLink to="/reader" end className={readerActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>

@@ -18,6 +18,7 @@ import { AdminOverviewPage } from '../features/admin/AdminOverviewPage';
 import { ModeratorReviewsPage } from '../features/moderator/ModeratorReviewsPage';
 import { ModeratorReviewDetailPage } from '../features/moderator/ModeratorReviewDetailPage';
 import { ModeratorDiscussionsPage } from '../features/moderator/ModeratorDiscussionsPage';
+import { ModeratorHistoryPage } from '../features/moderator/ModeratorHistoryPage';
 import { AuthorNovelCommentsPage } from '../features/author-projects/AuthorNovelCommentsPage';
 import { AuthorNovelReviewsPage } from '../features/author-projects/AuthorNovelReviewsPage';
 import { AuthorNavbar, AuthorTheme } from '../shared/components/AuthorTheme';
@@ -388,10 +389,26 @@ export const router = createBrowserRouter([
         )
       },
       {
+        path: '/moderator',
+        element: (
+          <RoleGuard roles={['MODERATOR']}>
+            <Navigate to="/moderator/reviews" replace />
+          </RoleGuard>
+        )
+      },
+      {
         path: '/moderator/reviews',
         element: (
           <RoleGuard roles={['MODERATOR']}>
             <ModeratorReviewsPage />
+          </RoleGuard>
+        )
+      },
+      {
+        path: '/moderator/history',
+        element: (
+          <RoleGuard roles={['MODERATOR']}>
+            <ModeratorHistoryPage />
           </RoleGuard>
         )
       },

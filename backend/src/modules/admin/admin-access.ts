@@ -12,7 +12,9 @@ export const scopePermissions: Record<AdminScope, AdminPermission[]> = {
   USER_MANAGER: ['users'],
   FINANCE: ['finance']
 };
-export async function adminAccess(auth: AuthContext, client?: PoolClient) {
+type AccessActor = { userId: string } & Partial<Pick<AuthContext, 'role' | 'adminScope'>>;
+
+export async function adminAccess(auth: AccessActor, client?: PoolClient) {
   const result = await (client ?? getPostgresPool()).query(
     `select u.user_id,a.scope from users u join admin_access a using(user_id) where u.user_id::text=$1 and u.role='ADMIN' and u.status='ACTIVE' and u.deleted_at is null`,
     [auth.userId]
@@ -23,7 +25,7 @@ export async function adminAccess(auth: AuthContext, client?: PoolClient) {
   return { scope, permissions: scopePermissions[scope] };
 }
 export async function assertAdminPermission(
-  auth: AuthContext,
+  auth: AccessActor,
   permission: AdminPermission,
   client?: PoolClient
 ) {
@@ -45,7 +47,7 @@ export function requireAdminPermission(permission: AdminPermission): RequestHand
 }
 export async function audit(
   client: PoolClient,
-  auth: AuthContext,
+  auth: AccessActor,
   input: {
     action: string;
     targetType: string;
@@ -77,7 +79,7 @@ export function requiredReason(reason?: string) {
 }
 export async function protectAccount(
   client: PoolClient,
-  auth: AuthContext,
+  auth: AccessActor,
   userId: string,
   permission: AdminPermission = 'users'
 ) {

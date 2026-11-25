@@ -559,6 +559,7 @@ function getAuthErrorMessage(error: unknown) {
 
 function getRoleHome(role: AuthSession['user']['role']) {
   if (role === 'ADMIN') return '/admin';
+  if (role === 'MODERATOR') return '/moderator/reviews';
   if (role === 'AUTHOR') return '/author';
   return '/';
 }

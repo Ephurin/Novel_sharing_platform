@@ -123,7 +123,7 @@ for (const nav of navGuards) {
 requireSnippet(
   'web getRoleHome routing',
   readFileSync('web/src/shared/components/AuthLanding.tsx', 'utf8'),
-  "function getRoleHome(role: AuthSession['user']['role']) {\n  if (role === 'ADMIN') return '/admin';\n  if (role === 'AUTHOR') return '/author';\n  return '/';\n}"
+  "function getRoleHome(role: AuthSession['user']['role']) {\n  if (role === 'ADMIN') return '/admin';\n  if (role === 'MODERATOR') return '/moderator/reviews';\n  if (role === 'AUTHOR') return '/author';\n  return '/';\n}"
 );
 requireSnippet(
   'admin users role filter',
