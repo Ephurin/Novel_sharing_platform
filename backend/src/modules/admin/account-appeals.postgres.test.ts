@@ -1,6 +1,8 @@
 import { describe, test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { generateKeyPairSync, randomUUID } from 'node:crypto';
+import { spawn } from 'node:child_process';
+import { createHash, generateKeyPairSync, randomUUID } from 'node:crypto';
+import { once } from 'node:events';
 import type { Server } from 'node:http';
 import { OAuth2Client } from 'google-auth-library';
 import bcrypt from 'bcryptjs';
@@ -99,8 +101,8 @@ describe('PR-06: account appeals and independent resolution', { concurrency: fal
   const adminToken = (userId: string, role = 'ADMIN', ver = 0) =>
     jwt.sign({ sub: userId, role, ver }, env.JWT_ACCESS_SECRET);
 
-  const call = async (method: string, path: string, options: Options = {}) => {
-    const response = await fetch(base + path, {
+  const call = async (method: string, path: string, options: Options = {}, api = base) => {
+    const response = await fetch(api + path, {
       method,
       headers: {
         ...(options.body !== undefined && { 'content-type': 'application/json' }),
@@ -364,19 +366,59 @@ describe('PR-06: account appeals and independent resolution', { concurrency: fal
     assert.ok(appeal.body.data.appeal_id);
   });
 
-  test('E21-sim: challenge and exchange rate limits return 429', async (t) => {
+  test('E21-sim: two API processes share challenge, exchange and verified-subject limits', async (t) => {
     t.mock.method(OAuth2Client.prototype, 'getFederatedSignonCertsAsync', async () => ({
       certs: { fixture: publicKey.export({ format: 'pem', type: 'spki' }) },
       format: 'PEM'
     }));
-    for (let i = 0; i < 10; i++) {
-      await appealChallenge('10.20.1.3');
+    const program = `
+      import { OAuth2Client } from 'google-auth-library';
+      import { createApp } from './src/app.ts';
+      OAuth2Client.prototype.getFederatedSignonCertsAsync = async () => ({
+        certs: { fixture: process.env.APPEAL_TEST_GOOGLE_PUBLIC_KEY }, format: 'PEM'
+      });
+      const server = createApp().listen(0, '127.0.0.1');
+      server.on('listening', () => process.send(server.address().port));
+    `;
+    const child = spawn(process.execPath, ['--import', 'tsx', '--input-type=module', '-e', program], {
+      cwd: process.cwd(),
+      env: {
+        ...process.env,
+        GOOGLE_OAUTH_CLIENT_ID: clientId,
+        AUTH_TRUSTED_PROXY_HOST: '127.0.0.1',
+        APPEAL_TEST_GOOGLE_PUBLIC_KEY: publicKey.export({ format: 'pem', type: 'spki' }).toString()
+      },
+      windowsHide: true,
+      stdio: ['ignore', 'ignore', 'inherit', 'ipc']
+    });
+    const exited = once(child, 'exit');
+    t.after(async () => {
+      child.kill();
+      await exited;
+    });
+    const [port] = await Promise.race([
+      once(child, 'message', { signal: AbortSignal.timeout(10_000) }),
+      exited.then(() => { throw new Error('Second API process exited before listening'); })
+    ]);
+    assert.equal(typeof port, 'number');
+    const secondApi = `http://127.0.0.1:${port}${env.API_PREFIX}`;
+
+    const challengeRoute = '/account/appeal-session/google/challenge';
+    const challengeIp = '10.20.1.3';
+    const concurrentChallenges = await Promise.all(Array.from({ length: 12 }, (_, index) =>
+      call('POST', challengeRoute, { ip: challengeIp, origin }, index % 2 ? secondApi : base)
+    ));
+    assert.equal(concurrentChallenges.filter((response) => response.status === 200).length, 10);
+    assert.equal(concurrentChallenges.filter((response) => response.status === 429).length, 2);
+    for (const limited of concurrentChallenges.filter((response) => response.status === 429)) {
+      assert.equal(limited.body.error.details.scope, 'appeal-google-challenge');
+      assert.equal(limited.headers.get('retry-after'), String(limited.body.error.details.retryAfterSeconds));
     }
-    assert.equal(
-      (await call('POST', '/account/appeal-session/google/challenge', { ip: '10.20.1.3', origin })).status,
-      429,
-      'the eleventh challenge in the window exhausts the per-IP budget'
+    await pool.query(
+      "update appeal_google_rate_limits set reset_at=now() - interval '1 second' where scope='appeal-google-challenge' and bucket_key=$1",
+      [createHash('sha256').update(`ip:${challengeIp}`).digest('hex')]
     );
+    assert.equal((await call('POST', challengeRoute, { ip: challengeIp, origin }, secondApi)).status, 200);
 
     const userId = await mkUser('appeal_rate', { googleSubject: 'appeal-rate-subject' });
     await lockAccount(decider, userId);
@@ -394,32 +436,32 @@ describe('PR-06: account appeals and independent resolution', { concurrency: fal
         origin,
         body: { credential: googleCredential(session.nonce, 'appeal-rate-subject', 'rate@example.test') },
         cookie: session.cookie
-      });
+      }, i % 2 ? base : secondApi);
       assert.equal(replay.status, 401);
     }
-    assert.equal(
-      (await call('POST', '/account/appeal-session/google', {
+    const ipLimited = await call('POST', '/account/appeal-session/google', {
         ip: '10.20.1.4',
         origin,
         body: { credential: googleCredential(session.nonce, 'appeal-rate-subject', 'rate@example.test') },
         cookie: session.cookie
-      })).status,
-      429,
-      'the tenth exchange in the window exhausts the per-IP budget'
-    );
+    }, secondApi);
+    assert.equal(ipLimited.status, 429, 'ten shared exchanges exhaust the per-IP budget');
+    assert.equal(ipLimited.body.error.details.scope, 'appeal-google-exchange');
     const fresh = await appealChallenge('10.20.1.5');
     const subjectLimited = await call('POST', '/account/appeal-session/google', {
       ip: '10.20.1.5',
       origin,
       body: { credential: googleCredential(fresh.nonce, 'appeal-rate-subject', 'rate@example.test') },
       cookie: fresh.cookie
-    });
+    }, secondApi);
     assert.equal(
       subjectLimited.status,
       429,
       'a verified subject is limited across client IP buckets'
     );
     assert.equal(subjectLimited.body.error.code, 'RATE_LIMIT_001');
+    assert.equal(subjectLimited.body.error.details.scope, 'appeal-google-subject');
+    assert.equal(subjectLimited.headers.get('retry-after'), String(subjectLimited.body.error.details.retryAfterSeconds));
   });
 
   test('E06: the password session reads own decisions and files one appeal', async () => {

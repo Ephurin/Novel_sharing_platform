@@ -7,10 +7,14 @@ import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
-import { fixedWindowLimiter } from '../../core/security/rate-limit.js';
+import {
+  appealGoogleRateLimitError,
+  appealGoogleWindowMs,
+  consumeAppealGoogleRateLimit
+} from '../../core/security/appeal-google-rate-limit.js';
 import { successResponse } from '../../core/response/response.js';
 import { userRoles } from '../../shared/constants/roles.js';
-import { authRateLimit } from '../auth/auth-rate-limit.js';
+import { appealGoogleIpRateLimit } from '../auth/auth-rate-limit.js';
 import { requireGoogleOrigin } from '../auth/auth.controller.js';
 import { verifyGoogleIdentity } from '../auth/google-identity.js';
 import { findAuthUserByEmailOrUsername, consumeGoogleChallenge } from '../auth/auth.repository.js';
@@ -66,9 +70,8 @@ const appealGoogleCookieOptions = {
   sameSite: 'strict' as const,
   secure: webOrigin.protocol === 'https:'
 };
-const appealChallengeSeconds = 15 * 60;
+const appealChallengeSeconds = appealGoogleWindowMs / 1000;
 const appealChallengeAudience = 'storycraft-google-appeal';
-const appealSubjectLimit = fixedWindowLimiter(10, appealChallengeSeconds * 1000);
 
 function readAppealGoogleChallenge(cookie: unknown) {
   if (typeof cookie !== 'string') return null;
@@ -89,7 +92,7 @@ function readAppealGoogleChallenge(cookie: unknown) {
 accountAppealsRoutes.post(
   '/appeal-session/google/challenge',
   requireGoogleOrigin,
-  authRateLimit({ scope: 'appeal-google-challenge', max: 10, windowMs: appealChallengeSeconds * 1000 }),
+  appealGoogleIpRateLimit('appeal-google-challenge'),
   (req, res) => {
     const clientId = env.GOOGLE_OAUTH_CLIENT_ID;
     if (!clientId) {
@@ -113,7 +116,7 @@ accountAppealsRoutes.post(
 accountAppealsRoutes.post(
   '/appeal-session/google',
   requireGoogleOrigin,
-  authRateLimit({ scope: 'appeal-google-exchange', max: 10, windowMs: appealChallengeSeconds * 1000 }),
+  appealGoogleIpRateLimit('appeal-google-exchange'),
   async (req, res, next) => {
     try {
       const clientId = env.GOOGLE_OAUTH_CLIENT_ID;
@@ -125,12 +128,12 @@ accountAppealsRoutes.post(
         throw new AppError(401, 'AUTH_GOOGLE_CHALLENGE', 'Phiên xác minh Google đã hết hạn. Hãy thử lại.');
       // No database lock is held while Google verifies the credential.
       const identity = await verifyGoogleIdentity(input.credential, clientId, challenge.nonce);
-      const retryAfterSeconds = appealSubjectLimit(`subject:${identity.subject}`);
-      if (retryAfterSeconds !== null)
-        throw new AppError(429, 'RATE_LIMIT_001', 'Too many requests, please retry later', {
-          scope: 'appeal-google-subject',
-          retryAfterSeconds
-        });
+      const scope = 'appeal-google-subject';
+      const retryAfterSeconds = await consumeAppealGoogleRateLimit(scope, identity.subject);
+      if (retryAfterSeconds !== null) {
+        res.setHeader('Retry-After', String(retryAfterSeconds));
+        throw appealGoogleRateLimitError(scope, retryAfterSeconds);
+      }
       const user = await withPostgresTransaction(async (client) => {
         if (!(await consumeGoogleChallenge(client, challenge.nonce, 'appeal', challenge.expiresAt)))
           throw new AppError(401, 'AUTH_GOOGLE_CHALLENGE', 'Phiên xác minh Google đã hết hạn. Hãy thử lại.');

@@ -6,6 +6,7 @@ import { createApp } from './app.js';
 import { env } from './core/config/env.js';
 import { connectDatabases, disconnectDatabases } from './core/database/database.js';
 import { logger } from './core/logger/logger.js';
+import { appealGoogleWindowMs, pruneExpiredAppealGoogleRateLimits } from './core/security/appeal-google-rate-limit.js';
 import { startOutboxProcessor, stopOutboxProcessor } from './jobs/outbox-processor.js';
 
 const app = createApp();
@@ -13,9 +14,14 @@ let scheduleTimer: ReturnType<typeof setInterval> | undefined;
 let notificationTimer: ReturnType<typeof setInterval> | undefined;
 let adminTimer: ReturnType<typeof setInterval> | undefined;
 let discussionRetentionTimer: ReturnType<typeof setInterval> | undefined;
+let appealRateLimitRetentionTimer: ReturnType<typeof setInterval> | undefined;
 
 const pruneViewKeys = () => {
   void pruneDiscussionViewKeys().catch(error => logger.error({ err: error }, 'Could not prune discussion view keys'));
+};
+
+const pruneAppealRateLimits = () => {
+  void pruneExpiredAppealGoogleRateLimits().catch(error => logger.error({ err: error }, 'Could not prune Google appeal rate limits'));
 };
 
 if (env.DB_CONNECT_ON_START) {
@@ -29,6 +35,8 @@ if (env.DB_CONNECT_ON_START) {
   void deliverDomainNotifications();
   discussionRetentionTimer = setInterval(pruneViewKeys, 86_400_000);
   pruneViewKeys();
+  appealRateLimitRetentionTimer = setInterval(pruneAppealRateLimits, appealGoogleWindowMs);
+  pruneAppealRateLimits();
 }
 
 const server = app.listen(env.PORT, () => {
@@ -42,6 +50,7 @@ async function shutdown(signal: string) {
   if (notificationTimer) clearInterval(notificationTimer);
   if (adminTimer) clearInterval(adminTimer);
   if (discussionRetentionTimer) clearInterval(discussionRetentionTimer);
+  if (appealRateLimitRetentionTimer) clearInterval(appealRateLimitRetentionTimer);
 
   server.close(async () => {
     await disconnectDatabases();
