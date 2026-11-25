@@ -632,6 +632,18 @@ test('involved actors are blocked in achieved states and repeated accepted revie
     ).rows[0];
     assert.equal(statusRow.status, 'VISIBLE');
 
+    // 2b. Identity also precedes content state on deleted targets.
+    const ownDeletedTopic = await call<{ topicId: string }>('POST', '/discussions', {
+      categoryId, title: 'Own deleted topic ' + stamp, body: 'Written by a moderator'
+    }, authorModeratorToken);
+    assert.equal(ownDeletedTopic.status, 200);
+    const deletedOwn = await call('DELETE', '/discussions/' + ownDeletedTopic.data.topicId, undefined, authorModeratorToken);
+    assert.equal(deletedOwn.status, 200, 'the author deletes their own topic');
+    const selfDeletedHide = await call('PATCH', '/moderator/discussions/' + ownDeletedTopic.data.topicId + '/moderation',
+      { status: 'HIDDEN', reason: 'thử ẩn bài đã xóa của chính mình', expected: 'VISIBLE' }, authorModeratorToken);
+    assert.equal(selfDeletedHide.status, 403, 'identity precedes content state on deleted targets');
+    assert.equal(selfDeletedHide.code, 'MOD_CONFLICT');
+
     // 3. Two accepted report reviews on one target leave one sanction and one
     // owner notice of the report type, while each reporter still learns the outcome.
     const reportedTopic = await call<{ topicId: string }>('POST', '/discussions', {

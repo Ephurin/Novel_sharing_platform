@@ -13,7 +13,7 @@ import {
   requireAdminPermission
 } from './admin-access.js';
 import { applySanction, restoreSanction } from './admin-sanctions.js';
-import { drainAdminJobs, queueAdminNotification, retryAdminJob } from './admin-jobs.js';
+import { drainAdminJobs, drainAdminJobsSafely, queueAdminNotification, retryAdminJob } from './admin-jobs.js';
 
 export const adminOperationsRoutes = Router();
 const uuid = (value: unknown) => z.string().uuid().parse(value);
@@ -287,7 +287,7 @@ adminOperationsRoutes.post(
       });
       return { appealId, status: input.decision };
     });
-    await drainAdminJobs();
+    await drainAdminJobsSafely();
     return result;
   })
 );

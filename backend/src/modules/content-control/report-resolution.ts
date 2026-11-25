@@ -134,6 +134,7 @@ export async function resolveUserReport(
             await client.query(
               `select 1 from admin_jobs
                  where kind='NOTIFY'
+                   and status<>'FAILED'
                    and payload->>'type'='DISCUSSION_REMOVED_BY_REPORT'
                    and payload->>'userId'=$1
                    and payload->'payload'->>'sanctionId'=$2
