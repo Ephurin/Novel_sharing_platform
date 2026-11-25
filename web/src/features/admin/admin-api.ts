@@ -62,7 +62,7 @@ export type ModerationEscalation = {
   escalationId: string;
   reviewId: string;
   status: 'OPEN' | 'EXECUTED' | 'DISMISSED';
-  proposedAction: 'WARN' | 'LOCK';
+  proposedAction: 'WARN' | 'LOCK' | 'HIDE';
   reason: string;
   proposedBy: string;
   proposedByUsername?: string | null;

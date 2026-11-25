@@ -6,6 +6,7 @@ import type { AuthContext } from '../../core/security/auth-context.js';
 import { assertIndependentActor } from '../../core/security/moderation-policy.js';
 import { audit, requiredReason } from '../admin/admin-access.js';
 import { drainAdminJobsSafely, queueAdminNotification } from '../admin/admin-jobs.js';
+import { isDiscussionTarget } from '../discussions/discussions.admin.js';
 import { executeUserReportResolution } from './report-resolution.js';
 import {
   assertFreshIdentityUnderLock,
@@ -22,7 +23,7 @@ export type ModerationEscalationSummary = {
   escalationId: string;
   reviewId: string;
   status: 'OPEN' | 'EXECUTED' | 'DISMISSED';
-  proposedAction: 'WARN' | 'LOCK';
+  proposedAction: ProposeEscalationInput['proposedAction'];
   reason: string;
   proposedBy: string;
   proposedByUsername?: string | null;
@@ -36,7 +37,7 @@ export function escalationSummary(row: {
   escalation_id: string;
   review_id: string;
   status: 'OPEN' | 'EXECUTED' | 'DISMISSED';
-  proposed_action: 'WARN' | 'LOCK';
+  proposed_action: ProposeEscalationInput['proposedAction'];
   reason: string;
   proposed_by: string;
   proposed_by_username?: string | null;
@@ -72,7 +73,7 @@ async function waitForOpenEscalation(client: PoolClient, reviewId: string) {
 // Repeating the exact same proposal returns the existing open escalation so a
 // retry after a network hiccup converges; different content must not hijack it.
 function repeatsExisting(
-  row: { proposed_by: string; reason: string; proposed_action: 'WARN' | 'LOCK' },
+  row: { proposed_by: string; reason: string; proposed_action: ProposeEscalationInput['proposedAction'] },
   auth: AuthContext,
   input: ProposeEscalationInput
 ) {
@@ -106,30 +107,31 @@ export async function proposeModerationEscalation(
     assertFreshIdentityUnderLock(auth, identity);
     if (review.status !== 'PENDING')
       throw new AppError(409, 'ADMIN_002', 'Báo cáo đã được xử lý.');
-    // Escalations carry account sanctions for Admin; other report variants stay
-    // within moderator authority.
-    if (review.target_type !== 'USER')
+    const userReport = review.target_type === 'USER';
+    const discussionReport = isDiscussionTarget(review.target_type);
+    if (!userReport && !discussionReport)
       throw new AppError(
         422,
         'ESCALATION_TARGET',
-        'Chỉ chuyển cấp hồ sơ báo cáo tài khoản người dùng.'
+        'Chỉ chuyển cấp báo cáo tài khoản hoặc nội dung thảo luận.'
       );
-    // The escalation audit names the reported account, so a dangling legacy
-    // target stops here with the same answer the report route gives.
-    const subject = (
-      await client.query(
-        "select 1 from users where user_id::text=$1 and deleted_at is null and status<>'DELETED'",
-        [review.target_id]
-      )
-    ).rows[0];
-    if (!subject)
-      throw new AppError(404, 'USER_001', 'Không tìm thấy tài khoản bị báo cáo để chuyển cấp.');
+    if (discussionReport ? input.proposedAction !== 'HIDE' : input.proposedAction === 'HIDE')
+      throw new AppError(422, 'ESCALATION_ACTION', 'Hành động đề nghị không phù hợp với báo cáo.');
+    if (userReport) {
+      const subject = (
+        await client.query(
+          "select 1 from users where user_id::text=$1 and deleted_at is null and status<>'DELETED'",
+          [review.target_id]
+        )
+      ).rows[0];
+      if (!subject)
+        throw new AppError(404, 'USER_001', 'Không tìm thấy tài khoản bị báo cáo để chuyển cấp.');
+    }
     const reports = (
       await client.query('select * from reports where review_id=$1 order by created_at', [reviewId])
     ).rows;
-    // The recommending moderator must be independent of the target and of the
-    // reporters, and may not escalate a report about themselves.
-    assertIndependentActor(auth.userId, await reviewInvolvedUserIds(review, client));
+    const involved = await reviewInvolvedUserIds(review, client);
+    assertIndependentActor(auth.userId, involved);
     assertIndependentActor(auth.userId, reports.map((report) => report.reporter_id));
     const existing = await waitForOpenEscalation(client, reviewId);
     if (existing) {
@@ -170,7 +172,7 @@ export async function proposeModerationEscalation(
       action: 'ESCALATION_PROPOSED',
       targetType: review.target_type,
       targetId: review.target_id,
-      affectedUserId: review.target_id,
+      affectedUserId: involved[0],
       reason: input.reason,
       before: { reviewId, reviewStatus: review.status },
       after: { escalationId: row.escalation_id, proposedAction: input.proposedAction }
@@ -291,8 +293,6 @@ export async function resolveModerationEscalation(
         review.review_id
       ])
     ).rows;
-    // The deciding Admin must be independent of the proposing moderator, the
-    // reporters and the reported account — including themselves.
     const involved = await reviewInvolvedUserIds(review, client);
     assertIndependentActor(auth.userId, [
       escalation.proposed_by,
@@ -321,7 +321,7 @@ export async function resolveModerationEscalation(
       action: accepted ? 'ESCALATION_EXECUTED' : 'ESCALATION_DISMISSED',
       targetType: review.target_type,
       targetId: review.target_id,
-      affectedUserId: review.target_id,
+      affectedUserId: involved[0],
       reason,
       before: {
         escalationId,

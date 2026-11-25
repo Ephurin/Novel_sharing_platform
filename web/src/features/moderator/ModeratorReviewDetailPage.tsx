@@ -28,11 +28,14 @@ export function ModeratorReviewDetailPage() {
   const [expanded, setExpanded] = useState(false);
   const [escalateOpen, setEscalateOpen] = useState(false);
   const [escalateReason, setEscalateReason] = useState('');
-  const [escalateAction, setEscalateAction] = useState('WARN');
+  const [accountEscalationAction, setAccountEscalationAction] = useState<'WARN' | 'LOCK'>('WARN');
   const query = useQuery({
     queryKey: ['moderator-review-detail', reviewId],
     queryFn: () => getModeratorReview(reviewId)
   });
+  const discussionReport = query.data?.source === 'USER_REPORT' &&
+    (query.data.targetType === 'DISCUSSION' || query.data.targetType === 'DISCUSSION_COMMENT');
+  const escalateAction = discussionReport ? 'HIDE' : accountEscalationAction;
   const mutation = useMutation({
     mutationFn: () =>
       resolveModeratorReview(
@@ -56,7 +59,7 @@ export function ModeratorReviewDetailPage() {
   });
   const escalateMutation = useMutation({
     mutationFn: () =>
-      proposeModeratorEscalation(reviewId, escalateReason, escalateAction as 'WARN' | 'LOCK'),
+      proposeModeratorEscalation(reviewId, escalateReason, escalateAction),
     onSuccess: async () => {
       setEscalateOpen(false);
       setEscalateReason('');
@@ -72,13 +75,13 @@ export function ModeratorReviewDetailPage() {
   if (!review) return <EmptyState description="Không tìm thấy hồ sơ điều hành." />;
   const report = review.source === 'USER_REPORT';
   const commentReport = report && review.targetType === 'COMMENT';
-  const discussionReport = report && review.targetType.startsWith('DISCUSSION');
   const selectedAction = discussionReport ? 'HIDE' : reportAction || (commentReport ? 'HIDE' : 'WARN');
   const content = review.target?.content || '';
   const publication = !report && (review.targetType === 'NOVEL' || review.targetType === 'CHAPTER');
   const escalationOpen = review.escalation?.status === 'OPEN';
   const canEscalate =
-    report && review.targetType === 'USER' && review.status === 'PENDING' && !escalationOpen;
+    report && (review.targetType === 'USER' || discussionReport) &&
+    review.status === 'PENDING' && !escalationOpen;
   return (
     <div className="admin-review-page">
       <Button variant="subtle" size="compact-sm" mb="sm" onClick={() => navigate(-1)}>
@@ -276,7 +279,7 @@ export function ModeratorReviewDetailPage() {
                   onClick={() => {
                     escalateMutation.reset();
                     setEscalateReason('');
-                    setEscalateAction('WARN');
+                    setAccountEscalationAction('WARN');
                     setEscalateOpen(true);
                   }}
                 >
@@ -358,7 +361,7 @@ export function ModeratorReviewDetailPage() {
         </p>
       </AdminConfirm>
       <AdminConfirm
-        destructive={escalateAction === 'LOCK'}
+        destructive={escalateAction !== 'WARN'}
         opened={escalateOpen}
         title="Chuyển cấp hồ sơ cho Admin"
         confirmLabel="Gửi đề nghị"
@@ -371,19 +374,23 @@ export function ModeratorReviewDetailPage() {
         onConfirm={() => escalateMutation.mutate()}
       >
         <p>
-          Đề nghị Admin {escalateAction === 'LOCK' ? 'khóa tài khoản' : 'cảnh báo'} người dùng bị
-          báo cáo. Bạn không thể tự xử lý hồ sơ này khi đề nghị đang chờ Admin.
+          {discussionReport
+            ? 'Đề nghị Admin ẩn nội dung thảo luận bị báo cáo.'
+            : `Đề nghị Admin ${accountEscalationAction === 'LOCK' ? 'khóa' : 'cảnh báo'} tài khoản bị báo cáo.`}
+          {' '}Hồ sơ sẽ chờ Admin quyết định.
         </p>
-        <Select
-          label="Hành động đề nghị"
-          data={[
-            { value: 'WARN', label: 'Cảnh báo tài khoản' },
-            { value: 'LOCK', label: 'Khóa tài khoản' }
-          ]}
-          value={escalateAction}
-          onChange={(value) => setEscalateAction(value || 'WARN')}
-          mb="sm"
-        />
+        {!discussionReport && (
+          <Select
+            label="Hành động đề nghị"
+            data={[
+              { value: 'WARN', label: 'Cảnh báo tài khoản' },
+              { value: 'LOCK', label: 'Khóa tài khoản' }
+            ]}
+            value={accountEscalationAction}
+            onChange={(value) => setAccountEscalationAction(value === 'LOCK' ? 'LOCK' : 'WARN')}
+            mb="sm"
+          />
+        )}
       </AdminConfirm>
     </div>
   );

@@ -58,7 +58,7 @@ export function AdminEscalationsPage() {
     <>
       <AdminHeader
         title="Đề nghị chuyển cấp"
-        description="Xét các đề nghị của điều hành viên về tài khoản: chấp nhận để áp dụng theo đề nghị, hoặc bác để trả báo cáo về hàng chờ điều hành."
+        description="Xem chứng cứ và quyết định các đề nghị chuyển cấp của điều hành viên."
         refresh={() => void query.refetch()}
       >
         <span className="admin-muted">{number(query.data?.meta.totalItems ?? 0)} đề nghị</span>
@@ -128,7 +128,9 @@ export function AdminEscalationsPage() {
                       </td>
                       <td>
                         <div>
-                          {item.review.targetUsername ? `@${item.review.targetUsername} · ` : ''}
+                          {item.review.targetUsername
+                            ? `@${item.review.targetUsername} · `
+                            : `${labels[item.review.targetType] ?? item.review.targetType} · `}
                           {number(item.review.reportCount)} báo cáo
                         </div>
                         <small>
@@ -153,6 +155,7 @@ export function AdminEscalationsPage() {
                           <div className="admin-review-decisions">
                             <Button
                               size="xs"
+                              miw="max-content"
                               data-testid={`admin-escalation-accept-${item.escalationId}`}
                               onClick={() => {
                                 mutation.reset();
@@ -195,7 +198,7 @@ export function AdminEscalationsPage() {
       <AdminConfirm
         destructive={
           selected?.decision === 'REJECTED' ||
-          (selected?.decision === 'ACCEPTED' && selected.escalation.proposedAction === 'LOCK')
+          (selected?.decision === 'ACCEPTED' && selected.escalation.proposedAction !== 'WARN')
         }
         opened={Boolean(selected)}
         title={selected?.decision === 'ACCEPTED' ? 'Chấp nhận đề nghị chuyển cấp' : 'Bác đề nghị chuyển cấp'}
@@ -210,8 +213,10 @@ export function AdminEscalationsPage() {
       >
         <p>
           {selected?.decision === 'ACCEPTED'
-            ? `Áp dụng ${labels[selected.escalation.proposedAction] || selected.escalation.proposedAction} lên tài khoản ${selected.escalation.review.targetUsername ? `@${selected.escalation.review.targetUsername}` : 'bị báo cáo'} theo đề nghị của @${selected.escalation.proposedByUsername ?? 'điều hành viên'}. Báo cáo được đóng và mọi bên liên quan nhận thông báo.`
-            : `Bác đề nghị ${labels[selected?.escalation.proposedAction ?? ''] ?? ''} của @${selected?.escalation.proposedByUsername ?? 'điều hành viên'}. Báo cáo quay về hàng chờ điều hành, mọi quyền quyết định trở lại với điều hành viên độc lập.`}
+            ? selected.escalation.proposedAction === 'HIDE'
+              ? 'Ẩn nội dung thảo luận theo đề nghị, đóng báo cáo và thông báo kết quả.'
+              : `Áp dụng ${labels[selected.escalation.proposedAction]} lên tài khoản ${selected.escalation.review.targetUsername ? `@${selected.escalation.review.targetUsername}` : 'bị báo cáo'} và đóng báo cáo.`
+            : 'Bác đề nghị và trả hồ sơ về hàng chờ phù hợp.'}
         </p>
       </AdminConfirm>
     </>

@@ -50,7 +50,7 @@ export const proposeEscalationSchema = z.object({
   params: reviewIdParamSchema.shape.params,
   body: z.object({
     reason: z.string().trim().min(1).max(2000),
-    proposedAction: z.enum(['WARN', 'LOCK'])
+    proposedAction: z.enum(['WARN', 'LOCK', 'HIDE'])
   })
 });
 

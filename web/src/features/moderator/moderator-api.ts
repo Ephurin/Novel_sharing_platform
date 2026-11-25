@@ -25,7 +25,7 @@ export async function getModeratorReview(reviewId: string): Promise<ModerationRe
 export async function proposeModeratorEscalation(
   reviewId: string,
   reason: string,
-  proposedAction: 'WARN' | 'LOCK'
+  proposedAction: ModerationEscalation['proposedAction']
 ) {
   const response = await apiClient.post<ApiEnvelope<ModerationEscalation>>(
     `/moderator/reviews/${reviewId}/escalations`,

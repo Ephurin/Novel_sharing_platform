@@ -234,14 +234,13 @@ describe('PR-05: moderation escalations between moderators and Admin', { concurr
     ).rows[0];
     const wrongSource = await escalate(keywordReview.review_id, mint(modProposer, 'MODERATOR'));
     assert.equal(wrongSource.status, 404);
-    // Discussion targets stay inside moderator authority (HIDE).
-    const discussionReview = (
+    const unsupportedReview = (
       await pool.query(
-        "insert into moderation_reviews(target_type,target_id,source,status) values('DISCUSSION',$1,'USER_REPORT','PENDING') returning review_id",
+        "insert into moderation_reviews(target_type,target_id,source,status) values('CHAPTER',$1,'USER_REPORT','PENDING') returning review_id",
         [randomUUID()]
       )
     ).rows[0];
-    const wrongTarget = await escalate(discussionReview.review_id, mint(modProposer, 'MODERATOR'));
+    const wrongTarget = await escalate(unsupportedReview.review_id, mint(modProposer, 'MODERATOR'));
     assert.equal(wrongTarget.status, 422);
     assert.equal(wrongTarget.body.error.code, 'ESCALATION_TARGET');
 
@@ -368,6 +367,75 @@ describe('PR-05: moderation escalations between moderators and Admin', { concurr
     assert.equal(await notificationCount({ type: 'REPORT_RESOLVED', 'payload.reviewId': reviewId }), 2, 'each reporter learns the outcome once');
     assert.equal(await notificationCount({ type: 'ESCALATION_APPROVED', 'payload.reviewId': reviewId }), 1, 'the proposer learns the acceptance once');
   });
+
+  for (const kind of ['DISCUSSION', 'DISCUSSION_COMMENT'] as const) {
+    test(`accepting a ${kind} escalation hides the target and records one sanction`, async () => {
+      const owner = await insertReader();
+      const ownerToken = mint(owner, 'READER');
+      const modToken = mint(modProposer, 'MODERATOR');
+      const adminToken = mint(adminContentOnly, 'ADMIN');
+      const categories = await bearerCall('/discussions/categories');
+      const category = categories.body.data.find((row: { slug: string }) => row.slug === 'thao-luan-chung');
+      assert.ok(category);
+      const topic = await bearerCall('/discussions', {
+        token: ownerToken,
+        body: { categoryId: category.categoryId, title: 'Chủ đề được báo cáo', body: 'Nội dung thử chuyển cấp diễn đàn.' }
+      });
+      assert.equal(topic.status, 200);
+      const topicId = topic.body.data.topicId;
+      let targetId = topicId;
+      if (kind === 'DISCUSSION_COMMENT') {
+        const comment = await bearerCall(`/discussions/${topicId}/comments`, {
+          token: ownerToken, body: { body: 'Bình luận được báo cáo.' }
+        });
+        assert.equal(comment.status, 200);
+        targetId = comment.body.data.commentId;
+      }
+      const report = await bearerCall('/reports', {
+        token: mint(reporterA, 'READER'),
+        body: { targetType: kind, targetId, reason: 'ABUSE', description: 'Cần Admin xem lại chứng cứ thảo luận.' }
+      });
+      assert.equal(report.status, 201);
+      const reviewId = report.body.data.moderationReviewId;
+      const wrongAction = await escalate(reviewId, modToken);
+      assert.equal(wrongAction.status, 422);
+      assert.equal(wrongAction.body.error.code, 'ESCALATION_ACTION');
+      const proposed = await escalate(reviewId, modToken, 'Cần Admin kiểm tra và ẩn nội dung.', 'HIDE');
+      assert.equal(proposed.status, 201);
+      const escalationId = proposed.body.data.escalationId;
+      const direct = await bearerCall(`/moderator/reviews/${reviewId}/resolve`, {
+        token: modToken, body: { decision: 'APPROVED', action: 'HIDE', reason: 'Đề nghị đang mở.' }
+      });
+      assert.equal(direct.status, 409);
+      assert.equal(direct.body.error.code, 'ESCALATION_OPEN');
+      const accepted = await bearerCall(`/admin/escalations/${escalationId}/resolve`, {
+        token: adminToken, body: { decision: 'ACCEPTED', reason: 'Xác nhận vi phạm qua chứng cứ.' }
+      });
+      assert.equal(accepted.status, 200);
+      assert.equal(accepted.body.data.escalation.status, 'EXECUTED');
+      assert.equal(accepted.body.data.action, 'HIDE');
+      const topicState = (await pool.query('select status from discussion_topics where topic_id=$1', [topicId])).rows[0];
+      assert.equal(topicState.status, kind === 'DISCUSSION' ? 'HIDDEN' : 'VISIBLE');
+      if (kind === 'DISCUSSION_COMMENT') {
+        const commentState = (await pool.query('select status from discussion_comments where comment_id=$1', [targetId])).rows[0];
+        assert.equal(commentState.status, 'HIDDEN');
+      }
+      const sanctions = await pool.query(
+        'select target_type, target_id, owner_id, action, active from admin_sanctions where review_id=$1', [reviewId]
+      );
+      assert.deepEqual(sanctions.rows, [{ target_type: kind, target_id: targetId, owner_id: owner, action: 'HIDE', active: true }]);
+      const audit = await pool.query(
+        "select action,affected_user_id from admin_audit where target_id=$1 and action in ('ESCALATION_PROPOSED','ESCALATION_EXECUTED') order by action",
+        [targetId]
+      );
+      assert.deepEqual(audit.rows, [
+        { action: 'ESCALATION_EXECUTED', affected_user_id: owner },
+        { action: 'ESCALATION_PROPOSED', affected_user_id: owner }
+      ]);
+      assert.equal(await notificationCount({ type: 'DISCUSSION_REMOVED_BY_REPORT', userId: owner, 'payload.reviewId': reviewId }), 1);
+      assert.equal(await notificationCount({ type: 'ESCALATION_APPROVED', userId: modProposer, 'payload.reviewId': reviewId }), 1);
+    });
+  }
 
   test('rejecting returns the report to the queue and only notifies the proposer', async () => {
     const { reviewId, targetId } = await openReportReview([reporterA]);
@@ -630,9 +698,12 @@ describe('PR-05: moderation escalations between moderators and Admin', { concurr
     const badAction = await bearerCall(`/moderator/reviews/${reviewId}/escalations`, {
       method: 'POST',
       token: mint(modProposer, 'MODERATOR'),
-      body: { reason: 'Lý do hợp lệ.', proposedAction: 'HIDE' }
+      body: { reason: 'Lý do hợp lệ.', proposedAction: 'DELETE' }
     });
     assert.equal(badAction.status, 400);
+    const invalidAccountAction = await escalate(reviewId, mint(modProposer, 'MODERATOR'), 'Sai loại hành động.', 'HIDE');
+    assert.equal(invalidAccountAction.status, 422);
+    assert.equal(invalidAccountAction.body.error.code, 'ESCALATION_ACTION');
     const unknownReview = await escalate(randomUUID(), mint(modProposer, 'MODERATOR'));
     assert.equal(unknownReview.status, 404);
     assert.equal((await escalationRow(reviewId)).length, 0);
