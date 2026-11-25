@@ -223,8 +223,23 @@ export async function drainAdminJobsSafely() {
   }
 }
 
+let drainScheduled = false;
+let drainRequested = false;
+
 export function scheduleAdminJobsDrain() {
-  setImmediate(() => void drainAdminJobsSafely());
+  drainRequested = true;
+  if (drainScheduled) return;
+  drainScheduled = true;
+  setImmediate(async () => {
+    try {
+      while (drainRequested) {
+        drainRequested = false;
+        await drainAdminJobsSafely();
+      }
+    } finally {
+      drainScheduled = false;
+    }
+  });
 }
 
 export async function retryAdminJob(auth: AuthContext, jobId: string) {
