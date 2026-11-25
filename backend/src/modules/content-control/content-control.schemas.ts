@@ -46,7 +46,36 @@ export const resolveReviewSchema = z.object({
   })
 });
 
+export const proposeEscalationSchema = z.object({
+  params: reviewIdParamSchema.shape.params,
+  body: z.object({
+    reason: z.string().trim().min(1).max(2000),
+    proposedAction: z.enum(['WARN', 'LOCK'])
+  })
+});
+
+export const listEscalationsSchema = z.object({
+  query: z.object({
+    status: z.enum(['OPEN', 'EXECUTED', 'DISMISSED']).optional(),
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(20)
+  })
+});
+
+export const resolveEscalationSchema = z.object({
+  params: z.object({
+    escalationId: z.string().uuid()
+  }),
+  body: z.object({
+    decision: z.enum(['ACCEPTED', 'REJECTED']),
+    reason: z.string().trim().min(1).max(2000)
+  })
+});
+
 export type ContentControlCheckInput = z.infer<typeof contentControlCheckSchema>['body'];
 export type CreateReportInput = z.infer<typeof createReportSchema>['body'];
 export type ListReviewsInput = z.infer<typeof listReviewsSchema>['query'];
 export type ResolveReviewInput = z.infer<typeof resolveReviewSchema>['body'];
+export type ProposeEscalationInput = z.infer<typeof proposeEscalationSchema>['body'];
+export type ListEscalationsInput = z.infer<typeof listEscalationsSchema>['query'];
+export type ResolveEscalationInput = z.infer<typeof resolveEscalationSchema>['body'];

@@ -9,6 +9,7 @@ import { AdminWithdrawsPage } from '../features/admin/AdminWithdrawsPage';
 import { AdminModerationDetailPage } from '../features/admin/AdminModerationDetailPage';
 import { AdminReportsPage } from '../features/admin/AdminReportsPage';
 import { AdminModerationPage } from '../features/admin/AdminModerationPage';
+import { AdminEscalationsPage } from '../features/admin/AdminEscalationsPage';
 import { AdminTaxonomyPage } from '../features/admin/AdminTaxonomyPage';
 import { AdminNovelDetailPage } from '../features/admin/AdminNovelDetailPage';
 import { AdminNovelsPage } from '../features/admin/AdminNovelsPage';
@@ -351,6 +352,14 @@ export const router = createBrowserRouter([
         element: (
           <RoleGuard roles={['ADMIN']}>
             <AdminModerationPage key="moderation" />
+          </RoleGuard>
+        )
+      },
+      {
+        path: '/admin/escalations',
+        element: (
+          <RoleGuard roles={['ADMIN']}>
+            <AdminEscalationsPage />
           </RoleGuard>
         )
       },

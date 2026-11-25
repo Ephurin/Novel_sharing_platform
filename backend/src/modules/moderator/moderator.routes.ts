@@ -8,6 +8,7 @@ import { moderatorPermissionsFor } from '../../core/security/moderation-policy.j
 import { requireModeratorOperational } from './moderator-access.js';
 import {
   listReviewsSchema,
+  proposeEscalationSchema,
   resolveReviewSchema,
   reviewIdParamSchema
 } from '../content-control/content-control.schemas.js';
@@ -16,6 +17,7 @@ import {
   listModerationReviews,
   resolveModerationReview
 } from '../content-control/content-control.service.js';
+import { proposeModerationEscalation } from '../content-control/moderation-escalations.js';
 
 function requireRequestAuth(request: Parameters<RequestHandler>[0]) {
   if (!request.auth) throw new AppError(401, 'AUTH_002', 'Cần đăng nhập.');
@@ -85,6 +87,26 @@ moderatorRoutes.post(
         request.body
       );
       response.json(successResponse(result));
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+moderatorRoutes.post(
+  '/reviews/:reviewId/escalations',
+  requireRoles(['MODERATOR']),
+  requireReviewer,
+  requireModeratorOperational('escalation.submit'),
+  validateRequest(proposeEscalationSchema),
+  async (request, response, next) => {
+    try {
+      const result = await proposeModerationEscalation(
+        requireRequestAuth(request),
+        String(request.params.reviewId),
+        request.body
+      );
+      response.status(result.created ? 201 : 200).json(successResponse(result.escalation));
     } catch (error) {
       next(error);
     }

@@ -58,6 +58,36 @@ export type ModerationReviewFilters = {
   source?: 'PUBLICATION_REQUEST' | 'KEYWORD_FILTER' | 'USER_REPORT' | '';
 };
 
+export type ModerationEscalation = {
+  escalationId: string;
+  reviewId: string;
+  status: 'OPEN' | 'EXECUTED' | 'DISMISSED';
+  proposedAction: 'WARN' | 'LOCK';
+  reason: string;
+  proposedBy: string;
+  proposedByUsername?: string | null;
+  createdAt: string;
+  resolution: string | null;
+  resolvedBy: string | null;
+  resolvedAt: string | null;
+};
+
+export type ModerationEscalationListItem = ModerationEscalation & {
+  resolvedByUsername?: string | null;
+  review: {
+    reviewId: string;
+    targetType: string;
+    targetId: string;
+    status: string;
+    createdAt: string;
+    reason: string | null;
+    reportCount: number;
+    targetUsername: string | null;
+    targetStatus: string | null;
+    targetRole: string | null;
+  };
+};
+
 export type ModerationReviewDetail = ModerationReview & {
   sanctions?: Array<{ sanction_id: string; action: string; active: boolean; pending: boolean }>;
   ownerViolations?: Array<{
@@ -67,6 +97,7 @@ export type ModerationReviewDetail = ModerationReview & {
     created_at: string;
     reason?: string | null;
   }>;
+  escalation?: ModerationEscalation | null;
   reportDescriptions?: Array<{ reason: string; description: string | null }>;
   reviewedAt?: string | null;
   target?: {
@@ -280,6 +311,37 @@ export async function resolveModerationReview(
       reason: reason?.trim() || undefined
     }
   );
+  return response.data.data;
+}
+
+export async function listModerationEscalations(filters: {
+  status?: 'OPEN' | 'EXECUTED' | 'DISMISSED' | '';
+  page?: number;
+  limit?: number;
+}): Promise<Paged<ModerationEscalationListItem>> {
+  return getAdminList<ModerationEscalationListItem>('/admin/escalations', {
+    status: filters.status || undefined,
+    page: filters.page ?? 1,
+    limit: filters.limit ?? 20
+  });
+}
+
+export async function resolveModerationEscalation(
+  escalationId: string,
+  decision: 'ACCEPTED' | 'REJECTED',
+  reason: string
+) {
+  const response = await apiClient.post<
+    ApiEnvelope<{
+      escalation: ModerationEscalation;
+      reviewStatus: string;
+      targetId: string;
+      action: string | null;
+    }>
+  >(`/admin/escalations/${escalationId}/resolve`, {
+    decision,
+    reason: reason.trim()
+  });
   return response.data.data;
 }
 

@@ -39,6 +39,7 @@ import {
   createModerationEvidence,
   findModerationEvidence
 } from './moderation-evidence.repository.js';
+import { findModerationReviewEscalation } from './moderation-escalations.js';
 import type {
   ContentControlResult,
   MatchedRule,
@@ -346,12 +347,13 @@ export async function getModerationReview(reviewId: string, auth?: AuthContext) 
       await withPostgresTransaction(client=>audit(client,auth,{action:'PRIVATE_COMMENT_REVIEW_VIEW',targetType:'COMMENT',targetId:review.target_id}));
     }
   }
-  const [evidence, reportCount, reports, target, ownerViolations] = await Promise.all([
+  const [evidence, reportCount, reports, target, ownerViolations, escalation] = await Promise.all([
     findModerationEvidence(review.evidence_id),
     countReportsForReview(reviewId),
     listReportsForReview(reviewId),
     getAdminReviewTarget(review.target_type, review.target_id),
-    listOwnerViolations(review)
+    listOwnerViolations(review),
+    findModerationReviewEscalation(reviewId)
   ]);
   const submitted = review.submitted_content ??
     (review.target_type === 'CHAPTER' && review.source === 'KEYWORD_FILTER' &&
@@ -394,7 +396,8 @@ export async function getModerationReview(reviewId: string, auth?: AuthContext) 
       reportCount,
       summary: evidence?.summary ?? null
     },
-    ownerViolations
+    ownerViolations,
+    escalation
   };
 }
 

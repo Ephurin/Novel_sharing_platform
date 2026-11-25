@@ -14,7 +14,7 @@ import {
   Status
 } from '../admin/AdminShared';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
-import { getModeratorReview, resolveModeratorReview } from './moderator-api';
+import { getModeratorReview, proposeModeratorEscalation, resolveModeratorReview } from './moderator-api';
 
 type Decision = 'APPROVED' | 'REJECTED' | 'REVISION_REQUIRED';
 
@@ -26,6 +26,9 @@ export function ModeratorReviewDetailPage() {
   const [reason, setReason] = useState('');
   const [reportAction, setReportAction] = useState('');
   const [expanded, setExpanded] = useState(false);
+  const [escalateOpen, setEscalateOpen] = useState(false);
+  const [escalateReason, setEscalateReason] = useState('');
+  const [escalateAction, setEscalateAction] = useState('WARN');
   const query = useQuery({
     queryKey: ['moderator-review-detail', reviewId],
     queryFn: () => getModeratorReview(reviewId)
@@ -51,6 +54,18 @@ export function ModeratorReviewDetailPage() {
       ]);
     }
   });
+  const escalateMutation = useMutation({
+    mutationFn: () =>
+      proposeModeratorEscalation(reviewId, escalateReason, escalateAction as 'WARN' | 'LOCK'),
+    onSuccess: async () => {
+      setEscalateOpen(false);
+      setEscalateReason('');
+      await Promise.all([
+        cache.invalidateQueries({ queryKey: ['moderator-reviews'] }),
+        cache.invalidateQueries({ queryKey: ['moderator-review-detail', reviewId] })
+      ]);
+    }
+  });
   if (query.isLoading) return <LoadingState label="Đang tải chi tiết hồ sơ..." />;
   if (query.isError) return <ErrorState error={query.error} onRetry={() => void query.refetch()} />;
   const review = query.data;
@@ -61,6 +76,9 @@ export function ModeratorReviewDetailPage() {
   const selectedAction = discussionReport ? 'HIDE' : reportAction || (commentReport ? 'HIDE' : 'WARN');
   const content = review.target?.content || '';
   const publication = !report && (review.targetType === 'NOVEL' || review.targetType === 'CHAPTER');
+  const escalationOpen = review.escalation?.status === 'OPEN';
+  const canEscalate =
+    report && review.targetType === 'USER' && review.status === 'PENDING' && !escalationOpen;
   return (
     <div className="admin-review-page">
       <Button variant="subtle" size="compact-sm" mb="sm" onClick={() => navigate(-1)}>
@@ -176,6 +194,19 @@ export function ModeratorReviewDetailPage() {
                 Quyết định đã lưu. Nội dung đang chờ đồng bộ; dùng nút tải lại để kiểm tra.
               </Alert>
             )}
+            {escalationOpen && (
+              <Alert color="blue" mb="sm" data-testid="moderator-escalation-open-notice">
+                Hồ sơ đã được chuyển cấp cho Admin. Không thể tự xử lý cho đến khi Admin quyết
+                định.
+              </Alert>
+            )}
+            {review.escalation && !escalationOpen && review.escalation.status !== 'EXECUTED' && (
+              <p className="admin-muted">
+                Lần chuyển cấp trước đã bị Admin bác
+                {review.escalation.resolvedAt ? ` lúc ${dateTime(review.escalation.resolvedAt)}` : ''}.
+                Có thể gửi đề nghị mới sau khi rà lại chứng cứ.
+              </p>
+            )}
             {report && review.status === 'PENDING' && (
               <Select
                 label="Hành động khi tiếp nhận báo cáo"
@@ -198,7 +229,7 @@ export function ModeratorReviewDetailPage() {
             )}
             <div className="admin-review-decisions">
               <Button
-                disabled={review.status !== 'PENDING' || mutation.isPending}
+                disabled={review.status !== 'PENDING' || escalationOpen || mutation.isPending}
                 data-testid="moderator-approve-review-btn"
                 onClick={() => {
                   mutation.reset();
@@ -212,7 +243,7 @@ export function ModeratorReviewDetailPage() {
                 <Button
                   color="orange"
                   variant="light"
-                  disabled={review.status !== 'PENDING' || mutation.isPending}
+                  disabled={review.status !== 'PENDING' || escalationOpen || mutation.isPending}
                   data-testid="moderator-revision-review-btn"
                   onClick={() => {
                     mutation.reset();
@@ -227,7 +258,7 @@ export function ModeratorReviewDetailPage() {
                 color="red"
                 className="admin-danger"
                 variant="light"
-                disabled={review.status !== 'PENDING' || mutation.isPending}
+                disabled={review.status !== 'PENDING' || escalationOpen || mutation.isPending}
                 data-testid="moderator-reject-review-btn"
                 onClick={() => {
                   mutation.reset();
@@ -237,6 +268,21 @@ export function ModeratorReviewDetailPage() {
               >
                 {report ? 'Từ chối báo cáo' : 'Từ chối nội dung'}
               </Button>
+              {canEscalate && (
+                <Button
+                  color="grape"
+                  variant="light"
+                  data-testid="moderator-escalate-btn"
+                  onClick={() => {
+                    escalateMutation.reset();
+                    setEscalateReason('');
+                    setEscalateAction('WARN');
+                    setEscalateOpen(true);
+                  }}
+                >
+                  Chuyển cấp cho Admin
+                </Button>
+              )}
             </div>
           </AdminPanel>
           <AnimatedDisclosure className="admin-panel admin-metadata" summary="Thông tin kiểm duyệt">
@@ -310,6 +356,34 @@ export function ModeratorReviewDetailPage() {
                     : 'Từ chối xuất bản nội dung đang được kiểm duyệt.'
                 : 'Ghi nhận quyết định xử lý trong hồ sơ kiểm duyệt tài khoản.'}
         </p>
+      </AdminConfirm>
+      <AdminConfirm
+        destructive={escalateAction === 'LOCK'}
+        opened={escalateOpen}
+        title="Chuyển cấp hồ sơ cho Admin"
+        confirmLabel="Gửi đề nghị"
+        reason={escalateReason}
+        setReason={setEscalateReason}
+        required
+        pending={escalateMutation.isPending}
+        error={escalateMutation.error}
+        onClose={() => setEscalateOpen(false)}
+        onConfirm={() => escalateMutation.mutate()}
+      >
+        <p>
+          Đề nghị Admin {escalateAction === 'LOCK' ? 'khóa tài khoản' : 'cảnh báo'} người dùng bị
+          báo cáo. Bạn không thể tự xử lý hồ sơ này khi đề nghị đang chờ Admin.
+        </p>
+        <Select
+          label="Hành động đề nghị"
+          data={[
+            { value: 'WARN', label: 'Cảnh báo tài khoản' },
+            { value: 'LOCK', label: 'Khóa tài khoản' }
+          ]}
+          value={escalateAction}
+          onChange={(value) => setEscalateAction(value || 'WARN')}
+          mb="sm"
+        />
       </AdminConfirm>
     </div>
   );

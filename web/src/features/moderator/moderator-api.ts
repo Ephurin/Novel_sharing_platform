@@ -1,6 +1,6 @@
 import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
 import { getAdminList } from '../admin/admin-api';
-import type { ModerationReview, ModerationReviewDetail, Paged } from '../admin/admin-api';
+import type { ModerationEscalation, ModerationReview, ModerationReviewDetail, Paged } from '../admin/admin-api';
 
 export type ModeratorAccess = { role: 'MODERATOR'; permissions: string[] };
 
@@ -18,6 +18,18 @@ export async function listModeratorReviews(
 export async function getModeratorReview(reviewId: string): Promise<ModerationReviewDetail> {
   const response = await apiClient.get<ApiEnvelope<ModerationReviewDetail>>(
     `/moderator/reviews/${reviewId}`
+  );
+  return response.data.data;
+}
+
+export async function proposeModeratorEscalation(
+  reviewId: string,
+  reason: string,
+  proposedAction: 'WARN' | 'LOCK'
+) {
+  const response = await apiClient.post<ApiEnvelope<ModerationEscalation>>(
+    `/moderator/reviews/${reviewId}/escalations`,
+    { reason: reason.trim(), proposedAction }
   );
   return response.data.data;
 }

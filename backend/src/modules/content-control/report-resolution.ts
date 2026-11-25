@@ -1,4 +1,5 @@
 import type { AuthContext } from '../../core/security/auth-context.js';
+import type { PoolClient } from 'pg';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { assertIndependentActor } from '../../core/security/moderation-policy.js';
@@ -14,6 +15,180 @@ import {
   assertResolverAccess
 } from './review-authorization.js';
 import { isDiscussionTarget } from '../discussions/discussions.admin.js';
+
+// The caller owns the review lock and the summary checks; this core applies one
+// accepted or dismissed decision plus its notifications inside that transaction.
+// Escalation acceptance reuses it, so a direct resolution and an Admin-executed
+// escalation of the same review leave exactly one outcome and one audit trail.
+export async function executeUserReportResolution(
+  auth: AuthContext,
+  client: PoolClient,
+  review: { review_id: string; target_type: string; target_id: string; source: string },
+  input: { decision: 'APPROVED' | 'REJECTED'; reason?: string; action?: string }
+) {
+  const accepted = input.decision === 'APPROVED';
+  const discussionTarget = isDiscussionTarget(review.target_type) ? review.target_type : null;
+  const action = accepted
+    ? (input.action ?? (review.target_type === 'COMMENT' || discussionTarget ? 'HIDE' : 'WARN'))
+    : 'DISMISS';
+  const allowed = discussionTarget ? ['HIDE'] : review.target_type === 'USER' ? ['WARN', 'LOCK'] : ['WARN', 'HIDE'];
+  if (accepted && !allowed.includes(action))
+    throw new AppError(422, 'REPORT_ACTION', 'Hành động không phù hợp với đối tượng.');
+  const reason = requiredReason(input.reason);
+  const comment =
+    review.target_type === 'COMMENT' ? await findCommentRecordById(review.target_id) : null;
+  const reports = (
+    await client.query('select * from reports where review_id=$1 order by created_at', [
+      review.review_id
+    ])
+  ).rows;
+  await assertIndependentResolver(auth, review, client);
+  assertIndependentActor(auth.userId, reports.map((report) => report.reporter_id));
+  if (auth.role === 'MODERATOR') {
+    await assertReportModeratorConstraints(auth, client, review, { accepted, action });
+  }
+  const discussionOutcome = accepted && discussionTarget
+    ? await applySanction(client, auth, {
+        targetType: discussionTarget,
+        targetId: review.target_id,
+        action: 'HIDE',
+        reason,
+        reviewId: review.review_id,
+        permission: 'sanction.hide'
+      })
+    : null;
+  const sanction = accepted && !discussionTarget
+    ? await applySanction(client, auth, {
+        targetType: review.target_type,
+        targetId: review.target_id,
+        action: action as 'WARN' | 'HIDE' | 'LOCK',
+        reason,
+        reviewId: review.review_id
+      })
+    : null;
+  const discussionAuthorId = discussionOutcome ? discussionOutcome.ownerId : undefined;
+  const reviewId = review.review_id;
+  await client.query(
+    'update moderation_reviews set status=$2,reason=$3,reviewed_by=$4,reviewed_at=now(),updated_at=now(),notification_pending=false where review_id=$1',
+    [reviewId, input.decision, reason, auth.userId]
+  );
+  await client.query(
+    "update reports set status=$2,resolution=$3,resolved_by=$4,resolved_at=now(),updated_at=now() where review_id=$1 and status='OPEN'",
+    [reviewId, accepted ? 'RESOLVED' : 'REJECTED', reason, auth.userId]
+  );
+  await audit(client, auth, {
+    action: `REPORT_${accepted ? 'ACCEPTED' : 'DISMISSED'}`,
+    targetType: review.target_type,
+    targetId: review.target_id,
+    affectedUserId: discussionAuthorId ?? sanction?.owner_id,
+    reason,
+    before: { status: 'PENDING', reviewId },
+    after: { status: input.decision, action }
+  });
+  if (comment)
+    await queueAdminNotification(client, {
+      userId: comment.userId,
+      type:
+        accepted && action === 'HIDE'
+          ? 'COMMENT_REMOVED_BY_REPORT'
+          : accepted
+            ? 'COMMENT_WARNING_BY_REPORT'
+            : 'COMMENT_REPORT_REJECTED_OWNER',
+      title: accepted
+        ? action === 'HIDE'
+          ? 'Bình luận của bạn đã bị gỡ'
+          : 'Cảnh báo về bình luận'
+        : 'Báo cáo bình luận đã bị từ chối',
+      content: reason,
+      payload: {
+        reviewId,
+        commentId: review.target_id,
+        chapterId: comment.chapterId,
+        novelId: comment.novelId,
+        decision: input.decision,
+        adminId: auth.userId,
+        reason
+      }
+    });
+  if (discussionOutcome && !discussionOutcome.sanction && discussionOutcome.skipped === 'achieved') {
+    // The report was accepted on content a direct moderation already hid; the
+    // existing sanction covers the effect, and the author learns the report
+    // outcome once per effective sanction, not once per duplicate review.
+    const activeSanctionId = discussionOutcome.activeSanctionId ?? null;
+    let alreadyNotified = false;
+    if (activeSanctionId)
+      alreadyNotified = Boolean(
+        (
+          await client.query(
+            `select 1 from admin_jobs
+               where kind='NOTIFY'
+                 and status<>'FAILED'
+                 and payload->>'type'='DISCUSSION_REMOVED_BY_REPORT'
+                 and payload->>'userId'=$1
+                 and payload->'payload'->>'sanctionId'=$2
+               limit 1`,
+            [discussionOutcome.ownerId, activeSanctionId]
+          )
+        ).rows[0]
+      );
+    if (!alreadyNotified)
+      await queueAdminNotification(client, {
+        userId: discussionOutcome.ownerId,
+        type: 'DISCUSSION_REMOVED_BY_REPORT',
+        title: 'Nội dung thảo luận của bạn đã bị ẩn',
+        content: reason,
+        payload: {
+          sanctionId: activeSanctionId ?? undefined,
+          auditId: discussionOutcome.activeAuditId ?? undefined,
+          reviewId,
+          targetType: review.target_type,
+          targetId: review.target_id,
+          topicId: discussionOutcome.topicId,
+          adminId: auth.userId,
+          reason,
+          appealsUrl: '/appeals'
+        }
+      });
+  }
+  const notified = new Set<string>([
+    ...(comment ? [comment.userId] : []),
+    ...(discussionAuthorId ? [discussionAuthorId] : [])
+  ]);
+  for (const report of reports) {
+    if (notified.has(report.reporter_id)) continue;
+    notified.add(report.reporter_id);
+    await queueAdminNotification(client, {
+      userId: report.reporter_id,
+      type:
+        review.target_type === 'COMMENT'
+          ? accepted
+            ? 'COMMENT_REPORT_APPROVED'
+            : 'COMMENT_REPORT_REJECTED'
+          : 'REPORT_RESOLVED',
+      title: accepted ? 'Báo cáo đã được tiếp nhận' : 'Báo cáo đã được bác',
+      content: reason,
+      payload: {
+        reviewId,
+        reportId: report.report_id,
+        commentId: comment ? review.target_id : undefined,
+        targetType: review.target_type,
+        targetId: review.target_id,
+        decision: input.decision,
+        action,
+        adminId: auth.userId,
+        reason
+      }
+    });
+  }
+  return {
+    reviewId,
+    status: input.decision,
+    targetType: review.target_type,
+    targetId: review.target_id,
+    action
+  };
+}
+
 // User reports address violations. They must never publish/reject publication snapshots.
 export async function resolveUserReport(
   auth: AuthContext,
@@ -39,166 +214,24 @@ export async function resolveUserReport(
       assertFreshIdentityUnderLock(auth, identity);
     }
     if (review.status !== 'PENDING') throw new AppError(409, 'ADMIN_002', 'Báo cáo đã được xử lý.');
+    // An open escalation hands the decision to Admin for both roles: accepting
+    // or dismissing through this route would fork the outcome.
+    const escalated = (
+      await client.query(
+        "select 1 from moderation_escalations where review_id=$1 and status='OPEN'",
+        [reviewId]
+      )
+    ).rows[0];
+    if (escalated)
+      throw new AppError(
+        409,
+        'ESCALATION_OPEN',
+        'Hồ sơ đã được chuyển cấp cho Admin xử lý. Hãy chờ kết quả.'
+      );
     if (input.decision === 'REVISION_REQUIRED')
       throw new AppError(422, 'REPORT_DECISION', 'Chọn tiếp nhận hoặc bác báo cáo.');
-    const accepted = input.decision === 'APPROVED';
-    const discussionTarget = isDiscussionTarget(review.target_type) ? review.target_type : null;
-    const action = accepted
-      ? (input.action ?? (review.target_type === 'COMMENT' || discussionTarget ? 'HIDE' : 'WARN'))
-      : 'DISMISS';
-    const allowed = discussionTarget ? ['HIDE'] : review.target_type === 'USER' ? ['WARN', 'LOCK'] : ['WARN', 'HIDE'];
-    if (accepted && !allowed.includes(action))
-      throw new AppError(422, 'REPORT_ACTION', 'Hành động không phù hợp với đối tượng.');
-    const reason = requiredReason(input.reason);
-    const comment =
-      review.target_type === 'COMMENT' ? await findCommentRecordById(review.target_id) : null;
-    const reports = (
-      await client.query('select * from reports where review_id=$1 order by created_at', [reviewId])
-    ).rows;
-    await assertIndependentResolver(auth, review, client);
-    assertIndependentActor(auth.userId, reports.map((report) => report.reporter_id));
-    if (auth.role === 'MODERATOR') {
-      await assertReportModeratorConstraints(auth, client, review, { accepted, action });
-    }
-    const discussionOutcome = accepted && discussionTarget
-      ? await applySanction(client, auth, {
-          targetType: discussionTarget,
-          targetId: review.target_id,
-          action: 'HIDE',
-          reason,
-          reviewId,
-          permission: 'sanction.hide'
-        })
-      : null;
-    const sanction = accepted && !discussionTarget
-      ? await applySanction(client, auth, {
-          targetType: review.target_type,
-          targetId: review.target_id,
-          action: action as 'WARN' | 'HIDE' | 'LOCK',
-          reason,
-          reviewId
-        })
-      : null;
-    const discussionAuthorId = discussionOutcome ? discussionOutcome.ownerId : undefined;
-    await client.query(
-      'update moderation_reviews set status=$2,reason=$3,reviewed_by=$4,reviewed_at=now(),updated_at=now(),notification_pending=false where review_id=$1',
-      [reviewId, input.decision, reason, auth.userId]
-    );
-    await client.query(
-      "update reports set status=$2,resolution=$3,resolved_by=$4,resolved_at=now(),updated_at=now() where review_id=$1 and status='OPEN'",
-      [reviewId, accepted ? 'RESOLVED' : 'REJECTED', reason, auth.userId]
-    );
-    await audit(client, auth, {
-      action: `REPORT_${accepted ? 'ACCEPTED' : 'DISMISSED'}`,
-      targetType: review.target_type,
-      targetId: review.target_id,
-      affectedUserId: discussionAuthorId ?? sanction?.owner_id,
-      reason,
-      before: { status: 'PENDING', reviewId },
-      after: { status: input.decision, action }
-    });
-    if (comment)
-      await queueAdminNotification(client, {
-        userId: comment.userId,
-        type:
-          accepted && action === 'HIDE'
-            ? 'COMMENT_REMOVED_BY_REPORT'
-            : accepted
-              ? 'COMMENT_WARNING_BY_REPORT'
-              : 'COMMENT_REPORT_REJECTED_OWNER',
-        title: accepted
-          ? action === 'HIDE'
-            ? 'Bình luận của bạn đã bị gỡ'
-            : 'Cảnh báo về bình luận'
-          : 'Báo cáo bình luận đã bị từ chối',
-        content: reason,
-        payload: {
-          reviewId,
-          commentId: review.target_id,
-          chapterId: comment.chapterId,
-          novelId: comment.novelId,
-          decision: input.decision,
-          adminId: auth.userId,
-          reason
-        }
-      });
-    if (discussionOutcome && !discussionOutcome.sanction && discussionOutcome.skipped === 'achieved') {
-      // The report was accepted on content a direct moderation already hid; the
-      // existing sanction covers the effect, and the author learns the report
-      // outcome once per effective sanction, not once per duplicate review.
-      const activeSanctionId = discussionOutcome.activeSanctionId ?? null;
-      let alreadyNotified = false;
-      if (activeSanctionId)
-        alreadyNotified = Boolean(
-          (
-            await client.query(
-              `select 1 from admin_jobs
-                 where kind='NOTIFY'
-                   and status<>'FAILED'
-                   and payload->>'type'='DISCUSSION_REMOVED_BY_REPORT'
-                   and payload->>'userId'=$1
-                   and payload->'payload'->>'sanctionId'=$2
-                 limit 1`,
-              [discussionOutcome.ownerId, activeSanctionId]
-            )
-          ).rows[0]
-        );
-      if (!alreadyNotified)
-        await queueAdminNotification(client, {
-          userId: discussionOutcome.ownerId,
-          type: 'DISCUSSION_REMOVED_BY_REPORT',
-          title: 'Nội dung thảo luận của bạn đã bị ẩn',
-          content: reason,
-          payload: {
-            sanctionId: activeSanctionId ?? undefined,
-            auditId: discussionOutcome.activeAuditId ?? undefined,
-            reviewId,
-            targetType: review.target_type,
-            targetId: review.target_id,
-            topicId: discussionOutcome.topicId,
-            adminId: auth.userId,
-            reason,
-            appealsUrl: '/appeals'
-          }
-        });
-    }
-    const notified = new Set<string>([
-      ...(comment ? [comment.userId] : []),
-      ...(discussionAuthorId ? [discussionAuthorId] : [])
-    ]);
-    for (const report of reports) {
-      if (notified.has(report.reporter_id)) continue;
-      notified.add(report.reporter_id);
-      await queueAdminNotification(client, {
-        userId: report.reporter_id,
-        type:
-          review.target_type === 'COMMENT'
-            ? accepted
-              ? 'COMMENT_REPORT_APPROVED'
-              : 'COMMENT_REPORT_REJECTED'
-            : 'REPORT_RESOLVED',
-        title: accepted ? 'Báo cáo đã được tiếp nhận' : 'Báo cáo đã được bác',
-        content: reason,
-        payload: {
-          reviewId,
-          reportId: report.report_id,
-          commentId: comment ? review.target_id : undefined,
-          targetType: review.target_type,
-          targetId: review.target_id,
-          decision: input.decision,
-          action,
-          adminId: auth.userId,
-          reason
-        }
-      });
-    }
-    return {
-      reviewId,
-      status: input.decision,
-      targetType: review.target_type,
-      targetId: review.target_id,
-      action
-    };
+    const decision: 'APPROVED' | 'REJECTED' = input.decision;
+    return executeUserReportResolution(auth, client, review, { ...input, decision });
   });
   // SQL decision + jobs are committed together; Mongo effects retry safely after failure/restart.
   if (result.action === 'HIDE' && isDiscussionTarget(result.targetType)) scheduleAdminJobsDrain();

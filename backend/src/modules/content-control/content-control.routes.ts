@@ -8,13 +8,17 @@ import {
   checkContentController,
   createReportController,
   getReviewController,
+  listEscalationsController,
   listReviewsController,
+  resolveEscalationController,
   resolveReviewController
 } from './content-control.controller.js';
 import {
   contentControlCheckSchema,
   createReportSchema,
+  listEscalationsSchema,
   listReviewsSchema,
+  resolveEscalationSchema,
   resolveReviewSchema,
   reviewIdParamSchema
 } from './content-control.schemas.js';
@@ -22,7 +26,9 @@ import {
 export const contentControlRoutes = Router();
 export const reportsRoutes = Router();
 export const adminModerationRoutes = Router();
+export const adminEscalationRoutes = Router();
 adminModerationRoutes.use(requireAuth, requireAdminPermission('content'));
+adminEscalationRoutes.use(requireAuth, requireAdminPermission('content'));
 
 contentControlRoutes.post(
   '/check',
@@ -64,4 +70,20 @@ adminModerationRoutes.post(
   requireRoles(['ADMIN']),
   validateRequest(resolveReviewSchema),
   resolveReviewController
+);
+
+adminEscalationRoutes.get(
+  '/',
+  requireAuth,
+  requireRoles(['ADMIN']),
+  validateRequest(listEscalationsSchema),
+  listEscalationsController
+);
+
+adminEscalationRoutes.post(
+  '/:escalationId/resolve',
+  requireAuth,
+  requireRoles(['ADMIN']),
+  validateRequest(resolveEscalationSchema),
+  resolveEscalationController
 );

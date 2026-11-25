@@ -20,6 +20,7 @@ const navigation = [
   ['/admin/taxonomy', 'sell', 'Thể loại & Tag'],
   ['/admin/moderation', 'fact_check', 'Kiểm duyệt'],
   ['/admin/reports', 'flag', 'Báo cáo người dùng'],
+  ['/admin/escalations', 'add_moderator', 'Chuyển cấp'],
   ['/admin/discussions', 'forum', 'Thảo luận'],
   ['/admin/withdraws', 'payments', 'Yêu cầu rút Xu'],
   ['/admin/appeals', 'forum', 'Khiếu nại'],
@@ -67,7 +68,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
           ? 'users'
           : path.startsWith('/admin/withdraws')
             ? 'finance'
-            : /^\/admin\/(novels|taxonomy|moderation|reports|discussions)/.test(path)
+            : /^\/admin\/(novels|taxonomy|moderation|reports|discussions|escalations)/.test(path)
               ? 'content'
               : undefined;
     if (path.startsWith('/admin/appeals'))

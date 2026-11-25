@@ -13,6 +13,7 @@ import { adminRoutes } from './modules/admin/admin.routes.js';
 import { aiCopilotRoutes } from './modules/ai-copilot/ai-copilot.routes.js';
 import { aiGatewayRoutes } from './modules/ai/ai-gateway.routes.js';
 import {
+  adminEscalationRoutes,
   adminModerationRoutes,
   contentControlRoutes,
   reportsRoutes
@@ -79,6 +80,7 @@ export function createApp() {
   app.use(`${env.API_PREFIX}/reports`, reportsRoutes);
   app.use(`${env.API_PREFIX}/admin`, adminRoutes);
   app.use(`${env.API_PREFIX}/admin/moderation`, adminModerationRoutes);
+  app.use(`${env.API_PREFIX}/admin/escalations`, adminEscalationRoutes);
   app.use(`${env.API_PREFIX}/moderator`, moderatorRoutes);
   app.use(`${env.API_PREFIX}/moderator/discussions`, moderatorDiscussionsRoutes);
   app.use(`${env.API_PREFIX}`, authorsRoutes);
