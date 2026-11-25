@@ -20,7 +20,7 @@ declare global {
 
 let googleScript: Promise<GoogleIdentity> | undefined;
 
-function loadGoogleIdentity() {
+export function loadGoogleIdentity() {
   const identity = window.google?.accounts?.id;
   if (identity) return Promise.resolve(identity);
   googleScript ??= new Promise((resolve, reject) => {
