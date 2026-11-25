@@ -2,12 +2,18 @@ import { Router, type RequestHandler } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import { randomBytes } from 'node:crypto';
 import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { getPostgresPool } from '../../core/database/postgres.js';
+import { withPostgresTransaction } from '../../core/database/transaction.js';
+import { fixedWindowLimiter } from '../../core/security/rate-limit.js';
 import { successResponse } from '../../core/response/response.js';
 import { userRoles } from '../../shared/constants/roles.js';
-import { findAuthUserByEmailOrUsername } from '../auth/auth.repository.js';
+import { authRateLimit } from '../auth/auth-rate-limit.js';
+import { requireGoogleOrigin } from '../auth/auth.controller.js';
+import { verifyGoogleIdentity } from '../auth/google-identity.js';
+import { findAuthUserByEmailOrUsername, consumeGoogleChallenge } from '../auth/auth.repository.js';
 
 export const accountAppealsRoutes = Router();
 const attempts = new Map<string, { count: number; until: number }>();
@@ -51,6 +57,109 @@ accountAppealsRoutes.post('/appeal-session', async (req, res, next) => {
     next(error);
   }
 });
+
+const webOrigin = new URL(env.WEB_ORIGIN);
+const appealGoogleCookie = `${env.REFRESH_TOKEN_COOKIE_NAME}_appeal_google`;
+const appealGoogleCookieOptions = {
+  path: `${env.API_PREFIX}/account/appeal-session/google`,
+  httpOnly: true,
+  sameSite: 'strict' as const,
+  secure: webOrigin.protocol === 'https:'
+};
+const appealChallengeSeconds = 15 * 60;
+const appealChallengeAudience = 'storycraft-google-appeal';
+const appealSubjectLimit = fixedWindowLimiter(10, appealChallengeSeconds * 1000);
+
+function readAppealGoogleChallenge(cookie: unknown) {
+  if (typeof cookie !== 'string') return null;
+  try {
+    const claims = jwt.verify(cookie, env.JWT_REFRESH_SECRET, {
+      audience: appealChallengeAudience,
+      algorithms: ['HS256']
+    });
+    if (typeof claims !== 'string' && typeof claims.jti === 'string' && typeof claims.exp === 'number') {
+      return { nonce: claims.jti, expiresAt: new Date(claims.exp * 1000) };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+accountAppealsRoutes.post(
+  '/appeal-session/google/challenge',
+  requireGoogleOrigin,
+  authRateLimit({ scope: 'appeal-google-challenge', max: 10, windowMs: appealChallengeSeconds * 1000 }),
+  (req, res) => {
+    const clientId = env.GOOGLE_OAUTH_CLIENT_ID;
+    if (!clientId) {
+      res.json(successResponse(null));
+      return;
+    }
+    const nonce = randomBytes(32).toString('base64url');
+    const challenge = jwt.sign({}, env.JWT_REFRESH_SECRET, {
+      audience: appealChallengeAudience,
+      jwtid: nonce,
+      expiresIn: appealChallengeSeconds
+    });
+    res.cookie(appealGoogleCookie, challenge, {
+      ...appealGoogleCookieOptions,
+      maxAge: appealChallengeSeconds * 1000
+    });
+    res.json(successResponse({ clientId, nonce }));
+  }
+);
+
+accountAppealsRoutes.post(
+  '/appeal-session/google',
+  requireGoogleOrigin,
+  authRateLimit({ scope: 'appeal-google-exchange', max: 10, windowMs: appealChallengeSeconds * 1000 }),
+  async (req, res, next) => {
+    try {
+      const clientId = env.GOOGLE_OAUTH_CLIENT_ID;
+      if (!clientId)
+        throw new AppError(404, 'AUTH_GOOGLE_DISABLED', 'StoryCraft chưa bật đăng nhập Google.');
+      const input = z.object({ credential: z.string().min(1).max(5000) }).parse(req.body);
+      const challenge = readAppealGoogleChallenge(req.cookies?.[appealGoogleCookie]);
+      if (!challenge)
+        throw new AppError(401, 'AUTH_GOOGLE_CHALLENGE', 'Phiên xác minh Google đã hết hạn. Hãy thử lại.');
+      // No database lock is held while Google verifies the credential.
+      const identity = await verifyGoogleIdentity(input.credential, clientId, challenge.nonce);
+      const retryAfterSeconds = appealSubjectLimit(`subject:${identity.subject}`);
+      if (retryAfterSeconds !== null)
+        throw new AppError(429, 'RATE_LIMIT_001', 'Too many requests, please retry later', {
+          scope: 'appeal-google-subject',
+          retryAfterSeconds
+        });
+      const user = await withPostgresTransaction(async (client) => {
+        if (!(await consumeGoogleChallenge(client, challenge.nonce, 'appeal', challenge.expiresAt)))
+          throw new AppError(401, 'AUTH_GOOGLE_CHALLENGE', 'Phiên xác minh Google đã hết hạn. Hãy thử lại.');
+        return (
+          await client.query(
+            `select user_id,username,role,access_version from users
+             where oauth_provider='google' and oauth_subject=$1 and status<>'DELETED' and deleted_at is null`,
+            [identity.subject]
+          )
+        ).rows[0] ?? null;
+      });
+      if (!user)
+        throw new AppError(401, 'APPEAL_GOOGLE_ACCOUNT', 'Không tìm thấy tài khoản liên kết với Google này.');
+      res.clearCookie(appealGoogleCookie, appealGoogleCookieOptions);
+      res.json(
+        successResponse({
+          token: jwt.sign(
+            { sub: user.user_id, role: user.role, ver: user.access_version ?? 0, purpose: 'APPEAL_ONLY' },
+            env.JWT_ACCESS_SECRET,
+            { expiresIn: '15m' }
+          ),
+          username: user.username
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 const identity: RequestHandler = async (req, _res, next) => {
   try {

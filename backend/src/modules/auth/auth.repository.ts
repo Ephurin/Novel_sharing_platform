@@ -255,11 +255,17 @@ export async function linkGoogleAccount(client: DbClient, userId: string, subjec
   );
 }
 
-export async function consumeGoogleChallenge(client: DbClient, nonce: string, expiresAt: Date) {
+export async function consumeGoogleChallenge(
+  client: DbClient,
+  nonce: string,
+  purpose: string,
+  expiresAt: Date
+) {
   await client.query('delete from consumed_google_challenges where expires_at <= now()');
   const result = await client.query(
-    'insert into consumed_google_challenges (nonce, expires_at) select $1, $2::timestamptz where $2 > now() on conflict do nothing',
-    [nonce, expiresAt]
+    `insert into consumed_google_challenges (nonce, purpose, expires_at)
+     select $1, $2, $3::timestamptz where $3 > now() on conflict do nothing`,
+    [nonce, purpose, expiresAt]
   );
   return result.rowCount === 1;
 }

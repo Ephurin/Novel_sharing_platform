@@ -13,6 +13,7 @@ import {
   requireAdminPermission
 } from './admin-access.js';
 import { applySanction, restoreSanction } from './admin-sanctions.js';
+import { assertNotOriginalDecider } from './sanction-guard.js';
 import { drainAdminJobs, drainAdminJobsSafely, queueAdminNotification, retryAdminJob } from './admin-jobs.js';
 
 export const adminOperationsRoutes = Router();
@@ -255,11 +256,18 @@ adminOperationsRoutes.post(
       const sanction = (
         await client.query('select * from admin_sanctions where audit_id=$1', [row.audit_id])
       ).rows[0];
+      if (!sanction)
+        throw new AppError(409, 'APPEAL_SANCTION_INACTIVE', 'Chế tài đã được đảo trước đó. Hãy tải lại danh sách.');
       await assertAdminPermission(
         req.auth!,
         sanction.target_type === 'USER' ? 'users' : 'content',
         client
       );
+      if (String(row.user_id).toLowerCase() === String(req.auth!.userId).toLowerCase())
+        throw new AppError(403, 'APPEAL_SELF_SUBJECT', 'Không thể tự xử khiếu nại của chính mình.');
+      await assertNotOriginalDecider(client, req.auth!, sanction.sanction_id);
+      if (input.decision === 'ACCEPTED' && !sanction.active)
+        throw new AppError(409, 'APPEAL_SANCTION_INACTIVE', 'Chế tài đã được đảo trước đó. Hãy tải lại danh sách.');
       if (input.decision === 'ACCEPTED') {
         if (sanction.target_type === 'USER')
           await protectAccount(client, req.auth!, sanction.target_id, 'users');

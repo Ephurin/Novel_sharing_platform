@@ -1,6 +1,7 @@
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { assertAdminPermission, audit, protectAccount, requiredReason } from './admin-access.js';
 import { applySanction, restoreSanction } from './admin-sanctions.js';
+import { assertNoOpenAppeal, assertNotOriginalDecider } from './sanction-guard.js';
 import { drainAdminJobs } from './admin-jobs.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
@@ -107,8 +108,11 @@ export async function restoreNovel(auth: AuthContext, novelId: string, input: Re
         [novelId]
       )
     ).rows[0];
-    if (sanction) await restoreSanction(client, auth, sanction, reason);
-    else {
+    if (sanction) {
+      await assertNoOpenAppeal(client, sanction.sanction_id);
+      await assertNotOriginalDecider(client, auth, sanction.sanction_id);
+      await restoreSanction(client, auth, sanction, reason);
+    } else {
       const before = await findAdminNovelById(novelId, true);
       if (!before?.deletedAt)
         throw new AppError(409, 'ADMIN_NOT_REMOVED', 'Content is not removed');
@@ -149,8 +153,11 @@ export async function unlockUser(auth: AuthContext, userId: string, reason?: str
         [userId]
       )
     ).rows[0];
-    if (sanction) await restoreSanction(client, auth, sanction, note);
-    else {
+    if (sanction) {
+      await assertNoOpenAppeal(client, sanction.sanction_id);
+      await assertNotOriginalDecider(client, auth, sanction.sanction_id);
+      await restoreSanction(client, auth, sanction, note);
+    } else {
       if (before.status !== 'LOCKED')
         throw new AppError(409, 'ADMIN_NOT_LOCKED', 'User is not locked');
       await client.query("update users set status='ACTIVE',updated_at=now() where user_id=$1", [

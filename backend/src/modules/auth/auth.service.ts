@@ -338,7 +338,7 @@ export async function loginWithGoogle(input: {
     return await withPostgresTransaction(async (client) => {
       // Concurrent sign-ins for the same Google identity must reuse the same StoryCraft account.
       await client.query("select pg_advisory_xact_lock(hashtextextended('auth:google:' || $1, 0))", [input.subject]);
-      if (!(await consumeGoogleChallenge(client, input.nonce, input.expiresAt))) {
+      if (!(await consumeGoogleChallenge(client, input.nonce, 'login', input.expiresAt))) {
         throw new AppError(401, 'AUTH_GOOGLE_CHALLENGE', 'Phiên đăng nhập Google đã hết hạn. Hãy thử lại.');
       }
       const account = await findGoogleAccount(client, input.subject, input.email);
