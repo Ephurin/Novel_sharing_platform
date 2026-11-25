@@ -48,16 +48,43 @@ export async function getWalletEarnings() {
   return response.data.data;
 }
 
+export type DepositPackageCode = 'COIN_100' | 'COIN_500' | 'COIN_1000' | 'COIN_5000';
+export type DepositGateway = 'MOCK' | 'VNPAY';
+export type DepositPackage = { code: DepositPackageCode; amountCoins: number; amountVnd: number };
+
+/** Packages plus the gateway the server is using (MOCK settles in-app, VNPAY redirects to the sandbox). */
 export async function listDepositPackages() {
-  const response = await apiClient.get<ApiEnvelope<Array<{ code: 'COIN_100' | 'COIN_500' | 'COIN_1000' | 'COIN_5000'; amountCoins: number }>>>('/wallet/deposit-packages');
+  const response = await apiClient.get<ApiEnvelope<DepositPackage[]>>('/wallet/deposit-packages');
+  return {
+    packages: response.data.data,
+    gateway: (response.data.meta.gateway === 'VNPAY' ? 'VNPAY' : 'MOCK') as DepositGateway
+  };
+}
+
+export async function createDepositSession(packageCode: DepositPackageCode) {
+  const response = await apiClient.post<ApiEnvelope<{
+    depositSessionId: string;
+    gateway: DepositGateway;
+    amountCoins: number;
+    status: string;
+    mockPaymentUrl?: string;
+    paymentUrl?: string;
+  }>>('/wallet/deposit-sessions', { packageCode });
   return response.data.data;
 }
 
-export async function createDepositSession(packageCode: 'COIN_100' | 'COIN_500' | 'COIN_1000' | 'COIN_5000') {
-  const response = await apiClient.post<ApiEnvelope<{ depositSessionId: string; amountCoins: number; status: string; mockPaymentUrl: string }>>(
-    '/wallet/deposit-sessions',
-    { packageCode }
-  );
+export type VnpayReturnResult = {
+  depositSessionId: string;
+  status: 'PENDING' | 'SUCCESS' | 'FAILED';
+  amountCoins: number;
+  transactionId: string | null;
+  responseCode: string | null;
+};
+
+/** Forwards VNPay's Return URL query untouched; the backend verifies its signature before crediting. */
+export async function confirmVnpayReturn(search: string) {
+  const query = search.startsWith('?') ? search.slice(1) : search;
+  const response = await apiClient.get<ApiEnvelope<VnpayReturnResult>>(`/wallet/vnpay/return?${query}`);
   return response.data.data;
 }
 

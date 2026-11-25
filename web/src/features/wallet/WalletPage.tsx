@@ -105,9 +105,13 @@ export function WalletPage() {
   const lockedBalance = walletQuery.data?.lockedCoins ?? 0;
   const totalAccumulated = earningsQuery.data?.totalEarnedCoins ?? 0;
 
+  const depositPackages = depositPackagesQuery.data?.packages ?? [];
+  const depositGateway = depositPackagesQuery.data?.gateway ?? 'MOCK';
+  const selectedDeposit = depositPackages.find((p) => p.code === selectedPackage);
+
   const openDepositModal = () => {
-    if (!selectedPackage && depositPackagesQuery.data?.[0]) {
-      setSelectedPackage(depositPackagesQuery.data[0].code);
+    if (!selectedPackage && depositPackages[0]) {
+      setSelectedPackage(depositPackages[0].code);
     }
     setDepositModalOpen(true);
   };
@@ -131,10 +135,17 @@ export function WalletPage() {
     mutationFn: async () => {
       if (!selectedPackage) throw new Error('Vui lòng chọn gói Xu.');
       const session = await createDepositSession(selectedPackage);
-      return completeMockDeposit(session.depositSessionId);
+      if (session.paymentUrl) {
+        // VNPay sandbox: the wallet is credited only after the backend verifies VNPay's signed result.
+        window.location.assign(session.paymentUrl);
+        return { redirected: true as const };
+      }
+      await completeMockDeposit(session.depositSessionId);
+      return { redirected: false as const };
     },
-    onSuccess: async () => {
-      const addedCoins = (depositPackagesQuery.data ?? []).find((p) => p.code === selectedPackage)?.amountCoins;
+    onSuccess: async (result) => {
+      if (result.redirected) return;
+      const addedCoins = selectedDeposit?.amountCoins;
       showToast(
         addedCoins
           ? `Đã nạp thử nghiệm ${addedCoins.toLocaleString('vi-VN')} Xu vào ví!`
@@ -1003,10 +1014,19 @@ export function WalletPage() {
         centered
       >
         <div className="flex flex-col gap-3.5">
-          <p className="text-meta text-outline">Chọn gói Xu thử nghiệm để cộng ngay vào số dư ví.</p>
+          {depositGateway === 'VNPAY' ? (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-meta text-amber-900" role="note">
+              <p className="font-semibold">Thanh toán thử nghiệm qua VNPay Sandbox</p>
+              <p className="mt-0.5">
+                Không có tiền thật. Chỉ dùng thẻ test của VNPay (ngân hàng NCB). Không dùng thẻ thật và không quét QR bằng app ngân hàng.
+              </p>
+            </div>
+          ) : (
+            <p className="text-meta text-outline">Chọn gói Xu thử nghiệm để cộng ngay vào số dư ví.</p>
+          )}
 
           <div className="grid grid-cols-2 gap-2" role="group" aria-label="Chọn gói Xu thử nghiệm">
-            {(depositPackagesQuery.data ?? []).map((pkg) => {
+            {depositPackages.map((pkg) => {
               const active = selectedPackage === pkg.code;
               return (
                 <button
@@ -1021,6 +1041,9 @@ export function WalletPage() {
                   }`}
                 >
                   <p className="font-bold text-meta text-on-surface">{pkg.amountCoins.toLocaleString('vi-VN')} Xu</p>
+                  {depositGateway === 'VNPAY' && (
+                    <p className="text-[11px] text-outline">{pkg.amountVnd.toLocaleString('vi-VN')} đ</p>
+                  )}
                 </button>
               );
             })}
@@ -1029,7 +1052,7 @@ export function WalletPage() {
             <span className="text-outline">Số dư dự kiến sau nạp</span>
             <span className="font-bold text-primary-800" style={{ fontVariantNumeric: 'tabular-nums' }}>
               <NumberFlow
-                value={availableBalance + ((depositPackagesQuery.data ?? []).find((p) => p.code === selectedPackage)?.amountCoins ?? 0)}
+                value={availableBalance + (selectedDeposit?.amountCoins ?? 0)}
                 locales="vi-VN"
                 animated={!reduce}
               />{' '}
@@ -1048,11 +1071,17 @@ export function WalletPage() {
             </button>
             <button
               type="button"
-              disabled={!selectedPackage || depositPackagesQuery.isLoading || depositMutation.isPending}
+              disabled={!selectedPackage || depositPackagesQuery.isLoading || depositMutation.isPending || depositMutation.data?.redirected}
               onClick={() => depositMutation.mutate()}
               className="px-4 py-1.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary text-meta font-semibold transition-all disabled:opacity-50"
             >
-              {depositMutation.isPending ? 'Đang nạp...' : 'Xác nhận nạp'}
+              {depositGateway === 'VNPAY'
+                ? depositMutation.isPending || depositMutation.data?.redirected
+                  ? 'Đang chuyển sang VNPay...'
+                  : 'Thanh toán qua VNPay'
+                : depositMutation.isPending
+                  ? 'Đang nạp...'
+                  : 'Xác nhận nạp'}
             </button>
           </div>
         </div>

@@ -68,9 +68,25 @@ const envSchema = z.object({
   ANALYSIS_QUIET_SECONDS: z.coerce.number().int().min(0).default(0),
   PAYMENT_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(30),
   PAYMENT_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60000),
+  // Coin top-ups go through the internal mock gateway or the VNPay sandbox. Both are demo-only:
+  // the SRS scopes payments to an academic demo with no real money.
+  PAYMENT_GATEWAY: z.enum(['mock', 'vnpay']).default('mock'),
+  VNPAY_TMN_CODE: optionalStringSchema,
+  VNPAY_HASH_SECRET: optionalStringSchema,
+  VNPAY_PAYMENT_URL: z.string().url().default('https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'),
+  // Defaults to `${WEB_ORIGIN}/wallet/vnpay-return` when unset.
+  VNPAY_RETURN_URL: optionalUrlSchema,
+  VNPAY_SESSION_TTL_MINUTES: z.coerce.number().int().min(5).max(60).default(15),
   GIPHY_API_KEY: optionalStringSchema,
   GIPHY_PUBLIC_API_KEY: optionalStringSchema,
   PLATFORM_SERVICE_TOKEN: optionalStringSchema
+}).superRefine((value, context) => {
+  if (value.PAYMENT_GATEWAY !== 'vnpay') return;
+  for (const key of ['VNPAY_TMN_CODE', 'VNPAY_HASH_SECRET'] as const) {
+    if (!value[key]) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: [key], message: `${key} is required when PAYMENT_GATEWAY=vnpay` });
+    }
+  }
 });
 
 export const env = envSchema.parse(process.env);

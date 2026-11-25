@@ -5,7 +5,9 @@ import { rateLimit } from '../../core/security/rate-limit.js';
 import { validateRequest } from '../../core/validation/validate.js';
 import {
   completeMockDepositController,
+  confirmVnpayReturnController,
   createDepositSessionController,
+  vnpayIpnController,
   createWithdrawRequestController,
   donateController,
   getTransactionsController,
@@ -43,12 +45,23 @@ const webhookRateLimit = rateLimit({
   key: (request) => `session:${(request.body as { depositSessionId: string }).depositSessionId}`
 });
 
+// VNPay retries an IPN a few times per order; this only stops floods from one address.
+const vnpayIpnRateLimit = rateLimit({
+  scope: 'payment-vnpay-ipn',
+  max: 120,
+  windowMs: env.PAYMENT_RATE_LIMIT_WINDOW_MS
+});
+
 walletRoutes.get('/me', requireAuth, getWalletController);
 walletRoutes.get('/earnings', requireAuth, getEarningsController);
 walletRoutes.get('/deposit-packages', listDepositPackagesController);
 walletRoutes.get('/transactions', requireAuth, validateRequest(walletTransactionsSchema), getTransactionsController);
 walletRoutes.post('/deposit-sessions', requireAuth, paymentRateLimit, validateRequest(createDepositSessionSchema), createDepositSessionController);
 walletRoutes.post('/mock-webhook/deposit-success', validateRequest(mockDepositSuccessSchema), webhookRateLimit, completeMockDepositController);
+// VNPay sandbox: the browser's Return URL (works on localhost) and the server-to-server IPN (needs a public URL).
+// Both verify the signature and settle through the same locked, idempotent path.
+walletRoutes.get('/vnpay/return', requireAuth, paymentRateLimit, confirmVnpayReturnController);
+walletRoutes.get('/vnpay/ipn', vnpayIpnRateLimit, vnpayIpnController);
 walletRoutes.post('/withdraw-requests', requireAuth, paymentRateLimit, validateRequest(createWithdrawRequestSchema), createWithdrawRequestController);
 
 walletResourceRoutes.post('/chapters/:chapterId/unlock', requireAuth, paymentRateLimit, validateRequest(chapterIdParamSchema), unlockChapterController);

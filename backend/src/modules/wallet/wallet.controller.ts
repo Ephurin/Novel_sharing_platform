@@ -1,10 +1,13 @@
 import type { RequestHandler } from 'express';
+import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { successResponse } from '../../core/response/response.js';
 import { listDepositPackages } from './wallet.repository.js';
 import {
   completeMockDeposit,
+  confirmVnpayReturn,
   createDepositSession,
+  handleVnpayIpn,
   createWithdrawRequest,
   donate,
   getTransactions,
@@ -46,15 +49,28 @@ export const getEarningsController: RequestHandler = async (request, response, n
 };
 
 export const listDepositPackagesController: RequestHandler = (_request, response) => {
-  response.json(successResponse(listDepositPackages()));
+  response.json(successResponse(listDepositPackages(), { gateway: env.PAYMENT_GATEWAY === 'vnpay' ? 'VNPAY' : 'MOCK' }));
 };
 
 export const createDepositSessionController: RequestHandler = async (request, response, next) => {
   try {
-    response.status(201).json(successResponse(await createDepositSession(requireRequestAuth(request), request.body)));
+    response.status(201).json(successResponse(await createDepositSession(requireRequestAuth(request), request.body, { ipAddr: request.ip })));
   } catch (error) {
     next(error);
   }
+};
+
+export const confirmVnpayReturnController: RequestHandler = async (request, response, next) => {
+  try {
+    response.json(successResponse(await confirmVnpayReturn(requireRequestAuth(request), request.query as Record<string, unknown>)));
+  } catch (error) {
+    next(error);
+  }
+};
+
+// VNPay reads this body, so it is never wrapped in the API envelope and never fails with an HTTP error.
+export const vnpayIpnController: RequestHandler = async (request, response) => {
+  response.json(await handleVnpayIpn(request.query as Record<string, unknown>));
 };
 
 export const completeMockDepositController: RequestHandler = async (request, response, next) => {
