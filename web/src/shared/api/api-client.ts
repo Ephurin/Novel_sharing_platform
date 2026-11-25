@@ -82,6 +82,11 @@ const PLAIN_ERROR_MESSAGES: Record<string, string> = {
   AUTH_008: 'Bạn không có quyền thực hiện thao tác này.',
   PAYMENT_002: 'Chương này cần mở khóa bằng xu.',
   PAYMENT_003: 'Số dư xu không đủ. Hãy nạp thêm xu.',
+  PAYMENT_004: 'Không tìm thấy giao dịch nạp xu.',
+  PAYMENT_006: 'Giao dịch này không thuộc tài khoản của bạn.',
+  PAYMENT_007: 'Kết quả thanh toán không hợp lệ (sai chữ ký).',
+  PAYMENT_008: 'Số tiền thanh toán không khớp với gói đã chọn.',
+  PAYMENT_009: 'Cổng thanh toán chưa được cấu hình.',
   PRIVATE_COMMENTS_DISABLED: 'Góp ý riêng đang tạm tắt trên hệ thống này.'
 };
 

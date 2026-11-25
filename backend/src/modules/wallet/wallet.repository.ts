@@ -48,12 +48,21 @@ function mapTransaction(row: QueryResultRow) {
   };
 }
 
+// Demo price for gateway top-ups. Only the server decides it; clients send a package code.
+export const VND_PER_COIN = 100;
+
+export type DepositGateway = 'MOCK' | 'VNPAY';
+
 export function getDepositAmount(packageCode: CreateDepositSessionInput['packageCode']) {
   return depositPackages[packageCode];
 }
 
+export function getDepositAmountVnd(packageCode: CreateDepositSessionInput['packageCode']) {
+  return depositPackages[packageCode] * VND_PER_COIN;
+}
+
 export function listDepositPackages() {
-  return Object.entries(depositPackages).map(([code, amountCoins]) => ({ code, amountCoins }));
+  return Object.entries(depositPackages).map(([code, amountCoins]) => ({ code, amountCoins, amountVnd: amountCoins * VND_PER_COIN }));
 }
 
 export async function findWalletByUserId(userId: string) {
@@ -140,29 +149,78 @@ export async function getAuthorEarnings(userId: string) {
   };
 }
 
-export async function createDepositSession(userId: string, input: CreateDepositSessionInput) {
+export async function createDepositSession(
+  userId: string,
+  input: CreateDepositSessionInput,
+  options: { gateway?: DepositGateway; ttlMinutes?: number } = {}
+) {
   const wallet = await findWalletByUserId(userId);
   if (!wallet) return null;
 
+  const gateway = options.gateway ?? 'MOCK';
   const amountCoins = getDepositAmount(input.packageCode);
+  const amountVnd = gateway === 'MOCK' ? null : getDepositAmountVnd(input.packageCode);
   const result = await getPostgresPool().query(
     `
-      insert into deposit_sessions (wallet_id, package_code, amount_coins)
-      values ($1, $2, $3)
+      insert into deposit_sessions (wallet_id, package_code, amount_coins, gateway, amount_vnd, expires_at)
+      values ($1, $2, $3, $4, $5, case when $6::int is null then null else now() + make_interval(mins => $6::int) end)
       returning *
     `,
-    [wallet.walletId, input.packageCode, amountCoins]
+    [wallet.walletId, input.packageCode, amountCoins, gateway, amountVnd, options.ttlMinutes ?? null]
   );
 
+  const row = result.rows[0];
   return {
-    depositSessionId: result.rows[0].deposit_session_id,
-    walletId: result.rows[0].wallet_id,
-    packageCode: result.rows[0].package_code,
-    amountCoins: result.rows[0].amount_coins,
-    status: result.rows[0].status
+    depositSessionId: row.deposit_session_id as string,
+    walletId: row.wallet_id as string,
+    packageCode: row.package_code as string,
+    gateway: row.gateway as DepositGateway,
+    amountCoins: row.amount_coins as number,
+    amountVnd: row.amount_vnd as number | null,
+    status: row.status as string,
+    createdAt: row.created_at as Date,
+    expiresAt: row.expires_at as Date | null
   };
 }
 
+async function creditDepositSession(client: DbClient, session: QueryResultRow, metadata: Record<string, unknown>) {
+  const wallet = await findWalletByIdForUpdate(client, session.wallet_id);
+  if (!wallet) return null;
+
+  await client.query(
+    `
+      update wallets
+      set coins_balance = coins_balance + $2,
+          updated_at = now()
+      where wallet_id = $1
+    `,
+    [wallet.walletId, session.amount_coins]
+  );
+
+  const txResult = await client.query(
+    `
+      insert into transactions (wallet_id, type, status, amount_coins, reference_type, reference_id, metadata)
+      values ($1, 'DEPOSIT', 'SUCCESS', $2, 'DEPOSIT_SESSION', $3, $4)
+      returning *
+    `,
+    [wallet.walletId, session.amount_coins, session.deposit_session_id, { packageCode: session.package_code, ...metadata }]
+  );
+
+  await client.query(
+    `
+      update deposit_sessions
+      set status = 'SUCCESS',
+          transaction_id = $2,
+          updated_at = now()
+      where deposit_session_id = $1
+    `,
+    [session.deposit_session_id, txResult.rows[0].transaction_id]
+  );
+
+  return txResult.rows[0].transaction_id as string;
+}
+
+/** Settles a session created for the internal mock gateway. Sessions owned by a real gateway are ignored. */
 export async function completeDepositSession(depositSessionId: string) {
   return withPostgresTransaction(async (client) => {
     const sessionResult = await client.query(
@@ -170,51 +228,107 @@ export async function completeDepositSession(depositSessionId: string) {
       [depositSessionId]
     );
     const session = sessionResult.rows[0];
-    if (!session || session.status !== 'PENDING') return null;
+    if (!session || session.status !== 'PENDING' || session.gateway !== 'MOCK') return null;
 
-    const wallet = await findWalletByIdForUpdate(client, session.wallet_id);
-    if (!wallet) return null;
-
-    await client.query(
-      `
-        update wallets
-        set coins_balance = coins_balance + $2,
-            updated_at = now()
-        where wallet_id = $1
-      `,
-      [wallet.walletId, session.amount_coins]
-    );
-
-    const txResult = await client.query(
-      `
-        insert into transactions (wallet_id, type, status, amount_coins, reference_type, reference_id, metadata)
-        values ($1, 'DEPOSIT', 'SUCCESS', $2, 'DEPOSIT_SESSION', $3, $4)
-        returning *
-      `,
-      [
-        wallet.walletId,
-        session.amount_coins,
-        depositSessionId,
-        { packageCode: session.package_code, mockGateway: true }
-      ]
-    );
-
-    await client.query(
-      `
-        update deposit_sessions
-        set status = 'SUCCESS',
-            transaction_id = $2,
-            updated_at = now()
-        where deposit_session_id = $1
-      `,
-      [depositSessionId, txResult.rows[0].transaction_id]
-    );
+    const transactionId = await creditDepositSession(client, session, { mockGateway: true });
+    if (!transactionId) return null;
 
     return {
       depositSessionId,
       status: 'SUCCESS',
-      transactionId: txResult.rows[0].transaction_id,
+      transactionId,
       amountCoins: session.amount_coins
+    };
+  });
+}
+
+export type GatewayDepositOutcome = {
+  gateway: Exclude<DepositGateway, 'MOCK'>;
+  paid: boolean;
+  amountVnd: number | null;
+  transactionNo: string | null;
+  responseCode: string;
+  payload: Record<string, string>;
+};
+
+export type SettledDepositSession = {
+  depositSessionId: string;
+  userId: string;
+  status: 'PENDING' | 'SUCCESS' | 'FAILED';
+  amountCoins: number;
+  transactionId: string | null;
+  responseCode: string | null;
+};
+
+export type SettleGatewayDepositResult =
+  | { result: 'NOT_FOUND' }
+  | { result: 'AMOUNT_MISMATCH' | 'ALREADY_SETTLED' | 'SETTLED'; session: SettledDepositSession };
+
+function mapSettledSession(row: QueryResultRow): SettledDepositSession {
+  return {
+    depositSessionId: row.deposit_session_id,
+    userId: row.user_id,
+    status: row.status,
+    amountCoins: row.amount_coins,
+    transactionId: row.transaction_id ?? null,
+    responseCode: row.gateway_response_code ?? null
+  };
+}
+
+/**
+ * Applies a verified gateway result exactly once. The Return URL and the IPN both call this;
+ * the row lock makes whichever arrives second see ALREADY_SETTLED instead of crediting twice.
+ */
+export async function settleGatewayDeposit(
+  depositSessionId: string,
+  outcome: GatewayDepositOutcome
+): Promise<SettleGatewayDepositResult> {
+  return withPostgresTransaction(async (client) => {
+    const sessionResult = await client.query(
+      `
+        select ds.*, w.user_id
+        from deposit_sessions ds
+        join wallets w on w.wallet_id = ds.wallet_id
+        where ds.deposit_session_id = $1
+        for update of ds
+      `,
+      [depositSessionId]
+    );
+    const session = sessionResult.rows[0];
+    if (!session || session.gateway !== outcome.gateway) return { result: 'NOT_FOUND' as const };
+    if (session.status !== 'PENDING') return { result: 'ALREADY_SETTLED' as const, session: mapSettledSession(session) };
+    if (outcome.amountVnd !== session.amount_vnd) return { result: 'AMOUNT_MISMATCH' as const, session: mapSettledSession(session) };
+
+    await client.query(
+      `
+        update deposit_sessions
+        set gateway_txn_no = $2,
+            gateway_response_code = $3,
+            gateway_payload = $4,
+            status = case when $5::boolean then status else 'FAILED'::transaction_status end,
+            updated_at = now()
+        where deposit_session_id = $1
+      `,
+      [depositSessionId, outcome.transactionNo, outcome.responseCode, outcome.payload, outcome.paid]
+    );
+
+    let transactionId: string | null = null;
+    if (outcome.paid) {
+      transactionId = await creditDepositSession(client, session, {
+        gateway: outcome.gateway,
+        gatewayTxnNo: outcome.transactionNo
+      });
+      if (!transactionId) throw new Error(`Wallet missing for deposit session ${depositSessionId}`);
+    }
+
+    return {
+      result: 'SETTLED' as const,
+      session: {
+        ...mapSettledSession(session),
+        status: outcome.paid ? 'SUCCESS' : 'FAILED',
+        transactionId,
+        responseCode: outcome.responseCode
+      }
     };
   });
 }

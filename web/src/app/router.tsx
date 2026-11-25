@@ -43,6 +43,7 @@ import {
 } from '../features/reader/ReaderPage';
 import { AuthLanding } from '../shared/components/AuthLanding';
 import { WalletPage } from '../features/wallet/WalletPage';
+import { VnpayReturnPage } from '../features/wallet/VnpayReturnPage';
 import { ManuscriptImportPage } from '../features/manuscript-import/ManuscriptImportPage';
 
 import { DiscussionEditorPage, DiscussionListPage, MyDiscussionsPage } from '../features/discussions/DiscussionPages';
@@ -227,6 +228,17 @@ export const router = createBrowserRouter([
       <AuthGate>
         <AuthorTheme>
           <WalletPage />
+        </AuthorTheme>
+      </AuthGate>
+    )
+  },
+  {
+    // VNPay sandbox Return URL (VNPAY_RETURN_URL defaults to `${WEB_ORIGIN}/wallet/vnpay-return`).
+    path: '/wallet/vnpay-return',
+    element: (
+      <AuthGate>
+        <AuthorTheme>
+          <VnpayReturnPage />
         </AuthorTheme>
       </AuthGate>
     )
