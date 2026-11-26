@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
-import { getApiErrorMessage } from '../../shared/api/api-client';
+import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
 import { AdminHeader, AdminPanel, dateTime } from '../admin/AdminShared';
 import { getModeratorAccess } from '../moderator/moderator-api';
 import {
@@ -196,6 +196,10 @@ const criteriaKeys = ['content', 'readability', 'consistency', 'completeness'] a
 
 export function ModeratorSelectionDetailPage() {
   const { caseId = '' } = useParams();
+  return <ModeratorSelectionDetail key={caseId} caseId={caseId} />;
+}
+
+function ModeratorSelectionDetail({ caseId }: { caseId: string }) {
   const cache = useQueryClient();
   const [chapterId, setChapterId] = useState<string | null>(null);
   const [decision, setDecision] = useState<Decision | null>(null);
@@ -203,25 +207,40 @@ export function ModeratorSelectionDetailPage() {
   const [criteria, setCriteria] = useState(emptyCriteria);
   const [shortStory, setShortStory] = useState(false);
   const query = useQuery({ queryKey: ['selection-detail', caseId], queryFn: () => getSelectionDetail(caseId), retry: false });
+  const version = query.data?.version;
+  const [reviewedVersion, setReviewedVersion] = useState(version);
+  function resetConfirmations() {
+    setDecision(null);
+    setCriteria(emptyCriteria);
+    setShortStory(false);
+  }
+  if (version !== reviewedVersion) {
+    setReviewedVersion(version);
+    resetConfirmations();
+  }
   const selectedChapter = useQuery({
     queryKey: ['selection-chapter', caseId, chapterId, query.data?.version],
     queryFn: () => getSelectionChapter(caseId, chapterId ?? ''), enabled: !!chapterId, retry: false
   });
   const mutation = useMutation({
-    mutationFn: (input: { item: NonNullable<typeof query.data>; action: Decision }) =>
-      decideSelection(input.item, input.action, reason.trim(), criteria, shortStory),
+    mutationFn: (input: {
+      item: NonNullable<typeof query.data>; action: Decision; reason: string; criteria: Criteria; shortStory: boolean;
+    }) => decideSelection(input.item, input.action, input.reason, input.criteria, input.shortStory),
     onSuccess: async (_, { item }) => {
-      setDecision(null);
+      resetConfirmations();
       setReason('');
-      setCriteria(emptyCriteria);
-      setShortStory(false);
       await Promise.all([cache.invalidateQueries({ queryKey: ['selection-queue'] }), query.refetch(),
         cache.invalidateQueries({ queryKey: ['reader-novel', item.novel_id] }),
         cache.invalidateQueries({ queryKey: ['public-reader-novel', item.novel_id] }),
         cache.invalidateQueries({ queryKey: ['featured-selections'] }),
         cache.invalidateQueries({ queryKey: ['featured-placements'] })]);
     },
-    onError: () => { void query.refetch(); }
+    onError: async (error) => {
+      if (error instanceof ApiClientError && error.status === 409) {
+        resetConfirmations();
+        await query.refetch();
+      }
+    }
   });
   if (query.isPending) return <LoadingState />;
   if (query.isError) return <ErrorState error={query.error} onRetry={() => void query.refetch()} />;
@@ -231,7 +250,8 @@ export function ModeratorSelectionDetailPage() {
   const activeAction = decision && item.allowedDecisions.includes(decision) ? decision : null;
   const approving = activeAction === 'APPROVE';
   const shortException = approving && item.eligibility === 'SHORT_STORY';
-  const canSubmit = activeAction && reason.trim() && (!approving ||
+  const busy = query.isFetching || mutation.isPending;
+  const canSubmit = !busy && activeAction && reason.trim() && (!approving ||
     (item.eligibility && Object.values(criteria).every(Boolean) && (!shortException || shortStory)));
   return <>
     <AdminHeader title={item.title}>
@@ -268,19 +288,24 @@ export function ModeratorSelectionDetailPage() {
         </Stack>
       </AdminPanel>
       {item.allowedDecisions.length > 0 && <AdminPanel>
-        <form onSubmit={(event) => { event.preventDefault(); if (activeAction && canSubmit) mutation.mutate({ item, action: activeAction }); }}>
+        <form onSubmit={(event) => {
+          event.preventDefault();
+          if (activeAction && canSubmit) {
+            mutation.mutate({ item, action: activeAction, reason: reason.trim(), criteria, shortStory });
+          }
+        }}>
           <Stack>
-            <Select label="Quyết định" value={activeAction} onChange={(value) =>
+            <Select label="Quyết định" disabled={busy} value={activeAction} onChange={(value) =>
               setDecision(item.allowedDecisions.find((action) => action === value) ?? null)}
               data={item.allowedDecisions.map((action) => ({ value: action, label: decisionLabels[action] }))} />
             {approving && criteriaKeys.map((key) => <Checkbox key={key} label={criteriaLabels[key]}
-              checked={criteria[key]} onChange={(event) => setCriteria({ ...criteria, [key]: event.currentTarget.checked })} />)}
-            {shortException && <Checkbox label="Xác nhận đây là truyện ngắn hoàn chỉnh" checked={shortStory}
+              disabled={busy} checked={criteria[key]} onChange={(event) => setCriteria({ ...criteria, [key]: event.currentTarget.checked })} />)}
+            {shortException && <Checkbox label="Xác nhận đây là truyện ngắn hoàn chỉnh" disabled={busy} checked={shortStory}
               onChange={(event) => setShortStory(event.currentTarget.checked)} />}
             <Textarea label="Lý do xử lý" required value={reason} minRows={3} maxLength={2000}
               onChange={(event) => setReason(event.currentTarget.value)} />
             {mutation.isError && <Alert color="red" role="alert">{getApiErrorMessage(mutation.error)}</Alert>}
-            <Group justify="flex-end"><Button type="submit" disabled={!canSubmit} loading={mutation.isPending}>Lưu quyết định</Button></Group>
+            <Group justify="flex-end"><Button type="submit" disabled={!canSubmit} loading={busy}>Lưu quyết định</Button></Group>
           </Stack>
         </form>
       </AdminPanel>}

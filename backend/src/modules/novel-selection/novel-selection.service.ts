@@ -155,6 +155,8 @@ export async function nominate(auth: AuthContext, novelId: string, reason: strin
       [item.case_id, auth.userId, kind, reason, key, item.status]
     );
     if (!nomination) throw new AppError(409, 'SELECTION_DUPLICATE', 'Bạn đã đề cử tác phẩm trong hồ sơ này.');
+    // Reasons are advisory. Additional nominations do not change the reviewed
+    // publication snapshot or rubric. Decision-time independence still checks every nominator.
     return { caseId: item.case_id, nominationId: nomination.nomination_id, status: item.status, created: true };
   });
 }

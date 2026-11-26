@@ -1,8 +1,8 @@
 import { lockFreshActor } from '../../core/security/transactional-identity.js';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
-import { lockAdminAccess, readLockedAccountAccess, type AdminScope } from './admin-access.js';
-import { applyUserAccessChange, type AccessChangeOutcome } from './admin-access-change.js';
+import { assertAdminPermission, lockAdminAccess, readLockedAccountAccess } from './admin-access.js';
+import { applyUserAccessChange, legacyModeratorAccessOperation, type AccessChangeOutcome } from './admin-access-change.js';
 
 export type LegacyModeratorAccountRow = {
   user_id: string;
@@ -195,7 +195,7 @@ export async function convertLegacyModeratorAccounts(
       const changed = await applyUserAccessChange(client, actor, row.user_id, {
         role: 'MODERATOR',
         reason
-      });
+      }, legacyModeratorAccessOperation.CONVERT);
       return { kind: 'converted' as const, outcome: changed };
     });
     if (outcome.kind === 'converted') result.converted.push(outcome.outcome);
@@ -215,8 +215,9 @@ export async function convertLegacyModeratorAccounts(
 
 /**
  * Rollback returns previously converted accounts to their recorded
- * `ADMIN` + legacy scope. Session tokens are revoked by the shared grant
- * command so affected users must sign in again.
+ * `ADMIN` + legacy scope verified by the audit of the current access version.
+ * Older entries without the conversion marker require manual reconciliation.
+ * The shared grant command revokes sessions so affected users sign in again.
  */
 export async function rollbackModeratorConversion(
   actor: { userId: string },
@@ -224,41 +225,53 @@ export async function rollbackModeratorConversion(
   reason: string
 ): Promise<ConversionResult> {
   const result: ConversionResult = { converted: [], skipped: [], reconciliation: [] };
-  const validScopes = ['SUPER_ADMIN', 'MODERATOR', 'USER_MANAGER', 'FINANCE'];
   for (const account of accounts) {
-    if (!validScopes.includes(account.scope)) {
-      result.reconciliation.push({
-        userId: account.userId,
-        username: '',
-        role: '',
-        scope: null,
-        note: `Nhóm quyền rollback không hợp lệ: ${account.scope}.`
-      });
-      continue;
-    }
     const outcome = await withPostgresTransaction(async (client) => {
       await lockAdminAccess(client);
       await lockFreshActor(client, actor);
+      await assertAdminPermission(actor, 'access', client);
       const target = await readLockedAccountAccess(client, account.userId);
       if (!target) {
         return { kind: 'reconcile' as const, note: 'Tài khoản không còn tồn tại.', role: '', scope: null };
       }
-      if (target.role === 'ADMIN' && target.admin_scope === account.scope) {
-        return { kind: 'skip' as const };
-      }
-      if (target.role !== 'MODERATOR') {
-        return {
-          kind: 'reconcile' as const,
-          note: 'Tài khoản không còn giữ vai trò Moderator.',
-          role: target.role,
-          scope: target.admin_scope ?? null
-        };
-      }
-      const changed = await applyUserAccessChange(client, actor, account.userId, {
-        role: 'ADMIN',
-        scope: account.scope as AdminScope,
-        reason
+      const reconcile = (note: string) => ({
+        kind: 'reconcile' as const, note, role: target.role, scope: target.admin_scope
       });
+      // Match the exact access generation. A later grant or rollback changes
+      // access_version even if it eventually puts the same role back.
+      const { rows: [proof] } = await client.query<{ previous_scope: string | null; operation: string }>(
+        `select before_state->>'scope' as previous_scope, after_state->>'operation' as operation
+         from admin_audit
+         where action='USER_ACCESS_CHANGED' and target_type='USER'
+           and target_id=$1::uuid::text and affected_user_id=$1::uuid
+           and after_state->>'accessVersion'=$2
+           and (
+             (after_state->>'operation'=$3 and before_state->>'role'='ADMIN'
+               and after_state->>'role'='MODERATOR')
+             or
+             (after_state->>'operation'=$4 and before_state->>'role'='MODERATOR'
+               and after_state->>'role'='ADMIN' and after_state->>'scope'=$5)
+           )`,
+        [target.user_id, String(target.access_version), legacyModeratorAccessOperation.CONVERT,
+          legacyModeratorAccessOperation.ROLLBACK, target.admin_scope]
+      );
+      if (proof?.operation === legacyModeratorAccessOperation.ROLLBACK && target.role === 'ADMIN') {
+        return account.scope === target.admin_scope
+          ? { kind: 'skip' as const }
+          : reconcile('Nhóm quyền yêu cầu không khớp nhóm quyền đã khôi phục.');
+      }
+      if (target.role !== 'MODERATOR' || target.admin_scope !== null ||
+          proof?.operation !== legacyModeratorAccessOperation.CONVERT || proof.previous_scope !== 'MODERATOR') {
+        return reconcile('Không xác minh được lần chuyển đổi legacy cho phiên bản quyền hiện tại.');
+      }
+      if (account.scope !== proof.previous_scope) {
+        return reconcile('Nhóm quyền yêu cầu không khớp nhóm quyền trước khi chuyển đổi.');
+      }
+      const changed = await applyUserAccessChange(client, actor, target.user_id, {
+        role: 'ADMIN',
+        scope: proof.previous_scope,
+        reason
+      }, legacyModeratorAccessOperation.ROLLBACK);
       return { kind: 'converted' as const, outcome: changed };
     });
     if (outcome.kind === 'converted') result.converted.push(outcome.outcome);

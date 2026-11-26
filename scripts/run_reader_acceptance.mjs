@@ -31,7 +31,8 @@ const requiredBrowsers = [
   'reader-detail-enhancements.browser.test.mjs', 'reader-detail.browser.test.mjs',
   'reader-home-accessibility.browser.test.mjs', 'reader-home-personalization.browser.test.mjs',
   'reader-home-recovery.browser.test.mjs', 'reader-home.browser.test.mjs',
-  'reader-discussions-board.browser.test.mjs'
+  'reader-discussions-board.browser.test.mjs',
+  'moderator-selection-confirmations.browser.test.mjs'
 ];
 const browserFiles = (await readdir(path.join(root, 'web/tests')))
   .filter(name => /^reader-.*\.browser\.test\.mjs$/.test(name) || requiredBrowsers.includes(name)).sort();
@@ -73,7 +74,8 @@ const steps = [
     'src/modules/interactions/comments.integration.test.ts', 'src/modules/interactions/private-comments.integration.test.ts',
     'src/modules/users/connections.integration.test.ts', 'src/modules/media/media.test.ts',
     'src/modules/discussions/discussions.postgres.test.ts', 'src/modules/discussions/discussions-moderation.postgres.test.ts',
-    'src/modules/discussions/discussions-moderator.postgres.test.ts', 'src/modules/discussions/discussions-sanctions.postgres.test.ts']],
+    'src/modules/discussions/discussions-moderator.postgres.test.ts', 'src/modules/discussions/discussions-sanctions.postgres.test.ts',
+    'src/modules/admin/moderator-access-conversion.postgres.test.ts', 'src/modules/novel-selection/novel-selection.postgres.test.ts']],
   ['reader-browsers', 'web', process.execPath, ['--test', '--test-concurrency=1', ...browserFiles.map(name => `tests/${name}`)]],
   ['reader-contrast', 'web', process.execPath, ['--test', 'tests/contrast.test.mjs']]
 ];

@@ -15,6 +15,13 @@ export const userAccessChangeSchema = z.object({
 
 export type UserAccessChange = z.infer<typeof userAccessChangeSchema>;
 
+export const legacyModeratorAccessOperation = {
+  CONVERT: 'LEGACY_MODERATOR_CONVERSION',
+  ROLLBACK: 'LEGACY_MODERATOR_ROLLBACK'
+} as const;
+
+type AccessOperation = (typeof legacyModeratorAccessOperation)[keyof typeof legacyModeratorAccessOperation];
+
 export type AccessChangeOutcome = {
   userId: string;
   changed: boolean;
@@ -27,7 +34,8 @@ export async function applyUserAccessChange(
   client: PoolClient,
   actor: AccessActor,
   targetUserId: string,
-  input: UserAccessChange
+  input: UserAccessChange,
+  operation?: AccessOperation
 ): Promise<AccessChangeOutcome> {
   if (input.role === 'ADMIN' && !input.scope) {
     throw new AppError(422, 'ADMIN_SCOPE', 'Chọn nhóm quyền admin.');
@@ -70,14 +78,20 @@ export async function applyUserAccessChange(
   await client.query('update refresh_tokens set revoked_at=now() where user_id=$1 and revoked_at is null', [
     targetUserId
   ]);
+  const accessVersion = before.access_version + 1;
   await audit(client, actor, {
     action: 'USER_ACCESS_CHANGED',
     targetType: 'USER',
     targetId: targetUserId,
     affectedUserId: targetUserId,
     reason: input.reason,
-    before: { role: currentRole, scope: currentScope },
-    after: { role: input.role, ...(input.role === 'ADMIN' ? { scope: input.scope } : {}) }
+    before: { role: currentRole, scope: currentScope, accessVersion: before.access_version },
+    after: {
+      role: input.role,
+      ...(input.role === 'ADMIN' ? { scope: input.scope } : {}),
+      accessVersion,
+      ...(operation ? { operation } : {})
+    }
   });
 
   return {
@@ -85,6 +99,6 @@ export async function applyUserAccessChange(
     changed: true,
     role: input.role,
     scope: input.role === 'ADMIN' ? (input.scope ?? null) : null,
-    accessVersion: before.access_version + 1
+    accessVersion
   };
 }

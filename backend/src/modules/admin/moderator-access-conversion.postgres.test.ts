@@ -226,7 +226,7 @@ describe('PR-07: legacy moderator access conversion', { concurrency: false }, ()
   test('PR-07: rollback restores role, scope and session expectations', async () => {
     const rollback = await rollbackModeratorConversion(
       { userId: actor },
-      [{ userId: legacy, scope: 'MODERATOR' }],
+      [{ userId: legacy.toUpperCase(), scope: 'MODERATOR' }],
       'PR-07 rollback diễn tập'
     );
     assert.equal(rollback.converted.length, 1);
@@ -242,6 +242,52 @@ describe('PR-07: legacy moderator access conversion', { concurrency: false }, ()
       )
     ).rows[0];
     assert.equal(audits.count, 2);
+  });
+
+  test('PR-07: retry of a verified rollback is a no-op', async () => {
+    const result = await rollbackModeratorConversion({ userId: actor }, [{ userId: legacy, scope: 'MODERATOR' }], 'Lặp lại.');
+    assert.equal(result.skipped.length, 1);
+    assert.equal(result.reconciliation.length, 0);
+    assert.equal((await userRow(legacy)).access_version, 2);
+  });
+
+  test('PR-07: rollback rejects escalation to another scope and a regular grant with the same legacy pair', async () => {
+    const granted = randomUUID();
+    await insertUser(pool, { id: granted, role: 'ADMIN' });
+    await pool.query("insert into admin_access(user_id,scope) values($1,'MODERATOR')", [granted]);
+    await withPostgresTransaction(client => applyUserAccessChange(client, { userId: actor }, granted, {
+      role: 'MODERATOR', reason: 'Cấp qua chức năng quản trị thông thường.'
+    }));
+    const result = await rollbackModeratorConversion({ userId: actor }, [
+      { userId: granted, scope: 'MODERATOR' },
+      { userId: lockedLegacy, scope: 'SUPER_ADMIN' }
+    ], 'Kiểm tra nguồn gốc và nhóm quyền.');
+    assert.equal(result.converted.length, 0);
+    assert.deepEqual(result.reconciliation.map(entry => entry.userId), [granted, lockedLegacy]);
+    for (const account of [granted, lockedLegacy]) {
+      const row = await userRow(account);
+      assert.equal(row.role, 'MODERATOR');
+      assert.equal(row.scope, null);
+      assert.equal(row.access_version, 1);
+    }
+  });
+
+  test('PR-07: rollback reconciles a converted account revoked and granted moderator again', async () => {
+    const target = randomUUID();
+    await insertUser(pool, { id: target, role: 'ADMIN' });
+    await pool.query("insert into admin_access(user_id,scope) values($1,'MODERATOR')", [target]);
+    await convertLegacyModeratorAccounts({ userId: actor }, 'Chuyển đổi.', { accounts: [target] });
+    for (const role of ['READER', 'MODERATOR'] as const) {
+      await withPostgresTransaction(client => applyUserAccessChange(client, { userId: actor }, target, {
+        role, reason: 'Thay đổi quyền sau khi chuyển đổi.'
+      }));
+    }
+    const result = await rollbackModeratorConversion({ userId: actor }, [{ userId: target, scope: 'MODERATOR' }], 'Hoàn tác.');
+    assert.equal(result.converted.length, 0);
+    assert.equal(result.reconciliation.length, 1);
+    assert.deepEqual(await userRow(target), {
+      role: 'MODERATOR', scope: null, status: 'ACTIVE', access_version: 3
+    });
   });
 
   test('PR-07: rollback reports accounts that no longer hold MODERATOR', async () => {
@@ -291,9 +337,11 @@ describe('PR-07: legacy moderator access conversion', { concurrency: false }, ()
     test(`PR-07: ${operation} waits behind a normal access change and reconciles the new scope`, async () => {
       env.MODERATOR_ENABLED = true;
       const target = randomUUID();
-      await insertUser(pool, { id: target, role: operation === 'conversion' ? 'ADMIN' : 'MODERATOR' });
-      if (operation === 'conversion') {
-        await pool.query("insert into admin_access(user_id,scope) values($1,'MODERATOR')", [target]);
+      await insertUser(pool, { id: target, role: 'ADMIN' });
+      await pool.query("insert into admin_access(user_id,scope) values($1,'MODERATOR')", [target]);
+      const wasConverted = operation === 'rollback';
+      if (wasConverted) {
+        await convertLegacyModeratorAccounts({ userId: actor }, 'Chuyển đổi trước rollback.', { accounts: [target] });
       }
 
       const gate = await pool.connect();
@@ -321,10 +369,11 @@ describe('PR-07: legacy moderator access conversion', { concurrency: false }, ()
         assert.equal(result.reconciliation[0].role, 'ADMIN');
         assert.equal(result.reconciliation[0].scope, 'FINANCE');
         assert.deepEqual(await userRow(target), {
-          role: 'ADMIN', scope: 'FINANCE', status: 'ACTIVE', access_version: 1
+          role: 'ADMIN', scope: 'FINANCE', status: 'ACTIVE', access_version: wasConverted ? 2 : 1
         });
         const audits = await pool.query(
-          "select reason from admin_audit where affected_user_id=$1 and action='USER_ACCESS_CHANGED'", [target]
+          "select reason from admin_audit where affected_user_id=$1 and action='USER_ACCESS_CHANGED' and after_state->>'accessVersion'=$2",
+          [target, wasConverted ? '2' : '1']
         );
         assert.deepEqual(audits.rows, [{ reason: 'Cấp quyền tài chính.' }]);
       } finally {

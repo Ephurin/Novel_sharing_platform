@@ -96,11 +96,16 @@ describe('PR-08 novel selection', () => {
     const target = await novel(moderator, 3);
     assert.equal((await nominate(target.id, moderator)).status, 403);
     const { data: { caseId } } = await nominate(target.id, reader);
+    const [reviewer, reviewer2] = await Promise.all([user('MODERATOR'), user('MODERATOR')]);
+    const initialVersion = (await detail(caseId, reviewer)).data.version;
     assert.equal((await nominate(target.id, secondModerator)).status, 201);
     assert.equal((await detail(caseId)).status, 403);
     assert.equal((await detail(caseId, secondModerator)).status, 403);
-    const [reviewer, reviewer2] = await Promise.all([user('MODERATOR'), user('MODERATOR')]);
-    assert.equal((await decision(caseId, 1, 'REQUEST_INFO', { actor: reviewer })).data.status, 'NEEDS_INFO');
+    const updated = (await detail(caseId, reviewer)).data;
+    assert.equal(updated.version, initialVersion, 'additional nomination reasons are advisory');
+    assert.equal(updated.nominations.length, 2);
+    assert.equal((await decision(caseId, initialVersion, 'REQUEST_INFO', { actor: secondModerator })).status, 403);
+    assert.equal((await decision(caseId, initialVersion, 'REQUEST_INFO', { actor: reviewer })).data.status, 'NEEDS_INFO');
     assert.equal((await call('POST', `/novels/${target.id}/selections/${caseId}/supplement`, reader, { notes: reason, expectedVersion: 2 })).status, 404);
     const supplement = await call('POST', `/novels/${target.id}/selections/${caseId}/supplement`, moderator, { notes: reason, expectedVersion: 2 });
     assert.equal(supplement.data.status, 'PENDING');
