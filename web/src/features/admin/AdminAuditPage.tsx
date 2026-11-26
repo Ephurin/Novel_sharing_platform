@@ -1,6 +1,6 @@
 import { formatDateTime } from '../../shared/lib/format-vi';
-import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
-import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
+import { useUrlFilters, useListScroll, WorkspaceTable, WorkspaceTableOptions } from '../../shared/components/WorkspacePreferences';
+import { AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { StateComparison } from '../../shared/components/StateComparison';
 import { ResponsiveFilters } from '../../shared/components/InteractionWidgets';
 import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
@@ -34,7 +34,7 @@ const AUDIT_ACTIONS = [
 
 export function AuditRows({ items }: { items: AuditEntry[] }) {
   return (
-    <WorkspaceTable name="adminauditpage" columns={['Thời gian / Admin', 'Thao tác', 'Đối tượng', 'Lý do / Thay đổi']}>
+    <WorkspaceTable>
       <table>
         <thead>
           <tr>
@@ -184,11 +184,7 @@ export function AdminAuditPage() {
             }}
           />
         </ResponsiveFilters>
-        <FilterPresets name={'AdminAuditPage'} fields={["q", "action"]} />
-        <ActiveFilterChips items={[
-          ...(q.trim() ? [{ id: 'q', label: `Tìm: ${q.trim()}`, onRemove: () => { setQ(''); setPage(1); } }] : []),
-          ...(action.trim() ? [{ id: 'action', label: `Thao tác: ${labels[action.trim()] || action.trim()}`, onRemove: () => { setAction(''); setPage(1); } }] : [])
-        ]} />
+        <WorkspaceTableOptions name="adminauditpage" columns={['Thời gian / Admin', 'Thao tác', 'Đối tượng', 'Lý do / Thay đổi']} presets={{ name: 'AdminAuditPage', fields: ["q", "action"] }}>
         <ResultsSurface identity={String(query.dataUpdatedAt)} busy={query.isFetching} retain={Boolean(q.trim() || action.trim())}>{query.isLoading && <LoadingState variant="table" label="Đang tải nhật ký..." />}
         {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
         {query.data && !query.data.items.length && (
@@ -197,6 +193,7 @@ export function AdminAuditPage() {
         {!!query.data?.items.length && <AuditRows items={query.data.items} />}
         <AdminPagination meta={query.data?.meta} onChange={setPage} />
       </ResultsSurface>
+        </WorkspaceTableOptions>
       </AdminPanel>
     </>
   );

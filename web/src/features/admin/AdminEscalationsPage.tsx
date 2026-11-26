@@ -20,8 +20,8 @@ import {
   Status
 } from './AdminShared';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
-import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
-import { ActiveFilterChips, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
+import { useUrlFilters, useListScroll, WorkspaceTable, WorkspaceTableOptions } from '../../shared/components/WorkspacePreferences';
+import { ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { ResponsiveFilters } from '../../shared/components/InteractionWidgets';
 
 type EscalationFilterStatus = 'OPEN' | 'EXECUTED' | 'DISMISSED' | '';
@@ -86,14 +86,7 @@ export function AdminEscalationsPage() {
             Xóa bộ lọc
           </Button>
         </ResponsiveFilters>
-        <FilterPresets name="admin-escalations" fields={['status']} />
-        <ActiveFilterChips
-          items={
-            status
-              ? [{ id: 'status', label: labels[status] || status, onRemove: () => { setStatus(''); setPage(1); } }]
-              : []
-          }
-        />
+        <WorkspaceTableOptions name="adminescalationspage" columns={['Đề nghị', 'Người đề nghị', 'Hồ sơ báo cáo', 'Trạng thái hồ sơ', 'Trạng thái', 'Thao tác']} presets={{ name: 'admin-escalations', fields: ['status'] }}>
         <ResultsSurface identity={String(query.dataUpdatedAt)} busy={query.isFetching} retain={Boolean(status)}>
           {query.isLoading && <LoadingState variant="table" label="Đang tải đề nghị chuyển cấp..." />}
           {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
@@ -101,10 +94,7 @@ export function AdminEscalationsPage() {
             <EmptyState description="Không có đề nghị chuyển cấp nào khớp bộ lọc." />
           )}
           {!!query.data?.items.length && (
-            <WorkspaceTable
-              name="adminescalationspage"
-              columns={['Đề nghị', 'Người đề nghị', 'Hồ sơ báo cáo', 'Trạng thái hồ sơ', 'Trạng thái', 'Thao tác']}
-            >
+            <WorkspaceTable>
               <table>
                 <thead>
                   <tr>
@@ -195,6 +185,7 @@ export function AdminEscalationsPage() {
           )}
           <AdminPagination meta={query.data?.meta} onChange={setPage} />
         </ResultsSurface>
+        </WorkspaceTableOptions>
       </AdminPanel>
       <AdminConfirm
         destructive={

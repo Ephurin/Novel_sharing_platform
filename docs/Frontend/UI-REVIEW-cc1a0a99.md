@@ -30,7 +30,7 @@ Tài liệu giao cho team dev. Gộp ba bản đánh giá độc lập, đã b�
 
 ## Tiến độ
 
-**P1 (UI-01 → UI-07) đã sửa** trên nhánh `claude/ui-review-p1`. Tiến độ P2/P3 được ghi theo từng nhóm bên dưới.
+**P1 (UI-01 → UI-07) đã sửa** trên nhánh `claude/ui-review-p1`. Nhóm Admin của P2 (UI-08, UI-12, UI-17) đã sửa trên nhánh `codex/ui-review-admin`. Các mục P2/P3 khác được ghi theo từng nhóm bên dưới.
 
 | ID | Đã làm |
 |---|---|
@@ -41,6 +41,9 @@ Tài liệu giao cho team dev. Gộp ba bản đánh giá độc lập, đã b�
 | UI-05 | "Bookmark" → "Đoạn đã đánh dấu"; "Thể loại & Tag" → "Thể loại và thẻ"; `VISIBLE` → "Đang hiển thị"; ảnh bìa mặc định hết chữ tiếng Anh; "Xuất file Bible" → "Xuất cẩm nang (JSON)"; ô "Mã thao tác" thành danh sách chọn. |
 | UI-06 | "Đặt lại / Xóa bộ lọc" giữ từ khóa; nút riêng "Xóa toàn bộ" để xóa cả từ khóa. |
 | UI-07 | Lỗi thật duy nhất: thẻ phía độc giả đếm cả chương nháp (`novels.chapters_count`). Giờ chỉ đếm chương đã xuất bản. Lượt đọc 1/2 và tổng xu 0/500 là do chụp ảnh ở các thời điểm khác nhau (admin 09:47, giao dịch nạp 09:48), không phải lỗi. |
+| UI-08 | Khóa tài khoản, duyệt/từ chối rút xu và xóa/gộp danh mục nằm trong menu ⋯. Ẩn thao tác khóa với chính mình và tài khoản quản trị viên. Hộp xác nhận rút xu vẫn hiện người yêu cầu, số xu và tài khoản nhận. Các thao tác phá hủy dùng màu cảnh báo và xác nhận rõ hành động. |
+| UI-12 | Diễn đàn dùng chung tiêu đề, bộ lọc, bảng, tùy chọn bảng và phân trang Admin. Có tìm kiếm tiêu đề không dấu trước khi phân trang, nút làm mới và menu ⋯ cho chủ đề. Bình luận vẫn mở ngay dưới chủ đề. |
+| UI-17 | Gom Xem nhanh và Chi tiết vào menu ⋯ trên bảng truyện. Thể loại và thẻ có bảng riêng và ô tìm kiếm. Gộp bộ lọc đã lưu và cột hiển thị vào “Tùy chọn bảng”, bỏ các chip lặp giá trị bộ lọc. |
 
 ### P2 · Hệ thống chung
 

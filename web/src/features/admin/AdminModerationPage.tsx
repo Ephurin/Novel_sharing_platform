@@ -1,6 +1,6 @@
 import { formatDateTime } from '../../shared/lib/format-vi';
-import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
-import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
+import { useUrlFilters, useListScroll, WorkspaceTable, WorkspaceTableOptions } from '../../shared/components/WorkspacePreferences';
+import { AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { ResponsiveFilters } from '../../shared/components/InteractionWidgets';
 import { Link } from 'react-router-dom';
 import { Button, Select } from '@mantine/core';
@@ -108,19 +108,14 @@ export function AdminModerationPage({ reports = false }: { reports?: boolean }) 
             Xóa bộ lọc
           </Button>
         </ResponsiveFilters>
-        <FilterPresets name={reports ? 'admin-reports' : 'admin-moderation'} fields={["targetType", "status", "source"]} />
-        <ActiveFilterChips items={[
-          ...(targetType ? [{ id: 'target', label: labels[targetType] || targetType, onRemove: () => { setTargetType(''); setPage(1); } }] : []),
-          ...(status ? [{ id: 'status', label: labels[status] || status, onRemove: () => { setStatus(''); setPage(1); } }] : []),
-          ...(!reports && source ? [{ id: 'source', label: labels[source] || source, onRemove: () => { setSource(''); setPage(1); } }] : [])
-        ]} />
+        <WorkspaceTableOptions name={reports ? 'adminreportspage' : 'adminmoderationpage'} columns={['Nội dung', reports ? 'Báo cáo' : 'Nguồn', 'Đã chờ', 'Trạng thái', 'Mã', 'Thao tác']} presets={{ name: reports ? 'admin-reports' : 'admin-moderation', fields: ["targetType", "status", "source"] }}>
         <ResultsSurface identity={String(query.dataUpdatedAt)} busy={query.isFetching} retain={Boolean(targetType || status || source)}>{query.isLoading && <LoadingState variant="table" label="Đang tải kiểm duyệt..." />}
         {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
         {query.data && !query.data.items.length && (
           <EmptyState description="Không có mục nào khớp với bộ lọc hiện tại." />
         )}
         {!!query.data?.items.length && (
-          <WorkspaceTable name={reports ? 'adminreportspage' : 'adminmoderationpage'} columns={['Nội dung', reports ? 'Báo cáo' : 'Nguồn', 'Đã chờ', 'Trạng thái', 'Mã', 'Thao tác']}>
+          <WorkspaceTable>
             <table className="admin-moderation-table">
               <thead>
                 <tr>
@@ -192,6 +187,7 @@ export function AdminModerationPage({ reports = false }: { reports?: boolean }) 
         )}
         <AdminPagination meta={query.data?.meta} onChange={setPage} />
       </ResultsSurface>
+        </WorkspaceTableOptions>
       </AdminPanel>
     </>
   );

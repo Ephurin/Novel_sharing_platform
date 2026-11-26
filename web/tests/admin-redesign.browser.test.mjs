@@ -216,7 +216,7 @@ test(
           );
         }
       );
-      browser = await chromium.launch({ channel: 'chrome', headless: true });
+      browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome', headless: true });
       const context = await browser.newContext({
         viewport: { width: 1440, height: 1000 },
         permissions: ['clipboard-read', 'clipboard-write']
@@ -282,7 +282,7 @@ test(
         await goto(`/admin/novels/${id('novel:1')}`);
         await page.locator('.admin-novel-cover img').waitFor();
         assert.equal(await page.locator('.admin-novel-cover img').getAttribute('src'), cover);
-        assert.equal(await page.locator('details.admin-metadata').getAttribute('open'), null);
+        assert.equal(await page.getByRole('button', { name: 'Thông tin bổ sung' }).getAttribute('aria-expanded'), 'false');
         assert.ok(
           (await page.locator('#admin-novel-synopsis').innerText()).length < synopsis.length
         );
@@ -335,7 +335,7 @@ test(
         );
       });
       await t.test(
-        'browser: all 9 routes, both themes at desktop/mobile, shared type and no page overflow',
+        'browser: Admin routes in both themes at desktop/mobile with shared type and no page overflow',
         async () => {
           const routes = [
             ['overview', '/admin'],
@@ -343,6 +343,7 @@ test(
             ['novels', '/admin/novels'],
             ['novel-detail', `/admin/novels/${id('novel:1')}`],
             ['taxonomy', '/admin/taxonomy'],
+            ['forum', '/admin/discussions'],
             ['moderation', '/admin/moderation'],
             ['reports', '/admin/reports'],
             ['moderation-detail', `/admin/moderation/${id('review:1')}`],
@@ -393,31 +394,74 @@ test(
           }
           assert.deepEqual(errors, []);
           checks.push(
-            '9 routes x 2 themes x 2 widths; Be Vietnam Pro 24px headings; no document overflow'
+            `${routes.length} routes × 2 themes × 2 widths. Be Vietnam Pro 24px headings and no document overflow.`
           );
         }
       );
       await page.setViewportSize({ width: 1440, height: 1000 });
+      await t.test('browser: forum title search, row menu and confirmation', async () => {
+        const readerAuth = (await api('/auth/login', {
+          method: 'POST', body: { identifier: 'admin_seed_13', password: 'AdminDemo@2026' }
+        })).data.accessToken;
+        const categories = (await api('/discussions/categories')).data;
+        const categoryId = categories.find((category) => category.slug === 'thao-luan-chung').categoryId;
+        const title = 'Chủ đề thử giao diện Admin';
+        await api('/discussions', {
+          method: 'POST', auth: readerAuth, body: { categoryId, title, body: 'Nội dung dành cho test Admin.' }
+        });
+        await goto('/admin/discussions');
+        await page.getByRole('button', { name: 'Làm mới dữ liệu' }).click();
+        await page.getByLabel('Tìm kiếm', { exact: true }).fill('chu de thu giao dien admin');
+        const row = page.getByRole('row').filter({ hasText: title });
+        await row.getByText('Đang hiển thị', { exact: true }).waitFor();
+        assert.equal(await page.locator('tbody tr').count(), 1);
+        await row.getByRole('button', { name: 'Xem bình luận' }).click();
+        await page.getByText('Chủ đề này chưa có bình luận nào.').waitFor();
+        await row.getByRole('button', { name: 'Thao tác với ' + title }).click();
+        await page.getByRole('menuitem', { name: 'Ẩn', exact: true }).click();
+        const dialog = page.getByRole('dialog', { name: 'Ẩn chủ đề' });
+        await dialog.getByText(title, { exact: true }).waitFor();
+        assert.equal(await dialog.getByRole('button', { name: 'Xác nhận', exact: true }).isDisabled(), true);
+        await dialog.getByRole('button', { name: 'Hủy bỏ' }).click();
+        await row.getByText('Đang hiển thị', { exact: true }).waitFor();
+        await page.screenshot({ path: path.join(output, 'forum-search-light-1440.png') });
+      });
+      await t.test('browser: taxonomy search and merge keep all destination choices', async () => {
+        await goto('/admin/taxonomy');
+        await page.getByLabel('Tìm thẻ', { exact: true }).fill('# bí ẩn');
+        const table = page.getByRole('region', { name: 'Bảng thẻ' });
+        await table.getByText('# Bí ẩn', { exact: true }).waitFor();
+        assert.equal(await table.locator('tbody tr').count(), 1);
+        await table.getByRole('button', { name: 'Thao tác với Bí ẩn' }).click();
+        await page.getByRole('menuitem', { name: 'Gộp', exact: true }).click();
+        const dialog = page.getByRole('dialog', { name: 'Gộp danh mục' });
+        await dialog.getByRole('textbox', { name: 'Gộp vào', exact: true }).click();
+        await page.getByRole('option', { name: 'Hành trình', exact: true }).waitFor();
+        await dialog.getByRole('button', { name: 'Hủy bỏ' }).click();
+      });
       await t.test('browser: account lock/unlock and search empty state', async () => {
         await goto('/admin/users');
         await page.getByLabel('Tìm kiếm', { exact: true }).fill('admin_seed_13');
         const row = page.locator('tbody tr').filter({ hasText: '@admin_seed_13' });
         await row.waitFor();
-        await row.getByRole('button', { name: 'Khóa tài khoản', exact: true }).click();
+        assert.equal(await row.getByRole('button', { name: 'Khóa tài khoản', exact: true }).count(), 0);
+        await row.getByRole('button', { name: 'Thao tác với @admin_seed_13' }).click();
+        await page.getByRole('menuitem', { name: 'Khóa tài khoản', exact: true }).click();
         await page.getByRole('dialog').locator('textarea').fill('Admin operations lock test');
         await page
           .getByRole('dialog')
           .getByRole('button', { name: 'Khóa tài khoản', exact: true })
           .click();
-        await row.getByRole('button', { name: 'Mở khóa', exact: true }).waitFor();
+        await row.getByText('Đã khóa', { exact: true }).waitFor();
         assert.equal((await api('/admin/users?q=admin_seed_13')).data[0].status, 'LOCKED');
-        await row.getByRole('button', { name: 'Mở khóa', exact: true }).click();
+        await row.getByRole('button', { name: 'Thao tác với @admin_seed_13' }).click();
+        await page.getByRole('menuitem', { name: 'Mở khóa', exact: true }).click();
         await page.getByRole('dialog').locator('textarea').fill('Admin operations unlock test');
         await page
           .getByRole('dialog')
           .getByRole('button', { name: 'Mở khóa tài khoản', exact: true })
           .click();
-        await row.getByRole('button', { name: 'Khóa tài khoản', exact: true }).waitFor();
+        await row.getByText('Hoạt động', { exact: true }).waitFor();
         await page.getByLabel('Tìm kiếm', { exact: true }).fill('no-such-user-0000');
         await page.getByText('Không tìm thấy người dùng phù hợp.').waitFor();
         checks.push('Browser lock/unlock and empty search');
@@ -593,7 +637,11 @@ test(
           await gate;
           await route.fulfill({ response });
         });
-        await row.getByRole('button', { name: 'Duyệt', exact: true }).click();
+        await row.getByRole('button', { name: 'Xử lý yêu cầu của @admin_seed_1' }).click();
+        await page.getByRole('menuitem', { name: 'Duyệt', exact: true }).click();
+        const confirm = page.getByRole('dialog', { name: 'Duyệt yêu cầu rút Xu' });
+        await confirm.getByText(/@admin_seed_1.*110 Xu/).waitFor();
+        await confirm.getByText(/Tài khoản ngân hàng seed •••• 2026/).waitFor();
         await page
           .getByRole('dialog')
           .getByText(/không xác nhận tiền đã vào tài khoản ngân hàng/)
@@ -605,7 +653,7 @@ test(
           true
         );
         assert.equal(
-          await row.getByRole('button', { name: 'Duyệt', exact: true }).isDisabled(),
+          await row.locator('button[aria-label="Xử lý yêu cầu của @admin_seed_1"]').isDisabled(),
           true
         );
         await page.keyboard.press('Escape');
@@ -618,7 +666,8 @@ test(
           .getByText('Đã duyệt yêu cầu trong hệ thống.', { exact: true })
           .waitFor();
         row = page.locator('tbody tr').filter({ hasText: '@admin_seed_2' });
-        await row.getByRole('button', { name: 'Từ chối', exact: true }).click();
+        await row.getByRole('button', { name: 'Xử lý yêu cầu của @admin_seed_2' }).click();
+        await page.getByRole('menuitem', { name: 'Từ chối', exact: true }).click();
         assert.equal(
           await page.getByRole('button', { name: 'Xác nhận từ chối', exact: true }).isDisabled(),
           true

@@ -1,5 +1,5 @@
 import { formatNumber } from '../../shared/lib/format-vi';
-import type { ReactNode } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
 import { useEffect } from 'react';
 import {
   ActionIcon,
@@ -7,10 +7,12 @@ import {
   Button,
   CopyButton,
   Group,
+  Menu,
   Pagination,
   Textarea,
   VisuallyHidden
 } from '@mantine/core';
+import { IconDots } from '@tabler/icons-react';
 import { AdminIcon } from './AdminShell';
 import { AnimatedTooltip } from '../../shared/components/AnimatedTooltip';
 import { FeedbackIcon } from '../../shared/components/ActionFeedback';
@@ -179,6 +181,19 @@ export function AdminPanel({
 }) {
   return <section className={`admin-panel ${className}`}>{children}</section>;
 }
+
+export function AdminRowMenu({ label, disabled, children }: PropsWithChildren<{ label: string; disabled?: boolean }>) {
+  return (
+    <Menu position="bottom-end" withinPortal>
+      <Menu.Target>
+        <ActionIcon variant="subtle" color="gray" size={30} disabled={disabled} aria-label={label} title={label}>
+          <IconDots size={18} />
+        </ActionIcon>
+      </Menu.Target>
+      <Menu.Dropdown>{children}</Menu.Dropdown>
+    </Menu>
+  );
+}
 export type PageMeta = {
   page: number;
   limit: number;
@@ -226,6 +241,7 @@ export function AdminConfirm({
   children,
   reason,
   setReason,
+  reasonMaxLength = 1000,
   required = false,
   destructive = false,
   confirmLabel,
@@ -240,6 +256,7 @@ export function AdminConfirm({
   children: ReactNode;
   reason?: string;
   setReason?: (value: string) => void;
+  reasonMaxLength?: number;
   required?: boolean;
   destructive?: boolean;
   confirmLabel: string;
@@ -267,7 +284,7 @@ export function AdminConfirm({
             required={required}
             value={reason}
             onChange={(event) => setReason(event.currentTarget.value)}
-            maxLength={1000}
+            maxLength={reasonMaxLength}
             minRows={3}
           />
         )}

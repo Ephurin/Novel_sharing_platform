@@ -187,7 +187,7 @@ test('author/admin motion preserves filters, actions, values and reader role exc
         await page.screenshot({path:path.join(output,`${mobile?'mobile':'desktop'}-admin.png`)});
 
         await page.goto(base+'/admin-novels');await expect(page.locator('.sc-workspace-table tbody tr')).toHaveCount(2);
-        await page.getByText('Cột hiển thị',{exact:true}).click();
+        await page.getByText('Tùy chọn bảng',{exact:true}).click();
         await page.getByRole('checkbox',{name:'Tác giả',exact:true}).uncheck();
         await expect(page.getByRole('columnheader',{name:'Tác giả',exact:true})).toHaveCount(0);
         await expect(page.getByRole('columnheader',{name:'Thao tác',exact:true})).toBeVisible();
@@ -196,14 +196,15 @@ test('author/admin motion preserves filters, actions, values and reader role exc
         await expect.poll(()=>tableScroll.evaluate(el=>[el.scrollLeft,el.scrollTop])).toEqual([120,30]);
         await page.reload();await expect(page.getByRole('columnheader',{name:'Tác giả',exact:true})).toHaveCount(0);
         await expect.poll(()=>tableScroll.evaluate(el=>[el.scrollLeft,el.scrollTop])).toEqual([120,30]);
-        await page.getByRole('button',{name:'Xem nhanh',exact:true}).first().click();
+        await page.getByRole('button',{name:'Thao tác với Truyện admin 1',exact:true}).click();
+        await page.getByRole('menuitem',{name:'Xem nhanh',exact:true}).click();
         await expect(page.getByRole('dialog',{name:'Truyện admin 1',exact:true})).toBeVisible();
         await page.getByRole('button',{name:'Sau',exact:true}).click();
         await expect(page.getByRole('dialog',{name:'Truyện admin 2',exact:true})).toBeVisible();
         await expect(page.getByRole('button',{name:'Sau',exact:true})).toBeDisabled();
         await page.screenshot({path:path.join(output,`${mobile?'mobile':'desktop'}-preview.png`)});
         await page.keyboard.press('Escape');
-        await page.getByText('Cột hiển thị',{exact:true}).click();await page.getByRole('button',{name:'Khôi phục',exact:true}).click();
+        await page.getByText('Tùy chọn bảng',{exact:true}).click();await page.getByRole('button',{name:'Khôi phục',exact:true}).click();
         await expect(page.getByRole('columnheader',{name:'Tác giả',exact:true})).toBeVisible();
         await page.goto(base+'/admin-withdraws?status=&page=2');
         if(mobile)await page.getByRole('button',{name:'Bộ lọc',exact:true}).click();
