@@ -1,3 +1,4 @@
+import { novelHref, profileHref, navigationHref } from '../../shared/routes';
 import { hasAuthorCapability } from '../auth/auth-types';
 import { ImageLightbox } from '../../shared/components/InteractionWidgets';
 import { LoadedImage } from '../../shared/components/AuthorAdminMotion';
@@ -40,7 +41,7 @@ const BIO_CLAMP_LENGTH = 240;
 
 function AuthorWorkCard({ novel, publicMode }: { novel: AuthorProfile['novels'][number]; publicMode: boolean }) {
   const status = serialStatusLabels[novel.serialStatus ?? ''] ?? serialStatusLabels.ONGOING;
-  const detailPath = `${publicMode ? '/public' : '/reader'}/novels/${novel.novelId}`;
+  const detailPath = novelHref(novel, publicMode ? '/public' : '/reader');
   return (
     <article className="sc-novel-card relative bg-surface-container-lowest rounded-xl border border-stone-200/90 hover:border-primary-600/40 transition-all flex flex-col justify-between gap-3 group">
       <div className="flex gap-3 items-start">
@@ -141,7 +142,7 @@ export function AuthorProfilePage() {
 
   const handleShare = async () => {
     try {
-      await navigator.clipboard.writeText(new URL(`/authors/${targetAuthorId}`, window.location.origin).href);
+      await navigator.clipboard.writeText(new URL(profileHref('author', targetAuthorId, authorQuery.data?.publicKey), window.location.origin).href);
       showToast(`Đã sao chép liên kết hồ sơ tác giả ${authorName}!`);
     } catch {
       showToast('Không sao chép được liên kết. Vui lòng thử lại.', true);
@@ -281,7 +282,7 @@ export function AuthorProfilePage() {
 
       <footer className="sc-author-profile-footer text-meta">
         <span>© {new Date().getFullYear()} StoryCraft</span>
-        <Link to={isGuest ? '/public' : '/reader'}>Khám phá tác phẩm</Link>
+        <Link to={isGuest ? navigationHref('/public') : navigationHref('/reader')}>Khám phá tác phẩm</Link>
       </footer>
 
       {/* Support Author Modal */}
@@ -399,7 +400,7 @@ export function AuthorProfilePage() {
                 </span>
               )}
             </div>
-            <Link to="/wallet" className="text-primary-600 font-semibold hover:underline">
+            <Link to={navigationHref("/wallet")} className="text-primary-600 font-semibold hover:underline">
               Nạp Xu
             </Link>
           </div>
@@ -440,7 +441,7 @@ export function MyProfilePage() {
     onSuccess: (session) => {
       setSession(session);
       queryClient.clear();
-      navigate('/author/projects');
+      navigate(navigationHref('/author/projects'));
     }
   });
   const profileQuery = useQuery({ queryKey: ['profile', 'me'], queryFn: getMyProfile });
@@ -513,7 +514,7 @@ export function MyProfilePage() {
         <h1 className="font-serif text-page-title font-bold text-on-surface">Hồ sơ của tôi</h1>
         {isAuthorOrAdmin && (
           <Link
-            to="/author/profile"
+            to={account?.publicKey ? profileHref('author', account.userId, account.publicKey) : '/author/profile'}
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-meta font-semibold bg-primary-600 text-on-primary hover:bg-primary-700 transition-colors shadow-xs"
           >
             <span className="material-symbols-outlined text-[16px]" aria-hidden="true">visibility</span>

@@ -1,3 +1,4 @@
+import { novelHref } from '../../shared/routes';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FocusTrap } from '@mantine/core';
 import { useDebouncedValue, useMediaQuery } from '@mantine/hooks';
@@ -263,7 +264,7 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
               </div>
             ) : (
               items.map((novel) => (
-                <CatalogCard key={novel.novelId} novel={novel} to={`${base}/novels/${novel.novelId}`} />
+                <CatalogCard key={novel.novelId} novel={novel} to={novelHref(novel, base)} />
               ))
             )}
           </div>

@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { hasReaderCapability } from '../auth/auth-types';
 import { Alert, Button, Group, NumberInput, Slider, Stack, Text, Textarea } from '@mantine/core';
 import NumberFlow from '@number-flow/react';
@@ -75,7 +76,7 @@ export function NovelEngagement({ novelId, authorId, onSaved }: { novelId: strin
           {stats.myRating !== null && <Button type="button" variant="subtle" color="red" disabled={rating.isPending} onClick={() => rating.mutate({ score: null })}>Xóa đánh giá</Button>}
         </Group>
       </Stack>
-    </form> : <Text size="sm" c="dimmed">{!user ? <><Link to="/login" className="sc-review-link">Đăng nhập</Link> bằng tài khoản độc giả để đánh giá tác phẩm.</> : 'Chỉ tài khoản độc giả đang hoạt động mới được đánh giá tác phẩm.'}</Text>}
+    </form> : <Text size="sm" c="dimmed">{!user ? <><Link to={navigationHref("/login")} className="sc-review-link">Đăng nhập</Link> bằng tài khoản độc giả để đánh giá tác phẩm.</> : 'Chỉ tài khoản độc giả đang hoạt động mới được đánh giá tác phẩm.'}</Text>}
     {notice && <Text size="sm" role="status">{notice}</Text>}
     {rating.isError ? <Alert color="red">{getApiErrorMessage(rating.error)}</Alert> : null}
   </Stack>;

@@ -5,7 +5,7 @@ import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { getReturnLocation } from '../../features/auth/return-location';
-import { roleHomePath } from '../routes';
+import { roleHomePath, navigationHref } from '../routes';
 import {
   cancelRegistration, getPendingRegistration, login, recoverRegistration, register,
   resendRegistrationEmail, verifyRegistration, verifyRegistrationLink, type PendingRegistration
@@ -507,7 +507,7 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
               </Button>
             )}
             {confirmEmailFromLink && (
-              <Button component={Link} to="/login" variant="subtle">Về trang đăng nhập</Button>
+              <Button component={Link} to={navigationHref("/login")} variant="subtle">Về trang đăng nhập</Button>
             )}
             {registration && (cancelPrompt ? (
               <Group justify="space-between">

@@ -245,7 +245,7 @@ test(
           assert.equal(await page.evaluate(() => navigator.clipboard.readText()), id('review:1'));
           assert.equal(
             await row.getByRole('link', { name: 'Chi tiết →', exact: true }).getAttribute('href'),
-            `/admin/moderation/${id('review:1')}`
+            `${process.env.VITE_EMIT_CANONICAL_LINKS === 'false' ? '/admin/moderation' : '/quan-tri/kiem-duyet'}/${id('review:1')}`
           );
         }
         checks.push(

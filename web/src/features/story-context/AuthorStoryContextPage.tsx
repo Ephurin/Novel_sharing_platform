@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { ResultsSurface } from '../../shared/components/AuthorAdminMotion';
@@ -508,7 +509,7 @@ export function AuthorStoryContextPage() {
         <div className="flex flex-col gap-2 pb-5 border-b border-stone-200/70 mb-5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="flex flex-col gap-1">
-              <Breadcrumbs items={[authorHomeCrumb, { label: novelQuery.data?.title || 'Tác phẩm', to: `/author/novels/${novelId}` }, { label: 'Cẩm nang tác phẩm' }]} />
+              <Breadcrumbs items={[authorHomeCrumb, { label: novelQuery.data?.title || 'Tác phẩm', to: navigationHref(`/author/novels/${novelId}`) }, { label: 'Cẩm nang tác phẩm' }]} />
 
               <h1 className="text-page-title text-stone-900 pt-0.5">
                 Cẩm nang tác phẩm

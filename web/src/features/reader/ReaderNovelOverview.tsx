@@ -1,3 +1,4 @@
+import { catalogHref, novelHref, navigationHref } from '../../shared/routes';
 import { hasReaderCapability } from '../auth/auth-types';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { animate, motion, useReducedMotion } from 'motion/react';
@@ -64,11 +65,12 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
   const stats = statistics.data;
   const score = typeof stats?.ratingAverage === 'number' ? `${stats.ratingAverage.toLocaleString('vi-VN', { maximumFractionDigits: 1 })}/10` : 'Chưa có';
   const updated = novel.lastUpdatedAt;
-  const shareUrl = `${window.location.origin}/public/novels/${encodeURIComponent(novel.novelId)}`;
+  const shareUrl = window.location.origin + novelHref(novel, '/public');
   const canFollow = hasReaderCapability(user) && user?.status === 'ACTIVE' && user?.userId !== novel.authorId;
   const canNominate = novel.selectionEligible && canFollow;
-  const catalogPath = location.pathname.startsWith('/reader') ? '/reader' : '/public';
-  const reviewsPath = `${catalogPath}/novels/${novel.novelId}/reviews`;
+  const legacyCatalog = location.pathname.startsWith('/reader') ? '/reader' : '/public';
+  const catalogPath = catalogHref(legacyCatalog);
+  const reviewsPath = novelHref(novel, legacyCatalog, true);
   const followLabel = stats?.isFollowing ? 'Bỏ theo dõi truyện' : 'Theo dõi truyện';
 
   return <section className="sc-novel-overview sc-reader-overview" aria-label="Thông tin truyện">
@@ -90,10 +92,10 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
           {actions}
           {canFollow ? <button type="button" className="sc-button sc-reader-secondary-action sc-reader-follow-toggle" disabled={follow.isPending || notifications.isPending || !statistics.isSuccess} aria-label={followLabel} title={followLabel} aria-pressed={stats?.isFollowing ?? false} onClick={() => follow.mutate()} data-testid="reader-follow-novel-btn">
             <ReactionIcon icon="favorite" active={stats?.isFollowing ?? false} />
-          </button> : !user ? <Link to="/login" className="sc-button sc-reader-secondary-action sc-reader-follow-toggle" aria-label="Đăng nhập để theo dõi truyện" title="Đăng nhập để theo dõi truyện"><Icon name="favorite" /></Link> : null}
+          </button> : !user ? <Link to={navigationHref("/login")} className="sc-button sc-reader-secondary-action sc-reader-follow-toggle" aria-label="Đăng nhập để theo dõi truyện" title="Đăng nhập để theo dõi truyện"><Icon name="favorite" /></Link> : null}
           {canFollow ? <button type="button" className="sc-button sc-reader-secondary-action sc-reader-notification-toggle" aria-pressed={stats?.notificationsEnabled ?? false} disabled={notifications.isPending || follow.isPending || !statistics.isSuccess} onClick={() => notifications.mutate()} data-testid="reader-notifications-btn">
             <Icon name={stats?.notificationsEnabled ? 'notifications_active' : 'notifications_none'} /><span className="sc-reader-notification-label"><span className="sc-reader-notification-reserve" aria-hidden="true">Nhận thông báo</span><span>{stats?.notificationsEnabled ? 'Tắt thông báo' : 'Nhận thông báo'}</span></span>
-          </button> : !user ? <Link to="/login" className="sc-button sc-reader-secondary-action sc-reader-notification-toggle" title="Đăng nhập để nhận thông báo chương mới"><Icon name="notifications_none" />Nhận thông báo</Link> : null}
+          </button> : !user ? <Link to={navigationHref("/login")} className="sc-button sc-reader-secondary-action sc-reader-notification-toggle" title="Đăng nhập để nhận thông báo chương mới"><Icon name="notifications_none" />Nhận thông báo</Link> : null}
           <button type="button" className="sc-button sc-reader-share-btn" onClick={() => { setCopied(false); setCopyError(false); setShareOpen(true); }}><Icon name="share" /><span>Chia sẻ</span></button>
         </div>
         <nav className="sc-reader-inline-actions" aria-label="Thao tác với truyện">
@@ -103,7 +105,7 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
         </nav>
         {novel.selectionEnabled && canFollow && <div className="sc-reader-inline-actions">
           {canNominate && !novel.selectionLabel && <NominationForm novelId={novel.novelId} />}
-          <Link to="/account/nominations" className="sc-reader-jump-link">Đề cử của tôi</Link>
+          <Link to={navigationHref("/account/nominations")} className="sc-reader-jump-link">Đề cử của tôi</Link>
         </div>}
         {notice && <p className="sc-reader-detail-notice" role="status" data-testid="reader-interaction-notice">{notice}</p>}
       </div>

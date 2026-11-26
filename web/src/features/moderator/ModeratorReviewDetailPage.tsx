@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { useState } from 'react';
 import { GiphyMedia } from '../reader/CommentGifPicker';
 import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
@@ -95,7 +96,7 @@ export function ModeratorReviewDetailPage() {
           </div>
           <p>{labels[review.source]} · {labels[review.targetType]}</p>
         </div>
-        <Button component={Link} to="/moderator/reviews" variant="default" size="sm">
+        <Button component={Link} to={navigationHref("/moderator/reviews")} variant="default" size="sm">
           Mở hàng đợi
         </Button>
       </header>

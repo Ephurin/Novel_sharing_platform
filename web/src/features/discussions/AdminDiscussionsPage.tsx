@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActionIcon, Anchor, Badge, Button, Card, Group, Loader, Modal, Pagination, SegmentedControl,
@@ -96,7 +97,7 @@ export function AdminDiscussionsPage() {
           <Title order={2}>Thảo luận cộng đồng</Title>
           <Text size="sm" c="dimmed">Quản lý danh mục, chủ đề và bình luận.</Text>
         </Stack>
-        <Anchor href="/admin/reports" size="sm"><Group gap={4}><IconReportAnalytics size={16} />Hàng đợi báo cáo</Group></Anchor>
+        <Anchor href={navigationHref("/admin/reports")} size="sm"><Group gap={4}><IconReportAnalytics size={16} />Hàng đợi báo cáo</Group></Anchor>
       </Group>
 
       <Tabs value={tab} onChange={setTab} keepMounted={false}>

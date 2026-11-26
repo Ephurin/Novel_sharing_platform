@@ -7,6 +7,9 @@ export async function adminSessionTransitions({ t, browser, output, origin }) {
       const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
       const page = await context.newPage();
       const errors = [];
+      const emitsCanonical = process.env.VITE_EMIT_CANONICAL_LINKS !== 'false';
+      const catalogHref = emitsCanonical ? '/danh-sach' : '/reader';
+      const studioHref = emitsCanonical ? '/sang-tac' : '/author/projects';
       page.on('pageerror', (e) => errors.push(e.message));
       const snapshot = async (role) => {
         for (const theme of ['light', 'dark'])
@@ -59,15 +62,15 @@ export async function adminSessionTransitions({ t, browser, output, origin }) {
         await page.goto(origin + '/public');
         await page.locator('h1,h2').first().waitFor();
         assert.equal(await page.getByTestId('shell-session').count(), 0);
-        assert.equal(await page.locator('.sc-global-nav a[href="/author/projects"]').count(), 0);
+        assert.equal(await page.locator(`.sc-global-nav a[href="${studioHref}"]`).count(), 0);
         if (process.env.PR74_COMBINED_READER === '1') {
-          await page.locator('.sc-global-nav a[href="/public"]').waitFor();
-          await page.locator('.sc-navbar a[href="/login"]').waitFor();
+          await page.locator(`.sc-global-nav a[href="${emitsCanonical ? '/danh-sach' : '/public'}"]`).waitFor();
+          await page.locator(`.sc-navbar a[href="${emitsCanonical ? '/dang-nhap' : '/login'}"]`).waitFor();
         }
         await snapshot('GUEST');
         await login('admin_seed_14', 'READER');
-        await page.locator('.sc-global-nav a[href="/reader/library"]').waitFor();
-        assert.equal(await page.locator('.sc-global-nav a[href="/author/projects"]').count(), 0);
+        await page.locator(`.sc-global-nav a[href="${catalogHref}"]`).waitFor();
+        assert.equal(await page.locator(`.sc-global-nav a[href="${studioHref}"]`).count(), 0);
         assert.equal(await page.locator('.sc-continue').count(), 0);
         await snapshot('READER');
         await page.getByTestId('shell-avatar-btn').click();
@@ -77,12 +80,12 @@ export async function adminSessionTransitions({ t, browser, output, origin }) {
         await page.goto(origin + '/reader');
         await logout('READER');
         await login('admin_seed_1', 'AUTHOR');
-        await page.locator('.sc-global-nav a[href="/author/projects"]').waitFor();
-        await page.locator('.sc-global-nav a[href="/reader"]').waitFor();
+        await page.locator(`.sc-global-nav a[href="${studioHref}"]`).waitFor();
+        await page.locator(`.sc-global-nav a[href="${catalogHref}"]`).waitFor();
         await snapshot('AUTHOR');
         await logout('AUTHOR');
         await login('admin_seed', 'ADMIN');
-        await page.locator('.admin-sidebar a[href="/admin/appeals"]').waitFor();
+        await page.locator(`.admin-sidebar a[href="${emitsCanonical ? '/quan-tri/khieu-nai' : '/admin/appeals'}"]`).waitFor();
         await snapshot('ADMIN');
         await logout('ADMIN');
         await page.goto(origin + '/public');

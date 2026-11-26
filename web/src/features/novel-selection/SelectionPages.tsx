@@ -1,3 +1,4 @@
+import { novelHref, navigationHref } from '../../shared/routes';
 import { useState } from 'react';
 import { Alert, Badge, Button, Checkbox, Group, Paper, Select, Stack, Text, Textarea, Title } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -28,7 +29,7 @@ export function NominationForm({ novelId, own = false }: { novelId: string; own?
     }
   });
   return <>
-    {mutation.isSuccess ? <Text size="sm" role="status">Đã gửi. <Link to="/account/nominations">Xem đề cử của tôi</Link></Text> :
+    {mutation.isSuccess ? <Text size="sm" role="status">Đã gửi. <Link to={navigationHref("/account/nominations")}>Xem đề cử của tôi</Link></Text> :
       <Button variant="default" size="compact-sm" onClick={() => {
         mutation.reset();
         setRequestKey(crypto.randomUUID());
@@ -44,7 +45,7 @@ export function NominationForm({ novelId, own = false }: { novelId: string; own?
             }} required />
           {mutation.isError && <Alert color="red" role="alert">{getApiErrorMessage(mutation.error)}</Alert>}
           <Group justify="space-between">
-            <Link to="/account/nominations">Đề cử của tôi</Link>
+            <Link to={navigationHref("/account/nominations")}>Đề cử của tôi</Link>
             <Button type="submit" disabled={reason.trim().length < 50} loading={mutation.isPending}>Gửi</Button>
           </Group>
         </Stack>
@@ -147,7 +148,7 @@ export function MyNominationsPage() {
     {query.isSuccess && <AdminPanel>
       {query.data.items.length === 0 && <EmptyState description="Bạn chưa có đề cử." />}
       <Stack>{query.data.items.map((item) => <Paper key={item.nomination_id} withBorder p="md">
-        <Group justify="space-between"><Link to={`/public/novels/${item.novel_id}`}>{item.title}</Link>
+        <Group justify="space-between"><Link to={novelHref({ novelId: item.novel_id, novelSlug: item.novel_slug }, '/public')}>{item.title}</Link>
           <Badge variant="light">{selectionLabels[item.status]}</Badge></Group>
         <Text size="sm" mt="xs" style={{ overflowWrap: 'anywhere' }}>{item.reason}</Text>
       </Paper>)}</Stack>
@@ -159,7 +160,7 @@ export function MyNominationsPage() {
 export function ModeratorSelectionLink() {
   const access = useQuery({ queryKey: ['moderator-access'], queryFn: getModeratorAccess });
   return access.data?.permissions.includes('selection.review') &&
-    <Button component={Link} to="/moderator/selections" variant="default" size="sm">Tuyển chọn tác phẩm</Button>;
+    <Button component={Link} to={navigationHref("/moderator/selections")} variant="default" size="sm">Tuyển chọn tác phẩm</Button>;
 }
 
 export function ModeratorSelectionsPage() {
@@ -170,7 +171,7 @@ export function ModeratorSelectionsPage() {
   return <>
     <AdminHeader title="Tuyển chọn tác phẩm">
       {access.data?.permissions.includes('placement.manage') &&
-        <Button component={Link} to="/moderator/placements" variant="default">Lịch giới thiệu</Button>}
+        <Button component={Link} to={navigationHref("/moderator/placements")} variant="default">Lịch giới thiệu</Button>}
     </AdminHeader>
     <AdminPanel>
       <Select label="Hồ sơ" value={view} data={[{ value: 'queue', label: 'Cần xử lý' }, { value: 'selected', label: 'Đã công nhận' }]}
@@ -181,7 +182,7 @@ export function ModeratorSelectionsPage() {
         {query.data.items.length === 0 && <EmptyState description="Nhóm này chưa có hồ sơ." />}
         <Stack gap="sm">{query.data.items.map((item) => <Paper key={item.case_id} withBorder p="md">
           <Group justify="space-between">
-            <Link to={`/moderator/selections/${item.case_id}`}>{item.title}</Link>
+            <Link to={navigationHref(`/moderator/selections/${item.case_id}`)}>{item.title}</Link>
             <Badge variant="light">{item.needs_comparison ? 'Cần so phiên bản' : selectionLabels[item.status]}</Badge>
           </Group>
         </Paper>)}</Stack>
@@ -254,7 +255,7 @@ function ModeratorSelectionDetail({ caseId }: { caseId: string }) {
     (item.eligibility && Object.values(criteria).every(Boolean) && (!shortException || shortStory)));
   return <>
     <AdminHeader title={item.title}>
-      <Button component={Link} to="/moderator/selections" variant="default">Về hàng chờ</Button>
+      <Button component={Link} to={navigationHref("/moderator/selections")} variant="default">Về hàng chờ</Button>
       <Badge variant="light">{selectionLabels[item.status]}</Badge>
     </AdminHeader>
     <Stack>

@@ -105,10 +105,11 @@ test('password registration offers a browser-bound link and a one-time backup co
   assert.equal(linkPending.response.status, 202);
   const linkCookie = linkPending.response.headers.get('set-cookie')?.split(';')[0];
   const linkMail = inbox.get(linkDetails.email);
-  const link = linkMail?.match(/https?:\/\/\S+\/verify-email#token=[A-Za-z0-9_-]{43}/)?.[0];
+  const link = linkMail?.match(/https?:\/\/\S+\/(?:xac-thuc-email|verify-email)#token=[A-Za-z0-9_-]{43}/)?.[0];
   const backupCode = linkMail?.match(/Mã dự phòng là (\d{8})/)?.[1];
   assert.ok(linkCookie && link && backupCode);
   const linkUrl = new URL(link);
+  assert.equal(linkUrl.pathname, process.env.WEB_EMIT_CANONICAL_LINKS === 'false' ? '/verify-email' : '/xac-thuc-email');
   const token = new URLSearchParams(linkUrl.hash.slice(1)).get('token');
   const headers = { Origin: linkUrl.origin, Cookie: linkCookie };
   assert.equal((await post('/register/pending', {}, headers)).body.data.registrationId, linkPending.body.data.registrationId);

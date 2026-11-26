@@ -1,3 +1,4 @@
+import { navigationHref } from '../routes';
 export const navigationLabels = {
   home: 'Trang chủ',
   authorHome: 'Tác phẩm',
@@ -8,6 +9,6 @@ export const navigationLabels = {
   readerWallet: 'Ví xu'
 } as const;
 
-export const authorHomeCrumb = { label: navigationLabels.authorHome, to: '/author/projects' };
-export const readerHomeCrumb = { label: navigationLabels.readerHome, to: '/reader' };
-export const publicHomeCrumb = { label: navigationLabels.publicHome, to: '/public' };
+export const authorHomeCrumb = { label: navigationLabels.authorHome, to: navigationHref('/author/projects') };
+export const readerHomeCrumb = { label: navigationLabels.readerHome, to: navigationHref('/reader') };
+export const publicHomeCrumb = { label: navigationLabels.publicHome, to: navigationHref('/public') };

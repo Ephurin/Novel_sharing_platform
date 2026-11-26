@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { AnimatedNumber } from '../../shared/components/AuthorAdminMotion';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -120,7 +121,7 @@ export function AdminOverviewPage() {
                 ['/admin/reports', 'flag', 'Báo cáo người dùng', stats.pendingReports],
                 ['/admin/withdraws', 'payments', 'Yêu cầu rút Xu', stats.pendingWithdraws]
               ].map(([path, icon, label, count]) => (
-                <Link className="admin-task" to={String(path)} key={path}>
+                <Link className="admin-task" to={navigationHref(String(path))} key={path}>
                   <AdminIcon name={String(icon)} />
                   <strong>{label}</strong>
                   <span>

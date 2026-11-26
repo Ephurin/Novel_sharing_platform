@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { EvidencePreview } from '../../shared/components/InteractionWidgets';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -82,7 +83,7 @@ export function AdminReconciliationPage() {
   const { request, state, history } = query.data;
   return (
     <>
-      <Link className="admin-link" to="/admin/withdraws">
+      <Link className="admin-link" to={navigationHref("/admin/withdraws")}>
         ← Yêu cầu rút Xu
       </Link>
       <AdminHeader

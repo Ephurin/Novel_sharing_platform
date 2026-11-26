@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { ImageLightbox, ReactionIcon } from '../../shared/components/InteractionWidgets';
 import { Avatar } from '@mantine/core';
 import { Link } from 'react-router-dom';
@@ -65,11 +66,11 @@ export function AuthorProfileHeader({ author, isOwnProfile, isGuest, canInteract
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {isOwnProfile ? (
-              <Link to="/profile/me" className="sc-button sc-button-primary">
+              <Link to={navigationHref("/profile/me")} className="sc-button sc-button-primary">
                 <span className="material-symbols-outlined" aria-hidden="true">edit</span>Chỉnh sửa hồ sơ
               </Link>
             ) : isGuest ? (
-              <Link to="/login" className="sc-button sc-button-primary" data-testid="author-profile-login-cta">
+              <Link to={navigationHref("/login")} className="sc-button sc-button-primary" data-testid="author-profile-login-cta">
                 <span className="material-symbols-outlined" aria-hidden="true">login</span>Đăng nhập để theo dõi
               </Link>
             ) : (

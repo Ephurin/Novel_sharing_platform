@@ -1,3 +1,4 @@
+import { novelHref } from '../routes';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -142,7 +143,7 @@ export function GlobalSearchDropdown({ catalogPath }: { catalogPath: '/reader' |
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (shouldShowDropdown && selectedIndex >= 0 && items[selectedIndex]) {
-      const target = `${catalogPath}/novels/${items[selectedIndex].novelId}`;
+      const target = novelHref(items[selectedIndex], catalogPath);
       closeAll();
       navigate(target);
       return;
@@ -272,7 +273,7 @@ export function GlobalSearchDropdown({ catalogPath }: { catalogPath: '/reader' |
                     key={novel.novelId}
                     id={`${listId}-opt-${index}`}
                     novel={novel}
-                    to={`${catalogPath}/novels/${novel.novelId}`}
+                    to={novelHref(novel, catalogPath)}
                     selected={selectedIndex === index}
                     onHover={() => setActiveIndex(index)}
                     onSelect={closeAll}

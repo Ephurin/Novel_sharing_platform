@@ -1,3 +1,4 @@
+import { novelHref, navigationHref } from '../../shared/routes';
 import { hasReaderCapability } from '../auth/auth-types';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -134,7 +135,7 @@ export function HomeSidebar({
               <circle cx="234" cy="28" r="6" stroke="currentColor" strokeWidth="1.5" opacity=".45" />
             </svg>
           </div>
-          <Link to="/profile/me" className="sc-home-profile-avatar" aria-label={`Hồ sơ của ${displayName}`}>
+          <Link to={navigationHref("/profile/me")} className="sc-home-profile-avatar" aria-label={`Hồ sơ của ${displayName}`}>
             {user.avatarUrl && !avatarFailed ? (
               <img src={user.avatarUrl} alt={displayName} onError={() => setAvatarFailed(true)} />
             ) : (
@@ -143,7 +144,7 @@ export function HomeSidebar({
           </Link>
           <p className="sc-home-profile-welcome">Chào mừng trở lại,</p>
           <h3 className="sc-home-profile-name">
-            <Link to="/profile/me">{displayName}</Link>
+            <Link to={navigationHref("/profile/me")}>{displayName}</Link>
             <svg className="sc-home-profile-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden="true">
               <path d="m12 2 2.1 7.9L22 12l-7.9 2.1L12 22l-2.1-7.9L2 12l7.9-2.1L12 2Z" />
             </svg>
@@ -151,22 +152,22 @@ export function HomeSidebar({
 
           {isReaderSide ? (
             <div className="sc-home-profile-stats">
-              <Link to="/reader/library" className="sc-home-profile-stat">
+              <Link to={navigationHref("/reader/library")} className="sc-home-profile-stat">
                 <strong>{libraryQuery.isPending ? '–' : count(libraryQuery.data?.totalItems ?? 0)}</strong>
                 <span>Đang theo dõi</span>
               </Link>
-              <Link to="/reader/bookmarks" className="sc-home-profile-stat">
+              <Link to={navigationHref("/reader/bookmarks")} className="sc-home-profile-stat">
                 <strong>{bookmarksQuery.isPending ? '–' : count(bookmarksQuery.data?.totalItems ?? 0)}</strong>
                 <span>Bookmark</span>
               </Link>
-              <Link to="/reader/history" className="sc-home-profile-stat">
+              <Link to={navigationHref("/reader/history")} className="sc-home-profile-stat">
                 <strong>{historyQuery.isPending ? '–' : count(historyQuery.data?.totalItems ?? 0)}</strong>
                 <span>Lịch sử đọc</span>
               </Link>
             </div>
           ) : (
             <div className="sc-home-profile-admin-foot">
-              <Link to="/admin" className="sc-home-sec-link">Mở trang quản trị →</Link>
+              <Link to={navigationHref("/admin")} className="sc-home-sec-link">Mở trang quản trị →</Link>
             </div>
           )}
         </section>
@@ -177,7 +178,7 @@ export function HomeSidebar({
           </div>
           <h3>Chào mừng đến StoryCraft</h3>
           <p>Đọc truyện công khai, khám phá tác giả và tìm câu chuyện dành cho bạn.</p>
-          <Link to="/login" className="sc-home-pill-btn sc-home-pill-primary">
+          <Link to={navigationHref("/login")} className="sc-home-pill-btn sc-home-pill-primary">
             Đăng nhập / Tạo tài khoản
           </Link>
         </section>
@@ -228,7 +229,7 @@ export function HomeSidebar({
           <ol className="sc-home-rank-list">
             {rankItems.map((novel, index) => (
               <li key={novel.novelId}>
-                <Link className="sc-home-rank-row" to={`${catalogPath}/novels/${novel.novelId}`}>
+                <Link className="sc-home-rank-row" to={novelHref(novel, catalogPath)}>
                   <span className={`sc-home-rank-num${index < 3 ? ` is-top-${index + 1}` : ''}`}>
                     {index + 1}
                   </span>
@@ -257,7 +258,7 @@ export function HomeSidebar({
               <span className="material-symbols-outlined sc-home-sec-icon" aria-hidden="true">notifications</span>
               <h2>Hoạt động gần đây</h2>
             </div>
-            <Link className="sc-home-sec-link" to="/notifications">Tất cả →</Link>
+            <Link className="sc-home-sec-link" to={navigationHref("/notifications")}>Tất cả →</Link>
           </div>
 
           {notificationsQuery.isPending ? (
@@ -282,7 +283,7 @@ export function HomeSidebar({
           ) : (
             <div className="sc-home-activity-list">
               {notifications.map(item => {
-                const target = notificationHref(item, hasReaderCapability(user.role)) ?? '/notifications';
+                const target = notificationHref(item, hasReaderCapability(user.role)) ?? navigationHref('/notifications');
                 const meta = [notificationTypeLabel(item.type), relativeTime(item.createdAt)].filter(Boolean).join(' · ');
                 return (
                   <Link key={item.notificationId} className="sc-home-activity-row" to={target}>

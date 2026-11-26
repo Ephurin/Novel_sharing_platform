@@ -1,3 +1,4 @@
+import { appealsPath } from '../../core/config/web-paths.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import type { PoolClient } from 'pg';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
@@ -146,7 +147,7 @@ export async function executeUserReportResolution(
           topicId: discussionOutcome.topicId,
           adminId: auth.userId,
           reason,
-          appealsUrl: '/appeals'
+          appealsUrl: appealsPath
         }
       });
   }

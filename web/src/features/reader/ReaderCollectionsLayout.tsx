@@ -1,10 +1,11 @@
+import { navigationHref } from '../../shared/routes';
 import type { PropsWithChildren } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 
 export const readerCollections = [
-  { to: '/reader/library', label: 'Thư viện của tôi', icon: 'local_library' },
-  { to: '/reader/bookmarks', label: 'Bookmark', icon: 'bookmarks' },
-  { to: '/reader/history', label: 'Lịch sử đọc', icon: 'history' }
+  { to: navigationHref('/reader/library'), label: 'Thư viện của tôi', icon: 'local_library' },
+  { to: navigationHref('/reader/bookmarks'), label: 'Bookmark', icon: 'bookmarks' },
+  { to: navigationHref('/reader/history'), label: 'Lịch sử đọc', icon: 'history' }
 ] as const;
 
 export function ReaderCollectionsLayout({ children }: PropsWithChildren) {

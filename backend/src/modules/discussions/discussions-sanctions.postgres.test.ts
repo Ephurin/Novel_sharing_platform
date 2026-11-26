@@ -135,7 +135,7 @@ test('direct discussion moderation hides through one reversible sanction shared 
     assert.equal(authorNotices.length, 1, 'the hidden author is notified exactly once');
     assert.equal(authorNotices[0].type, 'DISCUSSION_CONTENT_HIDDEN');
     assert.equal(authorNotices[0].payload.reason, 'ẩn trực tiếp');
-    assert.equal(authorNotices[0].payload.appealsUrl, '/appeals');
+    assert.equal(authorNotices[0].payload.appealsUrl, process.env.WEB_EMIT_CANONICAL_LINKS === 'false' ? '/appeals' : '/khieu-nai');
     assert.equal(await getMongoDatabase().collection('notifications').countDocuments({ userId: outsider.userId }), 0);
 
     // The author reads the decision and can open an appeal about it.

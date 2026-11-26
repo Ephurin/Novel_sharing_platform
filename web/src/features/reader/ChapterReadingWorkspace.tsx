@@ -1,3 +1,4 @@
+import { bookmarksHref, chapterHref, novelHref } from '../../shared/routes';
 import { ParagraphDiscussion, useChapterAuthorFeedback, useChapterDiscussions, usePrivateCommentFocus } from './PrivateComments';
 import { parseAuthorNotes } from '../../shared/lib/author-notes';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -96,7 +97,8 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   const bookmarks = useReadingBookmarks(chapter.novelId, { loadAll: true });
   const { preferences } = preference;
   const base = publicMode ? '/public' : '/reader';
-  const novelPath = `${base}/novels/${chapter.novelId}`;
+  const novelSlug = novel?.novelSlug ?? chapter.novelSlug;
+  const novelPath = novelHref({ novelId: chapter.novelId, novelSlug }, base);
   const index = chapters.findIndex(item => item.chapterId === chapter.chapterId);
   const previous = index > 0 ? chapters[index - 1] : undefined;
   const next = index >= 0 ? chapters[index + 1] : undefined;
@@ -260,7 +262,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   const savePassage = () => {
     if (!selectedPassage) return;
     if (selectedBookmark) { bookmarks.remove(selectedBookmark.bookmarkId); return; }
-    bookmarks.save({ novelId: chapter.novelId, chapterId: chapter.chapterId, paragraphIndex: selectedPassage.index, pageOffset: selectedPassage.offset,
+    bookmarks.save({ novelId: chapter.novelId, novelSlug, chapterId: chapter.chapterId, chapterSlug: chapter.chapterSlug, paragraphIndex: selectedPassage.index, pageOffset: selectedPassage.offset,
       startOffset: selectedPassage.line.startOffset, endOffset: selectedPassage.line.endOffset, excerpt: selectedPassage.line.excerpt, novelTitle: novel?.title ?? 'Truyện đã lưu bookmark',
       chapterTitle: chapter.title, chapterNumber: chapter.chapterNumber, coverImageUrl: novel?.coverImageUrl ?? null });
   };
@@ -274,7 +276,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
     lineHeight: preferences.lineHeight, textAlign: (preferences.textAlign ?? 'LEFT').toLowerCase()
   } as CSSProperties;
   const navigationLink = (target: ReaderChapter | undefined, label: string, icon: string) => target
-    ? <Link className="sc-reader-tool" to={`${base}/chapters/${target.chapterId}`} title={`${label} · ${target.chapterNumber}`} aria-label={label}><Icon name={icon} /></Link>
+    ? <Link className="sc-reader-tool" to={chapterHref({ ...target, novelSlug }, base)} title={`${label} · ${target.chapterNumber}`} aria-label={label}><Icon name={icon} /></Link>
     : <button type="button" className="sc-reader-tool" disabled aria-label={label} title={label}><Icon name={icon} /></button>;
 
   return <div className="sc-reader-workspace" data-reader-background={preferences.background}>
@@ -379,8 +381,8 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
       {navigationLink(next, 'Chương sau', 'skip_next')}
     </aside>
     <footer className="sc-reader-end-navigation" aria-label="Điều hướng cuối chương">
-      {previous && <Link to={`${base}/chapters/${previous.chapterId}`} className="sc-button"><Icon name="chevron_left" />Chương trước</Link>}
-      {next && <Link to={`${base}/chapters/${next.chapterId}`} className="sc-button sc-button-primary">Chương sau<Icon name="chevron_right" /></Link>}
+      {previous && <Link to={chapterHref({ ...previous, novelSlug }, base)} className="sc-button"><Icon name="chevron_left" />Chương trước</Link>}
+      {next && <Link to={chapterHref({ ...next, novelSlug }, base)} className="sc-button sc-button-primary">Chương sau<Icon name="chevron_right" /></Link>}
     </footer>
     {children}
     <AnimatedModal opened={panel !== null} onClose={() => setPanel(null)} side="right" title={panel === 'toc' ? 'Mục lục chương' : panel === 'bookmarks' ? 'Bookmark' : 'Tùy chỉnh đọc'} className="sc-reader-tool-panel"
@@ -421,10 +423,10 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
         </div>}
         {tocPending && <p role="status">Đang tải mục lục…</p>}
         {tocFailed && <div role="alert"><p>Không tải được mục lục.</p><button type="button" className="sc-button" onClick={onRetryToc}>Thử lại</button></div>}
-        <nav ref={toc} className="sc-chapter-toc sc-reader-toc-list" aria-label="Mục lục chương">{chapters.map(item => <Link key={item.chapterId} to={`${base}/chapters/${item.chapterId}`} aria-current={item.chapterId === chapter.chapterId ? 'page' : undefined} onClick={() => setPanel(null)}><span>{chapterDisplayTitle(item)}</span>{item.isVip && <small>VIP · {item.priceCoins} xu</small>}</Link>)}</nav>
+        <nav ref={toc} className="sc-chapter-toc sc-reader-toc-list" aria-label="Mục lục chương">{chapters.map(item => <Link key={item.chapterId} to={chapterHref({ ...item, novelSlug }, base)} aria-current={item.chapterId === chapter.chapterId ? 'page' : undefined} onClick={() => setPanel(null)}><span>{chapterDisplayTitle(item)}</span>{item.isVip && <small>VIP · {item.priceCoins} xu</small>}</Link>)}</nav>
       </>}
       {panel === 'bookmarks' && <>
-        <Link className="sc-button" to={`${base}/bookmarks?novelId=${encodeURIComponent(chapter.novelId)}`} onClick={() => setPanel(null)}>Mở trang Bookmark</Link>
+        <Link className="sc-button" to={`${bookmarksHref(base)}?novelId=${encodeURIComponent(chapter.novelId)}`} onClick={() => setPanel(null)}>Mở trang Bookmark</Link>
         <ReadingBookmarksList novelId={chapter.novelId} base={base} onOpen={() => { jumpAfterClose.current = true; setPanel(null); }} />
       </>}
     </AnimatedModal>

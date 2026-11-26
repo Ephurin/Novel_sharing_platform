@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { staticRouteTargets } from '../../shared/routes';
+import { staticRouteTargets, navigationHref } from '../../shared/routes';
 import { useResourceId } from '../../app/ResourceRoute';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
@@ -80,9 +80,9 @@ export function ChapterReader({ publicMode = false }: { publicMode?: boolean }) 
       <div>{userId ? <>
         <button type="button" className="sc-button sc-button-primary" disabled={unlock.isPending || notEnough} data-testid="btn-unlock-chapter"
           onClick={() => unlock.mutate()}>{unlock.isPending ? 'Đang mở khóa…' : price !== null ? `Mở khóa · ${price} xu` : 'Mở khóa chương'}</button>
-        <Link to="/wallet" className={notEnough ? 'sc-button sc-button-primary' : 'sc-button'}>{notEnough ? 'Nạp thêm xu' : 'Đến ví xu'}</Link>
+        <Link to={navigationHref("/wallet")} className={notEnough ? 'sc-button sc-button-primary' : 'sc-button'}>{notEnough ? 'Nạp thêm xu' : 'Đến ví xu'}</Link>
       </> : <Link to={staticRouteTargets['/login']} state={{ returnTo: { pathname, search, hash } }} className="sc-button sc-button-primary">Đăng nhập để mở khóa</Link>}
-        <Link to={publicMode ? '/public' : '/reader'} className="sc-button">Danh sách truyện</Link></div>
+        <Link to={publicMode ? navigationHref('/public') : navigationHref('/reader')} className="sc-button">Danh sách truyện</Link></div>
       {unlock.isError && <p role="alert">{getApiErrorMessage(unlock.error)}</p>}
     </section>;
   }

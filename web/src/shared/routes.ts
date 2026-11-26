@@ -127,12 +127,12 @@ export function profilePath(kind: 'member' | 'author', publicKey: string) {
 
 export function novelHref(novel: { novelId: string; novelSlug?: string }, base = '/reader', reviews = false) {
   if (emitCanonicalLinks && novel.novelSlug) return novelPath(novel.novelSlug) + (reviews ? '/danh-gia' : '');
-  return `${base}/novels/${encodeURIComponent(novel.novelId)}${reviews ? '/reviews' : ''}`;
+  return `${base === '/public' ? '/public' : '/reader'}/novels/${encodeURIComponent(novel.novelId)}${reviews ? '/reviews' : ''}`;
 }
 
 export function chapterHref(chapter: { chapterId: string; chapterSlug?: string; novelSlug?: string }, base = '/reader') {
   if (emitCanonicalLinks && chapter.novelSlug && chapter.chapterSlug) return chapterPath(chapter.novelSlug, chapter.chapterSlug);
-  return `${base}/chapters/${encodeURIComponent(chapter.chapterId)}`;
+  return `${base === '/public' ? '/public' : '/reader'}/chapters/${encodeURIComponent(chapter.chapterId)}`;
 }
 
 export function topicHref(topic: { topicId: string; topicSlug?: string }, editing = false) {

@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { AnimatedStepper, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { NormalizationPreview, SplitPresets } from './ManuscriptTools';
 import { duplicateChapterGroups, splitPatternError } from './manuscript-tools';
@@ -1134,7 +1135,7 @@ export function ManuscriptImportPage() {
             <Breadcrumbs
               items={[
                 authorHomeCrumb,
-                { label: novel?.title || 'Tác phẩm', to: `/author/novels/${novelId}` },
+                { label: novel?.title || 'Tác phẩm', to: navigationHref(`/author/novels/${novelId}`) },
                 { label: 'Nhập bản thảo' }
               ]}
             />
@@ -1161,7 +1162,7 @@ export function ManuscriptImportPage() {
             {currentStep === 3 && (
               <button
                 type="button"
-                onClick={() => navigate(`/author/novels/${novelId}`)}
+                onClick={() => navigate(navigationHref(`/author/novels/${novelId}`))}
                 className="px-3 py-1.5 rounded-lg bg-surface-container-lowest border border-stone-200 hover:bg-stone-50 text-stone-700 text-meta font-semibold shadow-2xs transition-colors self-start md:self-auto"
               >
                 Về trang tác phẩm
@@ -1226,7 +1227,7 @@ export function ManuscriptImportPage() {
                 </AnimatedDisclosure>
               )}
               <div className="mt-2">
-                <Link className="sc-workspace-button" to={`/author/novels/${novelId}`}>
+                <Link className="sc-workspace-button" to={navigationHref(`/author/novels/${novelId}`)}>
                   Kiểm tra danh sách chương
                 </Link>
               </div>
@@ -1365,7 +1366,7 @@ export function ManuscriptImportPage() {
                       </button>
                     )}
                     <Link
-                      to={`/author/novels/${novelId}`}
+                      to={navigationHref(`/author/novels/${novelId}`)}
                       className={isImportCompleteSuccess ? 'sc-button sc-button-primary' : 'sc-button'}
                     >
                       Mở trang tác phẩm

@@ -1,3 +1,4 @@
+import { profileHref } from '../../shared/routes';
 import { Alert, Avatar, Button, Group, Pagination, Paper, Select, Stack, Text, TextInput, Title } from '@mantine/core';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -15,7 +16,7 @@ function Person({ person }: { person: Connection }) {
     if (account !== useAuthStore.getState().user?.userId) throw new Error('Phiên đăng nhập đã thay đổi.');
     await followReader(person.userId, person.following);
   }, onSuccess: async () => { client.removeQueries({ queryKey: ['private-comments'] }); await client.invalidateQueries(); } });
-  return <Paper withBorder p="md"><Group justify="space-between" wrap="wrap"><Group><Avatar src={person.avatarUrl} /><div><Link to={`/readers/${person.userId}`}>{person.displayName || person.username}</Link><Text size="sm" c="dimmed">@{person.username}{person.mutual ? ' · Bạn bè' : ''}</Text></div></Group>
+  return <Paper withBorder p="md"><Group justify="space-between" wrap="wrap"><Group><Avatar src={person.avatarUrl} /><div><Link to={profileHref('member', person.userId, person.publicKey)}>{person.displayName || person.username}</Link><Text size="sm" c="dimmed">@{person.username}{person.mutual ? ' · Bạn bè' : ''}</Text></div></Group>
     {account && account !== person.userId && <Button variant={person.following ? 'default' : 'filled'} loading={follow.isPending} onClick={() => follow.mutate()}>{person.following ? 'Bỏ theo dõi' : person.followedBy ? 'Theo dõi lại' : 'Theo dõi'}</Button>}</Group>
     {person.bio && <Text mt="sm">{person.bio}</Text>}{person.followersCount != null && <Text size="sm" c="dimmed" mt="sm">{person.followersCount} người theo dõi · {person.followingCount} đang theo dõi</Text>}
     {follow.isError && <Alert color="red">{getApiErrorMessage(follow.error)}</Alert>}</Paper>;

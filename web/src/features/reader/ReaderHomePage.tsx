@@ -1,3 +1,4 @@
+import { catalogHref, chapterHref, novelHref } from '../../shared/routes';
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
@@ -51,7 +52,8 @@ function resolveNovelPills(novel: ReaderNovel): Array<{ label: string; kind: 'ge
 export function ReaderHomePage() {
   const navigate = useNavigate();
   const user = useAuthStore(state => state.user);
-  const catalogPath = user && user.role !== 'ADMIN' ? '/reader' : '/public';
+  const legacyCatalog = user && user.role !== 'ADMIN' ? '/reader' : '/public';
+  const catalogPath = catalogHref(legacyCatalog);
   const [pickingRandom, setPickingRandom] = useState(false);
   const [chaptersExpanded, setChaptersExpanded] = useState(false);
 
@@ -151,7 +153,9 @@ export function ReaderHomePage() {
       seen.add(novel.latestChapter.chapterId);
       fallback.push({
         chapterId: novel.latestChapter.chapterId,
+        chapterSlug: novel.latestChapter.chapterSlug,
         novelId: novel.novelId,
+        novelSlug: novel.novelSlug,
         chapterNumber: novel.latestChapter.chapterNumber,
         title: novel.latestChapter.title,
         publishedAt: novel.latestChapter.publishedAt ?? novel.updatedAt ?? null,
@@ -173,7 +177,7 @@ export function ReaderHomePage() {
   const chapterUpdatesError = latestChaptersQuery.isError && latestQuery.isError && latestChapterEntries.length === 0;
 
   const authors = useMemo(() => {
-    const byId = new Map<string, { authorId: string; authorName: string; novelsCount: number; totalViews: number }>();
+    const byId = new Map<string, { authorId: string; publicKey?: string; authorName: string; novelsCount: number; totalViews: number }>();
     for (const novel of catalogNovels) {
       if (!novel.authorId || !novel.authorName?.trim()) continue;
       const existing = byId.get(novel.authorId);
@@ -181,6 +185,7 @@ export function ReaderHomePage() {
       if (!existing) {
         byId.set(novel.authorId, {
           authorId: novel.authorId,
+          publicKey: novel.authorPublicKey,
           authorName: novel.authorName.trim(),
           novelsCount: 1,
           totalViews: views,
@@ -195,7 +200,7 @@ export function ReaderHomePage() {
       .slice(0, 4);
   }, [catalogNovels]);
 
-  const novelPath = (novel: ReaderNovel) => `${catalogPath}/novels/${novel.novelId}`;
+  const novelPath = (novel: ReaderNovel) => novelHref(novel, legacyCatalog);
 
   async function handleRandomNovel() {
     if (pickingRandom) return;
@@ -203,7 +208,7 @@ export function ReaderHomePage() {
     try {
       const randomPick = await getRandomPublishedNovel();
       if (randomPick?.novelId) {
-        navigate(`${catalogPath}/novels/${randomPick.novelId}`);
+        navigate(novelHref(randomPick, legacyCatalog));
         return;
       }
       const total = Math.max(latestQuery.data?.totalItems ?? 0, viewsQuery.data?.totalItems ?? 0);
@@ -321,7 +326,7 @@ export function ReaderHomePage() {
               ) : (
                 <div className="sc-home-chapter-list">
                   {chapterUpdateItems.map(item => {
-                    const target = `${catalogPath}/chapters/${item.chapterId}`;
+                    const target = chapterHref(item, legacyCatalog);
                     const badgeLabel = `Chương ${item.chapterNumber}`;
                     const cleanChapterTitle = item.title?.trim() ?? '';
                     const coverNovel = {

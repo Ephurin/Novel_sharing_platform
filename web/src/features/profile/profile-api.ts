@@ -22,6 +22,7 @@ export type UserSettings = {
 
 export type AuthorProfile = {
   authorId: string;
+  publicKey?: string;
   username: string;
   displayName: string | null;
   avatarUrl: string | null;
@@ -33,7 +34,7 @@ export type AuthorProfile = {
   totalWords: number;
   followersCount: number;
   isFollowing: boolean;
-  novels: Array<Pick<ReaderNovel, 'novelId' | 'title' | 'status' | 'likesCount' | 'viewsCount' | 'chaptersCount' | 'coverImageUrl' | 'genre' | 'serialStatus'>>;
+  novels: Array<Pick<ReaderNovel, 'novelId' | 'novelSlug' | 'title' | 'status' | 'likesCount' | 'viewsCount' | 'chaptersCount' | 'coverImageUrl' | 'genre' | 'serialStatus'>>;
 };
 
 export async function getMyProfile() {

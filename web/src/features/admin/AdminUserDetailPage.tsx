@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Button, Select, Alert } from '@mantine/core';
@@ -99,7 +100,7 @@ export function AdminUserDetailPage() {
   };
   return (
     <>
-      <Link className="admin-link" to="/admin/users">
+      <Link className="admin-link" to={navigationHref("/admin/users")}>
         ← Người dùng
       </Link>
       <AdminHeader
@@ -181,7 +182,7 @@ export function AdminUserDetailPage() {
         {novels.map((n) => (
           <div className="admin-task" key={n.novel_id}>
             {access.data?.permissions.includes('content') ? (
-              <Link className="admin-link" to={`/admin/novels/${n.novel_id}`}>
+              <Link className="admin-link" to={navigationHref(`/admin/novels/${n.novel_id}`)}>
                 {n.title}
               </Link>
             ) : (

@@ -1,3 +1,4 @@
+import { novelHref } from '../../shared/routes';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -34,7 +35,7 @@ export function FeaturedSelectionsShelf({ catalogPath }: { catalogPath: string }
     <div className="sc-home-sec-head"><h2 id="featured-selections-title">Tác phẩm được tuyển chọn</h2></div>
     <div className="sc-home-featured-grid">
       {items.map(item => <article key={item.placementId} className="sc-home-featured-card">
-        <Link className="sc-home-featured-cover-link" to={`${catalogPath}/novels/${item.novelId}`}>
+        <Link className="sc-home-featured-cover-link" to={novelHref(item, catalogPath)}>
           <span className="sc-home-featured-cover"><HomeNovelCover novel={item} size="card" /></span>
           <span className="sc-home-featured-title">{item.title}</span>
         </Link>

@@ -14,7 +14,9 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
   const image = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="300"><rect width="200" height="300" fill="#775f55"/><circle cx="100" cy="110" r="60" fill="#e9c899"/><text x="100" y="225" text-anchor="middle" fill="white" font-size="20">StoryCraft</text></svg>');
   const novels = Array.from({ length: 16 }, (_, index) => ({
     novelId: `novel-${index}`,
+    novelSlug: `hanh-trinh-${index}`,
     authorId: 'author-1',
+    authorPublicKey: 'tac-gia-thu',
     authorName: 'Tác giả thử',
     title: `Hành trình qua những mùa gió ${index + 1}`,
     synopsis: 'Một chuyến hành trình qua những miền ký ức.',
@@ -38,6 +40,8 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
   const latestChapters = Array.from({ length: 10 }, (_, index) => ({
     chapterId: `latest-ch-${index}`,
     novelId: novels[index].novelId,
+    novelSlug: novels[index].novelSlug,
+    chapterSlug: `chuong-moi-${index}`,
     chapterNumber: 12 + (index === 0 ? 1 : 0),
     title: index === 0 ? 'Chương 13: Ngày trở về' : `Chương 12: Hồi ${index + 1}`,
     publishedAt: '2026-11-01T10:00:00Z',
@@ -71,7 +75,9 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
         } else if (url.pathname.endsWith('/reading/chapters/latest')) {
           data = latestChapters;
         } else if (url.pathname.endsWith('/reading/novels/random')) {
-          data = { novelId: 'outside-top-99', title: 'Truyện ngoài danh sách top' };
+          data = { novelId: 'outside-top-99', novelSlug: 'ngoai-danh-sach', title: 'Truyện ngoài danh sách top' };
+        } else if (url.pathname.endsWith('/reading/novels/by-slug/ngoai-danh-sach/locator')) {
+          data = { novelId: 'outside-top-99', novelSlug: 'ngoai-danh-sach' };
         } else if (url.pathname.endsWith('/reading/novels/outside-top-99')) {
           data = { ...novels[0], novelId: 'outside-top-99', title: 'Truyện ngoài danh sách top', chapters: [] };
         } else if (url.pathname.endsWith('/reading/search')) {
@@ -82,7 +88,7 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
         await route.fulfill({ json: { success: true, data, meta: { totalPages: 1, totalItems: Array.isArray(data) ? data.length : 1 } } });
       });
       try {
-        const catalog = role === 'READER' ? '/reader' : '/public';
+        const catalog = '/danh-sach';
         await page.goto(base);
         await expect(page).toHaveURL(`${base}/`);
         await expect(page.getByRole('heading', { name: 'Góc đọc truyện', exact: true })).toBeVisible();
@@ -90,7 +96,7 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
 
         const chaptersSection = page.getByRole('region', { name: 'Chương mới cập nhật', exact: true });
         await expect(chaptersSection.locator('.sc-home-chapter-row')).toHaveCount(8);
-        await expect(chaptersSection.locator('.sc-home-chapter-row').first()).toHaveAttribute('href', `${catalog}/chapters/latest-ch-0`);
+        await expect(chaptersSection.locator('.sc-home-chapter-row').first()).toHaveAttribute('href', '/truyen/hanh-trinh-0/chuong/chuong-moi-0');
         if (width >= 1024) {
           await expect(chaptersSection.locator('.sc-home-chapter-row').first()).toContainText('Chương 13: Ngày trở về');
         }
@@ -100,21 +106,21 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
         const featuredSection = page.getByRole('region', { name: 'Truyện nổi bật', exact: true });
         await expect(featuredSection.locator('.sc-home-featured-card')).toHaveCount(12);
         const firstCover = featuredSection.locator('.sc-home-featured-cover-link').first();
-        await expect(firstCover).toHaveAttribute('href', `${catalog}/novels/novel-0`);
+        await expect(firstCover).toHaveAttribute('href', '/truyen/hanh-trinh-0');
 
         const featureTabs = featuredSection.getByRole('tablist', { name: 'Lọc truyện nổi bật', exact: true });
         await expect(featureTabs.getByRole('tab', { name: 'Mới cập nhật', exact: true })).toBeVisible();
         await featureTabs.getByRole('tab', { name: 'Được yêu thích', exact: true }).click();
         await expect(featureTabs.getByRole('tab', { name: 'Được yêu thích', exact: true })).toHaveAttribute('aria-selected', 'true');
-        await expect(firstCover).toHaveAttribute('href', `${catalog}/novels/novel-15`);
+        await expect(firstCover).toHaveAttribute('href', '/truyen/hanh-trinh-15');
         await featureTabs.getByRole('tab', { name: 'Đang hot', exact: true }).click();
-        await expect(firstCover).toHaveAttribute('href', `${catalog}/novels/novel-0`);
+        await expect(firstCover).toHaveAttribute('href', '/truyen/hanh-trinh-0');
 
         const rankingSection = page.getByRole('region', { name: 'Bảng xếp hạng truyện', exact: true });
         await expect(rankingSection.getByRole('tab', { name: 'Mới cập nhật', exact: true })).toBeVisible();
         await expect(rankingSection.locator('.sc-home-rank-list li')).toHaveCount(7);
         await rankingSection.getByRole('tab', { name: 'Yêu thích', exact: true }).click();
-        await expect(rankingSection.locator('.sc-home-rank-row').first()).toHaveAttribute('href', `${catalog}/novels/novel-15`);
+        await expect(rankingSection.locator('.sc-home-rank-row').first()).toHaveAttribute('href', '/truyen/hanh-trinh-15');
 
         const previewTrigger = featuredSection.locator('.sc-home-featured-card .sc-home-preview-trigger').first();
         await previewTrigger.focus();
@@ -123,8 +129,8 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
         await expect(quickPreview).toBeVisible();
         await expect(quickPreview).toHaveCSS('opacity', '1');
         await expect(quickPreview).toContainText(novels[0].synopsis);
-        await expect(quickPreview.getByRole('link', { name: 'Tác giả thử', exact: true })).toHaveAttribute('href', '/authors/author-1');
-        await expect(quickPreview.getByRole('link', { name: 'Đọc truyện', exact: true })).toHaveAttribute('href', `${catalog}/novels/novel-0`);
+        await expect(quickPreview.getByRole('link', { name: 'Tác giả thử', exact: true })).toHaveAttribute('href', '/tac-gia/tac-gia-thu');
+        await expect(quickPreview.getByRole('link', { name: 'Đọc truyện', exact: true })).toHaveAttribute('href', '/truyen/hanh-trinh-0');
         const previewBounds = await quickPreview.boundingBox();
         assert.ok(previewBounds.x >= 0 && previewBounds.x + previewBounds.width <= width);
         await page.keyboard.press('Escape');
@@ -146,7 +152,7 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
 
           // Random button must pick from the dedicated full-catalog endpoint (including novels outside top lists).
           await page.getByTestId('home-hero-random').click();
-          await expect(page).toHaveURL(`${base}${catalog}/novels/outside-top-99`);
+          await expect(page).toHaveURL(`${base}/truyen/ngoai-danh-sach`);
           await page.goto(base);
         }
 

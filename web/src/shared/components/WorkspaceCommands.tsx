@@ -1,3 +1,4 @@
+import { navigationHref } from '../routes';
 import { hasAuthorCapability } from '../../features/auth/auth-types';
 import { useEffect, useId, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -21,9 +22,9 @@ export function WorkspaceCommands({ commands, author = false }: { commands: Work
   const projects = useQuery({ queryKey: ['author-projects', userId], queryFn: () => listMyNovels(), enabled: enabled && author && opened && !!userId, staleTime: 30000, refetchOnWindowFocus: false });
   const matches = author && query.trim().length >= 2 ? (projects.data ?? []).filter(project => fold(query).trim().split(/\s+/).every(term => fold(project.title).includes(term))) : [];
   const projectCommands: WorkspaceCommand[] = matches.slice(0, 5).flatMap(project => [
-    { label: `Quản lý · ${project.title}`, to: `/author/novels/${project.novelId}`, icon: 'menu_book' },
-    { label: `Viết tiếp · ${project.title}`, to: `/author/ide?novelId=${encodeURIComponent(project.novelId)}`, icon: 'edit_note' },
-    { label: `Cẩm nang · ${project.title}`, to: `/author/context/${project.novelId}`, icon: 'auto_stories' }
+    { label: `Quản lý · ${project.title}`, to: navigationHref(`/author/novels/${project.novelId}`), icon: 'menu_book' },
+    { label: `Viết tiếp · ${project.title}`, to: navigationHref(`/author/ide?novelId=${encodeURIComponent(project.novelId)}`), icon: 'edit_note' },
+    { label: `Cẩm nang · ${project.title}`, to: navigationHref(`/author/context/${project.novelId}`), icon: 'auto_stories' }
   ]);
   const items = [...commands.filter(item => fold(item.label).includes(fold(query))), ...projectCommands];
   useEffect(() => { if (opened) document.getElementById(`${id}-${Math.min(active, items.length - 1)}`)?.scrollIntoView({ block: 'nearest' }); }, [opened, active, query, items.length, id]);

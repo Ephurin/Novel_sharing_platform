@@ -1,3 +1,4 @@
+import { appealsPath } from '../../core/config/web-paths.js';
 import type { PoolClient, QueryResult } from 'pg';
 import { z } from 'zod';
 import { AppError } from '../../core/errors/app-error.js';
@@ -278,7 +279,7 @@ export async function applyDiscussionSanction(
       topicId: target.topicId,
       adminId: auth.userId,
       reason,
-      appealsUrl: '/appeals'
+      appealsUrl: appealsPath
     }
   });
   return {

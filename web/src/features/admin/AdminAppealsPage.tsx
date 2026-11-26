@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Select, Alert } from '@mantine/core';
@@ -103,14 +104,14 @@ export function AdminAppealsPage() {
             <AdminId value={item.target_id} label="mã đối tượng" />
             {item.review_id && access.data?.permissions.includes('content') && (
               <p>
-                <Link className="admin-link" to={`/admin/moderation/${item.review_id}`}>
+                <Link className="admin-link" to={navigationHref(`/admin/moderation/${item.review_id}`)}>
                   Xem nội dung & bằng chứng →
                 </Link>
               </p>
             )}
             {item.target_type === 'NOVEL' && (
               <p>
-                <Link className="admin-link" to={`/admin/novels/${item.target_id}`}>
+                <Link className="admin-link" to={navigationHref(`/admin/novels/${item.target_id}`)}>
                   Xem truyện →
                 </Link>
               </p>

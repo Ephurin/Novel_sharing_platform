@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -95,7 +96,7 @@ export function VnpayReturnPage() {
           <p className="mt-3 text-[11px] opacity-75">Môi trường thanh toán thử nghiệm — không phát sinh giao dịch tiền thật.</p>
           <div className="mt-5 flex justify-end">
             <Link
-              to="/wallet"
+              to={navigationHref("/wallet")}
               className="px-4 py-1.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary text-meta font-semibold"
             >
               Về ví của tôi

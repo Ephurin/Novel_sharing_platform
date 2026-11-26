@@ -12,7 +12,7 @@ import { useEffect, useRef, useState, type PropsWithChildren } from 'react';
 import { Link, NavLink, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { logout } from '../../features/auth/auth-api';
 import { useResourceId } from '../../app/ResourceRoute';
-import { canonicalStaticPath, routes, staticRouteTargets } from '../routes';
+import { canonicalStaticPath, routes, staticRouteTargets, navigationHref, profileHref } from '../routes';
 import { useAuthStore } from '../../features/auth/useAuthStore';
 import { readAuthorContext } from '../../features/author-ide/author-context';
 import '../../theme/storycraft.css';
@@ -93,7 +93,8 @@ export function AuthorNavbar() {
   const params = useParams();
   const [searchParams] = useSearchParams();
   const novelId = params.novelId || searchParams.get('novelId') || readAuthorContext(user?.userId ?? '').novelId;
-  const writingUrl = novelId ? `/author/ide?novelId=${encodeURIComponent(novelId)}` : '/author';
+  const writingUrl = navigationHref(novelId ? `/author/ide?novelId=${encodeURIComponent(novelId)}` : '/author');
+  const ownProfileHref = user?.publicKey ? profileHref('author', user.userId, user.publicKey) : '/author/profile';
   const name = user?.displayName || user?.username || 'Tài khoản';
   // Readers and guests share this navbar so every StoryCraft page has one header; only authors and
   // admins get the writing workspace links.
@@ -138,7 +139,7 @@ export function AuthorNavbar() {
     } finally {
       clearSession();
       queryClient.clear();
-      navigate('/login', { replace: true });
+      navigate(navigationHref('/login'), { replace: true });
     }
   }
 
@@ -160,31 +161,31 @@ export function AuthorNavbar() {
                 const moderatorHistoryActive = path.startsWith(staticRouteTargets['/moderator/history']);
                 return (
                   <>
-                    <NavLink to="/author/projects" className={authorActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
+                    <NavLink to={navigationHref("/author/projects")} className={authorActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
                       {authorActive && navPill}
                       <span>{navigationLabels.authorHome}</span>
                     </NavLink>
                     {user?.role === 'MODERATOR' && (
-                      <NavLink to="/moderator/reviews" className={moderatorActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
+                      <NavLink to={navigationHref("/moderator/reviews")} className={moderatorActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
                         {moderatorActive && navPill}
                         <span>Hồ sơ điều hành</span>
                       </NavLink>
                     )}
                     {user?.role === 'MODERATOR' && (
-                      <NavLink to="/moderator/history" className={moderatorHistoryActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
+                      <NavLink to={navigationHref("/moderator/history")} className={moderatorHistoryActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
                         {moderatorHistoryActive && navPill}
                         <span>Lịch sử thao tác</span>
                       </NavLink>
                     )}
-                    <NavLink to="/reader" end className={readerActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
+                    <NavLink to={navigationHref("/reader")} end className={readerActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
                       {readerActive && navPill}
                       <span>{navigationLabels.readerHome}</span>
                     </NavLink>
-                    <NavLink to="/discussions" className={readerLink(discussionsActive)}>
+                    <NavLink to={navigationHref("/discussions")} className={readerLink(discussionsActive)}>
                       {discussionsActive && navPill}
                       <span>Thảo luận</span>
                     </NavLink>
-                    <NavLink to="/author/profile" className={profileActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
+                    <NavLink to={ownProfileHref} className={profileActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
                       {profileActive && navPill}
                       <span>{navigationLabels.authorProfile}</span>
                     </NavLink>
@@ -196,8 +197,8 @@ export function AuthorNavbar() {
             <nav className="sc-global-nav" aria-label="Điều hướng chính">
               {[
                 { to: '/', label: navigationLabels.home, active: path === '/' },
-                { to: '/reader', label: navigationLabels.readerHome, active: isCatalog || path.startsWith('/tac-gia/') },
-                { to: '/discussions', label: 'Thảo luận', active: discussionsActive },
+                { to: navigationHref('/reader'), label: navigationLabels.readerHome, active: isCatalog || path.startsWith('/tac-gia/') },
+                { to: navigationHref('/discussions'), label: 'Thảo luận', active: discussionsActive },
               ].map((item) => (
                 <Link key={item.to} to={item.to} className={readerLink(item.active)}>
                   {item.active && navPill}
@@ -209,8 +210,8 @@ export function AuthorNavbar() {
             <nav className="sc-global-nav" aria-label="Điều hướng chính">
               {[
                 { to: '/', label: navigationLabels.home, active: path === '/' },
-                { to: '/public', label: navigationLabels.readerHome, active: isCatalog },
-                { to: '/discussions', label: 'Thảo luận', active: discussionsActive },
+                { to: navigationHref('/public'), label: navigationLabels.readerHome, active: isCatalog },
+                { to: navigationHref('/discussions'), label: 'Thảo luận', active: discussionsActive },
               ].map((item) => (
                 <Link key={item.to} to={item.to} className={readerLink(item.active)}>
                   {item.active && navPill}
@@ -223,16 +224,16 @@ export function AuthorNavbar() {
         {path !== staticRouteTargets['/author/ide'] && <GlobalSearchDropdown catalogPath={catalogPath} />}
         <div className="sc-navbar-actions">
           {isWriter && <WorkspaceCommands author commands={[
-            { label: navigationLabels.authorHome, to: '/author/projects', icon: 'menu_book' },
+            { label: navigationLabels.authorHome, to: navigationHref('/author/projects'), icon: 'menu_book' },
             { label: 'Viết tiếp', to: writingUrl, icon: 'edit_note' },
-            ...(novelId ? [{ label: 'Quản lý tác phẩm đang viết', to: `/author/novels/${novelId}` }, { label: 'Nhập bản thảo', to: `/author/import/${novelId}` }, { label: 'Cẩm nang tác phẩm', to: `/author/context/${novelId}` }] : []),
-            { label: navigationLabels.authorWallet, to: '/wallet', icon: 'payments' },
-            { label: navigationLabels.authorProfile, to: '/author/profile', icon: 'person' },
-            { label: 'Hồ sơ và cài đặt', to: '/profile/me' }
+            ...(novelId ? [{ label: 'Quản lý tác phẩm đang viết', to: navigationHref(`/author/novels/${novelId}`) }, { label: 'Nhập bản thảo', to: navigationHref(`/author/import/${novelId}`) }, { label: 'Cẩm nang tác phẩm', to: navigationHref(`/author/context/${novelId}`) }] : []),
+            { label: navigationLabels.authorWallet, to: navigationHref('/wallet'), icon: 'payments' },
+            { label: navigationLabels.authorProfile, to: ownProfileHref, icon: 'person' },
+            { label: 'Hồ sơ và cài đặt', to: navigationHref('/profile/me') }
           ]} />}
           <ThemeControl />
           {isWriter && path !== staticRouteTargets['/author/ide'] && <Link to={writingUrl} className="sc-button sc-button-primary sc-continue"><span className="material-symbols-outlined">edit_note</span><span>Viết tiếp</span></Link>}
-          {!user && <Link to="/login" className="sc-button sc-button-primary"><span className="material-symbols-outlined">login</span><span>Đăng nhập</span></Link>}
+          {!user && <Link to={navigationHref("/login")} className="sc-button sc-button-primary"><span className="material-symbols-outlined">login</span><span>Đăng nhập</span></Link>}
           {user && <NotificationBell />}
           {user && <SessionMarker role={user.role} username={user.username} />}
           {user && <Menu position="bottom-end" withinPortal={false}>
@@ -250,7 +251,7 @@ export function AuthorNavbar() {
               <Menu.Label>Tài khoản</Menu.Label>
               <Menu.Item
                 component={Link}
-                to="/profile/me"
+                to={navigationHref("/profile/me")}
                 className={path === staticRouteTargets['/profile/me'] ? 'is-active' : ''}
                 aria-current={path === staticRouteTargets['/profile/me'] ? 'page' : undefined}
                 leftSection={<span className="material-symbols-outlined" aria-hidden="true">person</span>}
@@ -259,7 +260,7 @@ export function AuthorNavbar() {
               </Menu.Item>
               <Menu.Item
                 component={Link}
-                to="/wallet"
+                to={navigationHref("/wallet")}
                 className={(path === staticRouteTargets['/wallet'] || path.startsWith(staticRouteTargets['/wallet'] + '/')) ? 'is-active' : ''}
                 aria-current={(path === staticRouteTargets['/wallet'] || path.startsWith(staticRouteTargets['/wallet'] + '/')) ? 'page' : undefined}
                 leftSection={<span className="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span>}
@@ -269,7 +270,7 @@ export function AuthorNavbar() {
               {isWriter && (
                 <Menu.Item
                   component={Link}
-                  to="/author/profile"
+                  to={ownProfileHref}
                   className={ownAuthorProfile ? 'is-active' : ''}
                   aria-current={ownAuthorProfile ? 'page' : undefined}
                   leftSection={<span className="material-symbols-outlined" aria-hidden="true">edit_square</span>}
@@ -298,7 +299,7 @@ export function AuthorNavbar() {
               <Menu.Label>Khác</Menu.Label>
               <Menu.Item
                 component={Link}
-                to="/reader/connections"
+                to={navigationHref("/reader/connections")}
                 className={path === staticRouteTargets['/reader/connections'] ? 'is-active' : ''}
                 aria-current={path === staticRouteTargets['/reader/connections'] ? 'page' : undefined}
                 leftSection={<span className="material-symbols-outlined" aria-hidden="true">group</span>}
@@ -307,7 +308,7 @@ export function AuthorNavbar() {
               </Menu.Item>
               <Menu.Item
                 component={Link}
-                to="/notifications"
+                to={navigationHref("/notifications")}
                 className={path === staticRouteTargets['/notifications'] ? 'is-active' : ''}
                 aria-current={path === staticRouteTargets['/notifications'] ? 'page' : undefined}
                 leftSection={<span className="material-symbols-outlined" aria-hidden="true">notifications</span>}
@@ -316,7 +317,7 @@ export function AuthorNavbar() {
               </Menu.Item>
               <Menu.Item
                 component={Link}
-                to="/appeals"
+                to={navigationHref("/appeals")}
                 className={path === staticRouteTargets['/appeals'] ? 'is-active' : ''}
                 aria-current={path === staticRouteTargets['/appeals'] ? 'page' : undefined}
                 leftSection={<span className="material-symbols-outlined" aria-hidden="true">gavel</span>}
@@ -325,7 +326,7 @@ export function AuthorNavbar() {
               </Menu.Item>
               <Menu.Item
                 component={Link}
-                to="/reader/feedback"
+                to={navigationHref("/reader/feedback")}
                 className={path === staticRouteTargets['/reader/feedback'] ? 'is-active' : ''}
                 aria-current={path === staticRouteTargets['/reader/feedback'] ? 'page' : undefined}
                 leftSection={<span className="material-symbols-outlined" aria-hidden="true">feedback</span>}

@@ -2,7 +2,7 @@ import { SessionMarker } from '../../shared/components/AuthorTheme';
 import { useEffect, useId, useState } from 'react';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { legacyStaticPaths } from '../../shared/routes';
+import { legacyStaticPaths, navigationHref } from '../../shared/routes';
 import { Button } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
@@ -105,7 +105,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
         aria-label="Điều hướng quản trị"
         inert={Boolean(isMobile && !opened)}
       >
-        <Link className="admin-brand" to="/admin">
+        <Link className="admin-brand" to={navigationHref("/admin")}>
           <AdminIcon name="auto_stories" />
           <strong>StoryCraft</strong>
           <span>Quản trị</span>
@@ -118,7 +118,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
               .map(([path, icon, label]) => (
                 <NavLink
                   key={path}
-                  to={path}
+                  to={navigationHref(path)}
                   end={path === '/admin'}
                   onClick={() => setOpened(false)}
                 >
@@ -142,7 +142,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
         </LayoutGroup>
         {access.data?.permissions.includes('content') && (
           <div className="admin-sidebar-footer">
-            <Link to="/author">
+            <Link to={navigationHref("/author")}>
               <AdminIcon name="open_in_new" />
               Xem trang tác giả
               <AdminIcon name="arrow_forward" />
@@ -180,7 +180,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
               access.data
                 ? navigation
                     .filter(([path]) => can(path))
-                    .map(([to, icon, label]) => ({ to, icon, label }))
+                    .map(([to, icon, label]) => ({ to: navigationHref(to), icon, label }))
                 : []
             }
           />
@@ -198,7 +198,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
               </Button>
             </Menu.Target>
             <Menu.Dropdown>
-              <Menu.Item component={Link} to="/profile/me">
+              <Menu.Item component={Link} to={navigationHref("/profile/me")}>
                 Hồ sơ của tôi
               </Menu.Item>
               <Menu.Item color="red" onClick={onLogout} data-testid="shell-logout-btn">
@@ -216,7 +216,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
         ) : can(legacyPath) ? (
           <Outlet />
         ) : (
-          <Navigate to={home} replace />
+          <Navigate to={navigationHref(home)} replace />
         )}
         <footer className="admin-footer">
           <AdminIcon name="auto_stories" />

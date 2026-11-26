@@ -1,6 +1,13 @@
+import { topicHref, chapterHref, novelHref, navigationHref } from '../../shared/routes';
 import { apiClient, getApiErrorMessage, type ApiEnvelope } from '../../shared/api/api-client';
 
+type WebTarget =
+  | { kind: 'novel'; novelId: string; novelSlug: string }
+  | { kind: 'chapter'; novelId: string; novelSlug: string; chapterId: string; chapterSlug: string }
+  | { kind: 'topic'; topicId: string; topicSlug: string };
+
 export type AppNotification = {
+  webTarget?: WebTarget;
   notificationId: string;
   type: string;
   status: 'UNREAD' | 'READ';
@@ -62,17 +69,26 @@ export function notificationHref(item: AppNotification, reader = false) {
     const uuid = /^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i;
     if (typeof topicId !== 'string' || !uuid.test(topicId) ||
         typeof commentId !== 'string' || !uuid.test(commentId)) return null;
-    return `/discussions/${topicId}?commentId=${commentId}#comment-${commentId}`;
+    const topicSlug = item.webTarget?.kind === 'topic' ? item.webTarget.topicSlug : undefined;
+    return `${topicHref({ topicId, topicSlug })}?commentId=${commentId}#comment-${commentId}`;
   }
   const href = item.payload.href;
-  if (typeof href !== 'string' || !(/^\/(author|reader|public)\//.test(href) || href === '/wallet')) return null;
-  if (!['COMMENT_REPLY', 'AUTHOR_REPLY'].includes(item.type) || typeof item.payload.commentId !== 'string') return href;
+  if (typeof href !== 'string' || /[\\\u0000-\u001f]/.test(href) ||
+      !(/^\/(author|reader|public)\//.test(href) || href === '/wallet')) return null;
   const target = new URL(href, 'https://storycraft.invalid');
-  if (!/^\/(reader|public)\/(novels|chapters)\//.test(target.pathname)) return href;
+  if (target.origin !== 'https://storycraft.invalid') return null;
+  if (!/^\/(reader|public)\/(novels|chapters)\//.test(target.pathname)) return navigationHref(href);
   if (reader) target.pathname = target.pathname.replace(/^\/public\//, '/reader/');
-  target.searchParams.set('commentId', item.payload.commentId);
-  target.hash = 'reader-comments';
-  return target.pathname + target.search + target.hash;
+  if (['COMMENT_REPLY', 'AUTHOR_REPLY'].includes(item.type) && typeof item.payload.commentId === 'string') {
+    target.searchParams.set('commentId', item.payload.commentId);
+    target.hash = 'reader-comments';
+  }
+  const base = target.pathname.startsWith('/public/') ? '/public' : '/reader';
+  const linked = item.webTarget;
+  const pathname = linked?.kind === 'chapter' ? chapterHref(linked, base)
+    : linked?.kind === 'novel' ? novelHref(linked, base, target.pathname.endsWith('/reviews'))
+    : target.pathname;
+  return pathname + target.search + target.hash;
 }
 
 export async function listNotifications(status?: 'UNREAD' | 'READ', page = 1) {

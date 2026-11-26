@@ -1,3 +1,4 @@
+import { paymentReturnPath } from '../../core/config/web-paths.js';
 import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { logger } from '../../core/logger/logger.js';
@@ -66,7 +67,7 @@ function getVnpayConfig(): VnpayConfig {
     tmnCode: env.VNPAY_TMN_CODE,
     hashSecret: env.VNPAY_HASH_SECRET,
     paymentUrl: env.VNPAY_PAYMENT_URL,
-    returnUrl: env.VNPAY_RETURN_URL ?? `${env.WEB_ORIGIN}/wallet/vnpay-return`
+    returnUrl: env.VNPAY_RETURN_URL ?? new URL(paymentReturnPath, env.WEB_ORIGIN).href
   };
 }
 

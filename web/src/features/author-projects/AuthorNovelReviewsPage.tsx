@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
@@ -16,7 +17,7 @@ export function AuthorNovelReviewsPage() {
   return <>
     <AuthorNavbar />
     <main className="sc-shell-content sc-reviews-main">
-      <Breadcrumbs className="mb-4" items={[authorHomeCrumb, { label: novel.data?.title || 'Tác phẩm', to: `/author/novels/${novelId}` }, { label: 'Đánh giá độc giả' }]} />
+      <Breadcrumbs className="mb-4" items={[authorHomeCrumb, { label: novel.data?.title || 'Tác phẩm', to: navigationHref(`/author/novels/${novelId}`) }, { label: 'Đánh giá độc giả' }]} />
       <div className="sc-reviews-panel">
         <header className="sc-reviews-header">
           <div><h1 className="text-page-title">Đánh giá độc giả</h1></div>

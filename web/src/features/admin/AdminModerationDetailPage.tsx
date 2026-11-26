@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { useState } from 'react';
 import { GiphyMedia } from '../reader/CommentGifPicker';
 import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
@@ -88,7 +89,7 @@ export function AdminModerationDetailPage() {
         </div>
         <Button
           component={Link}
-          to={report ? '/admin/reports' : '/admin/moderation'}
+          to={report ? navigationHref('/admin/reports') : navigationHref('/admin/moderation')}
           variant="default"
           size="sm"
         >
@@ -104,7 +105,7 @@ export function AdminModerationDetailPage() {
                 <div className="admin-review-byline">
                   {review.target.username && <span>@{review.target.username}</span>}
                   {review.target.novelId ? (
-                    <Link className="admin-link" to={`/admin/novels/${review.target.novelId}`}>
+                    <Link className="admin-link" to={navigationHref(`/admin/novels/${review.target.novelId}`)}>
                       {review.target.novelTitle || 'Mở truyện liên quan'} →
                     </Link>
                   ) : review.target.novelTitle && <span>{review.target.novelTitle}</span>}
@@ -190,7 +191,7 @@ export function AdminModerationDetailPage() {
             {escalationOpen && (
               <Alert color="blue" mb="sm" data-testid="admin-escalation-open-notice">
                 Hồ sơ đang chờ Admin quyết trong hàng đợi chuyển cấp. Truy cập{' '}
-                <Link to="/admin/escalations">hàng đợi chuyển cấp</Link> để xử lý.
+                <Link to={navigationHref("/admin/escalations")}>hàng đợi chuyển cấp</Link> để xử lý.
               </Alert>
             )}
             {report && review.status === 'PENDING' && (

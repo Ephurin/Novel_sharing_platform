@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { useState } from 'react';
 import { Accordion, ActionIcon, Stack } from '@mantine/core';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -64,9 +65,9 @@ export function ReadingBookmarksPage({ publicMode = false }: { publicMode?: bool
   return <section className="sc-reading-bookmarks-page">
     <header className="sc-reading-bookmarks-header">
       <h1 className="text-page-title">Bookmark</h1>
-      {publicMode && <Link to="/public" className="sc-button">Danh sách truyện</Link>}
+      {publicMode && <Link to={navigationHref("/public")} className="sc-button">Danh sách truyện</Link>}
     </header>
-    {novelId && <p className="sc-reading-bookmarks-filter"><Link to={publicMode ? '/public/bookmarks' : '/reader/bookmarks'} className="sc-review-link">Xem tất cả truyện</Link></p>}
+    {novelId && <p className="sc-reading-bookmarks-filter"><Link to={publicMode ? navigationHref('/public/bookmarks') : navigationHref('/reader/bookmarks')} className="sc-review-link">Xem tất cả truyện</Link></p>}
     <ReadingBookmarksList novelId={novelId} base={publicMode ? '/public' : '/reader'} />
   </section>;
 }

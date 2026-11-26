@@ -21,3 +21,5 @@ Trước cutover, lưu cặp bản phát hành đã kiểm chứng độc lập 
 | Cần lùi cả hai | Dùng đúng cặp tương thích đã kiểm chứng. Mở lại link canonical, UUID, email đã gửi, giao dịch VNPay đang chờ và thông báo đã lưu trước khi kết thúc rollback. |
 
 Sau khi một URL mới đã được phát hành, **cặp tương thích là giới hạn rollback**. Bản trước locator hoặc trước route mới nằm ngoài các phiên bản được phép lùi. Lỗi dữ liệu cần sửa tiến trên mapping hiện tại. Alias và locator vẫn được giữ cho email, thông báo, bookmark và giao dịch đã phát hành.
+
+Để quay về phát link cũ, đặt `WEB_EMIT_CANONICAL_LINKS=false` ở runtime backend và build web với `VITE_EMIT_CANONICAL_LINKS=false`. Cả hai cờ chỉ đổi cách tạo link. Giữ nguyên schema và hai bộ route. Cấu hình này dùng để kiểm tra cặp bản phát hành tương thích trước khi bật phát URL mới.

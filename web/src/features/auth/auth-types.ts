@@ -24,6 +24,7 @@ export function hasAuthorCapability(bearer: CapabilityBearer) {
 
 export type AuthUser = {
   userId: string;
+  publicKey?: string;
   email: string;
   username: string;
   displayName?: string | null;

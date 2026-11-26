@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
 import { WorkspacePreview } from '../../shared/components/WorkspacePreview';
 import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
@@ -140,7 +141,7 @@ export function AdminUsersPage() {
                             .toUpperCase()}
                         </span>
                         <div>
-                          <Link className="admin-link" to={`/admin/users/${user.userId}`}>
+                          <Link className="admin-link" to={navigationHref(`/admin/users/${user.userId}`)}>
                             <strong>{user.displayName || user.username}</strong>
                           </Link>
                           <small>@{user.username}</small>
@@ -182,7 +183,7 @@ export function AdminUsersPage() {
         <AdminPagination meta={query.data?.meta} onChange={setPage} />
       </ResultsSurface>
       </AdminPanel>
-      <WorkspacePreview selected={previewId} onSelect={setPreviewId} records={(query.data?.items ?? []).map(user => ({ id: user.userId, title: user.displayName || user.username, to: `/admin/users/${user.userId}`, fields: [['Tài khoản', `@${user.username}`], ['Email', user.email], ['Vai trò', user.role === 'ADMIN' ? 'Quản trị viên' : user.role === 'AUTHOR' ? 'Tác giả' : 'Độc giả'], ['Trạng thái', filterLabels[user.status] || user.status]] }))} />
+      <WorkspacePreview selected={previewId} onSelect={setPreviewId} records={(query.data?.items ?? []).map(user => ({ id: user.userId, title: user.displayName || user.username, to: navigationHref(`/admin/users/${user.userId}`), fields: [['Tài khoản', `@${user.username}`], ['Email', user.email], ['Vai trò', user.role === 'ADMIN' ? 'Quản trị viên' : user.role === 'AUTHOR' ? 'Tác giả' : 'Độc giả'], ['Trạng thái', filterLabels[user.status] || user.status]] }))} />
       <AdminConfirm
         reason={reason}
         setReason={setReason}

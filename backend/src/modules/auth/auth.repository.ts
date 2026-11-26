@@ -7,6 +7,7 @@ type DbClient = Pick<PoolClient, 'query'>;
 function mapAuthUser(row: QueryResultRow): AuthUser {
   return {
     userId: row.user_id,
+    publicKey: row.public_key,
     email: row.email,
     username: row.username,
     displayName: row.display_name,

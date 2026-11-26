@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
 import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { labels as filterLabels } from './AdminShared';
@@ -198,7 +199,7 @@ export function AdminWithdrawsPage() {
                           ) : (
                             <Button
                               component={Link}
-                              to={`/admin/withdraws/${request.withdrawRequestId}`}
+                              to={navigationHref(`/admin/withdraws/${request.withdrawRequestId}`)}
                               variant="subtle"
                               size="xs"
                             >

@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
@@ -31,7 +32,7 @@ export function StoryReferenceLookup({ novelId, initialQuery, characters, timeli
       {matches.slice(0, 30).map(item => <FeedbackReveal key={`${item.kind}:${item.id}`} className="sc-reference-card"><span className="text-meta">{item.type}</span><h3>{item.title}</h3><p>{item.body || 'Chưa có mô tả.'}</p><CopyTextButton value={`${item.title}\n\n${item.body}`} label="Sao chép thông tin" /></FeedbackReveal>)}
       {matches.length > 30 && <p className="text-meta">Đang hiện 30/{matches.length} mục. Gõ thêm để thu hẹp kết quả.</p>}
     </div>
-    <Link className="sc-feedback-button" to={`/author/context/${novelId}`} target="_blank" rel="noreferrer">Mở cẩm nang đầy đủ ↗</Link>
+    <Link className="sc-feedback-button" to={navigationHref(`/author/context/${novelId}`)} target="_blank" rel="noreferrer">Mở cẩm nang đầy đủ ↗</Link>
   </AnimatedModal>;
 }
 

@@ -12,6 +12,7 @@ test('chapter reads record successful access, preserve skipped chapters and isol
   const { listReadChapterIds } = await import('./reading.repository.js');
   const { getReaderChapter, getChapterLocator, getNovelLocator, syncHistory, getHistoryForNovel, listHistory } = await import('./reading.service.js');
   const { getProfileLocator } = await import('../users/users.service.js');
+  const { appendNotificationWebTargets } = await import('../interactions/notification-web-targets.repository.js');
   const pool = getPostgresPool();
   const author = randomUUID(), reader = randomUUID(), other = randomUUID(), novel = randomUUID();
   const ids = Array.from({ length: 5 }, () => randomUUID());
@@ -29,6 +30,11 @@ test('chapter reads record successful access, preserve skipped chapters and isol
     await assert.rejects(getProfileLocator(reader, true), { httpStatus: 404 });
     const auth = { userId: reader, role: 'READER' as const };
     const vipLocator = await getChapterLocator({ chapterId: ids[3] });
+    const legacyNotice = { type: 'NEW_CHAPTER', payload: { href: '/reader/chapters/' + ids[3], chapterId: ids[3] } };
+    const hiddenNotice = { type: 'NEW_CHAPTER', payload: { href: '/reader/chapters/' + ids[4], chapterId: ids[4] } };
+    assert.deepEqual(await appendNotificationWebTargets([legacyNotice, hiddenNotice]), [
+      { ...legacyNotice, webTarget: { kind: 'chapter', ...vipLocator } }, hiddenNotice
+    ]);
     assert.deepEqual(await getNovelLocator({ novelSlug: novel }), { novelId: novel, novelSlug: novel });
     assert.deepEqual(await getChapterLocator({ novelSlug: novel, chapterSlug: vipLocator.chapterSlug }), vipLocator);
     const otherNovel = randomUUID();

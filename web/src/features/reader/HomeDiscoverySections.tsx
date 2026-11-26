@@ -1,3 +1,4 @@
+import { profileHref, navigationHref, novelHref } from '../../shared/routes';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { ReaderNovel } from './reader-api';
@@ -251,7 +252,7 @@ export function CuratedShelves({
 
       <div className="sc-home-curated-layout">
         <article className="sc-home-curated-lead">
-          <Link className="sc-home-curated-lead-link" to={`${catalogPath}/novels/${lead.novelId}`}>
+          <Link className="sc-home-curated-lead-link" to={novelHref(lead, catalogPath)}>
             <div className="sc-home-curated-lead-media"><HomeNovelCover novel={lead} size="lead" /></div>
             <div className="sc-home-curated-lead-body">
               <div className="sc-home-curated-lead-tags">
@@ -280,7 +281,7 @@ export function CuratedShelves({
             const genreName = primaryGenre(novel);
             return (
               <article key={novel.novelId} className="sc-home-curated-item">
-                <Link className="sc-home-curated-item-link" to={`${catalogPath}/novels/${novel.novelId}`}>
+                <Link className="sc-home-curated-item-link" to={novelHref(novel, catalogPath)}>
                   <span className="sc-home-curated-thumb"><HomeNovelCover novel={novel} size="thumb" /></span>
                   <div className="sc-home-curated-item-info">
                     <span className="sc-home-compact-status">
@@ -307,6 +308,7 @@ export function AuthorSpotlight({ catalogNovels }: { catalogNovels: ReaderNovel[
   const authors = useMemo(() => {
     const byId = new Map<string, {
       authorId: string;
+      publicKey?: string;
       authorName: string;
       novelsCount: number;
       totalViews: number;
@@ -323,6 +325,7 @@ export function AuthorSpotlight({ catalogNovels }: { catalogNovels: ReaderNovel[
       if (!existing) {
         byId.set(novel.authorId, {
           authorId: novel.authorId,
+          publicKey: novel.authorPublicKey,
           authorName: novel.authorName.trim(),
           novelsCount: 1,
           totalViews: views,
@@ -365,7 +368,7 @@ export function AuthorSpotlight({ catalogNovels }: { catalogNovels: ReaderNovel[
       </div>
       <div className="sc-home-author-strip-row" data-count={authors.length}>
         {authors.map(author => (
-          <Link key={author.authorId} className="sc-home-author-pill" to={`/authors/${author.authorId}`}>
+          <Link key={author.authorId} className="sc-home-author-pill" to={profileHref('author', author.authorId, author.publicKey)}>
             <AuthorAvatar name={author.authorName} />
             <strong className="sc-home-author-name">{author.authorName}</strong>
             <span className="sc-home-author-meta">
@@ -452,7 +455,7 @@ export function WritingStudioBanner({
   isSignedIn: boolean;
   catalogPath: string;
 }) {
-  const primaryTo = isWriter ? '/author/projects' : isSignedIn ? '/profile/me' : '/login';
+  const primaryTo = navigationHref(isWriter ? '/author/projects' : isSignedIn ? '/profile/me' : '/login');
   const primaryLabel = isWriter ? 'Mở không gian sáng tác' : isSignedIn ? 'Bắt đầu sáng tác' : 'Bắt đầu sáng tác';
 
   return (
@@ -468,7 +471,7 @@ export function WritingStudioBanner({
             <Icon name="edit_note" />
             <span>{primaryLabel}</span>
           </Link>
-          <Link className="sc-button" to={isWriter ? '/author/ide' : catalogPath}>
+          <Link className="sc-button" to={isWriter ? navigationHref('/author/ide') : catalogPath}>
             <span>{isWriter ? 'Viết tiếp ngay' : 'Khám phá thêm'}</span>
           </Link>
         </div>

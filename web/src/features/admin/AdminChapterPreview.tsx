@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { AnimatedModal as Modal } from '../../shared/components/AnimatedModal';
 import { Button } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
@@ -42,7 +43,7 @@ export function AdminChapterPreview({
               {preview.pendingReviewId && (
                 <Button
                   component={Link}
-                  to={`/admin/moderation/${preview.pendingReviewId}`}
+                  to={navigationHref(`/admin/moderation/${preview.pendingReviewId}`)}
                   variant="light"
                   size="xs"
                   onClick={onClose}

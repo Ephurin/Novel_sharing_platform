@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { motion, useReducedMotion } from 'motion/react';
 import NumberFlow from '@number-flow/react';
 import { useToast } from '../../shared/components/ToastProvider';
@@ -1129,7 +1130,7 @@ export function AuthorWritingIde() {
         {/* Left: Return link, Breadcrumb & Autosave indicator */}
         <div className="flex items-center gap-2.5 min-w-0">
           <Link
-            to={activeNovelId ? `/author/novels/${activeNovelId}` : authorHomeCrumb.to}
+            to={activeNovelId ? navigationHref(`/author/novels/${activeNovelId}`) : authorHomeCrumb.to}
             className="inline-flex items-center gap-1 text-meta font-medium text-stone-500 hover:text-stone-900 transition-colors py-1 px-2 rounded-md hover:bg-stone-200/60 shrink-0"
             title={activeNovelId ? 'Quay lại quản lý tác phẩm' : `Quay lại ${navigationLabels.authorHome}`}
             aria-label={activeNovelId ? 'Quay lại quản lý tác phẩm' : `Quay lại ${navigationLabels.authorHome}`}
@@ -1138,7 +1139,7 @@ export function AuthorWritingIde() {
             <span className="hidden sm:inline">{activeNovelId ? 'Tác phẩm' : navigationLabels.authorHome}</span>
           </Link>
           <div className="h-3.5 w-px bg-stone-300 shrink-0"></div>
-          <Breadcrumbs className="is-compact" items={[{ label: novelQuery.data?.title || 'Tác phẩm', to: activeNovelId ? `/author/novels/${activeNovelId}` : authorHomeCrumb.to }, { label: title || 'Chương mới' }]} />
+          <Breadcrumbs className="is-compact" items={[{ label: novelQuery.data?.title || 'Tác phẩm', to: activeNovelId ? navigationHref(`/author/novels/${activeNovelId}`) : authorHomeCrumb.to }, { label: title || 'Chương mới' }]} />
 
           {/* Autosave Indicator */}
           {!planning && <SaveStatus className="inline-flex shrink-0" status={activeChapterId && chapterQuery.data && loadedChapter.current === activeDraftScope ? autosaveStatus : 'idle'} dirty={persistence.dirty} savedAt={lastSavedTime} />}
@@ -1921,7 +1922,7 @@ export function AuthorWritingIde() {
         <div className="px-6 pb-2 border-b border-stone-200 flex items-center justify-between gap-2 shrink-0">
           <p className="text-meta text-stone-500 font-medium">Tác phẩm: {novelQuery.data?.title || 'Đang tải...'}</p>
           <Link
-            to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
+            to={activeNovelId ? navigationHref(`/author/context/${activeNovelId}`) : navigationHref('/author')}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-stone-300 text-meta text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest font-medium shadow-xs transition-colors"
@@ -2032,7 +2033,7 @@ export function AuthorWritingIde() {
                       </div>
                       <p className="text-stone-600 font-semibold text-body">Chưa có nhân vật nào trong Story Bible</p>
                       <Link
-                        to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
+                        to={activeNovelId ? navigationHref(`/author/context/${activeNovelId}`) : navigationHref('/author')}
                         target="_blank"
                         rel="noreferrer"
                         className="mt-4 px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-meta shadow-xs inline-flex items-center gap-1.5 transition-colors"

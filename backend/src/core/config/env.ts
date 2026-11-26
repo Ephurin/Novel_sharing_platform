@@ -43,6 +43,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(4000),
   API_PREFIX: z.string().default('/api/v1'),
   WEB_ORIGIN: z.string().url().default('http://localhost:5173'),
+  WEB_EMIT_CANONICAL_LINKS: booleanStringSchema.default(true),
   DB_CONNECT_ON_START: booleanStringSchema.default(false),
   DATABASE_URL: z.string().min(1),
   MONGODB_URI: z.string().min(1),
@@ -78,7 +79,7 @@ const envSchema = z.object({
   VNPAY_TMN_CODE: optionalStringSchema,
   VNPAY_HASH_SECRET: optionalStringSchema,
   VNPAY_PAYMENT_URL: z.string().url().default('https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'),
-  // Defaults to `${WEB_ORIGIN}/wallet/vnpay-return` when unset.
+  // Defaults to the active web payment-result path on WEB_ORIGIN.
   VNPAY_RETURN_URL: optionalUrlSchema,
   VNPAY_SESSION_TTL_MINUTES: z.coerce.number().int().min(5).max(60).default(15),
   CLOUDINARY_URL: optionalStringSchema.refine((value) => {
