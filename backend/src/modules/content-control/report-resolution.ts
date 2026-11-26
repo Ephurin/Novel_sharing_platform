@@ -9,10 +9,10 @@ import { drainAdminJobsSafely, queueAdminNotification, scheduleAdminJobsDrain } 
 import { findCommentRecordById } from '../interactions/comments.repository.js';
 import type { ResolveReviewInput } from './content-control.schemas.js';
 import {
-  assertFreshIdentityUnderLock,
   assertIndependentResolver,
   assertReportModeratorConstraints,
-  assertResolverAccess
+  assertResolverAccess,
+  lockReportDecisionActor
 } from './review-authorization.js';
 import { isDiscussionTarget } from '../discussions/discussions.admin.js';
 
@@ -196,6 +196,7 @@ export async function resolveUserReport(
   input: ResolveReviewInput
 ) {
   const result = await withPostgresTransaction(async (client) => {
+    await lockReportDecisionActor(client, auth, reviewId);
     const review = (
       await client.query('select * from moderation_reviews where review_id=$1 for update', [
         reviewId
@@ -204,15 +205,6 @@ export async function resolveUserReport(
     if (!review || review.source !== 'USER_REPORT')
       throw new AppError(404, 'ADMIN_001', 'Không tìm thấy báo cáo.');
     await assertResolverAccess(auth, review, client);
-    if (auth.role === 'MODERATOR') {
-      const identity = (
-        await client.query(
-          'select role, status, access_version from users where user_id=$1 and deleted_at is null',
-          [auth.userId]
-        )
-      ).rows[0];
-      assertFreshIdentityUnderLock(auth, identity);
-    }
     if (review.status !== 'PENDING') throw new AppError(409, 'ADMIN_002', 'Báo cáo đã được xử lý.');
     // An open escalation hands the decision to Admin for both roles: accepting
     // or dismissing through this route would fork the outcome.

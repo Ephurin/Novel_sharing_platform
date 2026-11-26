@@ -9,8 +9,8 @@ import { drainAdminJobsSafely, queueAdminNotification } from '../admin/admin-job
 import { isDiscussionTarget } from '../discussions/discussions.admin.js';
 import { executeUserReportResolution } from './report-resolution.js';
 import {
-  assertFreshIdentityUnderLock,
   assertResolverAccess,
+  lockReportDecisionActor,
   reviewInvolvedUserIds
 } from './review-authorization.js';
 import type {
@@ -90,6 +90,7 @@ export async function proposeModerationEscalation(
   input: ProposeEscalationInput
 ) {
   const created = await withPostgresTransaction(async (client) => {
+    await lockReportDecisionActor(client, auth, reviewId);
     const review = (
       await client.query('select * from moderation_reviews where review_id=$1 for update', [
         reviewId
@@ -98,13 +99,6 @@ export async function proposeModerationEscalation(
     if (!review || review.source !== 'USER_REPORT')
       throw new AppError(404, 'ADMIN_001', 'Không tìm thấy báo cáo.');
     await assertResolverAccess(auth, review, client);
-    const identity = (
-      await client.query(
-        'select role, status, access_version from users where user_id=$1 and deleted_at is null',
-        [auth.userId]
-      )
-    ).rows[0];
-    assertFreshIdentityUnderLock(auth, identity);
     if (review.status !== 'PENDING')
       throw new AppError(409, 'ADMIN_002', 'Báo cáo đã được xử lý.');
     const userReport = review.target_type === 'USER';
@@ -264,6 +258,7 @@ export async function resolveModerationEscalation(
     ).rows[0];
     if (!found)
       throw new AppError(404, 'ESCALATION_NOT_FOUND', 'Không tìm thấy đề nghị chuyển cấp.');
+    await lockReportDecisionActor(client, auth, found.review_id);
     // Review first, escalation second: this is the shared order with propose,
     // matching ROLE_PERMISSION_DESIGN's lock discipline.
     const review = (

@@ -1,3 +1,4 @@
+import { lockFreshActor } from '../../core/security/transactional-identity.js';
 import { Router, type Request, type RequestHandler } from 'express';
 import { z } from 'zod';
 import { getPostgresPool } from '../../core/database/postgres.js';
@@ -9,6 +10,7 @@ import {
   adminAccess,
   assertAdminPermission,
   audit,
+  lockAdminAccess,
   protectAccount,
   requireAdminPermission
 } from './admin-access.js';
@@ -223,6 +225,8 @@ adminOperationsRoutes.post(
       ).rows[0];
       if (!sanction)
         throw new AppError(409, 'APPEAL_SANCTION_INACTIVE', 'Chế tài đã được đảo trước đó. Hãy tải lại danh sách.');
+      if (sanction.target_type === 'USER') await lockAdminAccess(client);
+      await lockFreshActor(client, req.auth!);
       await assertAdminPermission(
         req.auth!,
         sanction.target_type === 'USER' ? 'users' : 'content',

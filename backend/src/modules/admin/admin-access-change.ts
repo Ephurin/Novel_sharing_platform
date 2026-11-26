@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { userRoles } from '../../shared/constants/roles.js';
-import { audit, protectAccount } from './admin-access.js';
+import { audit, protectAccount, type AccessActor } from './admin-access.js';
 
 const adminScopeEnum = z.enum(['SUPER_ADMIN', 'MODERATOR', 'USER_MANAGER', 'FINANCE']);
 
@@ -25,7 +25,7 @@ export type AccessChangeOutcome = {
 
 export async function applyUserAccessChange(
   client: PoolClient,
-  actor: { userId: string },
+  actor: AccessActor,
   targetUserId: string,
   input: UserAccessChange
 ): Promise<AccessChangeOutcome> {
@@ -40,8 +40,8 @@ export async function applyUserAccessChange(
   }
 
   const before = await protectAccount(client, actor, targetUserId, 'access');
-  const currentRole = String(before.role);
-  const currentScope = currentRole === 'ADMIN' ? (before.admin_scope ?? null) : null;
+  const currentRole = before.role;
+  const currentScope = currentRole === 'ADMIN' ? before.admin_scope : null;
   const changed =
     currentRole !== input.role || (input.role === 'ADMIN' && currentScope !== (input.scope ?? null));
 
@@ -51,7 +51,7 @@ export async function applyUserAccessChange(
       changed: false,
       role: currentRole,
       scope: currentScope,
-      accessVersion: Number(before.access_version ?? 0)
+      accessVersion: before.access_version
     };
   }
 
@@ -85,6 +85,6 @@ export async function applyUserAccessChange(
     changed: true,
     role: input.role,
     scope: input.role === 'ADMIN' ? (input.scope ?? null) : null,
-    accessVersion: Number(before.access_version ?? 0) + 1
+    accessVersion: before.access_version + 1
   };
 }

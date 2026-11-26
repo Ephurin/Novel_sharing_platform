@@ -7,6 +7,8 @@ import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
 import { env } from '../../core/config/env.js';
 import { moderatorPermissionsFor } from '../../core/security/moderation-policy.js';
+import { waitForBlockedTransaction } from '../../core/database/test-postgres-locks.js';
+import { lockAdminAccess } from './admin-access.js';
 import { applyUserAccessChange } from './admin-access-change.js';
 import {
   convertLegacyModeratorAccounts,
@@ -284,4 +286,52 @@ describe('PR-07: legacy moderator access conversion', { concurrency: false }, ()
     assert.equal(await fingerprint(), before);
     env.MODERATOR_ENABLED = false;
   });
+
+  for (const operation of ['conversion', 'rollback'] as const) {
+    test(`PR-07: ${operation} waits behind a normal access change and reconciles the new scope`, async () => {
+      env.MODERATOR_ENABLED = true;
+      const target = randomUUID();
+      await insertUser(pool, { id: target, role: operation === 'conversion' ? 'ADMIN' : 'MODERATOR' });
+      if (operation === 'conversion') {
+        await pool.query("insert into admin_access(user_id,scope) values($1,'MODERATOR')", [target]);
+      }
+
+      const gate = await pool.connect();
+      let inFlight: ReturnType<typeof convertLegacyModeratorAccounts> | undefined;
+      try {
+        await gate.query('begin');
+        await gate.query("set local lock_timeout='3s'");
+        await lockAdminAccess(gate);
+        inFlight = operation === 'conversion'
+          ? convertLegacyModeratorAccounts({ userId: actor }, 'Chuyển đổi legacy.', { accounts: [target] })
+          : rollbackModeratorConversion({ userId: actor }, [{ userId: target, scope: 'MODERATOR' }], 'Hoàn tác.');
+        await waitForBlockedTransaction(pool, gate);
+
+        const changed = await applyUserAccessChange(gate, { userId: actor }, target, {
+          role: 'ADMIN', scope: 'FINANCE', reason: 'Cấp quyền tài chính.'
+        });
+        assert.equal(changed.changed, true);
+        await gate.query('commit');
+
+        const result = await inFlight;
+        assert.equal(result.converted.length, 0);
+        assert.equal(result.skipped.length, 0);
+        assert.equal(result.reconciliation.length, 1);
+        assert.equal(result.reconciliation[0].userId, target);
+        assert.equal(result.reconciliation[0].role, 'ADMIN');
+        assert.equal(result.reconciliation[0].scope, 'FINANCE');
+        assert.deepEqual(await userRow(target), {
+          role: 'ADMIN', scope: 'FINANCE', status: 'ACTIVE', access_version: 1
+        });
+        const audits = await pool.query(
+          "select reason from admin_audit where affected_user_id=$1 and action='USER_ACCESS_CHANGED'", [target]
+        );
+        assert.deepEqual(audits.rows, [{ reason: 'Cấp quyền tài chính.' }]);
+      } finally {
+        await gate.query('rollback');
+        gate.release();
+        await inFlight;
+      }
+    });
+  }
 });

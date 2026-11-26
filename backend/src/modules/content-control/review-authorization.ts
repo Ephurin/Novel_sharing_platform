@@ -6,7 +6,8 @@ import {
   assertIndependentActor,
   type ModeratorPermission
 } from '../../core/security/moderation-policy.js';
-import { assertAdminPermission } from '../admin/admin-access.js';
+import { assertAdminPermission, lockAdminAccess } from '../admin/admin-access.js';
+import { lockFreshActor } from '../../core/security/transactional-identity.js';
 import { assertModeratorOperational } from '../moderator/moderator-access.js';
 import { findCommentRecordById } from '../interactions/comments.repository.js';
 import { discussionInvolvedUserIds, isDiscussionTarget } from '../discussions/discussions.admin.js';
@@ -39,6 +40,17 @@ export async function assertResolverAccess(
     return 'MODERATOR';
   }
   throw new AppError(403, 'AUTH_008', 'Chỉ quản trị hoặc điều hành viên xử lý hồ sơ này.');
+}
+
+// Account sanctions share the access-management lock. Take it before the
+// actor or review lock, even when the eventual report decision is a dismissal.
+export async function lockReportDecisionActor(client: PoolClient, auth: AuthContext, reviewId: string) {
+  const { rows: [review] } = await client.query<{ target_type: string }>(
+    "select target_type from moderation_reviews where review_id=$1 and source='USER_REPORT'", [reviewId]
+  );
+  if (!review) throw new AppError(404, 'ADMIN_001', 'Không tìm thấy báo cáo.');
+  if (review.target_type === 'USER') await lockAdminAccess(client);
+  await lockFreshActor(client, auth);
 }
 
 // Subjects trace back to the owning author: comment novel, chapter novel, forum target author.
@@ -81,22 +93,6 @@ export async function reviewInvolvedUserIds(
     return assertResolvable(await discussionInvolvedUserIds(review.target_type, review.target_id, client));
   }
   return assertResolvable([]);
-}
-
-// Operational commands re-verify role and access version under the decision lock,
-// so a role that changed after the request started cannot finish its own decision.
-export function assertFreshIdentityUnderLock(
-  auth: AuthContext,
-  row: { role: string; access_version: number | string; status?: string } | undefined
-) {
-  if (
-    !row ||
-    row.role !== auth.role ||
-    row.status !== 'ACTIVE' ||
-    Number(row.access_version) !== (auth.accessVersion ?? 0)
-  ) {
-    throw new AppError(401, 'AUTH_009', 'Phiên đã đổi quyền trong lúc thao tác. Hãy đăng nhập lại.');
-  }
 }
 
 export async function assertIndependentResolver(

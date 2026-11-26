@@ -1,8 +1,8 @@
+import { lockFreshActor } from '../../core/security/transactional-identity.js';
 import { authorizeComment, privateComment } from '../interactions/comment-privacy.js';
 import { assertAdminPermission, audit } from '../admin/admin-access.js';
 import { resolveUserReport } from './report-resolution.js';
 import {
-  assertFreshIdentityUnderLock,
   assertIndependentResolver,
   assertResolverAccess,
   reviewInvolvedUserIds,
@@ -48,7 +48,7 @@ import type {
 import {
   findCommentRecordById,
   updateCommentModerationStatus,
-  withCommentWriteLock,
+  advisoryCommentWriteLock,
   type CommentStatus
 } from '../interactions/comments.repository.js';
 import { findReadableChapter } from '../reading/reading.repository.js';
@@ -409,14 +409,9 @@ async function recoverResolvedCommentReview(
   commentId: string,
   decision: ResolveReviewInput['decision']
 ) {
-  return withCommentWriteLock(commentId, async (client) => {
-    const identity = (
-      await client.query(
-        'select role, status, access_version from users where user_id=$1 and deleted_at is null',
-        [auth.userId]
-      )
-    ).rows[0];
-    assertFreshIdentityUnderLock(auth, identity);
+  return withPostgresTransaction(async (client) => {
+    await lockFreshActor(client, auth);
+    await advisoryCommentWriteLock(client, commentId);
     const review = await findReviewById(reviewId, client);
     if (
       !review || review.source !== 'KEYWORD_FILTER' || review.target_type !== 'COMMENT' ||
@@ -561,20 +556,10 @@ export async function resolveModerationReview(
   }
 
   const resolved = await withPostgresTransaction(async (client) => {
-    await lockPublicationTarget(client, review.target_type, review.target_id, input.decision === 'APPROVED');
-    if (auth.role === 'MODERATOR') {
-      const identity = (
-        await client.query(
-          'select role, status, access_version from users where user_id=$1 and deleted_at is null',
-          [auth.userId]
-        )
-      ).rows[0];
-      assertFreshIdentityUnderLock(auth, identity);
-    }
+    await lockFreshActor(client, auth);
     await assertResolverAccess(auth, review, client);
-    if (review.target_type === 'COMMENT') {
-      await client.query("select pg_advisory_xact_lock(hashtextextended('comment:' || $1, 0))", [review.target_id]);
-    }
+    await lockPublicationTarget(client, review.target_type, review.target_id, input.decision === 'APPROVED');
+    if (review.target_type === 'COMMENT') await advisoryCommentWriteLock(client, review.target_id);
     await assertIndependentResolver(auth, review, client);
     if (review.target_type === 'COMMENT') {
       const comment = await findCommentRecordById(review.target_id);

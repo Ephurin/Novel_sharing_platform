@@ -6,7 +6,7 @@ import { assertIndependentActor } from '../../core/security/moderation-policy.js
 import { assertAdminPermission, audit, requiredReason } from '../admin/admin-access.js';
 import { assertNoOpenAppeal, assertNotOriginalDecider } from '../admin/sanction-guard.js';
 import { queueAdminNotification } from '../admin/admin-jobs.js';
-import { assertFreshIdentityUnderLock } from '../content-control/review-authorization.js';
+import { lockFreshActor } from '../../core/security/transactional-identity.js';
 import { assertModeratorOperational } from '../moderator/moderator-access.js';
 import { refreshTopicActivity } from './discussions.write.js';
 import { discussionInvolvedUserIds } from './discussions.admin.js';
@@ -139,29 +139,17 @@ export async function lockDiscussionSanctionTarget(
   };
 }
 
-// Both the legacy admin route and the moderator route call this shared check.
-// Moderators re-verify their role and access version under the decision lock.
-export async function assertDiscussionSanctionAuthority(
+async function assertDiscussionSanctionAuthority(
   auth: AuthContext,
   client: PoolClient,
   permission: DiscussionOperationalPermission
 ) {
+  await lockFreshActor(client, auth);
   if (auth.role === 'ADMIN') {
     await assertAdminPermission(auth, 'content', client);
     return;
   }
-  if (auth.role === 'MODERATOR') {
-    assertModeratorOperational(auth, permission);
-    const identity = (
-      await client.query(
-        'select role, status, access_version from users where user_id=$1 and deleted_at is null for share',
-        [auth.userId]
-      )
-    ).rows[0];
-    assertFreshIdentityUnderLock(auth, identity);
-    return;
-  }
-  throw new AppError(403, 'AUTH_008', 'Chỉ quản trị hoặc điều hành viên xử lý nội dung này.');
+  assertModeratorOperational(auth, permission);
 }
 
 export async function assertDiscussionIndependence(
@@ -206,8 +194,9 @@ export async function applyDiscussionSanction(
   }
 ): Promise<DiscussionSanctionOutcome> {
   const reason = requiredReason(input.reason);
-  const target = await lockDiscussionSanctionTarget(client, input.kind, input.id, input.expectedTopicId);
   await assertDiscussionSanctionAuthority(auth, client, input.permission);
+  await advisoryDiscussionSanctionLock(client, input.kind, input.id);
+  const target = await lockDiscussionSanctionTarget(client, input.kind, input.id, input.expectedTopicId);
   // Identity before content state: involved actors may not probe achieved or
   // deleted targets through either operational route.
   await assertDiscussionIndependence(auth, client, input.kind, input.id);
@@ -348,7 +337,6 @@ export async function moderateDiscussionHide(
     expectedStatus?: string;
   }
 ): Promise<DiscussionSanctionOutcome> {
-  await advisoryDiscussionSanctionLock(client, input.kind, input.id);
   const outcome = await applyDiscussionSanction(client, auth, { ...input });
   if (outcome.skipped === 'deleted') throw deletedError(input.kind);
   return outcome;
@@ -378,6 +366,7 @@ export async function restoreDiscussionSanction(
   topicRow: LockedDiscussionTarget['topicRow'];
 }> {
   const reason = requiredReason(input.reason);
+  await assertDiscussionSanctionAuthority(auth, client, input.permission);
   await advisoryDiscussionSanctionLock(client, input.kind, input.id);
   // Lock order shared with restoreSanction (appeals path): advisory key, then
   // the sanction row, then the topic and comment rows.
@@ -404,7 +393,6 @@ export async function restoreDiscussionSanction(
       'Trạng thái chủ đề đã thay đổi so với giá trị bạn đang xem. Hãy tải lại.'
     );
   }
-  await assertDiscussionSanctionAuthority(auth, client, input.permission);
   if (target.topicStatus !== 'HIDDEN')
     throw new AppError(
       409,

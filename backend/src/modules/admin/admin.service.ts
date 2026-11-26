@@ -1,3 +1,4 @@
+import { lockFreshActor } from '../../core/security/transactional-identity.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { assertAdminPermission, audit, protectAccount, requiredReason } from './admin-access.js';
 import { applySanction, restoreSanction } from './admin-sanctions.js';
@@ -99,6 +100,7 @@ export async function removeNovel(auth: AuthContext, novelId: string, input: Rem
 }
 export async function restoreNovel(auth: AuthContext, novelId: string, input: RestoreNovelInput) {
   await withPostgresTransaction(async (client) => {
+    await lockFreshActor(client, auth);
     await assertAdminPermission(auth, 'content', client);
     const reason = requiredReason(input.reason);
     await client.query('select pg_advisory_xact_lock(hashtext($1))', [`sanction:NOVEL:${novelId}`]);

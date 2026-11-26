@@ -1,6 +1,7 @@
+import { lockFreshActor } from '../../core/security/transactional-identity.js';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
-import type { AdminScope } from './admin-access.js';
+import { lockAdminAccess, readLockedAccountAccess, type AdminScope } from './admin-access.js';
 import { applyUserAccessChange, type AccessChangeOutcome } from './admin-access-change.js';
 
 export type LegacyModeratorAccountRow = {
@@ -174,28 +175,21 @@ export async function convertLegacyModeratorAccounts(
   }
   for (const row of rows) {
     const outcome = await withPostgresTransaction(async (client) => {
-      const current = await client.query(
-        `select u.user_id,u.username,u.role,u.status,a.scope
-         from users u left join admin_access a using(user_id)
-         where u.user_id=$1 and u.deleted_at is null
-         for update of u`,
-        [row.user_id]
-      );
-      const target = current.rows[0];
+      await lockAdminAccess(client);
+      await lockFreshActor(client, actor);
+      const target = await readLockedAccountAccess(client, row.user_id);
       if (!target) {
         return { kind: 'reconcile' as const, note: 'Tài khoản không còn tồn tại.', role: '', scope: null };
       }
-      // EvalPlanQual rechecks only the locked users row; an admin_access join column can
-      // stay stale from the pre-lock snapshot, so the role decides "already converted".
       if (target.role === 'MODERATOR') {
         return { kind: 'skip' as const };
       }
-      if (target.role !== 'ADMIN' || target.scope !== 'MODERATOR') {
+      if (target.role !== 'ADMIN' || target.admin_scope !== 'MODERATOR') {
         return {
           kind: 'reconcile' as const,
           note: 'Trạng thái khác cặp role/scope legacy dự kiến.',
           role: target.role,
-          scope: target.scope ?? null
+          scope: target.admin_scope ?? null
         };
       }
       const changed = await applyUserAccessChange(client, actor, row.user_id, {
@@ -204,7 +198,7 @@ export async function convertLegacyModeratorAccounts(
       });
       return { kind: 'converted' as const, outcome: changed };
     });
-    if (outcome.kind === 'converted') result.converted.push(outcome.outcome!);
+    if (outcome.kind === 'converted') result.converted.push(outcome.outcome);
     else if (outcome.kind === 'skip')
       result.skipped.push({ userId: row.user_id, username: row.username, reason: 'Đã chuyển đổi trước đó.' });
     else
@@ -243,18 +237,13 @@ export async function rollbackModeratorConversion(
       continue;
     }
     const outcome = await withPostgresTransaction(async (client) => {
-      const current = await client.query(
-        `select u.user_id,u.username,u.role,a.scope
-         from users u left join admin_access a using(user_id)
-         where u.user_id=$1 and u.deleted_at is null
-         for update of u`,
-        [account.userId]
-      );
-      const target = current.rows[0];
+      await lockAdminAccess(client);
+      await lockFreshActor(client, actor);
+      const target = await readLockedAccountAccess(client, account.userId);
       if (!target) {
         return { kind: 'reconcile' as const, note: 'Tài khoản không còn tồn tại.', role: '', scope: null };
       }
-      if (target.role === 'ADMIN' && target.scope === account.scope) {
+      if (target.role === 'ADMIN' && target.admin_scope === account.scope) {
         return { kind: 'skip' as const };
       }
       if (target.role !== 'MODERATOR') {
@@ -262,7 +251,7 @@ export async function rollbackModeratorConversion(
           kind: 'reconcile' as const,
           note: 'Tài khoản không còn giữ vai trò Moderator.',
           role: target.role,
-          scope: target.scope ?? null
+          scope: target.admin_scope ?? null
         };
       }
       const changed = await applyUserAccessChange(client, actor, account.userId, {
@@ -272,7 +261,7 @@ export async function rollbackModeratorConversion(
       });
       return { kind: 'converted' as const, outcome: changed };
     });
-    if (outcome.kind === 'converted') result.converted.push(outcome.outcome!);
+    if (outcome.kind === 'converted') result.converted.push(outcome.outcome);
     else if (outcome.kind === 'skip')
       result.skipped.push({
         userId: account.userId,

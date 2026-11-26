@@ -10,6 +10,9 @@ import { env } from '../../core/config/env.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
 
+import { waitForBlockedTransaction } from '../../core/database/test-postgres-locks.js';
+import { applyUserAccessChange } from '../admin/admin-access-change.js';
+
 describe('PR-05: moderation escalations between moderators and Admin', { concurrency: false }, () => {
   const pool = getPostgresPool();
   const admin = randomUUID();
@@ -133,6 +136,29 @@ describe('PR-05: moderation escalations between moderators and Admin', { concurr
     server?.close();
     await disconnectPostgres();
     await disconnectMongo();
+  });
+
+  test('D04-B: escalation submission waits for role revocation and creates no proposal', async () => {
+    const actor = randomUUID();
+    await insertUser(actor, 'MODERATOR');
+    const { reviewId } = await openReportReview([reporterA]);
+    const gate = await pool.connect();
+    let inFlight: ReturnType<typeof escalate> | undefined;
+    try {
+      await gate.query('begin');
+      await applyUserAccessChange(gate, { userId: admin }, actor, { role: 'READER', reason: 'Thu hồi quyền.' });
+      inFlight = escalate(reviewId, mint(actor, 'MODERATOR'));
+      await waitForBlockedTransaction(pool, gate);
+      await gate.query('commit');
+      const response = await inFlight;
+      assert.equal(response.status, 401);
+      assert.equal(response.body.error.code, 'AUTH_009');
+      assert.deepEqual(await escalationRow(reviewId), []);
+    } finally {
+      await gate.query('rollback');
+      gate.release();
+      await inFlight;
+    }
   });
 
   test('propose creates one OPEN escalation and freezes the review for direct resolution', async () => {

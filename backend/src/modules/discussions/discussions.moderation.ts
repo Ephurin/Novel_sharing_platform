@@ -5,7 +5,7 @@ import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { audit, requiredReason } from '../admin/admin-access.js';
 import { drainAdminJobsSafely, scheduleAdminJobsDrain } from '../admin/admin-jobs.js';
 import { assertModeratorOperational } from '../moderator/moderator-access.js';
-import { assertFreshIdentityUnderLock } from '../content-control/review-authorization.js';
+import { lockFreshActor } from '../../core/security/transactional-identity.js';
 import { assertIndependentActor } from '../../core/security/moderation-policy.js';
 import { refreshTopicActivity } from './discussions.write.js';
 import { discussionInvolvedUserIds } from './discussions.admin.js';
@@ -42,13 +42,7 @@ async function lockModeratorTopic(client: PoolClient, topicId: string): Promise<
 
 async function assertOperationalModerator(auth: AuthContext, client: PoolClient) {
   assertModeratorOperational(auth, 'discussion.operate');
-  const identity = (
-    await client.query<{ role: string; status: string; access_version: number }>(
-      'select role, status, access_version from users where user_id=$1 and deleted_at is null for share',
-      [auth.userId]
-    )
-  ).rows[0];
-  assertFreshIdentityUnderLock(auth, identity);
+  await lockFreshActor(client, auth);
 }
 
 function assertExpected(current: unknown, expected: unknown) {

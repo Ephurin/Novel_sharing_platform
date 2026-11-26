@@ -42,9 +42,13 @@ export function isCommentPublic(comment: Pick<CommentDocument, 'status' | 'image
   return (!comment.audience || comment.audience === 'PUBLIC') && isCommentApproved(comment);
 }
 
+export async function advisoryCommentWriteLock(client: PoolClient, commentId: string) {
+  await client.query("select pg_advisory_xact_lock(hashtextextended('comment:' || $1, 0))", [commentId]);
+}
+
 export function withCommentWriteLock<T>(commentId: string, action: (client: PoolClient) => Promise<T>) {
   return withPostgresTransaction(async client => {
-    await client.query("select pg_advisory_xact_lock(hashtextextended('comment:' || $1, 0))", [commentId]);
+    await advisoryCommentWriteLock(client, commentId);
     return action(client);
   });
 }

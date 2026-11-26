@@ -11,6 +11,9 @@ import type { AuthContext } from '../../core/security/auth-context.js';
 import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { submitPublish } from '../novels/novels.service.js';
+import { applyUserAccessChange } from '../admin/admin-access-change.js';
+import { waitForBlockedTransaction } from '../../core/database/test-postgres-locks.js';
+import type { PoolClient } from 'pg';
 import { applySanction } from '../admin/admin-sanctions.js';
 
 describe('PR-02: moderator review queue, variants and independence', { concurrency: false }, () => {
@@ -546,31 +549,116 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
     assert.equal(selfAttempt.body.error.code, 'MOD_CONFLICT');
   });
 
-  test('D04-B: the decision re-verifies the session under the target lock', async () => {
-    const reviewId = await insertPendingReview('NOVEL', publishedNovelId, 'pr02-toc');
-    touReviewId = reviewId;
+  async function decideDuringAccessChange(
+    userId: string,
+    reviewId: string,
+    body: { decision: string; reason?: string; action?: string },
+    change: (gate: PoolClient) => Promise<unknown>
+  ) {
     const gate = await pool.connect();
+    let inFlight: ReturnType<typeof bearerCall> | undefined;
     try {
       await gate.query('begin');
-      await gate.query('select novel_id from novels where novel_id=$1 for update', [publishedNovelId]);
-      const inFlight = bearerCall(`/moderator/reviews/${reviewId}/resolve`, {
-        method: 'POST',
-        token: mint(modTou, 'MODERATOR'),
-        body: { decision: 'REJECTED', reason: 'Đối chiếu phiên trong giao dịch.' }
+      await change(gate);
+      inFlight = bearerCall(`/moderator/reviews/${reviewId}/resolve`, {
+        token: mint(userId, 'MODERATOR'),
+        body
       });
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      await pool.query('update users set access_version=access_version+1 where user_id=$1', [modTou]);
+      await waitForBlockedTransaction(pool, gate);
       await gate.query('commit');
-      const result = await inFlight;
-      assert.equal(result.status, 401);
-      assert.equal(result.body.error.code, 'AUTH_009');
-      const still = (await pool.query('select status,reviewed_by from moderation_reviews where review_id=$1', [reviewId])).rows[0];
-      assert.equal(still.status, 'PENDING');
-      assert.equal(still.reviewed_by, null);
+      const response = await inFlight;
+      assert.equal(response.status, 401);
+      assert.equal(response.body.error.code, 'AUTH_009');
     } finally {
-      await gate.query('commit').catch(() => undefined);
-      await gate.release();
+      await gate.query('rollback');
+      gate.release();
+      await inFlight;
     }
+  }
+
+  const revokeModerator = (gate: PoolClient, userId: string) =>
+    applyUserAccessChange(gate, adminAuth, userId, { role: 'READER', reason: 'Hết nhiệm vụ kiểm duyệt.' });
+
+  async function assertPendingReview(reviewId: string) {
+    const { rows: [review] } = await pool.query(
+      'select status,reviewed_by from moderation_reviews where review_id=$1', [reviewId]
+    );
+    assert.deepEqual(review, { status: 'PENDING', reviewed_by: null });
+  }
+
+  test('D04-B: publication review waits for role revocation and leaves the decision pending', async () => {
+    touReviewId = await insertPendingReview('NOVEL', publishedNovelId, 'pr02-toc');
+    await decideDuringAccessChange(
+      modTou, touReviewId, { decision: 'REJECTED', reason: 'Đối chiếu phiên trong giao dịch.' },
+      gate => revokeModerator(gate, modTou)
+    );
+    await assertPendingReview(touReviewId);
+  });
+
+  test('D04-B: a publication decision holding the actor lock commits before revocation', async () => {
+    const actor = randomUUID();
+    await insertUser(actor, 'MODERATOR');
+    const novel = await insertNovel(authorX, 'D04-B publication lock', 'A separate publication lock fixture.', 'DRAFT');
+    const reviewId = await insertPendingReview('NOVEL', novel, 'pr02-in-flight');
+    const gate = await pool.connect();
+    let inFlight: ReturnType<typeof bearerCall> | undefined;
+    let revoke: ReturnType<typeof revokeModerator> | undefined;
+    try {
+      await gate.query('begin');
+      await gate.query('select novel_id from novels where novel_id=$1 for update', [novel]);
+      inFlight = bearerCall(`/moderator/reviews/${reviewId}/resolve`, {
+        token: mint(actor, 'MODERATOR'),
+        body: { decision: 'REJECTED', reason: 'Tác phẩm cần sửa nội dung.' }
+      });
+      const decisionPid = await waitForBlockedTransaction(pool, gate);
+      revoke = withPostgresTransaction(client => revokeModerator(client, actor));
+      await waitForBlockedTransaction(pool, decisionPid);
+      await gate.query('commit');
+
+      assert.equal((await inFlight).status, 200);
+      assert.equal((await revoke).role, 'READER');
+      const { rows: [review] } = await pool.query(
+        'select status,reviewed_by from moderation_reviews where review_id=$1', [reviewId]
+      );
+      assert.deepEqual(review, { status: 'REJECTED', reviewed_by: actor });
+    } finally {
+      await gate.query('rollback');
+      gate.release();
+      await Promise.allSettled([inFlight, revoke]);
+    }
+  });
+
+  test('D04-B: comment review waits for role revocation and preserves the pending comment', async () => {
+    const actor = randomUUID();
+    await insertUser(actor, 'MODERATOR');
+    const flagged = await bearerCall(`/novels/${publishedNovelId}/comments`, {
+      token: mint(reader1, 'READER'), body: { content: 'This comment contains harassment.' }
+    });
+    assert.equal(flagged.status, 201);
+    assert.equal(flagged.body.data.status, 'PENDING_MODERATION');
+    const { moderationReviewId, commentId } = flagged.body.data;
+    await decideDuringAccessChange(actor, moderationReviewId, { decision: 'APPROVED' },
+      gate => revokeModerator(gate, actor));
+    await assertPendingReview(moderationReviewId);
+    const comment = await getMongoDatabase().collection('comments').findOne({ commentId });
+    assert.equal(comment?.status, 'PENDING_MODERATION');
+  });
+
+  test('D04-B: account report resolution waits for role revocation and creates no sanction', async () => {
+    const actor = randomUUID();
+    await insertUser(actor, 'MODERATOR');
+    const targetId = await insertReader();
+    const report = await bearerCall('/reports', {
+      token: mint(reader1, 'READER'),
+      body: { targetType: 'USER', targetId, reason: 'SPAM', description: 'Báo cáo hành vi spam.' }
+    });
+    assert.equal(report.status, 201);
+    const reviewId = report.body.data.moderationReviewId;
+    await decideDuringAccessChange(actor, reviewId, {
+      decision: 'APPROVED', action: 'WARN', reason: 'Cảnh báo vì spam.'
+    }, gate => revokeModerator(gate, actor));
+    await assertPendingReview(reviewId);
+    assert.equal((await pool.query('select 1 from admin_sanctions where review_id=$1', [reviewId])).rowCount, 0);
   });
 
   test('E03: moderator detail views land in the access log', async () => {
@@ -698,30 +786,13 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
     assert.equal(sanction.n, 1, 'exactly one sanction row is recorded');
   });
 
-  test('D04-B: a mid-flight account lock fails the decision under the lock', async () => {
+  test('D04-B: a mid-flight account lock fails the decision in the transaction', async () => {
     const reviewId = await insertPendingReview('NOVEL', modPublicNovelId, 'pr02-locked');
-    const gate = await pool.connect();
-    try {
-      await gate.query('begin');
-      await gate.query('select novel_id from novels where novel_id=$1 for update', [modPublicNovelId]);
-      const inFlight = bearerCall(`/moderator/reviews/${reviewId}/resolve`, {
-        method: 'POST',
-        token: mint(modLocked, 'MODERATOR'),
-        body: { decision: 'REJECTED', reason: 'Tài khoản bị khóa khi đang xử lý.' }
-      });
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      await pool.query("update users set status='LOCKED' where user_id=$1", [modLocked]);
-      await gate.query('commit');
-      const result = await inFlight;
-      assert.equal(result.status, 401, 'the under-lock check fails, not the request-entry status check');
-      assert.equal(result.body.error.code, 'AUTH_009');
-      const still = (await pool.query('select status,reviewed_by from moderation_reviews where review_id=$1', [reviewId])).rows[0];
-      assert.equal(still.status, 'PENDING');
-      assert.equal(still.reviewed_by, null);
-    } finally {
-      await gate.query('commit').catch(() => undefined);
-      await gate.release();
-    }
+    await decideDuringAccessChange(
+      modLocked, reviewId, { decision: 'REJECTED', reason: 'Tài khoản bị khóa khi đang xử lý.' },
+      gate => gate.query("update users set status='LOCKED' where user_id=$1", [modLocked])
+    );
+    await assertPendingReview(reviewId);
   });
 
   test('D01: the linked novel author leg blocks a moderator deciding a foreign topic', async () => {
