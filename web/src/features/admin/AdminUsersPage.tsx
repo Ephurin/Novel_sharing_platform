@@ -1,13 +1,13 @@
-import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
+import { useUrlFilters, useListScroll, WorkspaceTable, WorkspaceTableOptions } from '../../shared/components/WorkspacePreferences';
 import { WorkspacePreview } from '../../shared/components/WorkspacePreview';
-import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
+import { AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { labels as filterLabels } from './AdminShared';
 import { ResponsiveFilters, useUpdatedItems } from '../../shared/components/InteractionWidgets';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
 import { userRoles } from '../auth/auth-types';
 import { useState } from 'react';
-import { Button, Select, TextInput } from '@mantine/core';
+import { Button, Menu, Select, TextInput } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAdminList, lockUser, unlockUser, type AdminUser } from './admin-api';
 import {
@@ -15,6 +15,7 @@ import {
   AdminHeader,
   AdminPagination,
   AdminPanel,
+  AdminRowMenu,
   number,
   options,
   Status
@@ -104,19 +105,14 @@ export function AdminUsersPage() {
             Đặt lại
           </Button>
         </ResponsiveFilters>
-        <FilterPresets name={'AdminUsersPage'} fields={["q", "role", "status"]} />
-        <ActiveFilterChips items={[
-          ...(q.trim() ? [{ id: 'q', label: `Tìm: ${q.trim()}`, onRemove: () => { setQ(''); setPage(1); } }] : []),
-          ...(role ? [{ id: 'role', label: role === 'ADMIN' ? 'Quản trị viên' : role === 'AUTHOR' ? 'Tác giả' : 'Độc giả', onRemove: () => { setRole(''); setPage(1); } }] : []),
-          ...(status ? [{ id: 'status', label: filterLabels[status] || status, onRemove: () => { setStatus(''); setPage(1); } }] : [])
-        ]} />
+        <WorkspaceTableOptions name="adminuserspage" columns={['Người dùng', 'Vai trò', 'Trạng thái', 'Thao tác']} presets={{ name: 'AdminUsersPage', fields: ["q", "role", "status"] }}>
         <ResultsSurface identity={String(query.dataUpdatedAt)} busy={query.isFetching} retain={Boolean(q.trim() || role || status)}>{query.isLoading && <LoadingState variant="table" label="Đang tải người dùng..." />}
         {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
         {query.data && !query.data.items.length && (
           <EmptyState description="Không tìm thấy người dùng phù hợp." />
         )}
         {!!query.data?.items.length && (
-          <WorkspaceTable name="adminuserspage" columns={['Người dùng', 'Vai trò', 'Trạng thái', 'Thao tác']}>
+          <WorkspaceTable>
             <table>
               <thead>
                 <tr>
@@ -154,23 +150,21 @@ export function AdminUsersPage() {
                     <td>
                       <div className="admin-actions">
                         <Button variant="subtle" size="xs" onClick={() => setPreviewId(user.userId)}>Xem nhanh</Button>
-                        <Button
-                          disabled={user.userId === currentUser?.userId || user.status === 'DELETED'}
-                          variant="light"
-                          color={user.status === 'LOCKED' ? undefined : 'red'}
-                          className={user.status === 'LOCKED' ? undefined : 'admin-danger'}
-                          size="xs"
-                          leftSection={
-                            <AdminIcon name={user.status === 'LOCKED' ? 'lock_open' : 'lock'} />
-                          }
-                          onClick={() => {
-                            mutation.reset();
-                            setReason('');
-                            setSelected(user);
-                          }}
-                        >
-                          {user.status === 'LOCKED' ? 'Mở khóa' : 'Khóa tài khoản'}
-                        </Button>
+                        {currentUser && user.userId !== currentUser.userId && user.status !== 'DELETED' &&
+                          (user.role !== 'ADMIN' || user.status === 'LOCKED') && (
+                            <AdminRowMenu label={`Thao tác với @${user.username}`}>
+                              <Menu.Item
+                                color={user.status === 'LOCKED' ? undefined : 'red'}
+                                onClick={() => {
+                                  mutation.reset();
+                                  setReason('');
+                                  setSelected(user);
+                                }}
+                              >
+                                {user.status === 'LOCKED' ? 'Mở khóa' : 'Khóa tài khoản'}
+                              </Menu.Item>
+                            </AdminRowMenu>
+                          )}
                       </div>
                     </td>
                   </tr>
@@ -181,6 +175,7 @@ export function AdminUsersPage() {
         )}
         <AdminPagination meta={query.data?.meta} onChange={setPage} />
       </ResultsSurface>
+        </WorkspaceTableOptions>
       </AdminPanel>
       <WorkspacePreview selected={previewId} onSelect={setPreviewId} records={(query.data?.items ?? []).map(user => ({ id: user.userId, title: user.displayName || user.username, to: `/admin/users/${user.userId}`, fields: [['Tài khoản', `@${user.username}`], ['Email', user.email], ['Vai trò', user.role === 'ADMIN' ? 'Quản trị viên' : user.role === 'AUTHOR' ? 'Tác giả' : 'Độc giả'], ['Trạng thái', filterLabels[user.status] || user.status]] }))} />
       <AdminConfirm

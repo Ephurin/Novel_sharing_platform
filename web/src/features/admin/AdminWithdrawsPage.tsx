@@ -1,10 +1,9 @@
-import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
-import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
-import { labels as filterLabels } from './AdminShared';
+import { useUrlFilters, useListScroll, WorkspaceTable, WorkspaceTableOptions } from '../../shared/components/WorkspacePreferences';
+import { AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { ResponsiveFilters, useUpdatedItems } from '../../shared/components/InteractionWidgets';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { Alert, Button, Select } from '@mantine/core';
+import { Alert, Button, Menu, Select } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   approveWithdrawRequest,
@@ -17,6 +16,7 @@ import {
   AdminHeader,
   AdminPagination,
   AdminPanel,
+  AdminRowMenu,
   dateTime,
   number,
   options,
@@ -106,23 +106,8 @@ export function AdminWithdrawsPage() {
             }}
           />
         </ResponsiveFilters>
-        <FilterPresets name={'AdminWithdrawsPage'} fields={['status']} />
-        <ActiveFilterChips
-          items={
-            status
-              ? [
-                  {
-                    id: 'status',
-                    label: status === 'SUCCESS' ? 'Đã duyệt' : filterLabels[status] || status,
-                    onRemove: () => {
-                      setStatus('');
-                      setPage(1);
-                    }
-                  }
-                ]
-              : []
-          }
-        />
+        <WorkspaceTableOptions name="adminwithdrawspage"
+              columns={['Người yêu cầu', 'Số Xu yêu cầu', 'Tài khoản nhận', 'Trạng thái', 'Thao tác']} presets={{ name: 'AdminWithdrawsPage', fields: ['status'] }}>
         <ResultsSurface identity={String(query.dataUpdatedAt)} busy={query.isFetching} retain={Boolean(status)}>
           {query.isLoading && <LoadingState variant="table" label="Đang tải yêu cầu rút Xu..." />}
           {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
@@ -130,10 +115,7 @@ export function AdminWithdrawsPage() {
             <EmptyState description="Không có yêu cầu rút Xu phù hợp." />
           )}
           {!!query.data?.items.length && (
-            <WorkspaceTable
-              name="adminwithdrawspage"
-              columns={['Người yêu cầu', 'Số Xu yêu cầu', 'Tài khoản nhận', 'Trạng thái', 'Thao tác']}
-            >
+            <WorkspaceTable>
               <table>
                 <thead>
                   <tr>
@@ -168,10 +150,8 @@ export function AdminWithdrawsPage() {
                       <td>
                         <div className="admin-actions">
                           {request.status === 'PENDING' ? (
-                            <>
-                              <Button
-                                size="xs"
-                                disabled={mutation.isPending}
+                            <AdminRowMenu label={`Xử lý yêu cầu của @${request.username}`} disabled={mutation.isPending}>
+                              <Menu.Item
                                 onClick={() => {
                                   mutation.reset();
                                   setReason('');
@@ -179,13 +159,9 @@ export function AdminWithdrawsPage() {
                                 }}
                               >
                                 Duyệt
-                              </Button>
-                              <Button
-                                size="xs"
-                                disabled={mutation.isPending}
+                              </Menu.Item>
+                              <Menu.Item
                                 color="red"
-                                className="admin-danger"
-                                variant="light"
                                 onClick={() => {
                                   mutation.reset();
                                   setReason('');
@@ -193,8 +169,8 @@ export function AdminWithdrawsPage() {
                                 }}
                               >
                                 Từ chối
-                              </Button>
-                            </>
+                              </Menu.Item>
+                            </AdminRowMenu>
                           ) : (
                             <Button
                               component={Link}
@@ -215,6 +191,7 @@ export function AdminWithdrawsPage() {
           )}
           <AdminPagination meta={query.data?.meta} onChange={setPage} />
         </ResultsSurface>
+        </WorkspaceTableOptions>
       </AdminPanel>
       <AdminConfirm
         destructive={!action?.approve}
