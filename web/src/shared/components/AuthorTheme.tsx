@@ -11,8 +11,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState, type PropsWithChildren } from 'react';
 import { Link, NavLink, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { logout } from '../../features/auth/auth-api';
-import { useResourceId } from '../../app/ResourceRoute';
-import { canonicalStaticPath, routes, staticRouteTargets, navigationHref, profileHref } from '../routes';
+import { useManagedNovel, useResourceId } from '../../app/ResourceRoute';
+import { canonicalStaticPath, routes, staticRouteTargets, navigationHref, profileHref, managedNovelHref, studioHref } from '../routes';
 import { useAuthStore } from '../../features/auth/useAuthStore';
 import { readAuthorContext } from '../../features/author-ide/author-context';
 import '../../theme/storycraft.css';
@@ -92,8 +92,12 @@ export function AuthorNavbar() {
   const location = useLocation();
   const params = useParams();
   const [searchParams] = useSearchParams();
-  const novelId = params.novelId || searchParams.get('novelId') || readAuthorContext(user?.userId ?? '').novelId;
-  const writingUrl = navigationHref(novelId ? `/author/ide?novelId=${encodeURIComponent(novelId)}` : '/author');
+  const managedNovel = useManagedNovel();
+  const requestedNovelSlug = searchParams.get('tac-pham');
+  const novelId = managedNovel?.novelId || params.novelId || searchParams.get('novelId') ||
+    requestedNovelSlug || readAuthorContext(user?.userId ?? '').novelId;
+  const novelRef = managedNovel ?? { novelId, slug: requestedNovelSlug };
+  const writingUrl = novelId ? studioHref(novelRef) : navigationHref('/author');
   const ownProfileHref = user?.publicKey ? profileHref('author', user.userId, user.publicKey) : '/author/profile';
   const name = user?.displayName || user?.username || 'Tài khoản';
   // Readers and guests share this navbar so every StoryCraft page has one header; only authors and
@@ -226,7 +230,7 @@ export function AuthorNavbar() {
           {isWriter && <WorkspaceCommands author commands={[
             { label: navigationLabels.authorHome, to: navigationHref('/author/projects'), icon: 'menu_book' },
             { label: 'Viết tiếp', to: writingUrl, icon: 'edit_note' },
-            ...(novelId ? [{ label: 'Quản lý tác phẩm đang viết', to: navigationHref(`/author/novels/${novelId}`) }, { label: 'Nhập bản thảo', to: navigationHref(`/author/import/${novelId}`) }, { label: 'Cẩm nang tác phẩm', to: navigationHref(`/author/context/${novelId}`) }] : []),
+            ...(novelId ? [{ label: 'Quản lý tác phẩm đang viết', to: managedNovelHref('/author/novels/:novelId', novelRef) }, { label: 'Nhập bản thảo', to: managedNovelHref('/author/import/:novelId', novelRef) }, { label: 'Cẩm nang tác phẩm', to: managedNovelHref('/author/context/:novelId', novelRef) }] : []),
             { label: navigationLabels.authorWallet, to: navigationHref('/wallet'), icon: 'payments' },
             { label: navigationLabels.authorProfile, to: ownProfileHref, icon: 'person' },
             { label: 'Hồ sơ và cài đặt', to: navigationHref('/profile/me') }

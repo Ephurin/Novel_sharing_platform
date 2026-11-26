@@ -4,11 +4,13 @@ import { createContext, useContext, useEffect, type ReactNode } from 'react';
 import { Navigate, useLocation, useParams } from 'react-router-dom';
 import { apiClient, type ApiEnvelope } from '../shared/api/api-client';
 import { ErrorState, LoadingState } from '../shared/components/PageStates';
-import { chapterPath, novelPath, profilePath, topicPath } from '../shared/routes';
+import { chapterPath, novelPath, profilePath, topicPath, managedNovelPath, isUuidRouteRef, type ManagedNovelPath } from '../shared/routes';
 import { ReaderNotFound, isReaderNotFound } from '../features/reader/ReaderNotFound';
 
 type ResourceKind = 'novel' | 'chapter' | 'topic' | 'author' | 'member';
 type ResourceId = 'novelId' | 'chapterId' | 'topicId' | 'authorId' | 'userId';
+import { useAuthStore } from '../features/auth/useAuthStore';
+
 type RouteParams = Readonly<Record<string, string | undefined>>;
 type Resource = { param: ResourceId; id: string; path: string; canonicalParams: string[] };
 
@@ -16,7 +18,9 @@ const ResourceContext = createContext<Resource | null>(null);
 
 export function useResourceId(param: ResourceId) {
   const resource = useContext(ResourceContext);
+  const managedNovel = useManagedNovel();
   const params = useParams();
+  if (param === 'novelId' && managedNovel) return managedNovel.novelId;
   return resource?.param === param ? resource.id : params[param];
 }
 
@@ -76,6 +80,49 @@ async function locateResource(kind: ResourceKind, parts: string[], legacy: boole
       return { param, id, path: profilePath(kind, profile.publicKey), canonicalParams: [profile.publicKey] };
     }
   }
+}
+
+export type ManagedNovel = { novelId: string; slug: string };
+
+export async function locateManagedNovel(scope: 'author' | 'admin', reference: string, signal?: AbortSignal) {
+  const prefix = scope === 'admin' ? '/admin/novels' : '/novels/workspace';
+  return (await apiClient.get<ApiEnvelope<ManagedNovel>>(`${prefix}/${encodeURIComponent(reference)}/locator`, { signal })).data.data;
+}
+
+export function useManagedNovel() {
+  return useContext(ManagedNovelContext);
+}
+
+const ManagedNovelContext = createContext<ManagedNovel | null>(null);
+
+export function ManagedNovelRoute({ route, scope = 'author', children }: {
+  route: ManagedNovelPath;
+  scope?: 'author' | 'admin';
+  children: ReactNode;
+}) {
+  const { novelId: reference = '' } = useParams();
+  const userId = useAuthStore(state => state.user?.userId);
+  const cache = useQueryClient();
+  const query = useQuery({
+    queryKey: ['managed-novel-url', scope, userId, reference],
+    queryFn: async ({ signal }) => {
+      const novel = await locateManagedNovel(scope, reference, signal);
+      if (reference !== novel.slug && !isUuidRouteRef(novel.slug)) {
+        cache.setQueryData(['managed-novel-url', scope, userId, novel.slug], novel);
+      }
+      return novel;
+    },
+    staleTime: 30_000,
+    retry: false
+  });
+
+  if (query.isPending) return <LoadingState />;
+  if (query.isError) return <ErrorState error={query.error} onRetry={() => void query.refetch()} />;
+  const novel = query.data;
+  if (reference !== novel.slug && !isUuidRouteRef(novel.slug)) {
+    return <UrlRedirect pathname={managedNovelPath(route, novel.slug)} />;
+  }
+  return <ManagedNovelContext.Provider value={novel}>{children}</ManagedNovelContext.Provider>;
 }
 
 export function UrlRedirect({ pathname, search }: { pathname: string; search?: string }) {

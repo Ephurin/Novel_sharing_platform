@@ -1,7 +1,8 @@
+import { useResourceId } from '../../app/ResourceRoute';
 import { navigationHref } from '../../shared/routes';
 import { useState } from 'react';
 import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button, Select, TextInput } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAdminNovel, removeAdminNovel, restoreAdminNovel } from './admin-api';
@@ -21,7 +22,7 @@ import { AdminChapterPreview } from './AdminChapterPreview';
 import { AdminIcon } from './AdminShell';
 
 export function AdminNovelDetailPage() {
-  const { novelId = '' } = useParams();
+  const novelId = useResourceId('novelId') ?? '';
   const cache = useQueryClient();
   const [action, setAction] = useState<'remove' | 'restore' | null>(null);
   const [reason, setReason] = useState('');

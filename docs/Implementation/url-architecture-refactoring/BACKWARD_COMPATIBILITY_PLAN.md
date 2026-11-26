@@ -23,3 +23,5 @@ Trước cutover, lưu cặp bản phát hành đã kiểm chứng độc lập 
 Sau khi một URL mới đã được phát hành, **cặp tương thích là giới hạn rollback**. Bản trước locator hoặc trước route mới nằm ngoài các phiên bản được phép lùi. Lỗi dữ liệu cần sửa tiến trên mapping hiện tại. Alias và locator vẫn được giữ cho email, thông báo, bookmark và giao dịch đã phát hành.
 
 Để quay về phát link cũ, đặt `WEB_EMIT_CANONICAL_LINKS=false` ở runtime backend và build web với `VITE_EMIT_CANONICAL_LINKS=false`. Cả hai cờ chỉ đổi cách tạo link. Giữ nguyên schema và hai bộ route. Cấu hình này dùng để kiểm tra cặp bản phát hành tương thích trước khi bật phát URL mới.
+
+Với URL quản lý tác phẩm, cặp tương thích phải đọc được slug riêng của khu sáng tác, quản trị và kiểm duyệt. Sau khi phát URL hồ sơ kiểm duyệt, giữ cột `moderation_reviews.url_number` do migration `057` cấp. Frontend cũ chỉ đọc UUID trong các route này nằm ngoài giới hạn rollback.

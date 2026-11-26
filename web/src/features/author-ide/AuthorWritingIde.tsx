@@ -1,4 +1,6 @@
-import { navigationHref } from '../../shared/routes';
+import { locateManagedNovel } from '../../app/ResourceRoute';
+import { ErrorState } from '../../shared/components/PageStates';
+import { emitCanonicalLinks, managedNovelHref, navigationHref, studioSearchParams } from '../../shared/routes';
 import { motion, useReducedMotion } from 'motion/react';
 import NumberFlow from '@number-flow/react';
 import { useToast } from '../../shared/components/ToastProvider';
@@ -36,7 +38,7 @@ import { AuthorMemoryPanel } from '../ai-copilot/AuthorMemoryPanel';
 import { usePendingMemoryReviews } from '../ai-copilot/pending-memory-reviews';
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   createChapter,
   getChapter,
@@ -165,11 +167,14 @@ const POLL_SLOW_ATTEMPTS = 90;
 export function AuthorWritingIde() {
   const user = useAuthStore(state => state.user);
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
 
   // URL State
-  const { novelId, chapterId } = resolveAuthorContext(user?.userId ?? '', searchParams);
+  const savedContext = resolveAuthorContext(user?.userId ?? '', searchParams);
+  const requestedNovelSlug = searchParams.get('tac-pham');
+  const requestedChapterSlug = searchParams.get('chuong');
 
   // Local Editor State
   const [title, setTitle] = useState('');
@@ -340,7 +345,17 @@ export function AuthorWritingIde() {
     queryFn: () => listMyNovels({ status: 'ALL' })
   });
 
-  const activeNovelId = novelId || novelsQuery.data?.[0]?.novelId || '';
+  const listedNovel = novelsQuery.data?.find(novel => novel.slug === requestedNovelSlug);
+  const novelLocator = useQuery({
+    queryKey: ['managed-novel-url', 'author', user?.userId, requestedNovelSlug],
+    queryFn: ({ signal }) => locateManagedNovel('author', requestedNovelSlug ?? '', signal),
+    enabled: Boolean(requestedNovelSlug && !listedNovel && !novelsQuery.isPending),
+    staleTime: 30_000,
+    retry: false
+  });
+  const activeNovelId = requestedNovelSlug
+    ? listedNovel?.novelId ?? novelLocator.data?.novelId ?? ''
+    : savedContext.novelId || novelsQuery.data?.[0]?.novelId || '';
   const pendingMemory = usePendingMemoryReviews(activeNovelId);
 
   const novelQuery = useQuery({
@@ -359,9 +374,22 @@ export function AuthorWritingIde() {
 
   const activeChapterId = useMemo(() => {
     if (!chaptersQuery.data) return '';
+    if (requestedChapterSlug) return chaptersQuery.data.find(ch => ch.slug === requestedChapterSlug)?.chapterId ?? '';
+    const savedChapterId = !requestedNovelSlug || activeNovelId === savedContext.novelId ? savedContext.chapterId : '';
+    const chapterId = searchParams.get('chapterId') ?? savedChapterId;
     if (chapterId) return chaptersQuery.data.some(ch => ch.chapterId === chapterId) ? chapterId : '';
-    return chaptersQuery.data?.[0]?.chapterId || '';
-  }, [chapterId, chaptersQuery.data]);
+    return chaptersQuery.data[0]?.chapterId ?? '';
+  }, [activeNovelId, requestedChapterSlug, requestedNovelSlug, savedContext.novelId,
+    savedContext.chapterId, searchParams, chaptersQuery.data]);
+  const activeNovelSlug = novelQuery.data?.slug ?? listedNovel?.slug ?? novelLocator.data?.slug;
+  const activeChapterSlug = chaptersQuery.data?.find(ch => ch.chapterId === activeChapterId)?.slug;
+
+  function openStudioChapter(novelId: string, chapterId: string, chapterSlug?: string) {
+    const slug = novelId === activeNovelId ? activeNovelSlug : novelsQuery.data?.find(novel => novel.novelId === novelId)?.slug;
+    const chapter = { chapterId, slug: chapterSlug ?? chaptersQuery.data?.find(ch => ch.chapterId === chapterId)?.slug };
+    const params = studioSearchParams(searchParams, { novelId, slug }, chapter, emitCanonicalLinks || Boolean(requestedNovelSlug));
+    navigate({ pathname: location.pathname, search: params.toString(), hash: location.hash });
+  }
 
   const chapterQuery = useQuery({
     queryKey: ['author', 'chapter', activeChapterId, user?.userId],
@@ -420,13 +448,23 @@ export function AuthorWritingIde() {
 
   // Keep search params in sync
   useEffect(() => {
-    if (activeNovelId && activeChapterId) {
+    if (!activeNovelId) return;
+    if (activeChapterId) {
       writeAuthorContext(user?.userId ?? '', { novelId: activeNovelId, chapterId: activeChapterId });
-      if (searchParams.get('novelId') !== activeNovelId || searchParams.get('chapterId') !== activeChapterId) {
-        setSearchParams({ novelId: activeNovelId, chapterId: activeChapterId }, { replace: true });
-      }
+    } else if (!activeNovelSlug || requestedChapterSlug || searchParams.has('chapterId') || !emitCanonicalLinks) {
+      return;
     }
-  }, [activeNovelId, activeChapterId, searchParams, setSearchParams, user?.userId]);
+    const params = studioSearchParams(
+      searchParams,
+      { novelId: activeNovelId, slug: activeNovelSlug },
+      activeChapterId ? { chapterId: activeChapterId, slug: activeChapterSlug } : undefined,
+      emitCanonicalLinks || Boolean(requestedNovelSlug)
+    );
+    if (params.toString() !== searchParams.toString()) {
+      navigate({ pathname: location.pathname, search: params.toString(), hash: location.hash }, { replace: true });
+    }
+  }, [activeNovelId, activeNovelSlug, activeChapterId, activeChapterSlug, requestedNovelSlug, requestedChapterSlug,
+    searchParams, navigate, location.pathname, location.hash, user?.userId]);
 
   // Clean up AI generation polling timer on unmount and chapter switch
   useEffect(() => {
@@ -667,7 +705,7 @@ export function AuthorWritingIde() {
     if (hit.chapterId === activeChapterId) {
       const anchor = locateAnchor(hit.anchor, content); if (anchor.detached) { showToast('Nội dung đã thay đổi. Hãy tìm lại.', 'error'); return; }
       if (editorRef.current) revealStudioSelection(editorRef.current, anchor.start, anchor.end);
-    } else { pendingSearchJump.current = { scope: `${user?.userId}:${hit.chapterId}`, hit }; setSearchParams({ novelId: activeNovelId, chapterId: hit.chapterId }); }
+    } else { pendingSearchJump.current = { scope: `${user?.userId}:${hit.chapterId}`, hit }; openStudioChapter(activeNovelId, hit.chapterId); }
   };
   const searchNavigationBlocked = useRef(false);
   useEffect(() => {
@@ -751,7 +789,7 @@ export function AuthorWritingIde() {
       if(creation.current?.scope===scope)creation.current=null;
       if(actor!==useAuthStore.getState().user?.userId||session!==writingSession.current)return;
       queryClient.invalidateQueries({queryKey:['author','chapters',novel,actor]});
-      setSearchParams({novelId:novel,chapterId:newChap.chapterId});setPlanning(false);showToast(`Đã tạo ${newChap.title}`);
+      openStudioChapter(novel, newChap.chapterId, newChap.slug);setPlanning(false);showToast(`Đã tạo ${newChap.title}`);
     },onError:(err:unknown)=>{const attempt=creationAttempt.current;if(attempt?.actor===useAuthStore.getState().user?.userId&&attempt?.session===writingSession.current)showToast(`Lỗi: ${getApiErrorMessage(err)}`);}
   });
 
@@ -1121,6 +1159,10 @@ export function AuthorWritingIde() {
     </>
   );
 
+  if (requestedNovelSlug && novelLocator.isError) {
+    return <ErrorState error={novelLocator.error} onRetry={() => void novelLocator.refetch()} />;
+  }
+
   return (
     <div className="sc-writing-studio h-screen flex flex-col text-stone-800 antialiased overflow-hidden select-none bg-surface">
       {/* ──────────────────────────────────────────
@@ -1130,7 +1172,7 @@ export function AuthorWritingIde() {
         {/* Left: Return link, Breadcrumb & Autosave indicator */}
         <div className="flex items-center gap-2.5 min-w-0">
           <Link
-            to={activeNovelId ? navigationHref(`/author/novels/${activeNovelId}`) : authorHomeCrumb.to}
+            to={activeNovelId ? managedNovelHref('/author/novels/:novelId', { novelId: activeNovelId, slug: activeNovelSlug }) : authorHomeCrumb.to}
             className="inline-flex items-center gap-1 text-meta font-medium text-stone-500 hover:text-stone-900 transition-colors py-1 px-2 rounded-md hover:bg-stone-200/60 shrink-0"
             title={activeNovelId ? 'Quay lại quản lý tác phẩm' : `Quay lại ${navigationLabels.authorHome}`}
             aria-label={activeNovelId ? 'Quay lại quản lý tác phẩm' : `Quay lại ${navigationLabels.authorHome}`}
@@ -1139,7 +1181,7 @@ export function AuthorWritingIde() {
             <span className="hidden sm:inline">{activeNovelId ? 'Tác phẩm' : navigationLabels.authorHome}</span>
           </Link>
           <div className="h-3.5 w-px bg-stone-300 shrink-0"></div>
-          <Breadcrumbs className="is-compact" items={[{ label: novelQuery.data?.title || 'Tác phẩm', to: activeNovelId ? navigationHref(`/author/novels/${activeNovelId}`) : authorHomeCrumb.to }, { label: title || 'Chương mới' }]} />
+          <Breadcrumbs className="is-compact" items={[{ label: novelQuery.data?.title || 'Tác phẩm', to: activeNovelId ? managedNovelHref('/author/novels/:novelId', { novelId: activeNovelId, slug: activeNovelSlug }) : authorHomeCrumb.to }, { label: title || 'Chương mới' }]} />
 
           {/* Autosave Indicator */}
           {!planning && <SaveStatus className="inline-flex shrink-0" status={activeChapterId && chapterQuery.data && loadedChapter.current === activeDraftScope ? autosaveStatus : 'idle'} dirty={persistence.dirty} savedAt={lastSavedTime} />}
@@ -1261,7 +1303,7 @@ export function AuthorWritingIde() {
         </Group>
       </AnimatedModal>
       <StudioNovelSearch key={searchScope} opened={novelSearchOpen} chapters={chaptersQuery.data ?? []} activeChapterId={activeChapterId} content={content} onClose={() => setNovelSearchOpen(false)} onNavigate={navigateSearchHit} />
-      {planningMounted&&novelQuery.data&&<div key={JSON.stringify([user?.userId,activeNovelId])} style={{display:planning?'flex':'none',flex:1,minHeight:0}}><PlanningStudio novelId={activeNovelId} title={novelQuery.data.title} step={planningStep} onStep={setPlanningStep} chapters={chaptersQuery.data??[]} onWrite={id=>{if(id)setSearchParams({novelId:activeNovelId,chapterId:id});setPlanning(false);}} onCreate={()=>createChapterMutation.mutate()} creating={createChapterMutation.isPending} onMemory={tab=>{setMemoryTab(tab??'review');setMemoryPanelOpen(true);}} onRefreshChapters={()=>void queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] })}/></div>}
+      {planningMounted&&novelQuery.data&&<div key={JSON.stringify([user?.userId,activeNovelId])} style={{display:planning?'flex':'none',flex:1,minHeight:0}}><PlanningStudio novelId={activeNovelId} title={novelQuery.data.title} step={planningStep} onStep={setPlanningStep} chapters={chaptersQuery.data??[]} onWrite={id=>{if(id)openStudioChapter(activeNovelId, id);setPlanning(false);}} onCreate={()=>createChapterMutation.mutate()} creating={createChapterMutation.isPending} onMemory={tab=>{setMemoryTab(tab??'review');setMemoryPanelOpen(true);}} onRefreshChapters={()=>void queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] })}/></div>}
       {!planning && <StudioWorkbench onSearchNovel={() => setNovelSearchOpen(true)} notesOpen={rightPanel === 'notes'} onNotesOpenChange={changeNotesOpen} onLookup={setReferenceQuery} formatToolbarVisible={formatToolbarVisible} chapterSettings={chapterSettings} primaryActions={studioPrimaryActions} sidebarToggle={sidebarToggle} fileActions={manuscriptActions} key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
         publishedContent={chapterQuery.data?.status === 'PUBLISHED' ? chapterQuery.data.content : undefined} chapterStatus={chapterQuery.data?.status}
         awaitingPublicationReview={awaitingPublicationReview} publicationReason={!focusMode ? chapterDecision?.reason : null} onPublish={() => setPublishModalOpen(true)}
@@ -1350,7 +1392,7 @@ export function AuthorWritingIde() {
                     aria-current={isActive ? 'true' : undefined}
                     onClick={() => {
                       if (!isActive) {
-                        setSearchParams({ novelId: activeNovelId, chapterId: ch.chapterId });
+                        openStudioChapter(activeNovelId, ch.chapterId, ch.slug);
                       }
                       if (window.matchMedia('(max-width: 900px)').matches) {
                         setSidebarOpen(false);
@@ -1922,7 +1964,7 @@ export function AuthorWritingIde() {
         <div className="px-6 pb-2 border-b border-stone-200 flex items-center justify-between gap-2 shrink-0">
           <p className="text-meta text-stone-500 font-medium">Tác phẩm: {novelQuery.data?.title || 'Đang tải...'}</p>
           <Link
-            to={activeNovelId ? navigationHref(`/author/context/${activeNovelId}`) : navigationHref('/author')}
+            to={activeNovelId ? managedNovelHref('/author/context/:novelId', { novelId: activeNovelId, slug: activeNovelSlug }) : navigationHref('/author')}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-stone-300 text-meta text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest font-medium shadow-xs transition-colors"
@@ -2033,7 +2075,7 @@ export function AuthorWritingIde() {
                       </div>
                       <p className="text-stone-600 font-semibold text-body">Chưa có nhân vật nào trong Story Bible</p>
                       <Link
-                        to={activeNovelId ? navigationHref(`/author/context/${activeNovelId}`) : navigationHref('/author')}
+                        to={activeNovelId ? managedNovelHref('/author/context/:novelId', { novelId: activeNovelId, slug: activeNovelSlug }) : navigationHref('/author')}
                         target="_blank"
                         rel="noreferrer"
                         className="mt-4 px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-meta shadow-xs inline-flex items-center gap-1.5 transition-colors"

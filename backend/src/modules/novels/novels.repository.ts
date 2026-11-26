@@ -32,6 +32,7 @@ export type NovelRecord = {
   genre: string | null;
   latestChapter?: {
     chapterId: string;
+    slug?: string;
     chapterNumber: number;
     title: string;
     status: string;
@@ -128,6 +129,17 @@ export async function findNovelById(novelId: string, client?: PoolClient) {
   return result.rows[0] ? mapNovel(result.rows[0]) : null;
 }
 
+export async function findManagedNovelReference(reference: string, includeDeleted = false) {
+  const uuid = /^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(reference);
+  const key = uuid ? 'novel_id' : 'slug';
+  const result = await getPostgresPool().query<{ novelId: string; slug: string; authorId: string; status: string }>(
+    `select novel_id as "novelId", slug, author_id as "authorId", status
+       from novels where ${key} = $1 and ($2 or deleted_at is null)`,
+    [reference, includeDeleted]
+  );
+  return result.rows[0] ?? null;
+}
+
 export async function listNovels(input: ListNovelsInput) {
   const offset = (input.page - 1) * input.limit;
   const search = input.q ? `%${input.q}%` : null;
@@ -176,7 +188,7 @@ export async function listNovelsByAuthor(authorId: string, input: ListNovelsInpu
       left join genres g on g.genre_id = n.genre_id
       left join lateral (
         select json_build_object(
-          'chapterId', c.chapter_id, 'chapterNumber', c.chapter_number,
+          'chapterId', c.chapter_id, 'slug', to_jsonb(c)->>'slug', 'chapterNumber', c.chapter_number,
           'title', c.title, 'status', c.status, 'updatedAt', c.updated_at
         ) as latest_chapter
         from chapters c

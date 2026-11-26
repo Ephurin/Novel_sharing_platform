@@ -27,7 +27,7 @@ import { AuthorNovelReviewsPage } from '../features/author-projects/AuthorNovelR
 import { AuthorNavbar, AuthorTheme } from '../shared/components/AuthorTheme';
 import { createBrowserRouter, generatePath, Outlet, useLocation, useParams } from 'react-router-dom';
 import { routes, staticRouteTargets } from '../shared/routes';
-import { ResourceRoute, UrlRedirect } from './ResourceRoute';
+import { ManagedNovelRoute, ResourceRoute, UrlRedirect } from './ResourceRoute';
 import { useAuthStore } from '../features/auth/useAuthStore';
 import { AuthorWritingIde } from '../features/author-ide/AuthorWritingIde';
 import { WebAppShell } from './layout/WebAppShell';
@@ -157,9 +157,11 @@ export const router = createBrowserRouter([
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
-          <AuthorTheme>
-            <ManuscriptImportPage />
-          </AuthorTheme>
+          <ManagedNovelRoute route="/author/import/:novelId">
+            <AuthorTheme>
+              <ManuscriptImportPage />
+            </AuthorTheme>
+          </ManagedNovelRoute>
         </RoleGuard>
       </AuthGate>
     )
@@ -169,9 +171,11 @@ export const router = createBrowserRouter([
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
-          <AuthorTheme>
-            <AuthorStoryContextPage />
-          </AuthorTheme>
+          <ManagedNovelRoute route="/author/context/:novelId">
+            <AuthorTheme>
+              <AuthorStoryContextPage />
+            </AuthorTheme>
+          </ManagedNovelRoute>
         </RoleGuard>
       </AuthGate>
     )
@@ -193,9 +197,11 @@ export const router = createBrowserRouter([
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
-          <AuthorTheme>
-            <AuthorNovelCommentsPage />
-          </AuthorTheme>
+          <ManagedNovelRoute route="/author/novels/:novelId/comments">
+            <AuthorTheme>
+              <AuthorNovelCommentsPage />
+            </AuthorTheme>
+          </ManagedNovelRoute>
         </RoleGuard>
       </AuthGate>
     )
@@ -205,9 +211,11 @@ export const router = createBrowserRouter([
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
-          <AuthorTheme className="sc-reviews-theme">
-            <AuthorNovelReviewsPage />
-          </AuthorTheme>
+          <ManagedNovelRoute route="/author/novels/:novelId/reviews">
+            <AuthorTheme className="sc-reviews-theme">
+              <AuthorNovelReviewsPage />
+            </AuthorTheme>
+          </ManagedNovelRoute>
         </RoleGuard>
       </AuthGate>
     )
@@ -217,9 +225,11 @@ export const router = createBrowserRouter([
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
-          <AuthorTheme>
-            <AuthorNovelMetadataPage />
-          </AuthorTheme>
+          <ManagedNovelRoute route="/author/novels/:novelId">
+            <AuthorTheme>
+              <AuthorNovelMetadataPage />
+            </AuthorTheme>
+          </ManagedNovelRoute>
         </RoleGuard>
       </AuthGate>
     )
@@ -336,7 +346,9 @@ export const router = createBrowserRouter([
         path: staticRouteTargets['/admin/novels/:novelId'],
         element: (
           <RoleGuard roles={['ADMIN']}>
-            <AdminNovelDetailPage />
+            <ManagedNovelRoute route="/admin/novels/:novelId" scope="admin">
+              <AdminNovelDetailPage />
+            </ManagedNovelRoute>
           </RoleGuard>
         )
       },

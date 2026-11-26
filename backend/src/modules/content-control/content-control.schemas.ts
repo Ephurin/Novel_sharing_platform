@@ -31,6 +31,10 @@ export const listReviewsSchema = z.object({
   })
 });
 
+export const reviewSlugParamSchema = z.object({ params: z.object({
+  reviewSlug: z.string().max(267).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*--[1-9]\d{0,9}$/)
+}) });
+
 export const reviewIdParamSchema = z.object({
   params: z.object({
     reviewId: z.string().uuid()

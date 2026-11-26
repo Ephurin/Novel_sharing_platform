@@ -8,6 +8,7 @@ export type ChapterStatus = 'DRAFT' | 'PENDING_MODERATION' | 'PUBLISHED' | 'REJE
 export type ChapterRecord = {
   chapterId: string;
   novelId: string;
+  slug?: string;
   title: string;
   chapterNumber: number;
   content: string | null;
@@ -23,6 +24,7 @@ function mapChapter(row: QueryResultRow): ChapterRecord {
   return {
     chapterId: row.chapter_id,
     novelId: row.novel_id,
+    slug: row.slug,
     title: row.title,
     chapterNumber: row.chapter_number,
     content: row.content,

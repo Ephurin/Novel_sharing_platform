@@ -1,4 +1,5 @@
-import { navigationHref } from '../../shared/routes';
+import { useResourceId } from '../../app/ResourceRoute';
+import { managedNovelHref } from '../../shared/routes';
 import { AnimatedStepper, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { NormalizationPreview, SplitPresets } from './ManuscriptTools';
 import { duplicateChapterGroups, splitPatternError } from './manuscript-tools';
@@ -16,7 +17,7 @@ import NumberFlow from '@number-flow/react';
 import { useReducedMotion } from 'motion/react';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate , useSearchParams } from 'react-router-dom';
 import { getNovel, listChapters } from '../novels/novel-api';
 import { EntityExtractionReview } from '../ai-copilot/EntityExtractionReview';
 import { getEntityReviews } from '../ai-copilot/author-memory-api';
@@ -46,7 +47,7 @@ import {
 } from './manuscript-import-api';
 
 export function ManuscriptImportPage() {
-  const { novelId = '' } = useParams();
+  const novelId = useResourceId('novelId') ?? '';
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const reduce = useReducedMotion();
@@ -1135,7 +1136,7 @@ export function ManuscriptImportPage() {
             <Breadcrumbs
               items={[
                 authorHomeCrumb,
-                { label: novel?.title || 'Tác phẩm', to: navigationHref(`/author/novels/${novelId}`) },
+                { label: novel?.title || 'Tác phẩm', to: managedNovelHref('/author/novels/:novelId', { novelId, slug: novel?.slug }) },
                 { label: 'Nhập bản thảo' }
               ]}
             />
@@ -1162,7 +1163,7 @@ export function ManuscriptImportPage() {
             {currentStep === 3 && (
               <button
                 type="button"
-                onClick={() => navigate(navigationHref(`/author/novels/${novelId}`))}
+                onClick={() => navigate(managedNovelHref('/author/novels/:novelId', { novelId, slug: novel?.slug }))}
                 className="px-3 py-1.5 rounded-lg bg-surface-container-lowest border border-stone-200 hover:bg-stone-50 text-stone-700 text-meta font-semibold shadow-2xs transition-colors self-start md:self-auto"
               >
                 Về trang tác phẩm
@@ -1227,7 +1228,7 @@ export function ManuscriptImportPage() {
                 </AnimatedDisclosure>
               )}
               <div className="mt-2">
-                <Link className="sc-workspace-button" to={navigationHref(`/author/novels/${novelId}`)}>
+                <Link className="sc-workspace-button" to={managedNovelHref('/author/novels/:novelId', { novelId, slug: novel?.slug })}>
                   Kiểm tra danh sách chương
                 </Link>
               </div>
@@ -1366,7 +1367,7 @@ export function ManuscriptImportPage() {
                       </button>
                     )}
                     <Link
-                      to={navigationHref(`/author/novels/${novelId}`)}
+                      to={managedNovelHref('/author/novels/:novelId', { novelId, slug: novel?.slug })}
                       className={isImportCompleteSuccess ? 'sc-button sc-button-primary' : 'sc-button'}
                     >
                       Mở trang tác phẩm

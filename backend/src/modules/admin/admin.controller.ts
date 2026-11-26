@@ -11,6 +11,7 @@ import {
   getNovel,
   getTaxonomy,
   listNovels,
+  locateAdminNovel,
   listUsers,
   listWithdrawRequests,
   lockUser,
@@ -45,6 +46,14 @@ export const listAdminNovelsController: RequestHandler = async (request, respons
   try {
     const result = await listNovels(request.query as never);
     response.json(successResponse(result.data, result.meta));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const locateAdminNovelController: RequestHandler = async (request, response, next) => {
+  try {
+    response.json(successResponse(await locateAdminNovel(String(request.params.novelRef))));
   } catch (error) {
     next(error);
   }

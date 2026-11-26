@@ -132,7 +132,7 @@ adminOperationsRoutes.get(
     if (!user) throw new AppError(404, 'USER_001', 'Không tìm thấy tài khoản.');
     const novels = (
       await getPostgresPool().query(
-        'select novel_id,title,status,deleted_at,chapters_count from novels where author_id=$1 order by updated_at desc limit 50',
+        'select novel_id,slug,title,status,deleted_at,chapters_count from novels where author_id=$1 order by updated_at desc limit 50',
         [userId]
       )
     ).rows;

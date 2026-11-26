@@ -100,6 +100,47 @@ export function navigationHref(href: string) {
   return canonicalStaticPath(pathname) + (separator < 0 ? '' : href.slice(separator));
 }
 
+export const isUuidRouteRef = (ref: string) => /^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(ref);
+
+export type ManagedNovelPath = Extract<keyof typeof staticRouteTargets, `${string}:novelId${string}`>;
+
+export function managedNovelPath(route: ManagedNovelPath, slug: string) {
+  return generatePath(staticRouteTargets[route], { novelId: encodeURIComponent(slug) });
+}
+
+export function managedNovelHref(route: ManagedNovelPath, novel: { novelId: string; slug?: string | null }) {
+  if (emitCanonicalLinks && novel.slug && !isUuidRouteRef(novel.slug)) return managedNovelPath(route, novel.slug);
+  return navigationHref(generatePath(route, { novelId: encodeURIComponent(novel.novelId) }));
+}
+
+export function studioSearchParams(
+  current: URLSearchParams,
+  novel: { novelId: string; slug?: string | null },
+  chapter?: { chapterId: string; slug?: string | null },
+  useSlugs = emitCanonicalLinks
+) {
+  const params = new URLSearchParams(current);
+  for (const key of ['novelId', 'chapterId', 'tac-pham', 'chuong']) params.delete(key);
+  const novelSlug = useSlugs && novel.slug && !isUuidRouteRef(novel.slug) ? novel.slug : null;
+  params.set(novelSlug ? 'tac-pham' : 'novelId', novelSlug || novel.novelId);
+  if (chapter) {
+    const chapterSlug = useSlugs && chapter.slug && !isUuidRouteRef(chapter.slug) ? chapter.slug : null;
+    params.set(chapterSlug ? 'chuong' : 'chapterId', chapterSlug || chapter.chapterId);
+  }
+  return params;
+}
+
+export function studioHref(novel: Parameters<typeof studioSearchParams>[1], chapter?: Parameters<typeof studioSearchParams>[2]) {
+  return navigationHref('/author/ide?' + studioSearchParams(new URLSearchParams(), novel, chapter).toString());
+}
+
+export type ReviewPath = '/moderator/reviews/:reviewId' | '/admin/moderation/:reviewId';
+
+export function reviewHref(route: ReviewPath, review: { reviewId: string; reviewSlug?: string | null }) {
+  const reviewId = encodeURIComponent(emitCanonicalLinks && review.reviewSlug ? review.reviewSlug : review.reviewId);
+  return navigationHref(generatePath(route, { reviewId }));
+}
+
 export function roleHomePath(role?: string) {
   if (role === 'ADMIN') return staticRouteTargets['/admin'];
   if (role === 'MODERATOR') return staticRouteTargets['/moderator/reviews'];

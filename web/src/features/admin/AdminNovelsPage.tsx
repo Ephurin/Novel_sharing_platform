@@ -1,4 +1,4 @@
-import { navigationHref } from '../../shared/routes';
+import { managedNovelHref } from '../../shared/routes';
 import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
 import { WorkspacePreview } from '../../shared/components/WorkspacePreview';
 import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
@@ -132,7 +132,7 @@ export function AdminNovelsPage() {
                       <Link
                         className="admin-novel-title"
                         title={novel.title}
-                        to={navigationHref(`/admin/novels/${novel.novelId}`)}
+                        to={managedNovelHref('/admin/novels/:novelId', novel)}
                       >
                         {novel.title}
                       </Link>
@@ -149,7 +149,7 @@ export function AdminNovelsPage() {
                         <Button variant="subtle" size="xs" onClick={() => setPreviewId(novel.novelId)}>Xem nhanh</Button>
                         <Button
                           component={Link}
-                          to={navigationHref(`/admin/novels/${novel.novelId}`)}
+                          to={managedNovelHref('/admin/novels/:novelId', novel)}
                           size="xs"
                           variant="light"
                         >
@@ -166,7 +166,7 @@ export function AdminNovelsPage() {
         <AdminPagination meta={query.data?.meta} onChange={setPage} />
       </ResultsSurface>
       </AdminPanel>
-      <WorkspacePreview selected={previewId} onSelect={setPreviewId} records={(query.data?.items ?? []).map(novel => ({ id: novel.novelId, title: novel.title, to: navigationHref(`/admin/novels/${novel.novelId}`), fields: [['Tác giả', `@${novel.authorUsername}`], ['Xuất bản', filterLabels[novel.status] || novel.status], ['Tiến độ', filterLabels[novel.serialStatus] || novel.serialStatus], ['Số chương', number(novel.chaptersCount)], ['Giới thiệu', novel.synopsis || '—']] }))} />
+      <WorkspacePreview selected={previewId} onSelect={setPreviewId} records={(query.data?.items ?? []).map(novel => ({ id: novel.novelId, title: novel.title, to: managedNovelHref('/admin/novels/:novelId', novel), fields: [['Tác giả', `@${novel.authorUsername}`], ['Xuất bản', filterLabels[novel.status] || novel.status], ['Tiến độ', filterLabels[novel.serialStatus] || novel.serialStatus], ['Số chương', number(novel.chaptersCount)], ['Giới thiệu', novel.synopsis || '—']] }))} />
     </>
   );
 }

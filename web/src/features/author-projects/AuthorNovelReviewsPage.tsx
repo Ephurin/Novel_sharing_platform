@@ -1,6 +1,6 @@
-import { navigationHref } from '../../shared/routes';
+import { useResourceId } from '../../app/ResourceRoute';
+import { managedNovelHref } from '../../shared/routes';
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
 import { authorHomeCrumb } from '../../shared/components/navigation';
@@ -10,14 +10,14 @@ import { NovelReviews } from '../reader/NovelReviews';
 import { useAuthStore } from '../auth/useAuthStore';
 
 export function AuthorNovelReviewsPage() {
-  const { novelId = '' } = useParams();
+  const novelId = useResourceId('novelId') ?? '';
   const user = useAuthStore(state => state.user);
   const novel = useQuery({ queryKey: ['novel', novelId], queryFn: () => getNovel(novelId), enabled: Boolean(novelId) });
   const canManage = novel.data && (novel.data.authorId === user?.userId || user?.role === 'ADMIN');
   return <>
     <AuthorNavbar />
     <main className="sc-shell-content sc-reviews-main">
-      <Breadcrumbs className="mb-4" items={[authorHomeCrumb, { label: novel.data?.title || 'Tác phẩm', to: navigationHref(`/author/novels/${novelId}`) }, { label: 'Đánh giá độc giả' }]} />
+      <Breadcrumbs className="mb-4" items={[authorHomeCrumb, { label: novel.data?.title || 'Tác phẩm', to: managedNovelHref('/author/novels/:novelId', { novelId, slug: novel.data?.slug }) }, { label: 'Đánh giá độc giả' }]} />
       <div className="sc-reviews-panel">
         <header className="sc-reviews-header">
           <div><h1 className="text-page-title">Đánh giá độc giả</h1></div>

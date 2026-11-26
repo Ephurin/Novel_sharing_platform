@@ -9,6 +9,7 @@ import {
   createNovelController,
   deleteNovelController,
   getNovelController,
+  locateAuthorNovelController,
   getNovelEarningsController,
   listMyNovelsController,
   listNovelsController,
@@ -19,6 +20,7 @@ import {
 import {
   createNovelSchema,
   listNovelsSchema,
+  managedNovelRefSchema,
   novelIdParamSchema,
   updateNovelSchema
 } from './novels.schemas.js';
@@ -30,6 +32,7 @@ const requireAuthor = [requireAuth, requireActiveAccount, requireRoles(['AUTHOR'
 novelsRoutes.get('/', validateRequest(listNovelsSchema), listNovelsController);
 novelsRoutes.get('/genres', listGenresController);
 novelsRoutes.get('/me', ...requireAuthor, validateRequest(listNovelsSchema), listMyNovelsController);
+novelsRoutes.get('/workspace/:novelRef/locator', ...requireAuthor, validateRequest(managedNovelRefSchema), locateAuthorNovelController);
 novelsRoutes.post('/', ...requireAuthor, validateRequest(createNovelSchema), createNovelController);
 novelsRoutes.get('/:novelId/chapters', optionalAuth, validateRequest(chapterNovelIdParamSchema), listChaptersController);
 novelsRoutes.get('/:novelId/earnings', ...requireAuthor, validateRequest(novelIdParamSchema), getNovelEarningsController);

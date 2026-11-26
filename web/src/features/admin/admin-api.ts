@@ -1,3 +1,4 @@
+import { isUuidRouteRef } from '../../shared/routes';
 import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
 import type { UserRole } from '../auth/auth-types';
 import type { PageMeta } from './AdminShared';
@@ -41,6 +42,7 @@ export type AdminUser = {
 export type ModerationReview = {
   reportCount?: number;
   reviewId: string;
+  reviewSlug?: string | null;
   targetType: string;
   targetId: string;
   targetTitle?: string | null;
@@ -108,6 +110,7 @@ export type ModerationReviewDetail = ModerationReview & {
     novelTitle?: string;
     chapterTitle?: string;
     novelId?: string;
+    novelSlug?: string;
     chapterId?: string;
     status?: string;
     deletedAt?: string | null;
@@ -291,8 +294,9 @@ export async function listModerationReviews(filters: ModerationReviewFilters = {
 }
 
 export async function getModerationReview(reviewId: string) {
+  const reference = (isUuidRouteRef(reviewId) ? '' : 'by-slug/') + encodeURIComponent(reviewId);
   const response = await apiClient.get<ApiEnvelope<ModerationReviewDetail>>(
-    `/admin/moderation/reviews/${reviewId}`
+    `/admin/moderation/reviews/${reference}`
   );
   return response.data.data;
 }

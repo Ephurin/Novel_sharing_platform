@@ -1,4 +1,9 @@
 import { z } from 'zod';
+import { urlSegmentSchema } from '../../core/validation/url-segment.js';
+
+export const managedNovelRefSchema = z.object({ params: z.object({
+  novelRef: z.union([z.string().uuid(), urlSegmentSchema])
+}) });
 import { boundedArray } from '../../core/validation/bounded-array.js';
 
 // SEC-01: bound tags before element validation (zod 3 memory amplification, GHSA-mrhx-c7xc-m3w5).

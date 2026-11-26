@@ -1,4 +1,4 @@
-import { navigationHref } from '../../shared/routes';
+import { navigationHref, reviewHref } from '../../shared/routes';
 import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
 import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { ResponsiveFilters } from '../../shared/components/InteractionWidgets';
@@ -149,7 +149,7 @@ export function AdminModerationPage({ reports = false }: { reports?: boolean }) 
                     <td>
                       <Button
                         component={Link}
-                        to={navigationHref(`/admin/moderation/${review.reviewId}`)}
+                        to={reviewHref('/admin/moderation/:reviewId', review)}
                         variant="light"
                         size="xs"
                         data-testid={`moderation-review-inspect-${review.reviewId}`}

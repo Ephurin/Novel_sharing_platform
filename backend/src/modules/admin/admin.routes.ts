@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { managedNovelRefSchema } from '../novels/novels.schemas.js';
 import { adminOperationsRoutes } from './admin-operations.routes.js';
 import { requireAdminPermission } from './admin-access.js';
 import { requireAuth, requireRoles } from '../../core/security/auth.middleware.js';
@@ -10,6 +11,7 @@ import {
   createTagController,
   dashboardStatsController,
   getAdminNovelController,
+  locateAdminNovelController,
   listAdminNovelsController,
   listAdminUsersController,
   listWithdrawRequestsController,
@@ -55,6 +57,7 @@ adminRoutes.get('/users', validateRequest(listAdminUsersSchema), listAdminUsersC
 adminRoutes.patch('/users/:userId/lock', validateRequest(lockUserSchema), lockUserController);
 adminRoutes.patch('/users/:userId/unlock', validateRequest(lockUserSchema), unlockUserController);
 adminRoutes.get('/novels', validateRequest(listAdminNovelsSchema), listAdminNovelsController);
+adminRoutes.get('/novels/:novelRef/locator', validateRequest(managedNovelRefSchema), locateAdminNovelController);
 adminRoutes.get('/novels/:novelId', validateRequest(novelIdParamSchema), getAdminNovelController);
 adminRoutes.delete(
   '/novels/:novelId',

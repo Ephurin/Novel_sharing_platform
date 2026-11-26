@@ -39,13 +39,13 @@ Giữ nguyên bảng route đã duyệt. Mặc định, alias cũ chuyển hư�
 | `/readers/:userId` | `/thanh-vien/:publicKey` | `ReaderProfilePage`, hồ sơ tài khoản hoạt động |
 | `/authors/:authorId` | `/tac-gia/:publicKey` | `AuthorProfilePage`, một route phiên tùy chọn, giữ điều kiện hồ sơ tác giả |
 | `/author`, `/author/projects` | `/sang-tac` | `AuthorProjectsPage`, `AUTHOR`, `ADMIN`, `MODERATOR` |
-| `/author/ide` | `/sang-tac/viet` | `AuthorWritingIde`, giữ vai trò và query ID |
-| `/author/import/:novelId` | `/sang-tac/tac-pham/:novelId/nhap-ban-thao` | `ManuscriptImportPage`, giữ quyền tác phẩm |
-| `/author/context/:novelId` | `/sang-tac/tac-pham/:novelId/boi-canh` | `AuthorStoryContextPage`, giữ quyền tác phẩm |
-| `/author/novels/:novelId` | `/sang-tac/tac-pham/:novelId` | `AuthorNovelMetadataPage`, giữ quyền tác phẩm |
-| `/author/novels/:novelId/comments` | `/sang-tac/tac-pham/:novelId/binh-luan` | `AuthorNovelCommentsPage`, giữ quyền tác phẩm |
-| `/author/novels/:novelId/reviews` | `/sang-tac/tac-pham/:novelId/danh-gia` | `AuthorNovelReviewsPage`, giữ quyền tác phẩm |
-| `/author/novels/:novelId/chapters/:chapterId` | `/sang-tac/viet?novelId=…&chapterId=…` | `AuthorChapterDeepLink`, lấy ID từ path cũ và giữ tham số còn lại |
+| `/author/ide` | `/sang-tac/viet` | `AuthorWritingIde`, dùng `tac-pham` và `chuong` theo slug, tiếp nhận query ID cũ |
+| `/author/import/:novelId` | `/sang-tac/tac-pham/:novelSlug/nhap-ban-thao` | `ManuscriptImportPage`, giữ quyền tác phẩm |
+| `/author/context/:novelId` | `/sang-tac/tac-pham/:novelSlug/boi-canh` | `AuthorStoryContextPage`, giữ quyền tác phẩm |
+| `/author/novels/:novelId` | `/sang-tac/tac-pham/:novelSlug` | `AuthorNovelMetadataPage`, giữ quyền tác phẩm |
+| `/author/novels/:novelId/comments` | `/sang-tac/tac-pham/:novelSlug/binh-luan` | `AuthorNovelCommentsPage`, giữ quyền tác phẩm |
+| `/author/novels/:novelId/reviews` | `/sang-tac/tac-pham/:novelSlug/danh-gia` | `AuthorNovelReviewsPage`, giữ quyền tác phẩm |
+| `/author/novels/:novelId/chapters/:chapterId` | `/sang-tac/viet?tac-pham=:novelSlug&chuong=:chapterSlug` | `AuthorChapterDeepLink`, lấy ID từ path cũ và giữ tham số còn lại |
 | `/author/profile` | `/tac-gia/:publicKey` | Shortcut hồ sơ của người đang đăng nhập, giữ kiểm tra phiên |
 
 ## Kiểm duyệt và quản trị
@@ -53,7 +53,7 @@ Giữ nguyên bảng route đã duyệt. Mặc định, alias cũ chuyển hư�
 | URL hiện tại | URL chính thức | Màn hình và truy cập |
 |---|---|---|
 | `/moderator`, `/moderator/reviews` | `/kiem-duyet/hang-doi` | `ModeratorReviewsPage`, `MODERATOR`. `/kiem-duyet` cũng mở hàng đợi. |
-| `/moderator/reviews/:reviewId` | `/kiem-duyet/hang-doi/:reviewId` | `ModeratorReviewDetailPage`, `MODERATOR` |
+| `/moderator/reviews/:reviewId` | `/kiem-duyet/hang-doi/:reviewSlug` | `ModeratorReviewDetailPage`, `MODERATOR` |
 | `/moderator/history` | `/kiem-duyet/lich-su` | `ModeratorHistoryPage`, `MODERATOR` |
 | `/moderator/selections` | `/kiem-duyet/de-cu` | `ModeratorSelectionsPage`, `MODERATOR` |
 | `/moderator/selections/:caseId` | `/kiem-duyet/de-cu/:caseId` | `ModeratorSelectionDetailPage`, `MODERATOR` |
@@ -63,10 +63,10 @@ Giữ nguyên bảng route đã duyệt. Mặc định, alias cũ chuyển hư�
 | `/admin/users` | `/quan-tri/nguoi-dung` | `AdminUsersPage`, `ADMIN` |
 | `/admin/users/:userId` | `/quan-tri/nguoi-dung/:userId` | `AdminUserDetailPage`, `ADMIN` |
 | `/admin/novels` | `/quan-tri/tac-pham` | `AdminNovelsPage`, `ADMIN` |
-| `/admin/novels/:novelId` | `/quan-tri/tac-pham/:novelId` | `AdminNovelDetailPage`, `ADMIN` |
+| `/admin/novels/:novelId` | `/quan-tri/tac-pham/:novelSlug` | `AdminNovelDetailPage`, `ADMIN` |
 | `/admin/taxonomy` | `/quan-tri/the-loai-va-nhan` | `AdminTaxonomyPage`, `ADMIN` |
 | `/admin/moderation` | `/quan-tri/kiem-duyet` | `AdminModerationPage`, `ADMIN` |
-| `/admin/moderation/:reviewId` | `/quan-tri/kiem-duyet/:reviewId` | `AdminModerationDetailPage`, `ADMIN` |
+| `/admin/moderation/:reviewId` | `/quan-tri/kiem-duyet/:reviewSlug` | `AdminModerationDetailPage`, `ADMIN` |
 | `/admin/escalations` | `/quan-tri/chuyen-cap` | `AdminEscalationsPage`, `ADMIN` |
 | `/admin/reports` | `/quan-tri/bao-cao` | `AdminReportsPage`, `ADMIN` |
 | `/admin/audit` | `/quan-tri/nhat-ky` | `AdminAuditPage`, `ADMIN` |

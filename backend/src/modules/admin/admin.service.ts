@@ -6,6 +6,7 @@ import { assertNoOpenAppeal, assertNotOriginalDecider } from './sanction-guard.j
 import { drainAdminJobs } from './admin-jobs.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
+import { findManagedNovelReference } from '../novels/novels.repository.js';
 import { findOpenReview } from '../content-control/content-control.repository.js';
 import { createNotification } from '../interactions/notifications.repository.js';
 import { findDraftChapterByChapterId, restoreDraftChaptersByNovelId } from '../novels/draft-chapters.repository.js';
@@ -58,6 +59,12 @@ export async function listNovels(input: ListAdminNovelsInput) {
     data: result.items,
     meta: buildMeta(result.totalItems, input.page, input.limit)
   };
+}
+
+export async function locateAdminNovel(reference: string) {
+  const novel = await findManagedNovelReference(reference, true);
+  if (!novel) throw new AppError(404, 'CONTENT_001', 'Content not found');
+  return { novelId: novel.novelId, slug: novel.slug };
 }
 
 export async function getNovel(novelId: string) {

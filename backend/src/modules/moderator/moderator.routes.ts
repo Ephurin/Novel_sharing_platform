@@ -12,7 +12,8 @@ import {
   listReviewsSchema,
   proposeEscalationSchema,
   resolveReviewSchema,
-  reviewIdParamSchema
+  reviewIdParamSchema,
+  reviewSlugParamSchema
 } from '../content-control/content-control.schemas.js';
 import {
   getModerationReview,
@@ -121,13 +122,14 @@ moderatorRoutes.get(
 );
 
 moderatorRoutes.get(
-  '/reviews/:reviewId',
+  ['/reviews/by-slug/:reviewSlug', '/reviews/:reviewId'],
   requireRoles(['MODERATOR']),
   requireReviewer,
-  validateRequest(reviewIdParamSchema),
+  (request, response, next) => validateRequest(request.params.reviewSlug ? reviewSlugParamSchema : reviewIdParamSchema)(request, response, next),
   async (request, response, next) => {
     try {
-      const result = await getModerationReview(String(request.params.reviewId), requireRequestAuth(request));
+      const { reviewId, reviewSlug } = request.params;
+      const result = await getModerationReview(String(reviewSlug ?? reviewId), requireRequestAuth(request), Boolean(reviewSlug));
       response.json(successResponse(result));
     } catch (error) {
       next(error);

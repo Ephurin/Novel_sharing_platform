@@ -20,7 +20,8 @@ import {
   listReviewsSchema,
   resolveEscalationSchema,
   resolveReviewSchema,
-  reviewIdParamSchema
+  reviewIdParamSchema,
+  reviewSlugParamSchema
 } from './content-control.schemas.js';
 
 export const contentControlRoutes = Router();
@@ -54,6 +55,13 @@ adminModerationRoutes.get(
   requireRoles(['ADMIN']),
   validateRequest(listReviewsSchema),
   listReviewsController
+);
+
+adminModerationRoutes.get(
+  '/reviews/by-slug/:reviewSlug',
+  requireRoles(['ADMIN']),
+  validateRequest(reviewSlugParamSchema),
+  getReviewController
 );
 
 adminModerationRoutes.get(

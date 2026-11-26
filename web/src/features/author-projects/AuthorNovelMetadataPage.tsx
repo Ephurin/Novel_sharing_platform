@@ -1,4 +1,5 @@
-import { novelHref, navigationHref, profileHref } from '../../shared/routes';
+import { useResourceId } from '../../app/ResourceRoute';
+import { managedNovelHref, studioHref, novelHref, profileHref } from '../../shared/routes';
 import { LoadedImage } from '../../shared/components/AuthorAdminMotion';
 import { useWorkspacePreference, stringArray } from '../../shared/components/WorkspacePreferences';
 import { ResponsiveFilters, SelectionToolbar, useUpdatedItems } from '../../shared/components/InteractionWidgets';
@@ -21,7 +22,7 @@ import { authorHomeCrumb, navigationLabels } from '../../shared/components/navig
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import React, { useState, useMemo, useEffect, useId } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
 import {
   getNovel,
@@ -44,7 +45,7 @@ type AgeRating = 'EVERYONE' | 'TEEN' | 'MATURE';
 const ORDER_LOCKED_HINT = 'Chỉ sắp xếp được khi truyện chưa có chương nào phát hành hoặc đang chờ duyệt.';
 
 export function AuthorNovelMetadataPage() {
-  const { novelId = '' } = useParams();
+  const novelId = useResourceId('novelId') ?? '';
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
@@ -194,7 +195,7 @@ export function AuthorNovelMetadataPage() {
       setNewChapterModalOpen(false);
       setNewChapterTitle('');
       showToast('Đã tạo chương mới! Đang chuyển đến Studio...');
-      navigate(navigationHref(`/author/ide?novelId=${novelId}&chapterId=${created.chapterId}`));
+      navigate(studioHref({ novelId, slug: novelQuery.data?.slug }, created));
     },
     onError: (err: any) => {
       showToast('Lỗi tạo chương: ' + (err?.message || 'Không thể tạo chương'));
@@ -261,9 +262,8 @@ export function AuthorNovelMetadataPage() {
   };
 
   const openIde = (chapterId?: string) => {
-    const params = new URLSearchParams({ novelId });
-    if (chapterId) params.set('chapterId', chapterId);
-    navigate(navigationHref(`/author/ide?${params.toString()}`));
+    const chapter = chapterId ? { chapterId, slug: chapters.find(item => item.chapterId === chapterId)?.slug } : undefined;
+    navigate(studioHref({ novelId, slug: novelQuery.data?.slug }, chapter));
   };
 
   const novel = novelQuery.data;
@@ -383,7 +383,7 @@ export function AuthorNovelMetadataPage() {
             <div className="max-w-7xl mx-auto px-4 lg:px-8 py-1.5 flex items-center justify-between gap-3">
               <Breadcrumbs items={[authorHomeCrumb, { label: novel.title }]} />
               <div className="flex items-center gap-1.5 shrink-0">
-                <Link to={navigationHref(`/author/novels/${novelId}/comments`)} className="sc-button sc-button-soft" title="Bình luận độc giả"><span className="material-symbols-outlined" aria-hidden="true">forum</span><span className="hidden sm:inline">Bình luận</span></Link>
+                <Link to={managedNovelHref('/author/novels/:novelId/comments', { novelId, slug: novel?.slug })} className="sc-button sc-button-soft" title="Bình luận độc giả"><span className="material-symbols-outlined" aria-hidden="true">forum</span><span className="hidden sm:inline">Bình luận</span></Link>
                 <Link
                   to={novelHref({ novelId, novelSlug: novel?.slug }, '/public')}
                   target="_blank"
@@ -440,7 +440,7 @@ export function AuthorNovelMetadataPage() {
                   )}
                   <div className="flex flex-wrap items-center gap-2 mt-3">
                     <button type="button" onClick={() => setEditModalOpen(true)} className="sc-button sc-button-soft"><span className="material-symbols-outlined" aria-hidden="true">edit</span>Chỉnh sửa thông tin</button>
-                    <Link className="sc-button sc-button-soft" to={navigationHref(`/author/context/${novelId}`)}><span className="material-symbols-outlined" aria-hidden="true">auto_stories</span>Cẩm nang</Link>
+                    <Link className="sc-button sc-button-soft" to={managedNovelHref('/author/context/:novelId', { novelId, slug: novel?.slug })}><span className="material-symbols-outlined" aria-hidden="true">auto_stories</span>Cẩm nang</Link>
                     <button
                       type="button"
                       onClick={() => submitPublishMutation.mutate()}
@@ -458,7 +458,7 @@ export function AuthorNovelMetadataPage() {
                 <div><dt>Tổng chương</dt><dd>{chaptersQuery.isPending ? '…' : chaptersQuery.isError ? '—' : <NumberFlow value={chapters.length} locales="vi-VN" animated={!reduce} />}</dd></div>
                 <div><dt>Lượt đọc</dt><dd><NumberFlow value={novel.viewsCount} locales="vi-VN" animated={!reduce} /></dd></div>
                 <div><dt>Doanh thu</dt><dd>{earningsQuery.isPending ? '…' : earningsQuery.isError ? '—' : <NumberFlow value={earningsQuery.data.unlockCoins} locales="vi-VN" animated={!reduce} />} <span className="text-meta font-normal">Xu</span></dd></div>
-                <div><dt>Đánh giá</dt><dd><Link className="sc-rating-metric" to={navigationHref(`/author/novels/${novelId}/reviews`)} title="Xem đánh giá độc giả" aria-label="Xem đánh giá độc giả">{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : statisticsQuery.data.ratingAverage === null ? 'Chưa có' : statisticsQuery.data.ratingAverage.toLocaleString('vi-VN', { maximumFractionDigits: 1 })}<span className="material-symbols-outlined" aria-hidden="true">chevron_right</span></Link></dd></div>
+                <div><dt>Đánh giá</dt><dd><Link className="sc-rating-metric" to={managedNovelHref('/author/novels/:novelId/reviews', { novelId, slug: novel?.slug })} title="Xem đánh giá độc giả" aria-label="Xem đánh giá độc giả">{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : statisticsQuery.data.ratingAverage === null ? 'Chưa có' : statisticsQuery.data.ratingAverage.toLocaleString('vi-VN', { maximumFractionDigits: 1 })}<span className="material-symbols-outlined" aria-hidden="true">chevron_right</span></Link></dd></div>
                 <div><dt>Theo dõi</dt><dd>{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : <NumberFlow value={statisticsQuery.data.followersCount} locales="vi-VN" animated={!reduce} />}</dd></div>
                 <div><dt>Tổng số từ</dt><dd>{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : <NumberFlow value={statisticsQuery.data.totalWords} locales="vi-VN" animated={!reduce} />}</dd></div>
               </dl>
@@ -702,7 +702,7 @@ export function AuthorNovelMetadataPage() {
                     data-testid="chapter-order-open" title={orderLocked ? ORDER_LOCKED_HINT : undefined} aria-describedby={orderLocked ? 'chapter-order-locked' : undefined}>Sắp xếp chương</button>
                   {orderLocked && <span id="chapter-order-locked" className="sr-only">{ORDER_LOCKED_HINT}</span>}
                   <Link
-                    to={navigationHref(`/author/import/${novelId}`)}
+                    to={managedNovelHref('/author/import/:novelId', { novelId, slug: novel?.slug })}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200/80 text-stone-700 border border-stone-200/70 font-label-md text-meta transition-colors"
                   >
                     <span className="material-symbols-outlined text-[15px] text-stone-500">file_upload</span>

@@ -13,6 +13,7 @@ import { assertNovelReadyForPublication } from './novel-publication-eligibility.
 import {
   createNovel as createNovelRow,
   findNovelById,
+  findManagedNovelReference,
   getNovelUnlockEarnings,
   listNovels as listNovelRows,
   listNovelsByAuthor,
@@ -167,6 +168,14 @@ async function submitPublishLocked(auth: AuthContext, novelId: string, client: P
     moderationRequired: true,
     moderationReviewId: moderation.moderationReviewId
   };
+}
+
+export async function locateAuthorNovel(reference: string, auth: AuthContext) {
+  const novel = await findManagedNovelReference(reference);
+  if (!novel || (novel.status !== 'PUBLISHED' && novel.authorId !== auth.userId && !isContentAdmin(auth))) {
+    throw new AppError(404, 'CONTENT_001', 'Content not found');
+  }
+  return { novelId: novel.novelId, slug: novel.slug };
 }
 
 export async function readNovel(novelId: string, auth?: AuthContext) {
