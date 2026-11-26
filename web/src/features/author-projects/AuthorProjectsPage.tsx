@@ -376,9 +376,6 @@ export function AuthorProjectsPage() {
                       </option>
                     ))}
                   </select>
-                  <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400 text-[16px]">
-                    expand_more
-                  </span>
                 </div>
 
                 {/* View Mode Toggle */}

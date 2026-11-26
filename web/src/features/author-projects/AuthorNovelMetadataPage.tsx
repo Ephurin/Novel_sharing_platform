@@ -612,9 +612,6 @@ export function AuthorNovelMetadataPage() {
                         Đã lưu trữ ({chapters.filter((c) => c.status === 'ARCHIVED').length})
                       </option>
                     </select>
-                    <span className="material-symbols-outlined pointer-events-none absolute right-1.5 top-2 text-[16px] text-stone-400">
-                      expand_more
-                    </span>
                   </div>
 
                   {/* Access Dropdown */}
@@ -632,9 +629,6 @@ export function AuthorNovelMetadataPage() {
                       <option value="FREE">Miễn phí</option>
                       <option value="VIP">VIP</option>
                     </select>
-                    <span className="material-symbols-outlined pointer-events-none absolute right-1.5 top-2 text-[16px] text-stone-400">
-                      expand_more
-                    </span>
                   </div>
                 </ResponsiveFilters>
 
