@@ -99,11 +99,14 @@ export async function createNovel(
     `
       insert into novels (author_id, title, slug, synopsis, cover_image_url, genre_id, author_note, story_format, serial_status)
       values ($1, $2, $3, $4, $5, $6, $7, $8, coalesce($9::novel_serial_status, 'ONGOING'))
+      on conflict (slug) do nothing
       returning *
     `,
     [input.authorId, input.title, input.slug, input.synopsis, input.coverImageUrl ?? null, input.genreId, input.authorNote ?? null,
       input.storyFormat ?? null, input.serialStatus ?? null]
   );
+
+  if (!result.rowCount) return null;
 
   const names = input.genres ?? (input.genre ? [input.genre] : []);
   const metadata = await writeNovelGenres(client, result.rows[0].novel_id, names);
