@@ -115,7 +115,8 @@ test('PR-03: the moderator workspace operates discussions with one change per ca
       window.localStorage.setItem('ephurin_access_token', 'pr-03-moderator-session');
     });
 
-    await page.goto(base + '/moderator/discussions');
+    await page.goto(base + '/moderator/discussions', { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    await expect(page).toHaveURL(base + '/kiem-duyet/thao-luan');
     await expect(page.getByRole('heading', { name: 'Điều hành thảo luận' })).toBeVisible({ timeout: 20_000 });
     await expect(page.getByText(topic.title)).toBeVisible();
 

@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import type { PropsWithChildren } from 'react';
 import { useEffect } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { roleHomePath, staticRouteTargets } from '../../shared/routes';
 import { getCurrentUser } from './auth-api';
 import type { UserRole } from './auth-types';
 import { useAuthStore } from './useAuthStore';
@@ -53,9 +54,10 @@ const roleLabels: Record<UserRole, string> = {
 
 export function AuthGate({ children }: PropsWithChildren) {
   const { accessToken, user, clearSession } = useSessionRestore();
+  const { pathname, search, hash } = useLocation();
 
   if (!accessToken) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to={staticRouteTargets['/login']} state={{ returnTo: { pathname, search, hash } }} replace />;
   }
 
   if (!user) {
@@ -93,7 +95,7 @@ export function RoleGuard({ roles, children }: PropsWithChildren<{ roles: UserRo
     return (
       <PermissionState
         requiredRole={roles.map((role) => roleLabels[role]).join(' hoặc ')}
-        onBack={() => navigate(getRoleHomePath(user.role), { replace: true })}
+        onBack={() => navigate(roleHomePath(user.role), { replace: true })}
       />
     );
   }
@@ -104,12 +106,5 @@ export function RoleGuard({ roles, children }: PropsWithChildren<{ roles: UserRo
 export function RoleHomeRedirect() {
   const user = useAuthStore((state) => state.user);
 
-  return <Navigate to={getRoleHomePath(user?.role)} replace />;
-}
-
-function getRoleHomePath(role?: UserRole) {
-  if (role === 'ADMIN') return '/admin';
-  if (role === 'MODERATOR') return '/moderator/reviews';
-  if (role === 'AUTHOR') return '/author';
-  return '/';
+  return <Navigate to={roleHomePath(user?.role)} replace />;
 }

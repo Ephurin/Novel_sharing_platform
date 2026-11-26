@@ -40,7 +40,7 @@ test('main reader UI retains animated tools, themes and guest author profiles', 
           if (route.request().method() === 'PUT') preferences = route.request().postDataJSON();
           data = preferences;
         } else if (url.pathname.endsWith('/authors/author-1/profile')) data = {
-          authorId: 'author-1', username: 'author', displayName: 'Tác giả với tên dài để kiểm tra xuống dòng trên điện thoại',
+          authorId: 'author-1', publicKey: 'author', username: 'author', displayName: 'Tác giả với tên dài để kiểm tra xuống dòng trên điện thoại',
           avatarUrl: image, bannerUrl: image, bio: 'Giới thiệu tác giả.', joinedAt: '2025-01-01',
           publishingSchedule: 'Thứ Tư hàng tuần', totalViews: 42, totalWords: 1200, followersCount: 3, isFollowing: false, novels: [novel]
         };

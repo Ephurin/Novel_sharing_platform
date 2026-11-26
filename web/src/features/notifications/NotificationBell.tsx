@@ -1,5 +1,6 @@
 ﻿import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'react-router-dom';
+import { staticRouteTargets } from '../../shared/routes';
 import { useAuthStore } from '../auth/useAuthStore';
 import { getUnreadNotificationCount } from './notification-api';
 import { useEffect, useRef } from 'react';
@@ -39,7 +40,7 @@ export function NotificationBell() {
         to="/notifications"
         className="sc-icon-button sc-notification-bell"
         aria-label={label}
-        aria-current={location.pathname === '/notifications' ? 'page' : undefined}
+        aria-current={location.pathname === staticRouteTargets['/notifications'] ? 'page' : undefined}
         onMouseEnter={() => {
           if (!reduceMotion && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
             void animation.start({ rotate: [0, -10, 10, -6, 0], transition: { duration: 0.4 } });

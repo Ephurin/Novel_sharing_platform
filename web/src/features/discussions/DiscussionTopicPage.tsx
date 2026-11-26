@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useResourceId } from '../../app/ResourceRoute';
 import { Avatar, Button, Group, Loader, Select, Stack, Text, TextInput } from '@mantine/core';
 import {
   IconAlertTriangle, IconArrowBackUp, IconDots, IconEye, IconHeart, IconLink, IconMessage,
@@ -69,7 +70,7 @@ function CategoryLabel({ category }: { category: Topic['category'] }) {
 }
 
 export function DiscussionTopicPage() {
-  const { topicId: id = '' } = useParams();
+  const id = useResourceId('topicId') ?? '';
   return <DiscussionTopic key={id} id={id} />;
 }
 

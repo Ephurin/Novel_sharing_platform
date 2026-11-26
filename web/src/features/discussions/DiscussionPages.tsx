@@ -5,7 +5,8 @@ import {
   IconSpeakerphone
 } from '@tabler/icons-react';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useResourceId } from '../../app/ResourceRoute';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getApiErrorMessage } from '../../shared/api/api-client';
 import { adminGet, type Access } from '../admin/admin-operations-api';
@@ -522,7 +523,7 @@ export function MyDiscussionsPage() {
 }
 
 export function DiscussionEditorPage() {
-  const { topicId } = useParams<{ topicId: string }>();
+  const topicId = useResourceId('topicId');
   const isEdit = Boolean(topicId);
   const navigate = useNavigate();
   const [params] = useSearchParams();

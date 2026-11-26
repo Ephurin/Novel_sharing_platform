@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type Dispatch, type SetStateAction, type PropsWithChildren } from 'react';
 import { useLocation, useNavigationType, useSearchParams } from 'react-router-dom';
+import { canonicalStaticPath, legacyStaticPaths } from '../routes';
 import { useAuthStore } from '../../features/auth/useAuthStore';
 import { Popover } from '@animate-ui/react/primitives/radix-ui/popover';
 import { useMediaQuery } from '@mantine/hooks';
@@ -92,14 +93,30 @@ export function FilterPresets({ name, fields, presentation = 'inline' }: { name:
   return <details className="sc-filter-presets"><summary>{label}</summary>{content}</details>;
 }
 
+function storedScroll(
+  prefix: string,
+  location: ReturnType<typeof useLocation>
+): string | null {
+  const pathname = canonicalStaticPath(location.pathname);
+  const cameFrom = location.state?.legacyPathname;
+  const aliases = legacyStaticPaths(pathname);
+  if (typeof cameFrom === 'string' && cameFrom.startsWith('/')) aliases.unshift(cameFrom);
+  for (const path of new Set([pathname, ...aliases])) {
+    const saved = sessionStorage.getItem(prefix + path + location.search);
+    if (saved !== null) return saved;
+  }
+  return null;
+}
+
 export function useListScroll(ready: boolean) {
   const location = useLocation(); const navigation = useNavigationType();
   const userId = useAuthStore(s => s.user?.userId ?? 'guest');
-  const key = `storycraft-scroll:${userId}:${location.pathname}${location.search}`;
+  const prefix = `storycraft-scroll:${userId}:`;
+  const key = prefix + canonicalStaticPath(location.pathname) + location.search;
   const readyRef = useRef(ready); readyRef.current = ready;
   useLayoutEffect(() => {
     let target = 0;
-    try { target = navigation === 'POP' ? Number(sessionStorage.getItem(key) || 0) : 0; } catch { /* Optional. */ }
+    try { target = navigation === 'POP' || location.state?.legacyPathname ? Number(storedScroll(prefix, location) || 0) : 0; } catch { /* Optional. */ }
     let restoring = Number.isFinite(target) && target > 0;
     let frame = 0;
     const save = () => { if (restoring || !readyRef.current) return; try { sessionStorage.setItem(key, String(window.scrollY)); } catch { /* Optional. */ } };
@@ -108,7 +125,7 @@ export function useListScroll(ready: boolean) {
     const observer = new ResizeObserver(restore); observer.observe(document.body); restore();
     window.addEventListener('scroll', save, { passive: true }); window.addEventListener('wheel', cancel, { passive: true }); window.addEventListener('touchstart', cancel, { passive: true });
     return () => { save(); cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('scroll', save); window.removeEventListener('wheel', cancel); window.removeEventListener('touchstart', cancel); };
-  }, [key, navigation, ready]);
+  }, [key, location, navigation, prefix, ready]);
 }
 
 /** Opt-in table controls; identity and action columns always remain visible. */
@@ -117,12 +134,13 @@ export function WorkspaceTable({ name, columns, children }: PropsWithChildren<{ 
   const scrollRef = useRef<HTMLDivElement>(null);
   const location = useLocation(), navigation = useNavigationType();
   const userId = useAuthStore(s => s.user?.userId ?? 'guest');
-  const scrollKey = `storycraft-table-scroll:${userId}:${name}:${location.pathname}${location.search}`;
+  const prefix = `storycraft-table-scroll:${userId}:${name}:`;
+  const scrollKey = prefix + canonicalStaticPath(location.pathname) + location.search;
   useLayoutEffect(() => {
     const element = scrollRef.current; if (!element) return;
     let target = { x: 0, y: 0 };
-    if (navigation === 'POP') {
-      try { const saved = JSON.parse(sessionStorage.getItem(scrollKey) ?? 'null'); if (saved && Number.isFinite(saved.x) && Number.isFinite(saved.y)) target = { x: Math.max(0, saved.x), y: Math.max(0, saved.y) }; } catch { /* Optional preference. */ }
+    if (navigation === 'POP' || location.state?.legacyPathname) {
+      try { const saved = JSON.parse(storedScroll(prefix, location) ?? 'null'); if (saved && Number.isFinite(saved.x) && Number.isFinite(saved.y)) target = { x: Math.max(0, saved.x), y: Math.max(0, saved.y) }; } catch { /* Optional preference. */ }
     }
     let restoring = true, frame = 0;
     const save = () => { if (!restoring) try { sessionStorage.setItem(scrollKey, JSON.stringify({ x: element.scrollLeft, y: element.scrollTop })); } catch { /* Keep navigation usable. */ } };
@@ -134,7 +152,7 @@ export function WorkspaceTable({ name, columns, children }: PropsWithChildren<{ 
     frame = requestAnimationFrame(() => { restore(); restoring = false; save(); });
     element.addEventListener('scroll', save, { passive: true }); element.addEventListener('wheel', cancel, { passive: true }); element.addEventListener('touchstart', cancel, { passive: true }); element.addEventListener('keydown', keydown);
     return () => { save(); cancelAnimationFrame(frame); element.removeEventListener('scroll', save); element.removeEventListener('wheel', cancel); element.removeEventListener('touchstart', cancel); element.removeEventListener('keydown', keydown); };
-  }, [scrollKey, navigation]);
+  }, [scrollKey, location, navigation, prefix]);
   const optional = columns.map((label, index) => ({ label, index })).filter(({ index, label }) => index > 0 && label !== 'Thao tác');
   const indexes = optional.filter(c => hidden.includes(c.label)).map(c => c.index + 1);
   const id = `sc-table-${name.replace(/[^a-z0-9-]/gi, '')}`;

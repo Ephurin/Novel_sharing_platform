@@ -80,7 +80,9 @@ async function locateResource(kind: ResourceKind, parts: string[], legacy: boole
 
 export function UrlRedirect({ pathname, search }: { pathname: string; search?: string }) {
   const location = useLocation();
-  return <Navigate to={{ pathname, search: search ?? location.search, hash: location.hash }} state={location.state} replace />;
+  const state = typeof location.state === 'object' && location.state !== null ? location.state : {};
+  return <Navigate to={{ pathname, search: search ?? location.search, hash: location.hash }}
+    state={{ ...state, legacyPathname: location.pathname }} replace />;
 }
 
 export function ResourceRoute({ kind, legacy = false, legacyId, suffix = '', privatePage = false, children }: {

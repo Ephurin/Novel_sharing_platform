@@ -4,6 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { getReturnLocation } from '../../features/auth/return-location';
+import { roleHomePath } from '../routes';
 import {
   cancelRegistration, getPendingRegistration, login, recoverRegistration, register,
   resendRegistrationEmail, verifyRegistration, verifyRegistrationLink, type PendingRegistration
@@ -46,7 +48,8 @@ function clearRememberedIdentifier() {
 
 export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFromLink?: boolean }) {
   const navigate = useNavigate();
-  const { hash } = useLocation();
+  const { hash, state } = useLocation();
+  const returnTo = confirmEmailFromLink ? undefined : getReturnLocation(state);
   const queryClient = useQueryClient();
   const accessToken = useAuthStore((state) => state.accessToken);
   const user = useAuthStore((state) => state.user);
@@ -125,7 +128,7 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
     }
     setSession(session, persistSession);
     queryClient.setQueryData(['auth', 'me'], session.user);
-    navigate(getRoleHome(session.user.role), { replace: true });
+    navigate(returnTo ?? roleHomePath(session.user.role), { replace: true });
   };
 
   const authMutation = useMutation({
@@ -185,7 +188,7 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
     && authMutation.error.code === 'AUTH_EMAIL_UNAVAILABLE';
 
   if (accessToken && user) {
-    return <Navigate to={getRoleHome(user.role)} replace />;
+    return <Navigate to={returnTo ?? roleHomePath(user.role)} replace />;
   }
 
   const resetRegistration = (nextMode: 'login' | 'register') => {
@@ -555,11 +558,4 @@ export function AuthLanding({ confirmEmailFromLink = false }: { confirmEmailFrom
 function getAuthErrorMessage(error: unknown) {
   return error instanceof ApiClientError && /^(AUTH_EMAIL_|USER_00[45]$)/.test(error.code)
     ? error.message : getApiErrorMessage(error);
-}
-
-function getRoleHome(role: AuthSession['user']['role']) {
-  if (role === 'ADMIN') return '/admin';
-  if (role === 'MODERATOR') return '/moderator/reviews';
-  if (role === 'AUTHOR') return '/author';
-  return '/';
 }

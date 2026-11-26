@@ -8,7 +8,8 @@ import { Switch } from '@mantine/core';
 import { AuthorProfileHeader } from './AuthorProfileHeader';
 import { ImageUpload } from '../../shared/components/ImageUpload';
 import { becomeAuthor } from '../auth/auth-api';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useResourceId } from '../../app/ResourceRoute';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import NumberFlow from '@number-flow/react';
@@ -70,7 +71,7 @@ function AuthorWorkCard({ novel, publicMode }: { novel: AuthorProfile['novels'][
 }
 
 export function AuthorProfilePage() {
-  const { authorId = '' } = useParams();
+  const authorId = useResourceId('authorId') ?? '';
   const currentUser = useAuthStore((state) => state.user);
   const targetAuthorId = authorId || currentUser?.userId || '';
 

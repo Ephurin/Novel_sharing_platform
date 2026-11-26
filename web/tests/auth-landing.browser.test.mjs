@@ -171,7 +171,7 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
 
     // Submit login using the exact single submit button role; verify remembered identifier without plaintext password
     await page.getByRole('button', { name: 'Đăng nhập', exact: true }).click();
-    await expect(page).toHaveURL(/\/author$/);
+    await expect(page).toHaveURL(/\/sang-tac$/);
     assert.equal(await page.evaluate(() => localStorage.getItem('storycraft_remember_identifier')), 'tacgia@vidu.vn');
     assert.equal(await page.evaluate(() => JSON.stringify(localStorage).includes('MatKhauAnToan123!')), false);
     assert.deepEqual(errors, []);
@@ -195,6 +195,7 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
       await route.fulfill({ json: { success: true, data: [] } });
     });
     await linkPage.goto(`${base}/verify-email#token=${token}`);
+    await expect(linkPage).toHaveURL(`${base}/xac-thuc-email#token=${token}`);
     await expect(linkPage.getByRole('heading', { name: 'Xác nhận email' })).toBeVisible();
     assert.equal(verificationRequests, 0);
     await linkPage.getByRole('button', { name: 'Xác nhận tài khoản', exact: true }).click();
@@ -240,6 +241,31 @@ test('AuthLanding supports password signup, explicit link confirmation, keyboard
     await expect(googlePage).toHaveURL(`${base}/`);
     assert.equal(googleSignups, 1);
     await googleContext.close();
+
+    const retryContext = await browser.newContext();
+    const retryPage = await retryContext.newPage();
+    const signed = '?vnp_TxnRef=fixture&vnp_OrderInfo=a%20b%2Bc&vnp_SecureHash=test';
+    let returnQuery = '';
+    await retryPage.route('**/api/v1/**', async (route) => {
+      const url = new URL(route.request().url());
+      let data = null;
+      if (url.pathname.endsWith('/auth/login')) {
+        data = { accessToken: 'wallet-fixture-token', user: { userId: 'wallet-reader', role: 'READER', status: 'ACTIVE' } };
+      } else if (url.pathname.endsWith('/wallet/vnpay/return')) {
+        returnQuery = url.search;
+        data = { status: 'SUCCESS', amountCoins: 100 };
+      }
+      await route.fulfill({ json: { success: true, data } });
+    });
+    await retryPage.goto(base + '/wallet/vnpay-return' + signed);
+    await expect(retryPage).toHaveURL(base + '/dang-nhap');
+    await retryPage.locator('input[autocomplete="username"]').fill('wallet-reader');
+    await retryPage.locator('input[autocomplete="current-password"]').fill('FixturePassword123!');
+    await retryPage.getByRole('button', { name: 'Đăng nhập', exact: true }).click();
+    await expect(retryPage).toHaveURL(base + '/vi/ket-qua-thanh-toan' + signed);
+    await expect(retryPage.getByTestId('vnpay-return-result')).toHaveAttribute('data-status', 'success');
+    assert.equal(returnQuery, signed);
+    await retryContext.close();
   } finally {
     await browser.close();
     await server.close();

@@ -2,6 +2,7 @@ import { SessionMarker } from '../../shared/components/AuthorTheme';
 import { useEffect, useId, useState } from 'react';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { legacyStaticPaths } from '../../shared/routes';
 import { Button } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
@@ -40,6 +41,7 @@ export function AdminIcon({ name }: { name: string }) {
 export function AdminShell({ onLogout }: { onLogout: () => void }) {
   const user = useAuthStore((state) => state.user);
   const location = useLocation();
+  const legacyPath = legacyStaticPaths(location.pathname).find(path => path.startsWith('/admin')) ?? location.pathname;
   const [opened, setOpened] = useState(false);
   const isMobile = useMediaQuery('(max-width: 767px)');
   const reduce = useReducedMotion();
@@ -91,8 +93,8 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
       .reverse()
       .find(
         ([path]) =>
-          location.pathname === path ||
-          (path !== '/admin' && location.pathname.startsWith(`${path}/`))
+          legacyPath === path ||
+          (path !== '/admin' && legacyPath.startsWith(`${path}/`))
       )?.[2] ?? 'Bảng quản trị';
 
   return (
@@ -211,7 +213,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
           <LoadingState label="Đang kiểm tra quyền quản trị..." />
         ) : access.isError ? (
           <ErrorState error={access.error} onRetry={() => void access.refetch()} />
-        ) : can(location.pathname) ? (
+        ) : can(legacyPath) ? (
           <Outlet />
         ) : (
           <Navigate to={home} replace />

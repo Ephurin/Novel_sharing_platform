@@ -52,7 +52,7 @@ export async function adminSessionTransitions({ t, browser, output, origin }) {
         if (role === 'ADMIN') await page.locator('.admin-account-button').click();
         else await page.getByTestId('shell-avatar-btn').click();
         await page.getByTestId('shell-logout-btn').click();
-        await page.waitForURL('**/login');
+        await page.waitForURL('**/dang-nhap');
         assert.equal(await page.getByTestId('shell-session').count(), 0);
       };
       try {
@@ -72,7 +72,7 @@ export async function adminSessionTransitions({ t, browser, output, origin }) {
         await snapshot('READER');
         await page.getByTestId('shell-avatar-btn').click();
         await page.getByRole('menuitem', { name: 'Quyết định & khiếu nại', exact: true }).click();
-        await page.waitForURL('**/appeals');
+        await page.waitForURL('**/khieu-nai');
         await page.getByRole('heading', { name: 'Quyết định & khiếu nại', exact: true }).waitFor();
         await page.goto(origin + '/reader');
         await logout('READER');

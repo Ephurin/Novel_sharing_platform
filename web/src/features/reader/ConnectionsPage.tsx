@@ -1,7 +1,8 @@
 import { Alert, Avatar, Button, Group, Pagination, Paper, Select, Stack, Text, TextInput, Title } from '@mantine/core';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useResourceId } from '../../app/ResourceRoute';
 import { useAuthStore } from '../auth/useAuthStore';
 import { connections, followReader, readerProfile, type Connection } from './social-api';
 import { ErrorState, LoadingState } from '../../shared/components/PageStates';
@@ -20,7 +21,7 @@ function Person({ person }: { person: Connection }) {
     {follow.isError && <Alert color="red">{getApiErrorMessage(follow.error)}</Alert>}</Paper>;
 }
 export function ReaderProfilePage() {
-  const { userId = '' } = useParams(); const account = useAuthStore(s => s.user?.userId);
+  const userId = useResourceId('userId') ?? ''; const account = useAuthStore(s => s.user?.userId);
   const profile = useQuery({ queryKey: ['reader-profile', account, userId], queryFn: () => readerProfile(userId) });
   return <Stack><Title order={1}>Hồ sơ độc giả</Title>{profile.isPending && <LoadingState />}{profile.isError && <ErrorState error={profile.error} onRetry={() => void profile.refetch()} />}{profile.data && <Person person={profile.data} />}</Stack>;
 }
