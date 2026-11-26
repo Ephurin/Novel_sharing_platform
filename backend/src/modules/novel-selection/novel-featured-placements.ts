@@ -165,6 +165,8 @@ export async function featuredSelections() {
             union all select min(ends_at) from visible) boundaries where instant is not null
     )
     select n.*,v.placement_id,v.ends_at,v.priority,v.starts_at,b.refresh_ms,
+           -- UI-07: readers only see published chapters (novels.chapters_count includes drafts).
+           (select count(*)::int from chapters pc where pc.novel_id=n.novel_id and pc.deleted_at is null and pc.status='PUBLISHED') as published_chapters_count,
            coalesce(up.display_name,u.username) as author_name,g.name as genre_name
     from boundary b left join visible v on true left join novels n on n.novel_id=v.novel_id
     left join users u on u.user_id=n.author_id left join user_profiles up on up.user_id=u.user_id
