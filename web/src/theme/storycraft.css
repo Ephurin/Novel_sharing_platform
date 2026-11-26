@@ -304,15 +304,15 @@
 .sc-navbar-reading-tools .material-symbols-outlined { font-size: 20px; }
 .sc-navbar-reading-tools [aria-current="page"], .sc-reader-collections-nav [aria-current="page"] { color: var(--sc-primary-text); background: var(--sc-primary-soft); }
 .sc-navbar-reading-tools a:focus-visible, .sc-reader-collections-nav a:focus-visible { outline: 2px solid var(--sc-focus-ring); outline-offset: -2px; }
-.sc-reader-collections { display: grid; grid-template-columns: minmax(0, 1fr) 218px; align-items: start; gap: 24px; }
-.sc-reader-collections-content { grid-column: 1; grid-row: 1; min-width: 0; }
-.sc-reader-collections-nav { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; padding: 4px; gap: 2px; border: 1px solid var(--sc-border); border-radius: var(--sc-radius-control); background: var(--sc-surface); }
+/* UI-19: the library / bookmarks / history switcher sits above the content as tabs. */
+.sc-reader-collections { display: flex; flex-direction: column; align-items: stretch; gap: 16px; }
+.sc-reader-collections-content { min-width: 0; }
+.sc-reader-collections-nav { display: flex; flex-direction: row; flex-wrap: wrap; align-self: flex-start; padding: 4px; gap: 2px; border: 1px solid var(--sc-border); border-radius: var(--sc-radius-control); background: var(--sc-surface); }
 .sc-reader-collections-nav a { display: flex; align-items: center; min-height: 44px; gap: 8px; padding: 6px 10px; border-radius: var(--sc-radius-control); color: var(--sc-text); font-size: 14px; line-height: 20px; }
 .sc-reader-collections-nav .material-symbols-outlined { font-size: 19px; }
 .sc-reader-collections-nav a:not([aria-current]):hover { background: var(--sc-neutral-bg); }
 @media (max-width: 760px) {
-  .sc-reader-collections { display: flex; flex-direction: column; align-items: stretch; gap: 16px; }
-  .sc-reader-collections-nav { flex-direction: row; flex-wrap: wrap; }
+  .sc-reader-collections-nav { align-self: stretch; }
   .sc-reader-collections-nav a { flex: 1 0 auto; justify-content: center; }
 }
 @media (pointer: coarse) {

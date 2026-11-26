@@ -1,4 +1,4 @@
-import { formatDateTime } from '../../shared/lib/format-vi';
+import { formatDateTime, formatNumber } from '../../shared/lib/format-vi';
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
@@ -68,7 +68,7 @@ export function ReaderHomePage() {
   });
   const latestChaptersQuery = useQuery({
     queryKey: ['reader-home-latest-chapters'],
-    queryFn: ({ signal }) => listLatestPublishedChapters(12, signal),
+    queryFn: ({ signal }) => listLatestPublishedChapters(20, signal),
     staleTime: 30_000,
     retry: false,
   });
@@ -154,10 +154,21 @@ export function ReaderHomePage() {
     return fallback;
   }, [latestChaptersQuery.data, latestNovels]);
 
+  // UI-18: one row per novel; a burst of chapters reads "N chương mới" instead of repeating the novel.
+  const groupedChapterEntries = useMemo(() => {
+    const groups = new Map<string, LatestPublishedChapter & { newCount: number }>();
+    for (const entry of latestChapterEntries) {
+      const existing = groups.get(entry.novelId);
+      if (existing) existing.newCount += 1;
+      else groups.set(entry.novelId, { ...entry, newCount: 1 });
+    }
+    return [...groups.values()];
+  }, [latestChapterEntries]);
+
   const chapterUpdateItems = useMemo(() => {
     const limit = chaptersExpanded ? 12 : 8;
-    return latestChapterEntries.slice(0, limit);
-  }, [latestChapterEntries, chaptersExpanded]);
+    return groupedChapterEntries.slice(0, limit);
+  }, [groupedChapterEntries, chaptersExpanded]);
 
   const chapterUpdatesLoading = latestChaptersQuery.isPending && latestQuery.isPending;
   const chapterUpdatesError = latestChaptersQuery.isError && latestQuery.isError && latestChapterEntries.length === 0;
@@ -274,7 +285,7 @@ export function ReaderHomePage() {
                   <span className="material-symbols-outlined sc-home-sec-icon" aria-hidden="true">schedule</span>
                   <h2>Chương mới cập nhật</h2>
                 </div>
-                {latestChapterEntries.length > 8 ? (
+                {groupedChapterEntries.length > 8 ? (
                   <button
                     type="button"
                     className="sc-home-sec-link"
@@ -313,6 +324,7 @@ export function ReaderHomePage() {
                   {chapterUpdateItems.map(item => {
                     const target = `${catalogPath}/chapters/${item.chapterId}`;
                     const badgeLabel = `Chương ${item.chapterNumber}`;
+                    const countLabel = item.newCount > 1 ? `${formatNumber(item.newCount)} chương mới` : badgeLabel;
                     const cleanChapterTitle = item.title?.trim() ?? '';
                     const coverNovel = {
                       novelId: item.novelId,
@@ -333,7 +345,7 @@ export function ReaderHomePage() {
                         </span>
                         <strong className="sc-home-chapter-title">{item.novelTitle}</strong>
                         <span className="sc-home-chapter-sub">{cleanChapterTitle || badgeLabel}</span>
-                        <span className="sc-home-chapter-badge">{badgeLabel}</span>
+                        <span className="sc-home-chapter-badge">{countLabel}</span>
                         <time
                           className="sc-home-chapter-time"
                           dateTime={item.publishedAt ?? undefined}

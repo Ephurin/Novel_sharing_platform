@@ -170,6 +170,9 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
   };
 
   const items = busy ? [] : result.data?.items ?? [];
+  // UI-18: when most cards on the page were updated this week, "Mới" tells the reader nothing.
+  const recentCount = items.filter((novel) => isRecentlyUpdated(novel.lastUpdatedAt ?? novel.updatedAt)).length;
+  const newBadgeMeaningful = recentCount <= items.length / 2;
   const totalItems = result.data?.totalItems;
   const totalPages = result.data?.totalPages ?? 1;
 
@@ -263,7 +266,7 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
               </div>
             ) : (
               items.map((novel) => (
-                <CatalogCard key={novel.novelId} novel={novel} to={`${base}/novels/${novel.novelId}`} />
+                <CatalogCard key={novel.novelId} novel={novel} to={`${base}/novels/${novel.novelId}`} newBadgeMeaningful={newBadgeMeaningful} />
               ))
             )}
           </div>
@@ -433,7 +436,7 @@ const cardStatusLabels: Record<string, string> = {
   HIATUS: 'Tạm ngưng'
 };
 
-function CatalogCard({ novel, to }: { novel: ReaderNovel; to: string }) {
+function CatalogCard({ novel, to, newBadgeMeaningful = true }: { novel: ReaderNovel; to: string; newBadgeMeaningful?: boolean }) {
   const [failedUrl, setFailedUrl] = useState<string>();
   const statusCode = novel.serialStatus ?? novel.status ?? 'ONGOING';
   const statusLabel = cardStatusLabels[statusCode] ?? 'Đang ra';
@@ -451,7 +454,7 @@ function CatalogCard({ novel, to }: { novel: ReaderNovel; to: string }) {
   const hash = hashString(novel.novelId || novel.title);
   const variant = placeholderVariants[hash % placeholderVariants.length];
   const symbol = placeholderSymbols[hash % placeholderSymbols.length];
-  const showNewBadge = isRecentlyUpdated(novel.lastUpdatedAt ?? novel.updatedAt);
+  const showNewBadge = newBadgeMeaningful && isRecentlyUpdated(novel.lastUpdatedAt ?? novel.updatedAt);
 
   return (
     <article className="sc-catalog-story">

@@ -161,6 +161,7 @@ export function ContinueReading({
                 className="sc-home-read-card"
                 to={`/reader/chapters/${entry.chapterId}`}
                 title={`${entry.novel.title} — ${chapterLabel}`}
+                aria-label={`Đọc tiếp ${entry.novel.title}, ${chapterLabel}${progressPercent !== null ? `, đã đọc ${progressPercent}%` : ''}`}
               >
                 <span className="sc-home-read-thumb">
                   <HomeNovelCover novel={coverNovel} size="thumb" />
@@ -175,10 +176,12 @@ export function ContinueReading({
                       </span>
                       <span className="sc-home-progress-pct">{progressPercent}%</span>
                     </div>
-                  ) : (
-                    <span className="sc-home-read-resume-hint">Đọc tiếp →</span>
-                  )}
+                  ) : null}
                 </div>
+                {/* UI-09: a visible call to action on every card, not just a thin row. */}
+                <span className="sc-home-read-cta" aria-hidden="true">
+                  <span className="material-symbols-outlined">play_arrow</span>Đọc tiếp
+                </span>
               </Link>
             );
           })}

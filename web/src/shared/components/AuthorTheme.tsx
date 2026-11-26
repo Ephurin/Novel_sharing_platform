@@ -214,7 +214,8 @@ export function AuthorNavbar() {
             </nav>
           )}
         </LayoutGroup>
-        {path !== '/author/ide' && <GlobalSearchDropdown catalogPath={catalogPath} />}
+        {/* UI-18: the search page has its own keyword box; a second one in the header is noise. */}
+        {path !== '/author/ide' && path !== '/tim-kiem' && <GlobalSearchDropdown catalogPath={catalogPath} />}
         <div className="sc-navbar-actions">
           {isWriter && <WorkspaceCommands author commands={[
             { label: navigationLabels.authorHome, to: '/author/projects', icon: 'menu_book' },

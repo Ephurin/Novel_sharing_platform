@@ -385,14 +385,18 @@
 .sc-home-read-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
 }
+
+/* UI-09: one or two books in progress fill the row instead of leaving it empty. */
+.sc-home-read-grid[data-count="1"] { grid-template-columns: minmax(0, 1fr); }
+.sc-home-read-grid[data-count="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 .sc-home-read-card {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px;
+  gap: 12px;
+  padding: 10px 12px;
   min-width: 0;
   border: 1px solid var(--home-line);
   border-radius: 12px;
@@ -409,8 +413,8 @@
 }
 
 .sc-home-read-thumb {
-  width: 46px;
-  height: 64px;
+  width: 54px;
+  height: 76px;
   flex: none;
   border-radius: 6px;
   overflow: hidden;
@@ -435,7 +439,7 @@
 }
 
 .sc-home-read-title {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1.3;
   color: var(--home-ink);
@@ -445,7 +449,7 @@
 }
 
 .sc-home-read-chapter {
-  font-size: 11.5px;
+  font-size: 12.5px;
   line-height: 1.3;
   color: var(--home-muted);
   white-space: nowrap;
@@ -483,11 +487,27 @@
   font-variant-numeric: tabular-nums;
 }
 
-.sc-home-read-resume-hint {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--home-deep);
+.sc-home-read-cta {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 34px;
+  padding: 0 12px 0 8px;
+  border-radius: 999px;
+  background: var(--sc-primary);
+  color: var(--sc-on-primary);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
 }
+
+.sc-home-read-cta .material-symbols-outlined { font-size: 20px; line-height: 1; }
+
+.sc-home-read-card:hover:not(.is-skeleton) .sc-home-read-cta { background: var(--sc-primary-hover); }
+
+/* Three cards side by side are too narrow for the button; keep the progress line. */
+.sc-home-read-grid[data-count="3"] .sc-home-read-cta { display: none; }
 
 .sc-home-empty-inline {
   display: flex;
