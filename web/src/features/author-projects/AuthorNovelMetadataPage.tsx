@@ -5,7 +5,9 @@ import { getApiErrorMessage } from '../../shared/api/api-client';
 import { useToast } from '../../shared/components/ToastProvider';
 import { ImageUpload } from '../../shared/components/ImageUpload';
 import { ChapterActions, ChapterOrder, ChapterHistoryPanel } from './ChapterActions';
-import { Pagination, TagsInput } from '@mantine/core';
+import { Pagination, Select, TagsInput } from '@mantine/core';
+import { AuthorSelection } from '../novel-selection/SelectionPages';
+import type { Novel } from '../novels/novel-types';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
 import { chapterSortOptions, sortChapters, type ChapterSort } from './chapter-sorting';
 import { getNovelStatistics } from '../novels/novel-statistics-api';
@@ -89,6 +91,8 @@ export function AuthorNovelMetadataPage() {
   const [authorNoteInput, setAuthorNoteInput] = useState('');
   // UAT 2026-11-20 (BUG-003): the edit dialog had no age rating field.
   const [ageRatingInput, setAgeRatingInput] = useState<AgeRating>('TEEN');
+  const [storyFormatInput, setStoryFormatInput] = useState<Novel['storyFormat']>(null);
+  const [serialStatusInput, setSerialStatusInput] = useState<Novel['serialStatus']>('ONGOING');
   const [genresInput, setGenresInput] = useState<string[]>([]);
 
   const [newChapterModalOpen, setNewChapterModalOpen] = useState(false);
@@ -130,6 +134,8 @@ export function AuthorNovelMetadataPage() {
       setCoverInput(novelQuery.data.coverImageUrl || '');
       setAuthorNoteInput(novelQuery.data.authorNote ?? '');
       setAgeRatingInput(novelQuery.data.ageRating ?? 'TEEN');
+      setStoryFormatInput(novelQuery.data.storyFormat ?? null);
+      setSerialStatusInput(novelQuery.data.serialStatus ?? 'ONGOING');
       setGenresInput(novelQuery.data.genres ?? (novelQuery.data.genre ? [novelQuery.data.genre] : []));
     }
   }, [novelQuery.data, editModalOpen]);
@@ -144,7 +150,9 @@ export function AuthorNovelMetadataPage() {
         authorNote: authorNoteInput.trim() || null,
         genres: genresInput,
         coverImageUrl: coverInput.trim() || null,
-        ...(ageRatingInput !== novelQuery.data?.ageRating ? { ageRating: ageRatingInput } : {})
+        ...(ageRatingInput !== novelQuery.data?.ageRating ? { ageRating: ageRatingInput } : {}),
+        ...(storyFormatInput !== (novelQuery.data?.storyFormat ?? null) ? { storyFormat: storyFormatInput } : {}),
+        ...(serialStatusInput !== novelQuery.data?.serialStatus ? { serialStatus: serialStatusInput } : {})
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['novel', novelId] });
@@ -153,6 +161,8 @@ export function AuthorNovelMetadataPage() {
       await queryClient.invalidateQueries({ queryKey: ['novel-genres'] });
       await queryClient.invalidateQueries({ queryKey: ['author-profile'] });
       await queryClient.invalidateQueries({ queryKey: ['reader-novel', novelId] });
+      await queryClient.invalidateQueries({ queryKey: ['public-reader-novel', novelId] });
+      await queryClient.invalidateQueries({ queryKey: ['author-selection', novelId] });
       showToast('Đã lưu cập nhật thông tin tác phẩm thành công!');
     },
     onError: (err: any) => {
@@ -480,6 +490,8 @@ export function AuthorNovelMetadataPage() {
               </div>
             </section>
 
+            {novel.selectionEnabled && user?.userId === novel.authorId &&
+              <AuthorSelection novelId={novelId} maySelfNominate={user.role !== 'MODERATOR'} />}
             {/* Chapter Management Workstation Section */}
             <div className="w-full bg-surface-container-lowest rounded-xl shadow-2xs border border-stone-200/80 overflow-hidden flex flex-col">
               {/* Clean Tabs Navigation */}
@@ -902,6 +914,15 @@ export function AuthorNovelMetadataPage() {
               </div>
 
               <TagsInput className="sc-novel-edit-genres" label="Thể loại" description="Chọn hoặc nhập tối đa 5 thể loại." placeholder="Chọn hoặc nhập thể loại" data={genresQuery.data ?? []} value={genresInput} onChange={setGenresInput} maxTags={5} maxLength={100} clearable comboboxProps={{ withinPortal: false }} />
+              <Select label="Hình thức truyện" value={storyFormatInput ?? 'UNSPECIFIED'}
+                data={[{ value: 'UNSPECIFIED', label: 'Chưa khai báo' }, { value: 'SHORT_STORY', label: 'Truyện ngắn' }]}
+                onChange={(value) => setStoryFormatInput(value === 'SHORT_STORY' ? value : null)} allowDeselect={false}
+                comboboxProps={{ withinPortal: false }} />
+              <Select label="Tiến độ sáng tác" value={serialStatusInput}
+                data={[{ value: 'ONGOING', label: 'Đang ra' }, { value: 'COMPLETED', label: 'Hoàn thành' }, { value: 'HIATUS', label: 'Tạm dừng' }]}
+                onChange={(value) => {
+                  if (value === 'ONGOING' || value === 'COMPLETED' || value === 'HIATUS') setSerialStatusInput(value);
+                }} allowDeselect={false} comboboxProps={{ withinPortal: false }} />
               <div>
                 <label htmlFor="novel-age-rating" className="block font-semibold text-stone-800 mb-1">Độ tuổi</label>
                 <select id="novel-age-rating" value={ageRatingInput} onChange={event => setAgeRatingInput(event.target.value as AgeRating)}

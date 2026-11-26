@@ -16,6 +16,7 @@ import {
 } from '../admin/AdminShared';
 import { ErrorState, LoadingState } from '../../shared/components/PageStates';
 import { listModeratorReviews } from './moderator-api';
+import { ModeratorSelectionLink } from '../novel-selection/SelectionPages';
 
 export function ModeratorReviewsPage() {
   const urlFilters = useUrlFilters(
@@ -46,6 +47,7 @@ export function ModeratorReviewsPage() {
         <span className="admin-muted">
           {number(query.data?.meta.totalItems ?? 0)} mục theo bộ lọc
         </span>
+        <ModeratorSelectionLink />
       </AdminHeader>
       <AdminPanel>
         <ResponsiveFilters className="admin-toolbar">

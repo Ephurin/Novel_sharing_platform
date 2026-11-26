@@ -17,6 +17,8 @@ export type Novel = {
   status: NovelStatus;
   publicationReview?: PublicationReview | null;
   serialStatus: 'ONGOING' | 'COMPLETED' | 'HIATUS';
+  storyFormat?: 'SHORT_STORY' | null;
+  selectionEnabled?: boolean;
   ageRating: 'EVERYONE' | 'TEEN' | 'MATURE';
   likesCount: number;
   viewsCount: number;

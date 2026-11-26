@@ -23,6 +23,7 @@ export type NovelRecord = {
   coverImageUrl: string | null;
   status: NovelStatus;
   serialStatus: 'ONGOING' | 'COMPLETED' | 'HIATUS';
+  storyFormat: 'SHORT_STORY' | null;
   ageRating: 'EVERYONE' | 'TEEN' | 'MATURE';
   likesCount: number;
   viewsCount: number;
@@ -53,6 +54,7 @@ function mapNovel(row: QueryResultRow): NovelRecord {
     coverImageUrl: row.cover_image_url,
     status: row.status,
     serialStatus: row.serial_status,
+    storyFormat: row.story_format ?? null,
     ageRating: row.age_rating,
     likesCount: row.likes_count,
     viewsCount: row.views_count,
@@ -95,11 +97,12 @@ export async function createNovel(
 ) {
   const result = await client.query(
     `
-      insert into novels (author_id, title, slug, synopsis, cover_image_url, genre_id, author_note)
-      values ($1, $2, $3, $4, $5, $6, $7)
+      insert into novels (author_id, title, slug, synopsis, cover_image_url, genre_id, author_note, story_format, serial_status)
+      values ($1, $2, $3, $4, $5, $6, $7, $8, coalesce($9::novel_serial_status, 'ONGOING'))
       returning *
     `,
-    [input.authorId, input.title, input.slug, input.synopsis, input.coverImageUrl ?? null, input.genreId, input.authorNote ?? null]
+    [input.authorId, input.title, input.slug, input.synopsis, input.coverImageUrl ?? null, input.genreId, input.authorNote ?? null,
+      input.storyFormat ?? null, input.serialStatus ?? null]
   );
 
   const names = input.genres ?? (input.genre ? [input.genre] : []);
@@ -206,13 +209,16 @@ export async function listNovelsByAuthor(authorId: string, input: ListNovelsInpu
   };
 }
 
-export async function updateNovel(novelId: string, input: UpdateNovelInput) {
+export async function updateNovel(novelId: string, input: UpdateNovelInput, actorId?: string) {
   return withPostgresTransaction(async (client) => {
     const existing = (await client.query(
-      'select status, title, synopsis from novels where novel_id = $1 and deleted_at is null for update',
+      'select author_id, status, title, synopsis from novels where novel_id = $1 and deleted_at is null for update',
       [novelId]
     )).rows[0];
     if (!existing) return null;
+    if ((input.storyFormat !== undefined || input.serialStatus !== undefined) && existing.author_id !== actorId) {
+      throw new AppError(403, 'CONTENT_005', 'Chỉ chủ tác phẩm được cập nhật hình thức và tiến độ sáng tác.');
+    }
     if (existing.status === 'PENDING_MODERATION' &&
         ((input.title !== undefined && input.title !== existing.title) ||
          (input.synopsis !== undefined && input.synopsis !== (existing.synopsis ?? '').trim()))) {
@@ -229,6 +235,8 @@ export async function updateNovel(novelId: string, input: UpdateNovelInput) {
             genre_id = case when $7 then $6::uuid else genre_id end,
             author_note = case when $9 then $8 else author_note end,
             age_rating = coalesce($10::age_rating, age_rating),
+            story_format = case when $12 then $11 else story_format end,
+            serial_status = coalesce($13::novel_serial_status, serial_status),
             updated_at = now()
         where novel_id = $1 and deleted_at is null
         returning novel_id
@@ -236,7 +244,8 @@ export async function updateNovel(novelId: string, input: UpdateNovelInput) {
       [novelId, existing.status === 'PENDING_MODERATION' ? undefined : input.title,
         existing.status === 'PENDING_MODERATION' ? undefined : input.synopsis, input.coverImageUrl ?? null,
         input.coverImageUrl !== undefined, metadata?.genreId ?? null, changingGenres,
-        input.authorNote?.trim() || null, input.authorNote !== undefined, input.ageRating ?? null]
+        input.authorNote?.trim() || null, input.authorNote !== undefined, input.ageRating ?? null,
+        input.storyFormat ?? null, input.storyFormat !== undefined, input.serialStatus ?? null]
     );
     if (!result.rows[0]) return null;
     const updated = await client.query(`select n.*, g.name as genre, ${genresProjection} as genres

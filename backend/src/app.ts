@@ -19,6 +19,7 @@ import {
   reportsRoutes
 } from './modules/content-control/content-control.routes.js';
 import { moderatorRoutes } from './modules/moderator/moderator.routes.js';
+import { novelSelectionRoutes } from './modules/novel-selection/novel-selection.routes.js';
 import { moderatorDiscussionsRoutes } from './modules/moderator/moderator-discussions.routes.js';
 import { discussionsRoutes } from './modules/discussions/discussions.routes.js';
 import { discussionAdminRoutes } from './modules/discussions/discussions.admin.js';
@@ -67,6 +68,7 @@ export function createApp() {
   });
 
   app.use(`${env.API_PREFIX}/auth`, authRoutes);
+  app.use(env.API_PREFIX, novelSelectionRoutes);
   app.use(`${env.API_PREFIX}/account`, accountAppealsRoutes);
   app.use(`${env.API_PREFIX}/ai`, aiCopilotRoutes);
   app.use(`${env.API_PREFIX}/ai`, aiGatewayRoutes);

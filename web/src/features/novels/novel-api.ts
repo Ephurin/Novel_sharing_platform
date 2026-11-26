@@ -61,6 +61,8 @@ export async function updateNovel(novelId: string, input: {
   synopsis?: string;
   coverImageUrl?: string | null;
   ageRating?: 'EVERYONE' | 'TEEN' | 'MATURE';
+  storyFormat?: Novel['storyFormat'];
+  serialStatus?: Novel['serialStatus'];
 }) {
   const response = await apiClient.patch<ApiEnvelope<Novel>>(`/novels/${novelId}`, input);
   return response.data.data;

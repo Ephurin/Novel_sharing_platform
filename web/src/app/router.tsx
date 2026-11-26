@@ -19,6 +19,7 @@ import { ModeratorReviewsPage } from '../features/moderator/ModeratorReviewsPage
 import { ModeratorReviewDetailPage } from '../features/moderator/ModeratorReviewDetailPage';
 import { ModeratorDiscussionsPage } from '../features/moderator/ModeratorDiscussionsPage';
 import { ModeratorHistoryPage } from '../features/moderator/ModeratorHistoryPage';
+import { ModeratorSelectionDetailPage, ModeratorSelectionsPage, MyNominationsPage } from '../features/novel-selection/SelectionPages';
 import { AuthorNovelCommentsPage } from '../features/author-projects/AuthorNovelCommentsPage';
 import { AuthorNovelReviewsPage } from '../features/author-projects/AuthorNovelReviewsPage';
 import { AuthorNavbar, AuthorTheme } from '../shared/components/AuthorTheme';
@@ -228,6 +229,10 @@ export const router = createBrowserRouter([
     )
   },
   {
+    path: '/account/nominations',
+    element: <AuthGate><AuthorTheme><MyNominationsPage /></AuthorTheme></AuthGate>
+  },
+  {
     path: '/wallet',
     element: (
       <AuthGate>
@@ -419,6 +424,14 @@ export const router = createBrowserRouter([
             <ModeratorReviewDetailPage />
           </RoleGuard>
         )
+      },
+      {
+        path: '/moderator/selections',
+        element: <RoleGuard roles={['MODERATOR']}><ModeratorSelectionsPage /></RoleGuard>
+      },
+      {
+        path: '/moderator/selections/:caseId',
+        element: <RoleGuard roles={['MODERATOR']}><ModeratorSelectionDetailPage /></RoleGuard>
       },
       {
         path: '/moderator/discussions',

@@ -12,7 +12,7 @@ export const moderatorPermissions = [
   'escalation.submit'
 ] as const;
 
-export type ModeratorPermission = (typeof moderatorPermissions)[number];
+export type ModeratorPermission = (typeof moderatorPermissions)[number] | 'selection.review';
 
 export const permissionNamespace = [
   ...moderatorPermissions,
@@ -27,7 +27,7 @@ export const permissionNamespace = [
 
 export function moderatorPermissionsFor(role: UserRole): ModeratorPermission[] {
   if (role !== 'MODERATOR' || !env.MODERATOR_ENABLED) return [];
-  return [...moderatorPermissions];
+  return env.NOVEL_SELECTION_ENABLED ? [...moderatorPermissions, 'selection.review'] : [...moderatorPermissions];
 }
 
 export function assertIndependentActor(

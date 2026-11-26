@@ -77,7 +77,7 @@ export async function getRandomPublishedNovel() {
 }
 
 export async function getReaderNovel(novelId: string) {
-  const novel = await findPublishedNovelDetail(novelId);
+  const novel = await findPublishedNovelDetail(novelId, true);
 
   if (!novel) {
     throw new AppError(404, 'CONTENT_001', 'Content not found');
