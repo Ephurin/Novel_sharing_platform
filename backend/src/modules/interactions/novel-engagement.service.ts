@@ -1,4 +1,5 @@
 import { isContentAdmin } from '../../core/security/auth-context.js';
+import { hasReaderCapability } from '../../shared/constants/roles.js';
 import type { ReviewSort } from './novel-engagement.repository.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { AppError } from '../../core/errors/app-error.js';
@@ -16,7 +17,7 @@ export async function readNovelStatistics(novelId: string, auth?: AuthContext) {
 
 export async function updateNovelEngagement(auth: AuthContext, novelId: string, change: { following: boolean } | { notificationsEnabled: boolean } | { score: number | null; review?: string | null }) {
   // Check current account state, not only the role in a potentially stale JWT.
-  if (auth.role !== 'READER' || !await isActiveReader(auth.userId)) {
+  if (!hasReaderCapability(auth.role) || !await isActiveReader(auth.userId)) {
     throw new AppError(403, 'INTERACTION_004', 'Only active registered readers can rate or follow novels');
   }
   const novel = await findNovelById(novelId);

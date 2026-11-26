@@ -5,7 +5,9 @@ import { getApiErrorMessage } from '../../shared/api/api-client';
 import { useToast } from '../../shared/components/ToastProvider';
 import { ImageUpload } from '../../shared/components/ImageUpload';
 import { ChapterActions, ChapterOrder, ChapterHistoryPanel } from './ChapterActions';
-import { Pagination, TagsInput } from '@mantine/core';
+import { Pagination, Select, TagsInput } from '@mantine/core';
+import { AuthorSelection } from '../novel-selection/SelectionPages';
+import type { Novel } from '../novels/novel-types';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
 import { chapterSortOptions, sortChapters, type ChapterSort } from './chapter-sorting';
 import { getNovelStatistics } from '../novels/novel-statistics-api';
@@ -32,7 +34,8 @@ import {
   NOVEL_SYNOPSIS_MIN,
   NOVEL_TITLE_MAX
 } from '../novels/novel-api';
-import type { Chapter, ChapterStatus } from '../novels/novel-types';
+import type { Chapter, ChapterStatus, PublicationReview } from '../novels/novel-types';
+import { chapterPublicationDecision, publicationDecisionLabel } from '../novels/publication-review';
 
 type AgeRating = 'EVERYONE' | 'TEEN' | 'MATURE';
 // UAT 2026-11-21 (BUG-010): the server only reorders a manuscript with nothing released
@@ -88,6 +91,8 @@ export function AuthorNovelMetadataPage() {
   const [authorNoteInput, setAuthorNoteInput] = useState('');
   // UAT 2026-11-20 (BUG-003): the edit dialog had no age rating field.
   const [ageRatingInput, setAgeRatingInput] = useState<AgeRating>('TEEN');
+  const [storyFormatInput, setStoryFormatInput] = useState<Novel['storyFormat']>(null);
+  const [serialStatusInput, setSerialStatusInput] = useState<Novel['serialStatus']>('ONGOING');
   const [genresInput, setGenresInput] = useState<string[]>([]);
 
   const [newChapterModalOpen, setNewChapterModalOpen] = useState(false);
@@ -129,6 +134,8 @@ export function AuthorNovelMetadataPage() {
       setCoverInput(novelQuery.data.coverImageUrl || '');
       setAuthorNoteInput(novelQuery.data.authorNote ?? '');
       setAgeRatingInput(novelQuery.data.ageRating ?? 'TEEN');
+      setStoryFormatInput(novelQuery.data.storyFormat ?? null);
+      setSerialStatusInput(novelQuery.data.serialStatus ?? 'ONGOING');
       setGenresInput(novelQuery.data.genres ?? (novelQuery.data.genre ? [novelQuery.data.genre] : []));
     }
   }, [novelQuery.data, editModalOpen]);
@@ -143,7 +150,9 @@ export function AuthorNovelMetadataPage() {
         authorNote: authorNoteInput.trim() || null,
         genres: genresInput,
         coverImageUrl: coverInput.trim() || null,
-        ...(ageRatingInput !== novelQuery.data?.ageRating ? { ageRating: ageRatingInput } : {})
+        ...(ageRatingInput !== novelQuery.data?.ageRating ? { ageRating: ageRatingInput } : {}),
+        ...(storyFormatInput !== (novelQuery.data?.storyFormat ?? null) ? { storyFormat: storyFormatInput } : {}),
+        ...(serialStatusInput !== novelQuery.data?.serialStatus ? { serialStatus: serialStatusInput } : {})
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['novel', novelId] });
@@ -152,6 +161,8 @@ export function AuthorNovelMetadataPage() {
       await queryClient.invalidateQueries({ queryKey: ['novel-genres'] });
       await queryClient.invalidateQueries({ queryKey: ['author-profile'] });
       await queryClient.invalidateQueries({ queryKey: ['reader-novel', novelId] });
+      await queryClient.invalidateQueries({ queryKey: ['public-reader-novel', novelId] });
+      await queryClient.invalidateQueries({ queryKey: ['author-selection', novelId] });
       showToast('Đã lưu cập nhật thông tin tác phẩm thành công!');
     },
     onError: (err: any) => {
@@ -258,7 +269,7 @@ export function AuthorNovelMetadataPage() {
   const novel = novelQuery.data;
   const coverImage = novel?.coverImageUrl;
 
-  const renderStatusBadge = (status: ChapterStatus) => {
+  const renderStatusBadge = (status: ChapterStatus, review?: PublicationReview | null) => {
     switch (status) {
       case 'PUBLISHED':
         return (
@@ -282,6 +293,14 @@ export function AuthorNovelMetadataPage() {
           </span>
         );
       case 'REJECTED':
+        if (review?.status === 'REVISION_REQUIRED') {
+          return (
+            <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-meta font-medium"
+              style={{ color: 'var(--sc-warning)', background: 'var(--sc-warning-bg)' }}>
+              {publicationDecisionLabel(review)}
+            </span>
+          );
+        }
         return (
           <span className="inline-flex items-center gap-1 text-meta font-medium text-rose-700 bg-rose-500/10 px-2 py-0.5 rounded-full">
             <span className="material-symbols-outlined text-table">cancel</span>
@@ -297,6 +316,17 @@ export function AuthorNovelMetadataPage() {
           </span>
         );
     }
+  };
+
+  const renderChapterFeedback = (chapter: Chapter) => {
+    const decision = chapterPublicationDecision(chapter);
+    if (!decision || (chapter.status !== 'PUBLISHED' && !decision.reason)) return null;
+    return (
+      <div className="mx-auto mt-1 max-w-[14rem] break-words text-meta" style={{ color: 'var(--sc-text-muted)' }}>
+        {chapter.status === 'PUBLISHED' && <p>Bản gửi mới: {decision.label}</p>}
+        {decision.reason && <p>Lý do: {decision.reason}</p>}
+      </div>
+    );
   };
 
   const serialStatusLabel =
@@ -377,9 +407,12 @@ export function AuthorNovelMetadataPage() {
                 </button>
                 <div className="sc-novel-description">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <span className={`sc-novel-status ${novel.status === 'PUBLISHED' ? 'sc-novel-status-public' : ''}`}>{novel.status === 'PUBLISHED' ? serialStatusLabel : novel.status === 'PENDING_MODERATION' ? 'Chờ duyệt' : novel.status === 'REJECTED' ? 'Từ chối' : 'Bản nháp'}</span>
+                    <span className={`sc-novel-status ${novel.status === 'PUBLISHED' ? 'sc-novel-status-public' : ''}`}>{novel.status === 'PUBLISHED' ? serialStatusLabel : novel.status === 'PENDING_MODERATION' ? 'Chờ duyệt' : novel.status === 'REJECTED' ? (publicationDecisionLabel(novel.publicationReview) ?? 'Từ chối') : 'Bản nháp'}</span>
                     <span className="text-meta text-stone-500">{ageRatingLabel}</span>
                   </div>
+                  {novel.status === 'REJECTED' && publicationDecisionLabel(novel.publicationReview) && novel.publicationReview?.reason && (
+                    <p className="mb-2 break-words text-meta" style={{ color: 'var(--sc-text-muted)' }}>Lý do: {novel.publicationReview.reason}</p>
+                  )}
                   <h1 className="text-page-title text-stone-900 mb-2">{novel.title}</h1>
                   <div className="flex flex-wrap items-center gap-2 mb-2 text-body">
                     <span className="text-stone-500">Thể loại:</span>
@@ -457,6 +490,8 @@ export function AuthorNovelMetadataPage() {
               </div>
             </section>
 
+            {novel.selectionEnabled && user?.userId === novel.authorId &&
+              <AuthorSelection novelId={novelId} maySelfNominate={user.role !== 'MODERATOR'} />}
             {/* Chapter Management Workstation Section */}
             <div className="w-full bg-surface-container-lowest rounded-xl shadow-2xs border border-stone-200/80 overflow-hidden flex flex-col">
               {/* Clean Tabs Navigation */}
@@ -769,7 +804,10 @@ export function AuthorNovelMetadataPage() {
                             </span>
                           )}
                         </td>
-                        <td className="py-3 px-3.5 text-center">{renderStatusBadge(chapter.status)}</td>
+                        <td className="py-3 px-3.5 text-center">
+                          {renderStatusBadge(chapter.status, chapter.publicationReview)}
+                          {renderChapterFeedback(chapter)}
+                        </td>
                         <td className="py-3 px-3.5 text-stone-500 text-meta">
                           {new Date(chapter.draft?.updatedAt ?? chapter.updatedAt).toLocaleDateString('vi-VN')}
                         </td>
@@ -876,6 +914,15 @@ export function AuthorNovelMetadataPage() {
               </div>
 
               <TagsInput className="sc-novel-edit-genres" label="Thể loại" description="Chọn hoặc nhập tối đa 5 thể loại." placeholder="Chọn hoặc nhập thể loại" data={genresQuery.data ?? []} value={genresInput} onChange={setGenresInput} maxTags={5} maxLength={100} clearable comboboxProps={{ withinPortal: false }} />
+              <Select label="Hình thức truyện" value={storyFormatInput ?? 'UNSPECIFIED'}
+                data={[{ value: 'UNSPECIFIED', label: 'Chưa khai báo' }, { value: 'SHORT_STORY', label: 'Truyện ngắn' }]}
+                onChange={(value) => setStoryFormatInput(value === 'SHORT_STORY' ? value : null)} allowDeselect={false}
+                comboboxProps={{ withinPortal: false }} />
+              <Select label="Tiến độ sáng tác" value={serialStatusInput}
+                data={[{ value: 'ONGOING', label: 'Đang ra' }, { value: 'COMPLETED', label: 'Hoàn thành' }, { value: 'HIATUS', label: 'Tạm dừng' }]}
+                onChange={(value) => {
+                  if (value === 'ONGOING' || value === 'COMPLETED' || value === 'HIATUS') setSerialStatusInput(value);
+                }} allowDeselect={false} comboboxProps={{ withinPortal: false }} />
               <div>
                 <label htmlFor="novel-age-rating" className="block font-semibold text-stone-800 mb-1">Độ tuổi</label>
                 <select id="novel-age-rating" value={ageRatingInput} onChange={event => setAgeRatingInput(event.target.value as AgeRating)}

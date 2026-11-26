@@ -1,3 +1,4 @@
+import { hasReaderCapability } from '../auth/auth-types';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { animate, motion, useReducedMotion } from 'motion/react';
 import { Link, useLocation } from 'react-router-dom';
@@ -6,6 +7,7 @@ import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { ReactionIcon } from '../../shared/components/InteractionWidgets';
 import { useToast } from '../../shared/components/ToastProvider';
 import { getApiErrorMessage } from '../../shared/api/api-client';
+import { NominationForm } from '../novel-selection/SelectionPages';
 import { useAuthStore } from '../auth/useAuthStore';
 import { followNovel, getNovelStatistics, setNovelNotifications } from '../novels/novel-statistics-api';
 import type { ReaderChapter, ReaderNovel } from './reader-api';
@@ -63,7 +65,8 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
   const score = typeof stats?.ratingAverage === 'number' ? `${stats.ratingAverage.toLocaleString('vi-VN', { maximumFractionDigits: 1 })}/10` : 'Chưa có';
   const updated = novel.lastUpdatedAt;
   const shareUrl = `${window.location.origin}/public/novels/${encodeURIComponent(novel.novelId)}`;
-  const canFollow = user?.role === 'READER' && user.status === 'ACTIVE' && user.userId !== novel.authorId;
+  const canFollow = hasReaderCapability(user) && user?.status === 'ACTIVE' && user?.userId !== novel.authorId;
+  const canNominate = novel.selectionEligible && canFollow;
   const catalogPath = location.pathname.startsWith('/reader') ? '/reader' : '/public';
   const reviewsPath = `${catalogPath}/novels/${novel.novelId}/reviews`;
   const followLabel = stats?.isFollowing ? 'Bỏ theo dõi truyện' : 'Theo dõi truyện';
@@ -77,6 +80,7 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
         <Link to={`${catalogPath}?status=${encodeURIComponent(labels[statusCode] ? statusCode : 'ONGOING')}`} className="sc-reader-status" data-completed={statusCode === 'COMPLETED' || undefined} title={`Tìm truyện ${status.toLocaleLowerCase('vi-VN')}`}>{status}</Link>
         {ageLabel && <span className="sc-reader-age-rating" data-mature={novel.ageRating === 'MATURE' || undefined} data-testid="reader-age-rating" title={`Truyện dành cho độc giả từ ${ageLabel.replace('+', '')} tuổi`}>{ageLabel}</span>}
         <h1 className="text-page-title">{novel.title}</h1>
+        {novel.selectionLabel && <span className="sc-reader-status" data-completed>{novel.selectionLabel}</span>}
         <div className="sc-reader-taxonomy" aria-label="Thể loại và thẻ" translate="no">
           {!!genres.length && <div className="sc-reader-genres" aria-label="Thể loại">{genres.map(genre => <Link key={genre} to={`${catalogPath}?genre=${encodeURIComponent(genre)}`} className="sc-genre-tag">{genre}</Link>)}</div>}
           {!!novel.tags?.length && <div className="sc-reader-tags" aria-label="Thẻ">{novel.tags.map(tag => <Link key={tag} to={`${catalogPath}?tag=${encodeURIComponent(tag)}`} className="sc-reader-tag">#{tag}</Link>)}</div>}
@@ -97,6 +101,10 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
           <a href="#reader-chapters" className="sc-reader-jump-link"><Icon name="format_list_bulleted" /><span>Mục lục</span></a>
           <a href="#reader-comments" className="sc-reader-jump-link"><Icon name="forum" /><span>Bình luận</span></a>
         </nav>
+        {novel.selectionEnabled && canFollow && <div className="sc-reader-inline-actions">
+          {canNominate && !novel.selectionLabel && <NominationForm novelId={novel.novelId} />}
+          <Link to="/account/nominations" className="sc-reader-jump-link">Đề cử của tôi</Link>
+        </div>}
         {notice && <p className="sc-reader-detail-notice" role="status" data-testid="reader-interaction-notice">{notice}</p>}
       </div>
     </div>

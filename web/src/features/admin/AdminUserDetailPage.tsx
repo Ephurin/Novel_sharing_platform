@@ -219,7 +219,7 @@ export function AdminUserDetailPage() {
           <>
             <Select
               label="Vai trò"
-              data={['READER', 'AUTHOR', 'ADMIN'].map((v) => ({ value: v, label: labels[v] || v }))}
+              data={['READER', 'AUTHOR', 'ADMIN', 'MODERATOR'].map((v) => ({ value: v, label: labels[v] || v }))}
               value={role}
               onChange={(v) => setRole(v || 'READER')}
             />

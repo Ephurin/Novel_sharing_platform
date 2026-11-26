@@ -1,3 +1,4 @@
+import { hasReaderCapability } from '../auth/auth-types';
 import { Alert, Button, Group, NumberInput, Slider, Stack, Text, Textarea } from '@mantine/core';
 import NumberFlow from '@number-flow/react';
 import { useReducedMotion } from 'motion/react';
@@ -38,7 +39,7 @@ export function NovelEngagement({ novelId, authorId, onSaved }: { novelId: strin
       onSaved?.();
     }
   });
-  const disabled = user?.role !== 'READER' || user.status !== 'ACTIVE' || user.userId === authorId;
+  const disabled = !hasReaderCapability(user) || user?.status !== 'ACTIVE' || user?.userId === authorId;
   if (query.isPending) return <Text c="dimmed">Đang tải đánh giá…</Text>;
   if (query.isError) return <Alert color="red">{getApiErrorMessage(query.error)} <Button variant="subtle" onClick={() => void query.refetch()}>Thử lại</Button></Alert>;
   const stats = query.data;

@@ -420,7 +420,7 @@ export async function findActiveAuthorWallet(authorId: string) {
       from wallets w
       join users u on u.user_id = w.user_id
       where u.user_id = $1
-        and u.role in ('AUTHOR', 'ADMIN')
+        and u.role in ('AUTHOR', 'ADMIN', 'MODERATOR')
         and u.status = 'ACTIVE'
         and u.deleted_at is null
       limit 1

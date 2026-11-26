@@ -8,6 +8,10 @@ import {
   listModerationReviews,
   resolveModerationReview
 } from './content-control.service.js';
+import {
+  listModerationEscalations,
+  resolveModerationEscalation
+} from './moderation-escalations.js';
 
 function requireRequestAuth(request: Parameters<RequestHandler>[0]) {
   if (!request.auth) {
@@ -58,6 +62,28 @@ export const resolveReviewController: RequestHandler = async (request, response,
     const result = await resolveModerationReview(
       requireRequestAuth(request),
       String(request.params.reviewId),
+      request.body
+    );
+    response.json(successResponse(result));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const listEscalationsController: RequestHandler = async (request, response, next) => {
+  try {
+    const result = await listModerationEscalations(request.query as never);
+    response.json(successResponse(result.data, result.meta));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resolveEscalationController: RequestHandler = async (request, response, next) => {
+  try {
+    const result = await resolveModerationEscalation(
+      requireRequestAuth(request),
+      String(request.params.escalationId),
       request.body
     );
     response.json(successResponse(result));

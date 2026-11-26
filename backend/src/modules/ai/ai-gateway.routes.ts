@@ -56,7 +56,7 @@ import {
 export const aiGatewayRoutes = Router();
 
 // All AI operations require AUTHOR or ADMIN role with active account
-aiGatewayRoutes.use(requireAuth, requireActiveAccount, requireRoles(['AUTHOR', 'ADMIN']));
+aiGatewayRoutes.use(requireAuth, requireActiveAccount, requireRoles(['AUTHOR', 'ADMIN', 'MODERATOR']));
 aiGatewayRoutes.get('/story-brains/:novelId/entities/:entityId/profile', entityProfileController);
 aiGatewayRoutes.patch('/story-brains/:novelId/entities/:entityId/profile', entityProfileController);
 aiGatewayRoutes.get('/story-brains/:novelId/memory', getApprovedMemoryController);

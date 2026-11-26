@@ -17,6 +17,24 @@ export type ResolvedModerationReview = {
   submitted_content: ModerationSnapshot | null;
 };
 
+export async function listLatestPublicationReviews(
+  targetType: 'NOVEL' | 'CHAPTER',
+  targetIds: string[]
+) {
+  type PublicationReview = { status: ModerationStatus; reason: string | null };
+  if (targetIds.length === 0) return new Map<string, PublicationReview>();
+
+  const { rows } = await getPostgresPool().query<PublicationReview & { target_id: string }>(
+    `select distinct on (target_id) target_id, status, reason
+       from moderation_reviews
+      where target_type=$1 and target_id=any($2::text[])
+        and (source='PUBLICATION_REQUEST' or (source='KEYWORD_FILTER' and submitted_content is not null))
+      order by target_id, (status='PENDING') desc, created_at desc, review_id desc`,
+    [targetType, targetIds]
+  );
+  return new Map(rows.map(({ target_id, status, reason }) => [target_id, { status, reason }]));
+}
+
 function mapRule(row: QueryResultRow): MatchedRule {
   return {
     ruleId: row.rule_id,

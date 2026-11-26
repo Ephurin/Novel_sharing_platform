@@ -90,7 +90,7 @@ export async function findAuthorProfileById(authorId: string, viewerId?: string)
       from users u
       join user_profiles p on p.user_id = u.user_id
       where u.user_id = $1
-        and u.role in ('AUTHOR', 'ADMIN')
+        and u.role in ('AUTHOR', 'ADMIN', 'MODERATOR')
         and u.status = 'ACTIVE'
         and u.deleted_at is null
       limit 1

@@ -51,6 +51,8 @@ jobs:
             web/package-lock.json
             backend/package-lock.json
       - run: npm ci --prefix backend && npm ci --prefix web
+      - name: Check the backend/web/mobile role contract for drift
+        run: node scripts/check_role_contract.mjs
       - run: npx playwright install --with-deps chromium
         working-directory: web
       - name: Test the PR head with disposable databases and provider-free browser fixtures

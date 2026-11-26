@@ -14,6 +14,9 @@ export type ReaderNovel = {
   tags?: string[];
   status?: string;
   serialStatus?: string;
+  selectionLabel?: string;
+  selectionEnabled?: boolean;
+  selectionEligible?: boolean;
   ageRating?: 'EVERYONE' | 'TEEN' | 'MATURE';
   likesCount?: number;
   viewsCount?: number;

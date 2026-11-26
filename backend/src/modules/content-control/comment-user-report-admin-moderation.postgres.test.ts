@@ -109,13 +109,20 @@ describe('Phase C: Comment User Report, Admin Moderation, and Notifications Inva
     trackedUserIds.add(reporter2Id);
     reporter2Auth = { userId: reporter2Id, role: 'READER' };
 
+    const { rows: [novelAuthor] } = await pool.query<{ user_id: string }>(
+      `insert into users (email, username, password_hash, role, status)
+       values ($1, $2, 'dummy-hash', 'AUTHOR', 'ACTIVE') returning user_id`,
+      [`author-report-${timestamp}@ephurin.com`, `author_rep_${timestamp}`]
+    );
+    trackedUserIds.add(novelAuthor.user_id);
+
     // 5. Create Published Novel + Free Published Chapter
     const pubNovelRes = await pool.query(
       `insert into novels (author_id, title, slug, synopsis, status, published_at)
        values ($1, $2, $3, $4, 'PUBLISHED', now())
        returning novel_id`,
       [
-        adminId,
+        novelAuthor.user_id,
         `Report Test Novel ${timestamp}`,
         `report-test-${timestamp}`,
         'Test novel for user report moderation'
@@ -138,7 +145,7 @@ describe('Phase C: Comment User Report, Admin Moderation, and Notifications Inva
       `insert into novels (author_id, title, slug, synopsis, status)
        values ($1, $2, $3, $4, 'DRAFT')
        returning novel_id`,
-      [adminId, `Draft Novel ${timestamp}`, `draft-novel-${timestamp}`, 'Draft novel synopsis']
+      [novelAuthor.user_id, `Draft Novel ${timestamp}`, `draft-novel-${timestamp}`, 'Draft novel synopsis']
     );
     draftNovelId = draftNovelRes.rows[0].novel_id;
     trackedNovelIds.add(draftNovelId);

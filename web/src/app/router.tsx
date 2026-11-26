@@ -9,11 +9,19 @@ import { AdminWithdrawsPage } from '../features/admin/AdminWithdrawsPage';
 import { AdminModerationDetailPage } from '../features/admin/AdminModerationDetailPage';
 import { AdminReportsPage } from '../features/admin/AdminReportsPage';
 import { AdminModerationPage } from '../features/admin/AdminModerationPage';
+import { AdminEscalationsPage } from '../features/admin/AdminEscalationsPage';
 import { AdminTaxonomyPage } from '../features/admin/AdminTaxonomyPage';
 import { AdminNovelDetailPage } from '../features/admin/AdminNovelDetailPage';
 import { AdminNovelsPage } from '../features/admin/AdminNovelsPage';
 import { AdminUsersPage } from '../features/admin/AdminUsersPage';
 import { AdminOverviewPage } from '../features/admin/AdminOverviewPage';
+import { ModeratorReviewsPage } from '../features/moderator/ModeratorReviewsPage';
+import { ModeratorReviewDetailPage } from '../features/moderator/ModeratorReviewDetailPage';
+import { ModeratorDiscussionsPage } from '../features/moderator/ModeratorDiscussionsPage';
+import { ModeratorHistoryPage } from '../features/moderator/ModeratorHistoryPage';
+import { ModeratorSelectionDetailPage, ModeratorSelectionsPage, MyNominationsPage } from '../features/novel-selection/SelectionPages';
+import { AdminReconsiderationsPage } from '../features/novel-selection/AdminReconsiderationsPage';
+import { PlacementPage } from '../features/novel-selection/PlacementPage';
 import { AuthorNovelCommentsPage } from '../features/author-projects/AuthorNovelCommentsPage';
 import { AuthorNovelReviewsPage } from '../features/author-projects/AuthorNovelReviewsPage';
 import { AuthorNavbar, AuthorTheme } from '../shared/components/AuthorTheme';
@@ -99,7 +107,7 @@ export const router = createBrowserRouter([
     path: '/author/ide',
     element: (
       <AuthGate>
-        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+        <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
           <AuthorTheme>
             <AuthorWritingIde />
           </AuthorTheme>
@@ -111,7 +119,7 @@ export const router = createBrowserRouter([
     path: '/author/import/:novelId',
     element: (
       <AuthGate>
-        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+        <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
           <AuthorTheme>
             <ManuscriptImportPage />
           </AuthorTheme>
@@ -123,7 +131,7 @@ export const router = createBrowserRouter([
     path: '/author/context/:novelId',
     element: (
       <AuthGate>
-        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+        <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
           <AuthorTheme>
             <AuthorStoryContextPage />
           </AuthorTheme>
@@ -135,7 +143,7 @@ export const router = createBrowserRouter([
     path: '/author',
     element: (
       <AuthGate>
-        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+        <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
           <AuthorTheme>
             <AuthorProjectsPage />
           </AuthorTheme>
@@ -147,7 +155,7 @@ export const router = createBrowserRouter([
     path: '/author/projects',
     element: (
       <AuthGate>
-        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+        <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
           <AuthorTheme>
             <AuthorProjectsPage />
           </AuthorTheme>
@@ -159,7 +167,7 @@ export const router = createBrowserRouter([
     path: '/author/novels/:novelId/comments',
     element: (
       <AuthGate>
-        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+        <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
           <AuthorTheme>
             <AuthorNovelCommentsPage />
           </AuthorTheme>
@@ -171,7 +179,7 @@ export const router = createBrowserRouter([
     path: '/author/novels/:novelId/reviews',
     element: (
       <AuthGate>
-        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+        <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
           <AuthorTheme className="sc-reviews-theme">
             <AuthorNovelReviewsPage />
           </AuthorTheme>
@@ -183,7 +191,7 @@ export const router = createBrowserRouter([
     path: '/author/novels/:novelId',
     element: (
       <AuthGate>
-        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+        <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
           <AuthorTheme>
             <AuthorNovelMetadataPage />
           </AuthorTheme>
@@ -195,7 +203,7 @@ export const router = createBrowserRouter([
     path: '/author/novels/:novelId/chapters/:chapterId',
     element: (
       <AuthGate>
-        <RoleGuard roles={['AUTHOR', 'ADMIN']}>
+        <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
           <AuthorChapterDeepLink />
         </RoleGuard>
       </AuthGate>
@@ -221,6 +229,10 @@ export const router = createBrowserRouter([
         </AuthorTheme>
       </OptionalSession>
     )
+  },
+  {
+    path: '/account/nominations',
+    element: <AuthGate><AuthorTheme><MyNominationsPage /></AuthorTheme></AuthGate>
   },
   {
     path: '/wallet',
@@ -296,6 +308,8 @@ export const router = createBrowserRouter([
       ...[
         { path: '/admin/audit', element: <AdminAuditPage /> },
         { path: '/admin/appeals', element: <AdminAppealsPage /> },
+        { path: '/admin/selection-reconsiderations', element: <AdminReconsiderationsPage /> },
+        { path: '/admin/placements', element: <PlacementPage /> },
         { path: '/admin/discussions', element: <AdminDiscussionsPage /> },
         { path: '/admin/users/:userId', element: <AdminUserDetailPage /> },
         { path: '/admin/withdraws/:requestId', element: <AdminReconciliationPage /> }
@@ -352,6 +366,14 @@ export const router = createBrowserRouter([
         )
       },
       {
+        path: '/admin/escalations',
+        element: (
+          <RoleGuard roles={['ADMIN']}>
+            <AdminEscalationsPage />
+          </RoleGuard>
+        )
+      },
+      {
         path: '/admin/reports',
         element: (
           <RoleGuard roles={['ADMIN']}>
@@ -372,6 +394,58 @@ export const router = createBrowserRouter([
         element: (
           <RoleGuard roles={['ADMIN']}>
             <AdminWithdrawsPage />
+          </RoleGuard>
+        )
+      },
+      {
+        path: '/moderator',
+        element: (
+          <RoleGuard roles={['MODERATOR']}>
+            <Navigate to="/moderator/reviews" replace />
+          </RoleGuard>
+        )
+      },
+      {
+        path: '/moderator/reviews',
+        element: (
+          <RoleGuard roles={['MODERATOR']}>
+            <ModeratorReviewsPage />
+          </RoleGuard>
+        )
+      },
+      {
+        path: '/moderator/history',
+        element: (
+          <RoleGuard roles={['MODERATOR']}>
+            <ModeratorHistoryPage />
+          </RoleGuard>
+        )
+      },
+      {
+        path: '/moderator/reviews/:reviewId',
+        element: (
+          <RoleGuard roles={['MODERATOR']}>
+            <ModeratorReviewDetailPage />
+          </RoleGuard>
+        )
+      },
+      {
+        path: '/moderator/selections',
+        element: <RoleGuard roles={['MODERATOR']}><ModeratorSelectionsPage /></RoleGuard>
+      },
+      {
+        path: '/moderator/placements',
+        element: <RoleGuard roles={['MODERATOR']}><PlacementPage /></RoleGuard>
+      },
+      {
+        path: '/moderator/selections/:caseId',
+        element: <RoleGuard roles={['MODERATOR']}><ModeratorSelectionDetailPage /></RoleGuard>
+      },
+      {
+        path: '/moderator/discussions',
+        element: (
+          <RoleGuard roles={['MODERATOR']}>
+            <ModeratorDiscussionsPage />
           </RoleGuard>
         )
       }
