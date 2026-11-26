@@ -263,18 +263,76 @@ export async function createUserReport(auth: AuthContext, input: CreateReportInp
   }
 }
 
+const EXCERPT_LIMIT = 100;
+const excerptOf = (text: unknown) => {
+  if (typeof text !== 'string') return null;
+  const flat = text.replace(/\s+/g, ' ').trim();
+  if (!flat) return null;
+  return flat.length > EXCERPT_LIMIT ? `${flat.slice(0, EXCERPT_LIMIT - 1)}…` : flat;
+};
+
+type ReviewTargetSummary = {
+  targetTitle: string | null;
+  targetContext: string | null;
+  excerpt: string | null;
+  matchedKeywords: string[];
+};
+
+/**
+ * UI-03: give each queue row something a moderator can recognise (title, novel, excerpt, matched keyword)
+ * instead of ids only. Private comments never expose their text here; opening the review itself is audited.
+ */
+async function describeReviewTarget(row: any): Promise<ReviewTargetSummary> {
+  const summary: ReviewTargetSummary = {
+    targetTitle: row.submitted_content?.title ?? null,
+    targetContext: null,
+    excerpt: null,
+    matchedKeywords: []
+  };
+  try {
+    if (row.target_type === 'COMMENT') {
+      const comment = await findCommentRecordById(row.target_id);
+      if (comment && privateComment(comment)) {
+        summary.targetContext = 'Bình luận riêng tư';
+      } else if (comment) {
+        const target: any = await getAdminReviewTarget(row.target_type, row.target_id);
+        summary.excerpt = excerptOf(target?.content);
+        summary.targetContext = [target?.novelTitle, target?.chapterTitle].filter(Boolean).join(' · ') || null;
+      }
+    } else {
+      const target: any = await getAdminReviewTarget(row.target_type, row.target_id);
+      if (target) {
+        summary.targetTitle ??= target.title ?? null;
+        if (row.target_type === 'CHAPTER') summary.targetContext = target.novelTitle ?? null;
+        if (row.target_type === 'DISCUSSION_COMMENT') summary.excerpt = excerptOf(target.content);
+        if (!['CHAPTER', 'NOVEL'].includes(row.target_type) && target.username) summary.targetContext ??= `@${target.username}`;
+      }
+    }
+    if (row.source === 'KEYWORD_FILTER' && row.evidence_id) {
+      const evidence: any = await findModerationEvidence(row.evidence_id);
+      const names: string[] = (evidence?.matchedRules ?? []).map((rule: any) => rule?.name).filter(Boolean);
+      summary.matchedKeywords = [...new Set(names)].slice(0, 3);
+    }
+  } catch {
+    // A missing or unreadable target must not break the whole queue; the row still keeps its ids.
+  }
+  return summary;
+}
+
 export async function listModerationReviews(input: ListReviewsInput) {
   const result = await listReviewRows(input);
+  const summaries = await Promise.all(result.items.map(describeReviewTarget));
 
   return {
-    data: result.items.map((row) => ({
+    data: result.items.map((row, index) => ({
       reviewId: row.review_id,
       targetType: row.target_type,
       targetId: row.target_id,
       source: row.source,
       status: row.status,
       evidenceId: row.evidence_id,
-      targetTitle: row.submitted_content?.title ?? null,
+      ...summaries[index],
+      topReason: row.top_reason ?? null,
       reportCount: row.report_count,
       createdAt: row.created_at
     })),

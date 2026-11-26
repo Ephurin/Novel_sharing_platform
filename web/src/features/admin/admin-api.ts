@@ -43,6 +43,12 @@ export type ModerationReview = {
   targetType: string;
   targetId: string;
   targetTitle?: string | null;
+  /** Novel/chapter, author handle, or "Bình luận riêng tư" — enough to recognise the row. */
+  targetContext?: string | null;
+  /** Public comment text, shortened. Never sent for private comments. */
+  excerpt?: string | null;
+  matchedKeywords?: string[];
+  topReason?: string | null;
   summary?: string | null;
   status: string;
   source: string;

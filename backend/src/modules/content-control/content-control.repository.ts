@@ -143,7 +143,9 @@ export async function listReviews(input: ListReviewsInput) {
   const offset = (input.page - 1) * input.limit;
   const result = await getPostgresPool().query(
     `
-      select moderation_reviews.*, (select count(*)::int from reports r where r.review_id=moderation_reviews.review_id) as report_count
+      select moderation_reviews.*, (select count(*)::int from reports r where r.review_id=moderation_reviews.review_id) as report_count,
+        (select r.reason from reports r where r.review_id=moderation_reviews.review_id
+          group by r.reason order by count(*) desc, min(r.created_at) limit 1) as top_reason
       from moderation_reviews
       where ($1::moderation_target_type is null or target_type = $1)
         and ($2::moderation_status is null or status = $2)

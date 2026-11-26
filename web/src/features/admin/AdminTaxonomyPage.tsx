@@ -34,14 +34,14 @@ export function AdminTaxonomyPage() {
     onSuccess: async (_, variables) => {
       if (variables.kind === 'genre') setGenre('');
       else setTag('');
-      setSuccess(variables.kind === 'genre' ? 'Đã thêm thể loại.' : 'Đã thêm tag.');
+      setSuccess(variables.kind === 'genre' ? 'Đã thêm thể loại.' : 'Đã thêm thẻ.');
       await cache.invalidateQueries({ queryKey: ['admin-taxonomy'] });
     }
   });
   return (
     <>
       <AdminHeader
-        title="Thể loại & Tag"
+        title="Thể loại và thẻ"
         description="Quản lý phân loại nội dung trên StoryCraft."
         refresh={() => void query.refetch()}
       />
@@ -95,8 +95,8 @@ export function AdminTaxonomyPage() {
           </AdminPanel>
           <AdminPanel>
             <div className="admin-page-header">
-              <h2>Tag</h2>
-              <span className="admin-muted">{number(query.data.tags.length)} tag</span>
+              <h2>Thẻ</h2>
+              <span className="admin-muted">{number(query.data.tags.length)} thẻ</span>
             </div>
             <form
               className="admin-toolbar"
@@ -108,8 +108,8 @@ export function AdminTaxonomyPage() {
             >
               <TextInput
                 className="admin-search"
-                label="Tên tag mới"
-                placeholder="Nhập tag mới..."
+                label="Tên thẻ mới"
+                placeholder="Nhập thẻ mới..."
                 value={tag}
                 maxLength={100}
                 onChange={(e) => setTag(e.currentTarget.value)}
@@ -119,11 +119,11 @@ export function AdminTaxonomyPage() {
                 loading={mutation.isPending && mutation.variables?.kind === 'tag'}
                 disabled={!tag.trim() || mutation.isPending}
               >
-                Thêm tag
+                Thêm thẻ
               </Button>
             </form>
             {!query.data.tags.length ? (
-              <EmptyState description="Chưa có tag." />
+              <EmptyState description="Chưa có thẻ." />
             ) : (
               <AdminTaxonomyActions
                 kind="tags"

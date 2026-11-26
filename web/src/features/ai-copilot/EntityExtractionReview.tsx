@@ -137,13 +137,57 @@ export function EntityExtractionReview({
         </Alert>
       )}
 
+      {(guidance.error || reviews.error) && (
+        <Alert color="red" title="Lỗi tải dữ liệu">
+          {getApiErrorMessage(guidance.error ?? reviews.error)}
+        </Alert>
+      )}
+
+      {/* ──────────────────────────────────────────
+          Section 2: Checkpoint Review List
+         ────────────────────────────────────────── */}
+      <Stack key={novelId} ref={checkpointsListRef} gap="xs">
+        <Text fw={600} size="sm">
+          Duyệt tên nhân vật và địa danh — trước khi duyệt đề xuất cho bộ nhớ truyện
+        </Text>
+
+        <Text size="xs" c="dimmed">
+          Ở bước này bạn xác nhận mỗi tên trong chương là ai hoặc ở đâu. Sau khi chốt danh sách, AI mới trích xuất
+          sự kiện và dữ kiện, rồi bạn duyệt chúng ở bước sau.
+        </Text>
+        {continueNotice && <Alert color="orange" withCloseButton onClose={() => setContinueNotice(null)} data-testid="entity-dropped-events">{continueNotice}</Alert>}
+        {reviews.data && reviews.data.length > 0 ? (
+          reviews.data.map(review => (
+            <EntityCheckpoint
+              key={`${novelId}:${review.analysis_run_id}`}
+              review={review}
+              novelId={novelId}
+              guidanceVersion={guidance.data?.version}
+              disabled={disabled || dirty}
+              perform={perform}
+              onNotice={setContinueNotice}
+              onContinued={async () => {
+                await refreshAll();
+                await onContinued();
+              }}
+            />
+          ))
+        ) : (
+          <Paper p="md" withBorder radius="md">
+            <Text size="sm" c="dimmed" ta="center">
+              Chưa có chương nào chờ duyệt tên.
+            </Text>
+          </Paper>
+        )}
+      </Stack>
+
       {/* ──────────────────────────────────────────
           Section 1: Guidance & Author Entity Declarations
          ────────────────────────────────────────── */}
-      <Paper p="sm" withBorder radius="md">
+      <Paper p="sm" withBorder radius="md" bg="var(--sc-surface-subtle)">
         <Stack gap="xs">
           <Text fw={600} size="sm">
-            1. Danh sách tăng cường &amp; Khai báo thế giới (Tùy chọn)
+            Tùy chọn: danh sách tên cần chú ý và khai báo thế giới
           </Text>
           <Text size="xs" c="dimmed">
             Gợi ý nhận diện khi phân tích chương. Tên trong danh sách hướng dẫn AI tìm kiếm,
@@ -241,50 +285,6 @@ export function EntityExtractionReview({
           </AnimatedDisclosure>
         </Stack>
       </Paper>
-
-      {(guidance.error || reviews.error) && (
-        <Alert color="red" title="Lỗi tải dữ liệu">
-          {getApiErrorMessage(guidance.error ?? reviews.error)}
-        </Alert>
-      )}
-
-      {/* ──────────────────────────────────────────
-          Section 2: Checkpoint Review List
-         ────────────────────────────────────────── */}
-      <Stack key={novelId} ref={checkpointsListRef} gap="xs">
-        <Text fw={600} size="sm">
-          2. Duyệt tên nhân vật và địa danh — trước khi duyệt đề xuất cho bộ nhớ truyện
-        </Text>
-
-        <Text size="xs" c="dimmed">
-          Ở bước này bạn xác nhận mỗi tên trong chương là ai hoặc ở đâu. Sau khi chốt danh sách, AI mới trích xuất
-          sự kiện và dữ kiện, rồi bạn duyệt chúng ở bước sau.
-        </Text>
-        {continueNotice && <Alert color="orange" withCloseButton onClose={() => setContinueNotice(null)} data-testid="entity-dropped-events">{continueNotice}</Alert>}
-        {reviews.data && reviews.data.length > 0 ? (
-          reviews.data.map(review => (
-            <EntityCheckpoint
-              key={`${novelId}:${review.analysis_run_id}`}
-              review={review}
-              novelId={novelId}
-              guidanceVersion={guidance.data?.version}
-              disabled={disabled || dirty}
-              perform={perform}
-              onNotice={setContinueNotice}
-              onContinued={async () => {
-                await refreshAll();
-                await onContinued();
-              }}
-            />
-          ))
-        ) : (
-          <Paper p="md" withBorder radius="md">
-            <Text size="sm" c="dimmed" ta="center">
-              Chưa có chương nào chờ duyệt tên.
-            </Text>
-          </Paper>
-        )}
-      </Stack>
     </Stack>
   );
 }

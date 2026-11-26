@@ -31,5 +31,7 @@ export function usePendingMemoryReviews(novelId: string, options: { enabled?: bo
   // A badge must never break writing: ignore anything that is not a list.
   const entityCount = Array.isArray(entityReviews.data) ? entityReviews.data.filter(entityReviewNeedsAuthor).length : 0;
   const proposalCount = Array.isArray(proposals.data) ? proposals.data.length : 0;
-  return { entityCount, proposalCount, total: entityCount + proposalCount };
+  // Only claim "nothing to review" once both lists actually loaded.
+  const known = Array.isArray(entityReviews.data) && Array.isArray(proposals.data);
+  return { entityCount, proposalCount, total: entityCount + proposalCount, known };
 }

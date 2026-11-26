@@ -13,10 +13,10 @@ export function fullAutoBlockReason({ brainStatus, plan, planLoading }: FullAuto
   }
   if (planLoading) return 'Đang đọc dàn ý…';
   if (!plan) {
-    return 'Truyện chưa có dàn ý đang dùng. Hãy duyệt và kích hoạt một dàn ý trước khi bật Full auto.';
+    return 'Truyện chưa có dàn ý đang dùng. Hãy duyệt và kích hoạt một dàn ý trước khi bật chế độ tự động.';
   }
   if (plan.autonomy_blocked === 'MANUAL_PLAN_AUTONOMY_NOT_AVAILABLE') {
-    return 'Dàn ý đang dùng do bạn soạn hoặc sửa trong Planning Studio. Full auto hiện chỉ chạy với dàn ý do hệ thống lập.';
+    return 'Dàn ý đang dùng do bạn soạn hoặc sửa trong Planning Studio. Chế độ tự động hiện chỉ chạy với dàn ý do hệ thống lập.';
   }
   return null;
 }

@@ -477,7 +477,7 @@ export function AuthorStoryContextPage() {
     a.download = `StoryBible_${novelQuery.data?.title || novelId}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('Đã xuất file Story Bible thành công!');
+    showToast('Đã xuất cẩm nang tác phẩm.');
   };
 
   const syncMutation = useMutation({
@@ -521,10 +521,10 @@ export function AuthorStoryContextPage() {
                 onClick={handleExportBible}
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-container-lowest hover:bg-stone-50 text-stone-700 font-medium text-meta border border-stone-200 shadow-2xs transition-colors"
                 type="button"
-                title="Tải toàn bộ Story Bible dưới dạng file JSON"
+                title="Tải toàn bộ cẩm nang tác phẩm dưới dạng file JSON"
               >
                 <span className="material-symbols-outlined text-[15px] text-stone-500" aria-hidden="true">download</span>
-                <span>Xuất file Bible</span>
+                <span>Xuất cẩm nang (JSON)</span>
               </button>
               <button
                 onClick={handleSyncCopilot}

@@ -1100,11 +1100,11 @@ export function AuthorWritingIde() {
         aria-controls="studio-ai-panel"
         className="inline-flex items-center gap-1.5 px-2.5 py-1 text-meta font-semibold rounded-lg bg-primary-50 text-primary-600 hover:bg-primary-100 border border-primary-200/90 transition-all shadow-2xs"
         title="Mở trợ lý sáng tác AI"
-        aria-label="AI Hỗ trợ viết"
+        aria-label="Trợ lý viết"
         type="button"
       >
         <span className="material-symbols-outlined text-primary-600 text-[16px] fill-icon">auto_awesome</span>
-        <span className="hidden sm:inline sc-studio-ai-label">AI Hỗ trợ viết</span>
+        <span className="hidden sm:inline sc-studio-ai-label">Trợ lý viết</span>
       </button>
 
       <button
@@ -1184,16 +1184,16 @@ export function AuthorWritingIde() {
                 onClick={() => setMemoryPanelOpen(true)}
                 data-testid="btn-story-brain"
                 aria-label={pendingMemory.total > 0
-                  ? `Story Brain & Kiểm tra nhất quán: ${pendingMemory.total} mục chờ bạn duyệt`
-                  : 'Story Brain & Kiểm tra nhất quán'}
+                  ? `Bộ nhớ cốt truyện: ${pendingMemory.total} mục chờ bạn duyệt`
+                  : 'Bộ nhớ cốt truyện'}
                 className="sc-studio-cluster-btn"
                 title={pendingMemory.total > 0
                   ? `Bộ nhớ chỉ cập nhật sau khi bạn duyệt: ${pendingMemory.entityCount} chương chờ duyệt danh tính, ${pendingMemory.proposalCount} đề xuất`
-                  : 'Bộ nhớ cốt truyện & Kiểm tra nhất quán (Story Brain)'}
+                  : 'Bộ nhớ cốt truyện: nhân vật, quan hệ, sự kiện đã duyệt và kiểm tra nhất quán (Story Brain)'}
                 type="button"
               >
                 <span className="material-symbols-outlined text-stone-500 text-[15px]">psychology</span>
-                <span className="hidden xl:inline">Story Brain</span>
+                <span className="hidden xl:inline">Bộ nhớ cốt truyện</span>
                 {pendingMemory.total > 0 && (
                   <span data-testid="story-brain-pending" aria-hidden="true"
                     className="ml-0.5 min-w-[20px] h-[20px] px-1.5 rounded-full bg-warning-bg text-warning border border-amber-300/60 text-badge leading-[18px] text-center font-semibold">

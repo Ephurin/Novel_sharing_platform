@@ -156,7 +156,7 @@ export function HomeSidebar({
               </Link>
               <Link to="/reader/bookmarks" className="sc-home-profile-stat">
                 <strong>{bookmarksQuery.isPending ? '–' : count(bookmarksQuery.data?.totalItems ?? 0)}</strong>
-                <span>Bookmark</span>
+                <span>Đã đánh dấu</span>
               </Link>
               <Link to="/reader/history" className="sc-home-profile-stat">
                 <strong>{historyQuery.isPending ? '–' : count(historyQuery.data?.totalItems ?? 0)}</strong>
