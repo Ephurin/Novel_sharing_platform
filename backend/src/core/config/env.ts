@@ -36,6 +36,10 @@ const optionalStringSchema = z.preprocess((value) => {
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PRIVATE_COMMENTS_ENABLED: booleanStringSchema.default(false),
+  MODERATOR_ENABLED: booleanStringSchema.default(true),
+  NOVEL_SELECTION_ENABLED: booleanStringSchema.default(true),
+  NOVEL_FEATURED_PLACEMENTS_ENABLED: booleanStringSchema.default(true),
+  NOVEL_SELECTION_RECONSIDERATION_WRITES_ENABLED: booleanStringSchema.default(true),
   PORT: z.coerce.number().int().positive().default(4000),
   API_PREFIX: z.string().default('/api/v1'),
   WEB_ORIGIN: z.string().url().default('http://localhost:5173'),
@@ -77,6 +81,12 @@ const envSchema = z.object({
   // Defaults to `${WEB_ORIGIN}/wallet/vnpay-return` when unset.
   VNPAY_RETURN_URL: optionalUrlSchema,
   VNPAY_SESSION_TTL_MINUTES: z.coerce.number().int().min(5).max(60).default(15),
+  CLOUDINARY_URL: optionalStringSchema.refine((value) => {
+    if (!value) return true;
+    if (!URL.canParse(value)) return false;
+    const url = new URL(value);
+    return url.protocol === 'cloudinary:' && Boolean(url.hostname && url.username && url.password);
+  }, 'Use a Cloudinary URL with a cloud name, API key and API secret'),
   GIPHY_API_KEY: optionalStringSchema,
   GIPHY_PUBLIC_API_KEY: optionalStringSchema,
   PLATFORM_SERVICE_TOKEN: optionalStringSchema

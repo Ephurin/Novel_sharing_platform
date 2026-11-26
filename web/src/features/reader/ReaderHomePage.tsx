@@ -10,6 +10,7 @@ import { HomeNovelCover } from './HomeNovelCover';
 import { NovelQuickPreview } from './HomeEnhancements';
 import { HomeSidebar } from './HomeSidebar';
 import { HomeLowerSections } from './HomeLowerSections';
+import { FeaturedSelectionsShelf } from './FeaturedSelectionsShelf';
 import booksTeaArt from '../../assets/home-books-tea.png';
 import './reader-home.css';
 
@@ -449,6 +450,7 @@ export function ReaderHomePage() {
         </div>
 
         {/* Vùng dưới — Full-width toàn bộ container */}
+        <FeaturedSelectionsShelf catalogPath={catalogPath} />
         <HomeLowerSections
           catalogPath={catalogPath}
           catalogNovels={catalogNovels}

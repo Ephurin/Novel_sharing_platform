@@ -3,6 +3,7 @@ import type { UserRole } from '../../shared/constants/roles.js';
 export type AuthContext = {
   userId: string;
   role: UserRole;
+  accessVersion?: number;
   tokenId?: string;
   adminScope?: 'SUPER_ADMIN' | 'MODERATOR' | 'USER_MANAGER' | 'FINANCE';
 };

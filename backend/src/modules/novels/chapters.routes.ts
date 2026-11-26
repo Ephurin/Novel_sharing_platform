@@ -25,7 +25,7 @@ import {
 
 export const chaptersRoutes = Router();
 
-const requireAuthor = [requireAuth, requireActiveAccount, requireRoles(['AUTHOR', 'ADMIN'])];
+const requireAuthor = [requireAuth, requireActiveAccount, requireRoles(['AUTHOR', 'ADMIN', 'MODERATOR'])];
 
 chaptersRoutes.get('/:chapterId', ...requireAuthor, validateRequest(chapterIdParamSchema), getChapterController);
 chaptersRoutes.patch('/:chapterId', ...requireAuthor, validateRequest(updateChapterSchema), updateChapterController);

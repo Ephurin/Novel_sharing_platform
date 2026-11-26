@@ -13,10 +13,14 @@ import { adminRoutes } from './modules/admin/admin.routes.js';
 import { aiCopilotRoutes } from './modules/ai-copilot/ai-copilot.routes.js';
 import { aiGatewayRoutes } from './modules/ai/ai-gateway.routes.js';
 import {
+  adminEscalationRoutes,
   adminModerationRoutes,
   contentControlRoutes,
   reportsRoutes
 } from './modules/content-control/content-control.routes.js';
+import { moderatorRoutes } from './modules/moderator/moderator.routes.js';
+import { novelSelectionRoutes } from './modules/novel-selection/novel-selection.routes.js';
+import { moderatorDiscussionsRoutes } from './modules/moderator/moderator-discussions.routes.js';
 import { discussionsRoutes } from './modules/discussions/discussions.routes.js';
 import { discussionAdminRoutes } from './modules/discussions/discussions.admin.js';
 import { commentsRoutes } from './modules/interactions/comments.routes.js';
@@ -64,6 +68,7 @@ export function createApp() {
   });
 
   app.use(`${env.API_PREFIX}/auth`, authRoutes);
+  app.use(env.API_PREFIX, novelSelectionRoutes);
   app.use(`${env.API_PREFIX}/account`, accountAppealsRoutes);
   app.use(`${env.API_PREFIX}/ai`, aiCopilotRoutes);
   app.use(`${env.API_PREFIX}/ai`, aiGatewayRoutes);
@@ -77,6 +82,9 @@ export function createApp() {
   app.use(`${env.API_PREFIX}/reports`, reportsRoutes);
   app.use(`${env.API_PREFIX}/admin`, adminRoutes);
   app.use(`${env.API_PREFIX}/admin/moderation`, adminModerationRoutes);
+  app.use(`${env.API_PREFIX}/admin/escalations`, adminEscalationRoutes);
+  app.use(`${env.API_PREFIX}/moderator`, moderatorRoutes);
+  app.use(`${env.API_PREFIX}/moderator/discussions`, moderatorDiscussionsRoutes);
   app.use(`${env.API_PREFIX}`, authorsRoutes);
   app.use(`${env.API_PREFIX}`, commentsRoutes);
   app.use(env.API_PREFIX, discussionsRoutes);

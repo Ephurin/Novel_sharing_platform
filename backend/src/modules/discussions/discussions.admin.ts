@@ -3,6 +3,7 @@ import type { PoolClient, QueryResult } from 'pg';
 import { z } from 'zod';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
+import { getPostgresPool } from '../../core/database/postgres.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { validateRequest } from '../../core/validation/validate.js';
 import { requireAuth } from '../../core/security/auth.middleware.js';
@@ -13,8 +14,10 @@ import {
   requiredReason,
   requireAdminPermission
 } from '../admin/admin-access.js';
+import { drainAdminJobsSafely } from '../admin/admin-jobs.js';
 import { isPublicDiscussionTarget } from './discussions.read.js';
 import { refreshTopicActivity } from './discussions.write.js';
+import { moderateDiscussionHide, restoreDiscussionSanction } from './discussions.sanctions.js';
 import type { DiscussionStatus, DiscussionTargetKind } from './discussions.types.js';
 
 export const discussionAdminRoutes = Router();
@@ -180,20 +183,145 @@ discussionAdminRoutes.use(
   requireAdminPermission('content')
 );
 
+export async function listDiscussionCategories() {
+  return withPostgresTransaction(async (client) => {
+    const rows: QueryResult<CategoryRow> = await client.query(
+      `select category_id,slug,name,sort_order,is_active,post_admin_only
+         from discussion_categories
+        order by sort_order asc, name asc
+        limit 200`
+    );
+    return rows.rows.map(mapCategory);
+  });
+}
+
+export type DiscussionTopicSummary = {
+  topicId: string;
+  title: string;
+  status: DiscussionStatus;
+  isPinned: boolean;
+  isLocked: boolean;
+  categoryId: string;
+  categoryName: string | null;
+  authorName: string | null;
+  createdAt: string;
+};
+
+export async function listDiscussionTopics(query: {
+  q?: string;
+  status?: DiscussionStatus;
+  page: number;
+  limit: number;
+}): Promise<{
+  items: DiscussionTopicSummary[];
+  hasNext: boolean;
+  meta: { page: number; limit: number; totalItems: number; totalPages: number };
+}> {
+  const { page, limit } = query;
+  const offset = (page - 1) * limit;
+  return withPostgresTransaction(async (client) => {
+    // UI-12: accent-insensitive title search before paging.
+    const where = `where ($1::text is null or t.status=$1::discussion_topic_status)
+                      and ($2::text is null or strpos(lower(f_unaccent(t.title)), lower(f_unaccent($2))) > 0)`;
+    const filters = [query.status ?? null, query.q || null];
+    const rows: QueryResult<{
+      topic_id: string;
+      title: string;
+      status: DiscussionStatus;
+      is_pinned: boolean;
+      is_locked: boolean;
+      category_id: string;
+      category_name: string | null;
+      author_name: string | null;
+      created_at: Date;
+    }> = await client.query(
+      `select t.topic_id,t.title,t.status,t.is_pinned,t.is_locked,t.category_id,
+              c.name as category_name,
+              coalesce(nullif(p.display_name, ''), u.username, 'Người dùng') as author_name,
+              t.created_at
+         from discussion_topics t
+         left join discussion_categories c on c.category_id=t.category_id
+         left join users u on u.user_id=t.author_id
+         left join user_profiles p on p.user_id = u.user_id
+        ${where}
+        order by t.is_pinned desc, t.last_activity_at desc, t.topic_id desc
+        limit $3 offset $4`,
+      [...filters, limit + 1, offset]
+    );
+    const items = rows.rows.slice(0, limit).map((row) => ({
+      topicId: row.topic_id,
+      title: row.title,
+      status: row.status,
+      isPinned: row.is_pinned,
+      isLocked: row.is_locked,
+      categoryId: row.category_id,
+      categoryName: row.category_name,
+      authorName: row.author_name,
+      createdAt: new Date(row.created_at).toISOString()
+    }));
+    const count = await client.query<{ total: string }>(
+      `select count(*) as total from discussion_topics t ${where}`,
+      filters
+    );
+    const totalItems = Number(count.rows[0].total);
+    return {
+      items,
+      hasNext: rows.rows.length > limit,
+      meta: { page, limit, totalItems, totalPages: Math.ceil(totalItems / limit) }
+    };
+  });
+}
+
+export type DiscussionCommentSummary = {
+  commentId: string;
+  body: string;
+  status: DiscussionStatus;
+  authorName: string | null;
+  createdAt: string;
+};
+
+export async function listDiscussionTopicComments(
+  topicId: string,
+  query: { status?: DiscussionStatus; page: number; limit: number }
+): Promise<{ items: DiscussionCommentSummary[]; hasNext: boolean }> {
+  const { page, limit } = query;
+  const offset = (page - 1) * limit;
+  return withPostgresTransaction(async (client) => {
+    const rows: QueryResult<{
+      comment_id: string;
+      body: string;
+      status: DiscussionStatus;
+      author_name: string | null;
+      created_at: Date;
+    }> = await client.query(
+      `select m.comment_id,left(m.body,$4) as body,m.status,
+              coalesce(nullif(p.display_name, ''), u.username, 'Người dùng') as author_name,
+              m.created_at
+         from discussion_comments m
+         left join users u on u.user_id=m.author_id
+         left join user_profiles p on p.user_id = u.user_id
+        where m.topic_id=$1 and ($2::text is null or m.status=$2::discussion_comment_status)
+        order by m.created_at asc, m.comment_id asc
+        limit $3 offset $5`,
+      [topicId, query.status ?? null, limit + 1, EXCERPT_MAX + 1, offset]
+    );
+    const items = rows.rows.slice(0, limit).map((row) => ({
+      commentId: row.comment_id,
+      body: excerpt(row.body),
+      status: row.status,
+      authorName: row.author_name,
+      createdAt: new Date(row.created_at).toISOString()
+    }));
+    return { items, hasNext: rows.rows.length > limit };
+  });
+}
+
 discussionAdminRoutes.get(
   '/admin/discussions/categories',
   validateRequest(listCategoriesSchema),
   async (_request, response, next) => {
     try {
-      const data = await withPostgresTransaction(async (client) => {
-        const rows: QueryResult<CategoryRow> = await client.query(
-          `select category_id,slug,name,sort_order,is_active,post_admin_only
-             from discussion_categories
-            order by sort_order asc, name asc
-            limit 200`
-        );
-        return rows.rows.map(mapCategory);
-      });
+      const data = await listDiscussionCategories();
       response.json(successResponse(data));
     } catch (error) {
       next(error);
@@ -306,56 +434,7 @@ discussionAdminRoutes.get(
   async (request, response, next) => {
     try {
       const query = request.query as unknown as z.infer<typeof listAdminTopicsSchema>['query'];
-      const { page, limit } = query;
-      const offset = (page - 1) * limit;
-      const data = await withPostgresTransaction(async (client) => {
-        const where = `where ($1::discussion_topic_status is null or t.status = $1)
-                          and ($2::text is null or strpos(lower(f_unaccent(t.title)), lower(f_unaccent($2))) > 0)`;
-        const filters = [query.status ?? null, query.q || null];
-        const rows: QueryResult<{
-          topic_id: string;
-          title: string;
-          status: DiscussionStatus;
-          is_pinned: boolean;
-          is_locked: boolean;
-          category_name: string | null;
-          author_name: string | null;
-          created_at: Date;
-        }> = await client.query(
-          `select t.topic_id,t.title,t.status,t.is_pinned,t.is_locked,
-                  c.name as category_name,
-                  coalesce(nullif(p.display_name, ''), u.username, 'Người dùng') as author_name,
-                  t.created_at
-             from discussion_topics t
-             left join discussion_categories c on c.category_id=t.category_id
-             left join users u on u.user_id=t.author_id
-             left join user_profiles p on p.user_id = u.user_id
-            ${where}
-            order by t.is_pinned desc, t.last_activity_at desc, t.topic_id desc
-            limit $3 offset $4`,
-          [...filters, limit + 1, offset]
-        );
-        const items = rows.rows.slice(0, limit).map((row) => ({
-          topicId: row.topic_id,
-          title: row.title,
-          status: row.status,
-          isPinned: row.is_pinned,
-          isLocked: row.is_locked,
-          categoryName: row.category_name,
-          authorName: row.author_name,
-          createdAt: new Date(row.created_at).toISOString()
-        }));
-        const count = await client.query<{ total: string }>(
-          `select count(*) as total from discussion_topics t ${where}`,
-          filters
-        );
-        const totalItems = Number(count.rows[0].total);
-        return {
-          items,
-          hasNext: rows.rows.length > limit,
-          meta: { page, limit, totalItems, totalPages: Math.ceil(totalItems / limit) }
-        };
-      });
+      const data = await listDiscussionTopics(query);
       response.json(successResponse(data));
     } catch (error) {
       next(error);
@@ -370,36 +449,7 @@ discussionAdminRoutes.get(
     try {
       const { topicId } = request.params as { topicId: string };
       const query = request.query as unknown as z.infer<typeof listAdminCommentsSchema>['query'];
-      const { page, limit } = query;
-      const offset = (page - 1) * limit;
-      const data = await withPostgresTransaction(async (client) => {
-        const rows: QueryResult<{
-          comment_id: string;
-          body: string;
-          status: DiscussionStatus;
-          author_name: string | null;
-          created_at: Date;
-        }> = await client.query(
-          `select m.comment_id,left(m.body,$4) as body,m.status,
-                  coalesce(nullif(p.display_name, ''), u.username, 'Người dùng') as author_name,
-                  m.created_at
-             from discussion_comments m
-             left join users u on u.user_id=m.author_id
-             left join user_profiles p on p.user_id = u.user_id
-            where m.topic_id=$1 and ($2::text is null or m.status=$2::discussion_comment_status)
-            order by m.created_at asc, m.comment_id asc
-            limit $3 offset $5`,
-          [topicId, query.status ?? null, limit + 1, EXCERPT_MAX + 1, offset]
-        );
-        const items = rows.rows.slice(0, limit).map((row) => ({
-          commentId: row.comment_id,
-          body: excerpt(row.body),
-          status: row.status,
-          authorName: row.author_name,
-          createdAt: new Date(row.created_at).toISOString()
-        }));
-        return { items, hasNext: rows.rows.length > limit };
-      });
+      const data = await listDiscussionTopicComments(topicId, query);
       response.json(successResponse(data));
     } catch (error) {
       next(error);
@@ -415,8 +465,28 @@ discussionAdminRoutes.patch(
       const auth = request.auth as AuthContext;
       const { topicId } = request.params as { topicId: string };
       const body = request.body as z.infer<typeof topicModerationSchema>['body'];
+      let jobsQueued = false;
       const data = await withPostgresTransaction(async (client) => {
         await assertAdminPermission(auth, 'content', client);
+        // The legacy route shares the reversible HIDE/RESTORE sanction workflow.
+        if (body.status === 'HIDDEN' || body.status === 'VISIBLE') {
+          if (body.status === 'HIDDEN') {
+            const outcome = await moderateDiscussionHide(auth, client, {
+              kind: 'DISCUSSION',
+              id: topicId,
+              reason: body.reason ?? '',
+              permission: 'discussion.operate'
+            });
+            jobsQueued = outcome.skipped === null;
+          } else {
+            await restoreDiscussionSanction(auth, client, {
+              kind: 'DISCUSSION',
+              id: topicId,
+              reason: body.reason ?? '',
+              permission: 'discussion.operate'
+            });
+          }
+        }
         const before = await lockTopic(client, topicId);
         if (before.status === 'DELETED' && body.status !== undefined && body.status !== 'DELETED')
           throw new AppError(
@@ -424,26 +494,34 @@ discussionAdminRoutes.patch(
             'DISCUSSION_TOPIC_DELETED',
             'Không thể khôi phục chủ đề đã bị xóa.'
           );
-        const updated: QueryResult<TopicModerationRow> = await client.query(
-          `update discussion_topics
-              set status=coalesce($2,status),
-                  is_pinned=coalesce($3,is_pinned),
-                  is_locked=coalesce($4,is_locked)
-            where topic_id=$1
-            returning topic_id,category_id,author_id,title,status,is_pinned,is_locked`,
-          [topicId, body.status ?? null, body.isPinned ?? null, body.isLocked ?? null]
-        );
-        const row = updated.rows[0];
-        await refreshTopicActivity(client, topicId);
-        await audit(client, auth, {
-          action: 'DISCUSSION_TOPIC_MODERATE',
-          targetType: 'DISCUSSION',
-          targetId: topicId,
-          affectedUserId: before.author_id,
-          reason: requiredReason(body.reason),
-          before: { status: before.status, isPinned: before.is_pinned, isLocked: before.is_locked },
-          after: { status: row.status, isPinned: row.is_pinned, isLocked: row.is_locked }
-        });
+        if (body.status === 'DELETED' || body.isPinned !== undefined || body.isLocked !== undefined) {
+          const updated: QueryResult<TopicModerationRow> = await client.query(
+            `update discussion_topics
+                set status=coalesce($2,status),
+                    is_pinned=coalesce($3,is_pinned),
+                    is_locked=coalesce($4,is_locked)
+              where topic_id=$1
+              returning topic_id,category_id,author_id,title,status,is_pinned,is_locked`,
+            [topicId, body.status === 'DELETED' ? body.status : null, body.isPinned ?? null, body.isLocked ?? null]
+          );
+          const row = updated.rows[0];
+          if (
+            row.status !== before.status ||
+            row.is_pinned !== before.is_pinned ||
+            row.is_locked !== before.is_locked
+          )
+            await refreshTopicActivity(client, topicId);
+          await audit(client, auth, {
+            action: 'DISCUSSION_TOPIC_MODERATE',
+            targetType: 'DISCUSSION',
+            targetId: topicId,
+            affectedUserId: before.author_id,
+            reason: requiredReason(body.reason),
+            before: { status: before.status, isPinned: before.is_pinned, isLocked: before.is_locked },
+            after: { status: row.status, isPinned: row.is_pinned, isLocked: row.is_locked }
+          });
+        }
+        const row = await lockTopic(client, topicId);
         return {
           topicId: row.topic_id,
           status: row.status,
@@ -451,6 +529,7 @@ discussionAdminRoutes.patch(
           isLocked: row.is_locked
         };
       });
+      if (jobsQueued) await drainAdminJobsSafely();
       response.json(successResponse(data));
     } catch (error) {
       next(error);
@@ -466,8 +545,35 @@ discussionAdminRoutes.patch(
       const auth = request.auth as AuthContext;
       const { topicId, commentId } = request.params as { topicId: string; commentId: string };
       const body = request.body as z.infer<typeof commentModerationSchema>['body'];
+      let jobsQueued = false;
       const data = await withPostgresTransaction(async (client) => {
         await assertAdminPermission(auth, 'content', client);
+        if (body.status === 'HIDDEN' || body.status === 'VISIBLE') {
+          // The legacy route shares the reversible HIDE/RESTORE sanction workflow.
+          if (body.status === 'HIDDEN') {
+            const outcome = await moderateDiscussionHide(auth, client, {
+              kind: 'DISCUSSION_COMMENT',
+              id: commentId,
+              reason: body.reason ?? '',
+              expectedTopicId: topicId,
+              permission: 'discussion.operate'
+            });
+            jobsQueued = outcome.skipped === null;
+          } else {
+            await restoreDiscussionSanction(auth, client, {
+              kind: 'DISCUSSION_COMMENT',
+              id: commentId,
+              reason: body.reason ?? '',
+              expectedTopicId: topicId,
+              permission: 'discussion.operate'
+            });
+          }
+          const row = await client.query<{ comment_id: string; topic_id: string; status: DiscussionStatus }>(
+            'select comment_id,topic_id,status from discussion_comments where comment_id=$1',
+            [commentId]
+          );
+          return { commentId, topicId, status: row.rows[0].status };
+        }
         const topic = await lockTopic(client, topicId);
         const locked: QueryResult<CommentModerationRow> = await client.query(
           `select comment_id,topic_id,author_id,body,status
@@ -499,6 +605,7 @@ discussionAdminRoutes.patch(
         });
         return { commentId, topicId, status: updated.rows[0].status };
       });
+      if (jobsQueued) await drainAdminJobsSafely();
       response.json(successResponse(data));
     } catch (error) {
       next(error);
@@ -575,6 +682,47 @@ export async function getDiscussionReviewTarget(
   });
 }
 
+/**
+ * Independence subjects of a discussion report: the comment author, the topic author and the
+ * author of a novel attached to the topic. Runs on the caller's client because decision
+ * transactions read it under their lock; opening a second pooled connection there deadlocks
+ * the write path under load.
+ */
+export async function discussionInvolvedUserIds(
+  kind: DiscussionTargetKind,
+  id: string,
+  client?: PoolClient
+): Promise<string[]> {
+  const boundedId = uuidParam.parse(id);
+  const query = (text: string, params: unknown[]) =>
+    (client ?? getPostgresPool()).query(text, params);
+  type InvolvedRow = { comment_author?: string | null; topic_author: string; novel_author: string | null };
+  const rows: Array<InvolvedRow> =
+    kind === 'DISCUSSION'
+      ? (await query(
+          `select t.author_id as topic_author, n.author_id as novel_author
+             from discussion_topics t
+             left join novels n on n.novel_id = t.novel_id
+            where t.topic_id = $1`,
+          [boundedId]
+        )).rows
+      : (await query(
+          `select m.author_id as comment_author, t.author_id as topic_author, n.author_id as novel_author
+             from discussion_comments m
+             join discussion_topics t on t.topic_id = m.topic_id
+             left join novels n on n.novel_id = t.novel_id
+            where m.comment_id = $1`,
+          [boundedId]
+        )).rows;
+  return Array.from(
+    new Set(
+      rows
+        .flatMap((row) => [row.comment_author ?? null, row.topic_author, row.novel_author])
+        .filter((userId): userId is string => Boolean(userId))
+    )
+  );
+}
+
 /** Reporters may only flag visible targets they do not own. */
 export async function assertDiscussionReportable(
   client: PoolClient,
@@ -592,47 +740,4 @@ export async function assertDiscussionReportable(
   if (rows[0]?.author_id === reporterId) {
     throw new AppError(409, 'DISCUSSION_SELF_REPORT', 'Bạn không thể báo cáo nội dung của chính mình.');
   }
-}
-
-/** Auto-hide a reported target; returns the affected author id. Idempotent, never un-deletes. */
-export async function hideDiscussionForReport(
-  client: PoolClient,
-  kind: DiscussionTargetKind,
-  id: string
-): Promise<string> {
-  const boundedId = uuidParam.parse(id);
-  const topicRow: QueryResult<{ topic_id: string; author_id: string; status: DiscussionStatus }> =
-    await client.query(
-      `select t.topic_id,t.author_id,t.status
-         from discussion_topics t
-        where t.topic_id = case when $2::boolean then $1::uuid
-          else (select topic_id from discussion_comments where comment_id = $1) end
-        for update`,
-      [boundedId, kind === 'DISCUSSION']
-    );
-  const topic = topicRow.rows[0];
-  if (!topic) throw new AppError(404, 'DISCUSSION_TOPIC_001', 'Không tìm thấy chủ đề.');
-  if (kind === 'DISCUSSION') {
-    if (topic.status === 'VISIBLE') {
-      await client.query("update discussion_topics set status = 'HIDDEN' where topic_id = $1", [topic.topic_id]);
-      await refreshTopicActivity(client, topic.topic_id);
-    }
-    return topic.author_id;
-  }
-  const commentRow: QueryResult<{ comment_id: string; author_id: string; status: DiscussionStatus }> =
-    await client.query(
-      `select comment_id,author_id,status from discussion_comments
-        where comment_id=$1 and topic_id=$2 for update`,
-      [boundedId, topic.topic_id]
-    );
-  const comment = commentRow.rows[0];
-  if (!comment) throw new AppError(404, 'DISCUSSION_COMMENT_001', 'Không tìm thấy bình luận.');
-  if (comment.status === 'DELETED') return comment.author_id;
-  if (comment.status !== 'HIDDEN') {
-    await client.query(`update discussion_comments set status='HIDDEN', updated_at=now() where comment_id=$1`, [
-      comment.comment_id
-    ]);
-    await refreshTopicActivity(client, topic.topic_id);
-  }
-  return comment.author_id;
 }

@@ -405,7 +405,16 @@ describe('SRS backend rules', () => {
     assert.equal(notice.payload.novelTitle, title);
     assert.ok(notice.payload.removedAt);
 
-    await restoreNovel(adminAuth, novelId, { reason: 'Khôi phục SRS' });
+    await assert.rejects(restoreNovel(adminAuth, novelId, { reason: 'Khôi phục SRS' }), {
+      code: 'SANCTION_SELF_REVERSE'
+    });
+    const restorerId = await user('ADMIN', 'srs_restore_admin');
+    await pool.query("insert into admin_access(user_id, scope) values ($1, 'SUPER_ADMIN')", [restorerId]);
+    await restoreNovel(
+      { userId: restorerId, role: 'ADMIN', adminScope: 'SUPER_ADMIN' },
+      novelId,
+      { reason: 'Khôi phục SRS' }
+    );
     assert.equal((await pool.query('select deleted_at from novels where novel_id = $1', [novelId])).rows[0].deleted_at, null);
     assert.equal((await pool.query('select deleted_at from chapters where chapter_id = $1', [live])).rows[0].deleted_at, null);
     assert.notEqual((await pool.query('select deleted_at from chapters where chapter_id = $1', [alreadyDeleted])).rows[0].deleted_at, null);

@@ -1,4 +1,5 @@
 import type { QueryResultRow } from 'pg';
+import { env } from '../../core/config/env.js';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { readerFollowingSql } from './reader-following.sql.js';
 import type { BookmarkEntriesInput, BookmarkEntryInput } from './reading.schemas.js';
@@ -22,7 +23,7 @@ function mapPreference(row: QueryResultRow) {
   };
 }
 
-function mapNovelSummary(row: QueryResultRow) {
+export function mapNovelSummary(row: QueryResultRow) {
   return {
     novelId: row.novel_id,
     title: row.title,
@@ -411,13 +412,18 @@ export async function findRandomPublishedNovel() {
   return row ? { novelId: row.novel_id as string, title: row.title as string } : null;
 }
 
-export async function findPublishedNovelDetail(novelId: string) {
+export async function findPublishedNovelDetail(novelId: string, includeSelection = false) {
+  const selectionEnabled = includeSelection && env.NOVEL_SELECTION_ENABLED;
   const result = await getPostgresPool().query(
     `
+      ${selectionEnabled ? 'with selection_eligibility as materialized (select novel_selection_branches($1) as branches)' : ''}
       select
         n.*,
         -- UI-07: readers only see published chapters, so count those (novels.chapters_count includes drafts).
         (select count(*)::int from chapters pc where pc.novel_id = n.novel_id and pc.deleted_at is null and pc.status = 'PUBLISHED') as published_chapters_count,
+        ${selectionEnabled ? `(select cardinality(branches)>0 from selection_eligibility) as selection_eligible,
+          exists (select 1 from novel_selection_cases s cross join selection_eligibility e
+            where s.novel_id=n.novel_id and s.status='SELECTED' and s.reviewed_branch=any(e.branches)) as selected,` : ''}
         coalesce(up.display_name, u.username) as author_name,
         g.name as genre_name,
         (select array_agg(gg.name order by (ng.genre_id = n.genre_id) desc, gg.name)
@@ -446,6 +452,8 @@ export async function findPublishedNovelDetail(novelId: string) {
   const row = result.rows[0];
   return row ? {
     ...mapNovelSummary(row),
+    ...(selectionEnabled ? { selectionEnabled: true, selectionEligible: Boolean(row.selection_eligible),
+      ...(row.selected ? { selectionLabel: 'Tác phẩm được tuyển chọn' } : {}) } : {}),
     genres: row.genres?.length ? row.genres as string[] : row.genre_name ? [row.genre_name as string] : [],
     authorNote: (row.author_note as string | null) ?? null,
     lastUpdatedAt: row.last_updated_at ?? row.published_at ?? row.created_at

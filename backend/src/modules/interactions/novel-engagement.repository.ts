@@ -11,10 +11,10 @@ export async function getNovelStatistics(novelId: string, viewerId?: string, inc
       (select coalesce(sum(c.word_count), 0)::bigint from chapters c
        where c.novel_id = $1 and c.deleted_at is null and ($3 or c.status = 'PUBLISHED')) as total_words,
       (select count(*)::int from (${readerFollowingSql}) f join users u on u.user_id = f.user_id
-       where f.novel_id = $1 and u.role = 'READER' and u.status = 'ACTIVE' and u.deleted_at is null) as followers_count,
+       where f.novel_id = $1 and u.role in ('READER', 'MODERATOR') and u.status = 'ACTIVE' and u.deleted_at is null) as followers_count,
       (select json_build_object('average', avg(r.score)::float8, 'count', count(*)::int)
        from novel_ratings r join users u on u.user_id = r.user_id
-       where r.novel_id = $1 and u.role = 'READER' and u.status = 'ACTIVE' and u.deleted_at is null) as rating,
+       where r.novel_id = $1 and u.role in ('READER', 'MODERATOR') and u.status = 'ACTIVE' and u.deleted_at is null) as rating,
       exists(select 1 from (${readerFollowingSql}) f where novel_id = $1 and user_id = $2::uuid) as is_following,
       exists(select 1 from novel_notification_subscriptions where novel_id = $1 and user_id = $2::uuid and enabled) as notifications_enabled,
       (select score from novel_ratings where novel_id = $1 and user_id = $2::uuid) as my_rating,
@@ -80,7 +80,7 @@ export async function setNovelRating(novelId: string, userId: string, score: num
 
 export async function isActiveReader(userId: string) {
   const result = await getPostgresPool().query(`select 1 from users
-    where user_id = $1 and role = 'READER' and status = 'ACTIVE' and deleted_at is null`, [userId]);
+    where user_id = $1 and role in ('READER', 'MODERATOR') and status = 'ACTIVE' and deleted_at is null`, [userId]);
   return result.rowCount === 1;
 }
 
@@ -99,11 +99,11 @@ export async function listNovelReviews(novelId: string, page: number, limit: num
       from novel_ratings r join users u on u.user_id = r.user_id
       left join user_profiles p on p.user_id = u.user_id
       where r.novel_id = $1 and r.review_text is not null
-        and u.role = 'READER' and u.status = 'ACTIVE' and u.deleted_at is null
+        and u.role in ('READER', 'MODERATOR') and u.status = 'ACTIVE' and u.deleted_at is null
       order by ${reviewOrder[sort]} limit $2 offset $3`, [novelId, limit, (page - 1) * limit]),
     getPostgresPool().query(`select count(*)::int as total, avg(r.score)::float8 as average from novel_ratings r
       join users u on u.user_id = r.user_id where r.novel_id = $1 and r.review_text is not null
-        and u.role = 'READER' and u.status = 'ACTIVE' and u.deleted_at is null`, [novelId])
+        and u.role in ('READER', 'MODERATOR') and u.status = 'ACTIVE' and u.deleted_at is null`, [novelId])
   ]);
   return {
     items: data.rows.map(row => ({ userId: row.user_id as string, displayName: row.display_name as string,

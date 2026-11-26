@@ -215,12 +215,44 @@ test('accepted forum reports notify the discussion author once and rejections st
     assert.equal(dismissed.status, 200);
 
     const notifications = getMongoDatabase().collection('notifications');
+    const sanctionRow = (
+      await db.query<any>(
+        'select * from admin_sanctions where target_type=$1 and target_id=$2',
+        ['DISCUSSION', acceptedTopic.data.topicId]
+      )
+    ).rows[0];
+    assert.ok(sanctionRow, 'the accepted report writes one reversible sanction');
+    assert.equal(sanctionRow.active, true);
+    assert.equal(sanctionRow.action, 'HIDE');
+    assert.equal(sanctionRow.owner_id, author.userId);
+    assert.equal(sanctionRow.review_id, acceptedReviewId);
+    assert.equal(sanctionRow.previous_state.status, 'VISIBLE');
+    assert.equal(
+      (await db.query<{ count: string }>(
+        'select count(*)::text as count from admin_sanctions where target_type=$1 and target_id=$2',
+        ['DISCUSSION', acceptedTopic.data.topicId]
+      )).rows[0].count, '1'
+    );
+    assert.equal(
+      (await db.query<{ count: string }>(
+        'select count(*)::text as count from admin_audit where action=$1 and target_id=$2',
+        ['DISCUSSION_HIDE', acceptedTopic.data.topicId]
+      )).rows[0].count, '1'
+    );
+    const decisions = await call<Array<{ sanction_id: string; target_type: string; active: boolean }>>(
+      'GET', '/account/decisions', undefined, authorToken
+    );
+    assert.equal(decisions.status, 200);
+    assert.ok(decisions.data.some(item => item.sanction_id === sanctionRow.sanction_id),
+      'the owner can read the hide decision');
     const ownerNotices = await notifications.find({
       userId: author.userId,
       type: 'DISCUSSION_REMOVED_BY_REPORT'
     }).toArray();
     assert.equal(ownerNotices.length, 1, 'accepted report notifies the discussion author exactly once');
     assert.equal(ownerNotices[0].payload.reviewId, acceptedReviewId);
+    assert.equal(ownerNotices[0].payload.sanctionId, sanctionRow.sanction_id);
+    assert.equal(ownerNotices[0].payload.appealsUrl, '/appeals');
     const ownerNotice = ownerNotices[0];
     assert.equal(ownerNotice.payload.targetType, 'DISCUSSION');
     assert.equal(ownerNotice.payload.targetId, acceptedTopic.data.topicId);

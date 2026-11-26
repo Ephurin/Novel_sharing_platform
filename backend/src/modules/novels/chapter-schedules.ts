@@ -63,7 +63,7 @@ export async function publishDueChapters() {
         await client.query('savepoint publication_attempt');
         let status: string, error: string | null = null, reviewId: string | null = null;
         try {
-          if (schedule.deleted_at || schedule.novel_deleted || schedule.user_status !== 'ACTIVE' || !['AUTHOR','ADMIN'].includes(schedule.role)) throw new AppError(409, 'SCHEDULE_ACCOUNT', 'Tác giả hoặc nội dung không còn hoạt động');
+          if (schedule.deleted_at || schedule.novel_deleted || schedule.user_status !== 'ACTIVE' || !['AUTHOR','ADMIN','MODERATOR'].includes(schedule.role)) throw new AppError(409, 'SCHEDULE_ACCOUNT', 'Tác giả hoặc nội dung không còn hoạt động');
           if (schedule.novel_status !== 'PUBLISHED' || !['DRAFT','REJECTED'].includes(schedule.chapter_status)) throw new AppError(409, 'SCHEDULE_STATE', 'Trạng thái tác phẩm hoặc chương đã thay đổi');
           const submission = await submitChapterPublish(
             { userId: schedule.author_id, role: schedule.role }, schedule.chapter_id, client, schedule.draft_version

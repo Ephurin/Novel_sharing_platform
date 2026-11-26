@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import pg from 'pg';
 import jwt from 'jsonwebtoken';
 
@@ -23,8 +23,9 @@ test('novel creation reuses seeded genre names and handles concurrent genre crea
     const { getPostgresPool, disconnectPostgres } = await import('../../core/database/postgres.js');
     disconnect = disconnectPostgres;
     const pool = getPostgresPool();
-    for (const migration of ['001_auth_user_wallet', '002_novels', '003_chapters', '014_novel_editorial_metadata']) {
-      await pool.query(await readFile(new URL(`../../core/database/migrations/${migration}.sql`, import.meta.url), 'utf8'));
+    const migrations = new URL('../../core/database/migrations/', import.meta.url);
+    for (const name of (await readdir(migrations)).filter(name => name.endsWith('.sql')).sort()) {
+      await pool.query(await readFile(new URL(name, migrations), 'utf8'));
     }
     const { upsertGenre } = await import('./novels.repository.js');
     const { createNovel } = await import('./novels.service.js');
@@ -49,8 +50,6 @@ test('novel creation reuses seeded genre names and handles concurrent genre crea
     assert.equal(await upsertGenre(pool, '  '), null);
 
     // Exercise the same authenticated POST used by the new-project dialog.
-    await pool.query('alter table users add column if not exists deleted_at timestamptz');
-    await pool.query('create table admin_access(user_id uuid primary key, scope text)');
     const { createApp } = await import('../../app.js');
     const server = createApp().listen(0, '127.0.0.1');
     try {

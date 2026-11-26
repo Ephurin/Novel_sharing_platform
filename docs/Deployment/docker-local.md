@@ -30,6 +30,31 @@ docker-compose logs -f backend
 
 If your Docker installation supports the newer plugin command, `docker compose ...` is also valid.
 
+## Store images in Cloudinary
+
+Set `CLOUDINARY_URL` in the root `.env` and rebuild the backend. New uploads use
+Cloudinary when the variable is set. An empty value selects local storage.
+The backend can still serve old files from the media volume.
+
+To move existing novel covers, avatars, and profile banners, back up
+PostgreSQL, then preview the migration. Repeat `--source-host` for each trusted
+HTTPS image host in the database. Absolute legacy media URLs must match
+the configured `WEB_ORIGIN` or a trusted origin you pass with `--legacy-origin`.
+Include the scheme and port if the original URL uses a non-default port.
+
+```powershell
+docker compose run --rm --no-deps --entrypoint node backend dist/scripts/migrate-media-to-cloudinary.js --source-host images.example.com
+```
+
+After checking the count, run the same command with `--apply`. Each URL changes
+after the Cloudinary copy matches the source SHA-256 checksum. The script keeps the old URL if a file
+cannot be copied and exits with an error when any source fails. You can run it
+again after fixing the failed sources.
+
+For files in another Docker volume, mount that volume read-only and pass its
+mount path with `--legacy-directory`. Add `--include-local-files` to copy unused
+files from the active uploads directory as well.
+
 ## Email confirmation
 
 Password registration sends a confirmation link and an eight-digit backup code. The link uses `WEB_ORIGIN` and works in the browser that started registration. For local testing, set these values in the root `.env` file and start the `dev-mail` profile:

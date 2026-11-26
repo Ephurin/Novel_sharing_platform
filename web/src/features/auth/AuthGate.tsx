@@ -47,7 +47,8 @@ function useSessionRestore() {
 const roleLabels: Record<UserRole, string> = {
   READER: 'Độc giả',
   AUTHOR: 'Tác giả',
-  ADMIN: 'Quản trị viên'
+  ADMIN: 'Quản trị viên',
+  MODERATOR: 'Điều hành viên'
 };
 
 export function AuthGate({ children }: PropsWithChildren) {
@@ -108,6 +109,7 @@ export function RoleHomeRedirect() {
 
 function getRoleHomePath(role?: UserRole) {
   if (role === 'ADMIN') return '/admin';
+  if (role === 'MODERATOR') return '/moderator/reviews';
   if (role === 'AUTHOR') return '/author';
   return '/';
 }
