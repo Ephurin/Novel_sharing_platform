@@ -441,7 +441,7 @@ export function AuthorNovelMetadataPage() {
                       onClick={() => submitPublishMutation.mutate()}
                       disabled={submitPublishMutation.isPending || novel.status === 'PUBLISHED' || novel.status === 'PENDING_MODERATION'}
                       title={novel.status === 'PUBLISHED' ? 'Tác phẩm đã xuất bản; chương mới được gửi duyệt riêng.' : novel.status === 'PENDING_MODERATION' ? 'Tác phẩm đang chờ duyệt.' : undefined}
-                      className="sc-button sc-button-primary disabled:opacity-60"
+                      className="sc-button sc-button-primary"
                       data-testid="submit-publish-btn"
                     >
                       <span className="material-symbols-outlined" aria-hidden="true">publish</span>

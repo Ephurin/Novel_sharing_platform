@@ -1115,7 +1115,7 @@ export function AuthorWritingIde() {
         onClick={() => setPublishModalOpen(true)}
         disabled={awaitingPublicationReview}
         title={awaitingPublicationReview ? 'Chương đang chờ duyệt; bạn sẽ được báo khi có kết quả.' : undefined}
-        className="inline-flex items-center gap-1.5 px-3 py-1 text-meta font-semibold rounded-lg text-white bg-primary-600 hover:bg-primary-700 shadow-sm shadow-primary-200 transition-all"
+        className="inline-flex items-center gap-1.5 px-3 py-1 text-meta font-semibold rounded-lg text-white bg-primary-600 hover:bg-primary-700 shadow-sm shadow-primary-200 transition-all disabled:bg-stone-100 disabled:text-stone-600 disabled:shadow-none disabled:border disabled:border-stone-200"
         type="button"
       >
         <span>{awaitingPublicationReview ? 'Chờ admin duyệt' : 'Gửi duyệt chương'}</span>

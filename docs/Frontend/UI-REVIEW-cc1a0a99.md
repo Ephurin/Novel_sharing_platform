@@ -30,7 +30,7 @@ Tài liệu giao cho team dev. Gộp ba bản đánh giá độc lập, đã b�
 
 ## Tiến độ
 
-**P1 (UI-01 → UI-07) đã sửa** trên nhánh `claude/ui-review-p1`. Nhóm Admin của P2 (UI-08, UI-12, UI-17) đã sửa trên nhánh `codex/ui-review-admin`. Các mục P2/P3 khác được ghi theo từng nhóm bên dưới.
+**UI-01 → UI-21 đã sửa** (P1 ở `claude/ui-review-p1`, Admin ở `codex/ui-review-admin`, Hệ thống chung ở `codex/ui-review-shared`, phần còn lại ở `claude/ui-review-rest`). UI-22 chờ quyết định sản phẩm. Những phần chưa làm được ghi ở cuối mục này.
 
 | ID | Đã làm |
 |---|---|
@@ -51,6 +51,25 @@ Tài liệu giao cho team dev. Gộp ba bản đánh giá độc lập, đã b�
 |---|---|
 | UI-10 | Danh sách dùng thời gian tương đối, mốc chi tiết dùng `HH:mm dd/MM/yyyy` theo giờ Việt Nam. Dùng số định dạng theo `vi-VN` và thống nhất “xu”, “Xóa”. |
 | UI-11 | Danh sách và quản lý tác phẩm dùng cùng huy hiệu. Dropdown dùng mũi tên xuống. Trang rộng dùng 1240 px, trang gọn dùng 960 px. Hai thẻ bên Diễn đàn dùng màu StoryCraft, giữ Literata cho tiêu đề theo quy ước đã ghi trong `design-system.md`. |
+
+### P2/P3 · Độc giả, tác giả, điều hướng, tiếp cận
+
+| ID | Đã làm trên nhánh `claude/ui-review-rest` |
+|---|---|
+| UI-09 | Một hoặc hai truyện đang đọc dở thì thẻ giãn hết hàng. Mỗi thẻ có ảnh bìa lớn hơn, chương đang đọc, thanh tiến độ và nút "Đọc tiếp"; khi có ba thẻ thì giữ thanh tiến độ, bỏ nút cho đỡ chật. |
+| UI-14 | Thông báo trả lời thảo luận ghi tên người trả lời và tên chủ đề (backend lưu thêm `actorName`, `topicTitle`). Các phản hồi chưa đọc cùng chủ đề gộp thành một thẻ: "Mai Linh và 1 người khác đã trả lời trong …", đánh dấu đã đọc cả nhóm. Bỏ viền trái, giữ nhãn "Mới". |
+| UI-15 | Tình trạng và độ tuổi nằm cùng một hàng; thể loại và thẻ đặt dưới tên tác giả. Mục lục chương đưa lên trước phần đánh giá. Hàng "Mục lục · Đánh giá · Bình luận" thành dải nút có viền, tách khỏi khối thông tin. |
+| UI-13 | Nút "Lập kế hoạch / Viết bản thảo" chuyển sang kiểu nút bật tắt nhẹ, chỉ còn "Gửi duyệt chương" là nút cam. Các nút chỉ có biểu tượng (Cẩm nang, Tập trung, thanh định dạng) có `aria-label`; biểu tượng trang trí có `aria-hidden`. Nút gửi duyệt khi bị khóa có chú thích. |
+| UI-16 | Hộp thoại lịch sử thay dropdown bằng danh sách mốc lưu: giờ tương đối và giờ đầy đủ, số từ, chênh lệch so với bản đang viết, nguồn (Lưu tay / Nhận bản nháp AI / Bản đầu tiên). Chọn một mốc vẫn so sánh hai cột rồi khôi phục như cũ. |
+| UI-18 | "Chương mới cập nhật" gom theo truyện ("5 chương mới"). Nhãn "Mới" chỉ hiện khi dưới một nửa số truyện trên trang mới cập nhật trong tuần, cỡ chữ 12 px dùng màu token. Trang Tìm kiếm không còn ô tìm kiếm thứ hai trên header. |
+| UI-19 | Thư viện, Lịch sử đọc, Đoạn đã đánh dấu dùng breadcrumb "Trang chủ › …" (trước ghi "Danh sách truyện"); trang đánh dấu có breadcrumb. Menu Thư viện / Đánh dấu / Lịch sử chuyển thành dải tab trên đầu nội dung. Nút "Lệnh nhanh" đổi biểu tượng kính lúp thành tia sét để không trùng ô tìm kiếm. Trang đọc chương có link "← Tên truyện" phía trên tiêu đề. Sidebar admin có "Về trang chủ" thay "Xem trang tác giả". |
+| UI-20 | Bỏ chữ lặp: thanh chương trong Studio và thẻ tác phẩm cắt tiền tố "Chương N" khỏi tên chương. "Viết tiếp" và "Mở Studio" thành nút phụ. "Gửi duyệt" và "Mở Studio" bị khóa có chú thích lý do. "Gộp hai tên trùng" kèm dòng giải thích, nêu tên nghi trùng nếu có. Vai trò nhân vật dùng một bộ nhãn: Tuyến chính / Tuyến phụ / Phản diện / Quần chúng, bộ lọc có thêm "Quần chúng". |
+| UI-21 | Chữ phụ (và placeholder) đổi sang `rgb(107 103 99)`, đạt 5,2:1 trên nền kem (trước 4,39:1). Nút chính bị khóa chuyển sang nền trung tính, chữ phụ (4,9:1) thay vì cam mờ; độ mờ chung của nút bị khóa từ 0,5 lên 0,7. `contrast.test.mjs` có thêm ba cặp kiểm tra. |
+
+**Chưa làm:**
+- UI-13: chưa gom các lối vào AI thành một menu "Trợ lý viết ▾". "Lập kế hoạch" là chế độ của Studio, đổi thành mục menu cần thiết kế lại luồng.
+- UI-18: thể loại và thẻ trùng nhau khác chữ hoa (Cultivation/cultivation) là việc dọn dữ liệu, cần gộp ở trang admin Thể loại và thẻ. Bộ lọc ở Danh sách và Tìm kiếm vẫn hai kiểu khác nhau.
+- UI-21: chưa chụp và rà riêng các màn hình độc giả ở 375 px. Các bộ test trình duyệt hiện có đã chạy ở 375 px.
 
 ## Bảng tóm tắt
 
