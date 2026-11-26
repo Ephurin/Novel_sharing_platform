@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { mockReadingLocators } from './helpers/reader-locators.mjs';
 import { readerEvidence } from './reader-browser-evidence.mjs';
 
 const gif = Buffer.from('R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==', 'base64');
@@ -99,6 +100,7 @@ test('comments keep application surfaces over reading paper and support GIF, emo
         await route.fulfill({ json: { success: true, data, meta } });
       });
       try {
+        await mockReadingLocators(page, [novel]);
         const prefix = role === 'READER' ? '/reader' : '/public';
         await page.goto(`${base}${prefix}/chapters/c-1`);
         const section = page.locator('.sc-reader-comments .sc-comments');

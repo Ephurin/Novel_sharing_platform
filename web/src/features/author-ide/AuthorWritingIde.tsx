@@ -388,7 +388,7 @@ export function AuthorWritingIde() {
   function openStudioChapter(novelId: string, chapterId: string, chapterSlug?: string) {
     const slug = novelId === activeNovelId ? activeNovelSlug : novelsQuery.data?.find(novel => novel.novelId === novelId)?.slug;
     const chapter = { chapterId, slug: chapterSlug ?? chaptersQuery.data?.find(ch => ch.chapterId === chapterId)?.slug };
-    const params = studioSearchParams(searchParams, { novelId, slug }, chapter, emitCanonicalLinks || Boolean(requestedNovelSlug));
+    const params = studioSearchParams(searchParams, { novelId, slug }, chapter);
     navigate({ pathname: location.pathname, search: params.toString(), hash: location.hash });
   }
 

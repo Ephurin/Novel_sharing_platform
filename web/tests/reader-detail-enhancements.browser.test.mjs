@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { mockReadingLocators } from './helpers/reader-locators.mjs';
 
 test('detail: simple chapter list, accurate read flags, mobile read action and deliberate reports', { timeout: 150000 }, async () => {
   const output = await readerEvidence('storycraft-detail-enhancements-');
@@ -53,6 +54,7 @@ test('detail: simple chapter list, accurate read flags, mobile read action and d
         await route.fulfill({ status, json: { success: true, data, meta: { totalPages: 1, totalItems: 0 } } });
       });
       try {
+        await mockReadingLocators(page, [novel]);
         const prefix = role === 'READER' ? '/reader' : '/public';
         await page.goto(`${base}${prefix}/novels/novel-1`);
         const main = page.getByTestId('novel-main-read'), table = page.locator('#reader-chapters tbody tr');

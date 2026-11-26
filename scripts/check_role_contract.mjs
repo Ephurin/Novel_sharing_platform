@@ -120,10 +120,19 @@ for (const nav of navGuards) {
 }
 
 // Role landing homes and the admin filter must keep deriving from the shared model.
+const webRoutes = readFileSync('web/src/shared/routes.ts', 'utf8');
 requireSnippet(
-  'web getRoleHome routing',
+  'web roleHomePath routing',
+  webRoutes,
+  "export function roleHomePath(role?: string) {\n  if (role === 'ADMIN') return navigationHref('/admin');\n  if (role === 'MODERATOR') return navigationHref('/moderator/reviews');\n  if (role === 'AUTHOR') return navigationHref('/author');\n  return '/';\n}"
+);
+for (const [legacy, canonical] of [['/admin', '/quan-tri'], ['/moderator/reviews', '/kiem-duyet/hang-doi'], ['/author', '/sang-tac']]) {
+  requireSnippet(`web role home alias ${legacy}`, webRoutes, `'${legacy}': '${canonical}'`);
+}
+requireSnippet(
+  'web AuthLanding uses the shared role home',
   readFileSync('web/src/shared/components/AuthLanding.tsx', 'utf8'),
-  "function getRoleHome(role: AuthSession['user']['role']) {\n  if (role === 'ADMIN') return '/admin';\n  if (role === 'MODERATOR') return '/moderator/reviews';\n  if (role === 'AUTHOR') return '/author';\n  return '/';\n}"
+  'navigate(returnTo ?? roleHomePath(session.user.role), { replace: true });'
 );
 requireSnippet(
   'admin users role filter',

@@ -159,7 +159,7 @@ test('PR-02: the moderator workspace lists reviews, requires decisions with reas
     await expect(page.getByRole('heading', { name: 'Hồ sơ điều hành' })).toBeVisible();
 
     await page.getByTestId(`moderator-review-inspect-${reviewId}`).click();
-    await page.waitForURL(`**/moderator/reviews/${reviewId}`);
+    await page.waitForURL(`**/kiem-duyet/hang-doi/${reviewId}`);
     await expect(page.getByRole('heading', { name: 'Chi tiết hồ sơ điều hành' })).toBeVisible({ timeout: 20_000 });
     await expect(page.getByRole('heading', { name: 'Truyện chờ duyệt của tác giả A' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Lịch sử vi phạm chủ thể' })).toBeVisible();

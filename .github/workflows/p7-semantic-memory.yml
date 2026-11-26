@@ -15,6 +15,13 @@ on:
       - "docker-compose.yml"
       - "docker-compose.flash-lite-demo.yml"
       - ".github/workflows/p7-semantic-memory.yml"
+      - "web/src/app/ResourceRoute.tsx"
+      - "web/src/app/router.tsx"
+      - "web/src/shared/routes.ts"
+      - "web/src/features/auth/AuthGate.tsx"
+      - "web/src/shared/components/AuthLanding.tsx"
+      - "web/src/features/reader/ChapterReader.tsx"
+      - "web/tests/url-reader-stack.browser.test.mjs"
 
 jobs:
   unit:
@@ -176,6 +183,20 @@ jobs:
           docker compose ps
           docker compose logs ai-service backend postgres
           exit 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install browser for deployed URL checks
+        working-directory: web
+        run: npm ci && npx playwright install --with-deps chromium
+      - name: Verify deployed URLs with canonical link emission
+        env:
+          PLAYWRIGHT_CHANNEL: chromium
+          STORYCRAFT_URL_TEST_ORIGIN: http://localhost:8080
+        run: node --test web/tests/url-reader-stack.browser.test.mjs
+
       - name: Verify semantic retriever and context packer composition
         run: |
           set -euo pipefail
@@ -229,6 +250,16 @@ jobs:
           assert budget["packing_version"] == "context-budget-v1"
           assert budget["estimator_version"] == "utf8-json-bytes-3-v1"
           PY
+      - name: Verify deployed URLs with legacy link emission
+        env:
+          VITE_EMIT_CANONICAL_LINKS: "false"
+          STORYCRAFT_EXPECT_LEGACY_HREF: "1"
+          PLAYWRIGHT_CHANNEL: chromium
+          STORYCRAFT_URL_TEST_ORIGIN: http://localhost:8080
+        run: |
+          docker compose up -d --build --no-deps web
+          curl --fail --retry 15 --retry-connrefused --retry-delay 1 "$STORYCRAFT_URL_TEST_ORIGIN/" >/dev/null
+          node --test web/tests/url-reader-stack.browser.test.mjs
       - name: Show service status
         if: always()
         run: docker compose ps

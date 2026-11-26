@@ -142,9 +142,9 @@ export function reviewHref(route: ReviewPath, review: { reviewId: string; review
 }
 
 export function roleHomePath(role?: string) {
-  if (role === 'ADMIN') return staticRouteTargets['/admin'];
-  if (role === 'MODERATOR') return staticRouteTargets['/moderator/reviews'];
-  if (role === 'AUTHOR') return staticRouteTargets['/author'];
+  if (role === 'ADMIN') return navigationHref('/admin');
+  if (role === 'MODERATOR') return navigationHref('/moderator/reviews');
+  if (role === 'AUTHOR') return navigationHref('/author');
   return '/';
 }
 

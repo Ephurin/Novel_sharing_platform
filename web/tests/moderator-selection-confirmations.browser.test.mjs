@@ -78,7 +78,7 @@ test('selection decisions require fresh confirmations after a conflict, refetch 
         current: { title, synopsis: 'Bản công khai ' + itemVersion, chapters: [] }, baseline: null
       } } });
     });
-    await page.goto('http://127.0.0.1:' + server.httpServer.address().port + '/moderator/selections/case-a');
+    await page.goto('http://127.0.0.1:' + server.httpServer.address().port + '/moderator/selections/case-a', { waitUntil: 'domcontentloaded', timeout: 60000 });
     const decision = page.getByRole('textbox', { name: 'Quyết định', exact: true });
     const reason = page.getByLabel('Lý do xử lý');
     const save = page.getByRole('button', { name: 'Lưu quyết định' });

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { PropsWithChildren } from 'react';
 import { useEffect } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { roleHomePath, staticRouteTargets } from '../../shared/routes';
+import { navigationHref, roleHomePath } from '../../shared/routes';
 import { getCurrentUser } from './auth-api';
 import type { UserRole } from './auth-types';
 import { useAuthStore } from './useAuthStore';
@@ -57,7 +57,7 @@ export function AuthGate({ children }: PropsWithChildren) {
   const { pathname, search, hash } = useLocation();
 
   if (!accessToken) {
-    return <Navigate to={staticRouteTargets['/login']} state={{ returnTo: { pathname, search, hash } }} replace />;
+    return <Navigate to={navigationHref('/login')} state={{ returnTo: { pathname, search, hash } }} replace />;
   }
 
   if (!user) {

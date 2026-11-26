@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { mockReadingLocators } from './helpers/reader-locators.mjs';
 
 async function toggleWithStableLayout(page, button, pressed, message) {
   await expect(button).toBeEnabled();
@@ -87,7 +88,8 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
         await route.fulfill({ json: { success: true, data, meta } });
       });
       try {
-        const prefix = role === 'READER' ? '/reader' : '/public', detail = `${base}${prefix}/novels/novel-1`;
+        await mockReadingLocators(page, [novel]);
+        const prefix = role === 'READER' ? '/reader' : '/public', detail = `${base}/truyen/novel-1`;
         await page.goto(detail);
         await expect(page.getByRole('heading', { name: novel.title, exact: true })).toBeVisible();
         await expect(page.locator('.sc-reader-detail-metrics dt')).toHaveText(['Cập nhật', 'Tổng chương', 'Lượt đọc', 'Đánh giá', 'Số từ']);
@@ -129,7 +131,7 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
         await expect(page.locator('.sc-navbar')).not.toHaveClass(/sc-navbar-hidden/);
         await page.screenshot({ path: path.join(output, `${role}-${width}-${theme}-detail.png`), fullPage: true });
         await page.locator('.sc-reader-genres').getByRole('link', { name: 'Fantasy', exact: true }).click();
-        await expect(page).toHaveURL(`${base}${prefix}?genre=Fantasy`);
+        await expect(page).toHaveURL(`${base}/danh-sach?genre=Fantasy`);
         if (width < 1024) await page.locator('.sc-catalog-filter-open').click();
         await expect(page.locator('#sc-catalog-sidebar').getByRole('checkbox', { name: 'Fantasy', exact: true })).toBeChecked();
         await expect.poll(() => searchParams?.get('genres')).toBe('Fantasy');
@@ -137,13 +139,13 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
         // UAT 2026-11-21 (BUG-007): the saved age rating is visible to readers.
         await expect(page.getByTestId('reader-age-rating')).toHaveText('18+');
         await page.locator('.sc-reader-status').click();
-        await expect(page).toHaveURL(`${base}${prefix}?status=ONGOING`);
+        await expect(page).toHaveURL(`${base}/danh-sach?status=ONGOING`);
         if (width < 1024) await page.locator('.sc-catalog-filter-open').click();
         await expect(page.getByRole('radiogroup', { name: 'Lọc theo tình trạng', exact: true }).getByRole('radio', { name: 'Đang ra', exact: true })).toBeChecked();
         await expect.poll(() => searchParams?.get('status')).toBe('ONGOING');
         await page.goto(detail);
         await page.locator('.sc-reader-tags').getByRole('link', { name: '#Adventure', exact: true }).click();
-        await expect(page).toHaveURL(`${base}${prefix}?tag=Adventure`);
+        await expect(page).toHaveURL(`${base}/danh-sach?tag=Adventure`);
         if (width < 1024) await page.locator('.sc-catalog-filter-open').click();
         await expect(page.locator('#sc-catalog-sidebar').getByRole('checkbox', { name: 'Adventure', exact: true })).toBeChecked();
         await expect.poll(() => searchParams?.get('tags')).toBe('Adventure');
@@ -189,7 +191,7 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
         await expect(share.getByRole('status')).toHaveText('Đã sao chép đường dẫn.');
         await page.keyboard.press('Escape'); await expect(share).toHaveCount(0);
         await shortcuts.getByRole('link', { name: 'Đánh giá', exact: true }).click();
-        await expect(page).toHaveURL(`${detail}/reviews`);
+        await expect(page).toHaveURL(`${detail}/danh-gia`);
         await expect(page.getByRole('heading', { name: `Đánh giá truyện ${novel.title}`, exact: true })).toBeVisible();
         await expect(page.getByRole('dialog')).toHaveCount(0);
         if (role === 'GUEST') await expect(page.getByRole('link', { name: 'Đăng nhập', exact: true })).toBeVisible();
