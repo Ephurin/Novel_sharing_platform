@@ -26,6 +26,7 @@ describe('D6: admin novel hide/restore with Mongo draft sync', () => {
   const old = new Date('2026-01-01T00:00:00Z');
   let authorAuth: AuthContext;
   let adminAuth: AuthContext;
+  let adminRestoreAuth: AuthContext;
   let counter = 0;
 
   const drafts = () => getMongoDatabase().collection('draft_chapters');
@@ -86,6 +87,10 @@ describe('D6: admin novel hide/restore with Mongo draft sync', () => {
     const adminId = await user('ADMIN', 'd6_admin');
     await pool.query("insert into admin_access(user_id, scope) values ($1, 'SUPER_ADMIN')", [adminId]);
     adminAuth = { userId: adminId, role: 'ADMIN', adminScope: 'SUPER_ADMIN' };
+    // PR-06: the original decider may no longer self-reverse a sanction, so restores use a second admin.
+    const adminRestoreId = await user('ADMIN', 'd6_admin_restore');
+    await pool.query("insert into admin_access(user_id, scope) values ($1, 'SUPER_ADMIN')", [adminRestoreId]);
+    adminRestoreAuth = { userId: adminRestoreId, role: 'ADMIN', adminScope: 'SUPER_ADMIN' };
   });
 
   // A failed assertion must not leave the injected fault on for the next test.
@@ -139,7 +144,7 @@ describe('D6: admin novel hide/restore with Mongo draft sync', () => {
     assert.deepEqual(await draft(live), hidden);
     assert.deepEqual(await untouched(), baseline);
 
-    await restoreNovel(adminAuth, target, { reason: 'D6 transient restore' });
+    await restoreNovel(adminRestoreAuth, target, { reason: 'D6 transient restore' });
     const restored = await draft(live);
     assert.equal(restored?.deletedAt, null);
     assert.equal(restored?.adminSanctionId, undefined);
@@ -196,7 +201,7 @@ describe('D6: admin novel hide/restore with Mongo draft sync', () => {
     await mongoFault(true);
     await removeNovel(adminAuth, target, { confirm: true, reason: 'D6 pending hide' });
     const sanction = await sanctionOf(target);
-    await restoreNovel(adminAuth, target, { reason: 'D6 restore before sync' });
+    await restoreNovel(adminRestoreAuth, target, { reason: 'D6 restore before sync' });
     const queued = await jobs(sanction.sanction_id);
     assert.equal(queued.length, 2, 'one job for the hide, one for the restore');
     assert.equal(queued[0].status, 'PENDING', 'the hide job is still waiting for its retry');
@@ -218,7 +223,7 @@ describe('D6: admin novel hide/restore with Mongo draft sync', () => {
     assert.equal((await draft(live))?.adminSanctionId, first.sanction_id);
 
     await mongoFault(true);
-    await restoreNovel(adminAuth, target, { reason: 'D6 restore, sync fails' });
+    await restoreNovel(adminRestoreAuth, target, { reason: 'D6 restore, sync fails' });
     await removeNovel(adminAuth, target, { confirm: true, reason: 'D6 second hide' });
     const second = await sanctionOf(target);
     assert.notEqual(second.sanction_id, first.sanction_id);
@@ -235,7 +240,7 @@ describe('D6: admin novel hide/restore with Mongo draft sync', () => {
     assert.equal(state?.adminSanctionId, second.sanction_id);
     await assertHiddenFromEveryone(target, live);
 
-    await restoreNovel(adminAuth, target, { reason: 'D6 final restore' });
+    await restoreNovel(adminRestoreAuth, target, { reason: 'D6 final restore' });
     assert.equal((await draft(live))?.deletedAt, null);
     assert.equal((await draft(live))?.adminSanctionId, undefined);
   });
@@ -251,7 +256,7 @@ describe('D6: admin novel hide/restore with Mongo draft sync', () => {
     await drafts().updateMany({ novelId: target }, { $unset: { adminSanctionId: '' } });
     const before = [await draft(hiddenByLegacy), await draft(authorDeleted)];
 
-    await restoreNovel(adminAuth, target, { reason: 'D6 legacy restore' });
+    await restoreNovel(adminRestoreAuth, target, { reason: 'D6 legacy restore' });
     assert.equal((await pool.query('select deleted_at from novels where novel_id = $1', [target])).rows[0].deleted_at, null);
     assert.equal(await chapterDeleted(hiddenByLegacy), true, 'without an inventory the chapter is preserved as it is');
     assert.equal(await chapterDeleted(authorDeleted), true);
@@ -275,7 +280,7 @@ describe('D6: admin novel hide/restore with Mongo draft sync', () => {
     const earlierDeletedDraft = await draft(liveWithDeletedDraft);
     assert.deepEqual(earlierDeletedDraft?.deletedAt, old, 'the old removal left an already deleted draft alone');
 
-    await restoreNovel(adminAuth, target, { reason: 'D6 pre-sanction restore' });
+    await restoreNovel(adminRestoreAuth, target, { reason: 'D6 pre-sanction restore' });
     assert.equal(await chapterDeleted(removedWithNovel), false);
     assert.equal((await draft(removedWithNovel))?.deletedAt, null, 'the draft the removal hid comes back');
     assert.equal(await chapterDeleted(authorDeleted), true, 'a chapter deleted by the author earlier is not resurrected');
@@ -308,7 +313,7 @@ describe('D6: admin novel hide/restore with Mongo draft sync', () => {
       withPostgresTransaction((client) => applySanction(client, adminAuth, { targetType: 'CHAPTER', targetId: live, action: 'HIDE', reason: 'D6 second' })),
       (error: unknown) => error instanceof AppError && error.code === 'ADMIN_SANCTION_ACTIVE');
 
-    await restoreNovel(adminAuth, target, { reason: 'D6 restore' });
+    await restoreNovel(adminRestoreAuth, target, { reason: 'D6 restore' });
     assert.equal(await chapterDeleted(live), false);
     assert.equal(await chapterDeleted(sanctionedEarlier), true, 'the chapter hidden by its own sanction is not restored by the novel restore');
   });

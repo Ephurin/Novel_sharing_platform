@@ -406,6 +406,15 @@ async function buildBundle() {
       mountElement(React.createElement(CommentsScreen, { target: { kind: 'chapter', id: chapterId }, user: null, onLoginRequired: () => {}, onThread: () => {}, onProfile: () => {} }));
     window.__mountWallet = () => mountElement(React.createElement(WalletScreen));
     window.__mountProfile = () => mountElement(React.createElement(ProfileScreen, { onLogout: () => {} }));
+    window.__mountProfileWithRole = (role) =>
+      mountElement(
+        React.createElement(ProfileScreen, {
+          onLogout: () => {},
+          onConnections: () => {},
+          onFeedback: () => {},
+          user: { userId: 'u1', email: 'reader@example.test', username: 'reader', role, status: 'ACTIVE' }
+        })
+      );
     window.__mountNotifications = (props = {}) =>
       mountElement(
         React.createElement(NotificationsScreen, {
@@ -732,6 +741,29 @@ test('Mobile Reader, Wallet, Profile, and Notifications screens satisfy backend 
       avatarUrl: null,
       bio: null
     });
+
+    // 3b. PR-07: the MODERATOR role keeps the mobile reader surface intact and author-capability entry visible
+    await page.evaluate(() => {
+      window.__capturedRequests = [];
+      window.__mockHandlers = {
+        'GET /users/me/profile': () => ({
+          userId: 'u1',
+          displayName: 'Mod Di Đ Động',
+          avatarUrl: null,
+          bio: ''
+        })
+      };
+      window.__mountProfileWithRole('MODERATOR');
+    });
+    await expect(page.getByRole('button', { name: 'Bạn bè' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Góp ý gửi tôi' })).toBeVisible();
+
+    await page.evaluate(() => {
+      window.__mountProfileWithRole('READER');
+    });
+    await expect(page.getByRole('button', { name: 'Bạn bè' })).toBeVisible();
+    const readerAuthorEntries = await page.getByRole('button', { name: 'Góp ý gửi tôi' }).count();
+    assert.equal(readerAuthorEntries, 0);
 
     // 4. Verify NotificationsScreen renders backend `content` field instead of raw enum key and updates read status in-place
     await page.evaluate(() => {

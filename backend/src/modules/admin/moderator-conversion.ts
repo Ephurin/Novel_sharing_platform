@@ -1,0 +1,294 @@
+import { lockFreshActor } from '../../core/security/transactional-identity.js';
+import { getPostgresPool } from '../../core/database/postgres.js';
+import { withPostgresTransaction } from '../../core/database/transaction.js';
+import { assertAdminPermission, lockAdminAccess, readLockedAccountAccess } from './admin-access.js';
+import { applyUserAccessChange, legacyModeratorAccessOperation, type AccessChangeOutcome } from './admin-access-change.js';
+
+export type LegacyModeratorAccountRow = {
+  user_id: string;
+  username: string;
+  status: string;
+  scope: string;
+};
+
+export type LegacyModeratorInventory = {
+  userId: string;
+  username: string;
+  status: string;
+  scope: string;
+  personal: {
+    novels: number;
+    chaptersPublished: number;
+    chapterDrafts: number;
+    scheduledChapters: number;
+    publicationReviews: number;
+    auditAsActor: number;
+    auditAsSubject: number;
+    walletCoins: string;
+    transactions: number;
+    withdrawRequests: number;
+    unlockedVipChapters: number;
+    readingHistories: number;
+    follows: number;
+    ratings: number;
+    activeRefreshSessions: number;
+  };
+};
+
+export type ConversionResult = {
+  converted: AccessChangeOutcome[];
+  skipped: Array<{ userId: string; username: string; reason: string }>;
+  reconciliation: Array<{ userId: string; username: string; role: string; scope: string | null; note: string }>;
+};
+
+const legacyPairsQuery = `
+  select u.user_id,u.username,u.status,a.scope
+  from users u
+  join admin_access a using(user_id)
+  where u.role='ADMIN' and a.scope='MODERATOR' and u.deleted_at is null
+  order by u.created_at
+`;
+
+export async function listLegacyModeratorAccounts(client = getPostgresPool()) {
+  const result = await client.query<LegacyModeratorAccountRow>(legacyPairsQuery);
+  return result.rows;
+}
+
+export async function inventoryLegacyModeratorConversion(client = getPostgresPool()) {
+  const rows = await listLegacyModeratorAccounts(client);
+  const accounts: LegacyModeratorInventory[] = [];
+  for (const row of rows) {
+    const [novels, chapters, schedules, reviews, auditActor, auditSubject, wallet, tx, withdraws, unlocks, histories, follows, ratings, sessions] =
+      await Promise.all([
+        client.query('select count(*)::int as count from novels where author_id=$1', [row.user_id]),
+        client.query(
+          "select count(*) filter (where c.status='PUBLISHED')::int as published, count(*) filter (where c.status<>'PUBLISHED')::int as drafts from chapters c join novels n using(novel_id) where n.author_id=$1",
+          [row.user_id]
+        ),
+        client.query(
+          'select count(*)::int as count from chapter_publication_schedules s join chapters c on s.chapter_id=c.chapter_id join novels n on c.novel_id=n.novel_id where n.author_id=$1',
+          [row.user_id]
+        ),
+        client.query(
+          'select count(*)::int as count from moderation_reviews r join novels n on r.target_id=n.novel_id::text where n.author_id=$1',
+          [row.user_id]
+        ),
+        client.query('select count(*)::int as count from admin_audit where actor_id=$1', [row.user_id]),
+        client.query('select count(*)::int as count from admin_audit where affected_user_id=$1', [
+          row.user_id
+        ]),
+        client.query('select coalesce(coins_balance,0)::text as coins from wallets where user_id=$1', [
+          row.user_id
+        ]),
+        client.query(
+          'select count(*)::int as count from transactions t join wallets w using(wallet_id) where w.user_id=$1',
+          [row.user_id]
+        ),
+        client.query(
+          'select count(*)::int as count from withdraw_requests q join wallets w using(wallet_id) where w.user_id=$1',
+          [row.user_id]
+        ),
+        client.query('select count(*)::int as count from chapter_unlocks where user_id=$1', [row.user_id]),
+        client.query('select count(*)::int as count from reading_histories where user_id=$1', [
+          row.user_id
+        ]),
+        client.query(
+          'select count(*)::int as count from novel_follows f join novels n using(novel_id) where n.author_id=$1',
+          [row.user_id]
+        ),
+        client.query(
+          'select count(*)::int as count from novel_ratings r join novels n using(novel_id) where n.author_id=$1',
+          [row.user_id]
+        ),
+        client.query(
+          'select count(*)::int as count from refresh_tokens where user_id=$1 and revoked_at is null',
+          [row.user_id]
+        )
+      ]);
+    accounts.push({
+      userId: row.user_id,
+      username: row.username,
+      status: row.status,
+      scope: row.scope,
+      personal: {
+        novels: novels.rows[0].count,
+        chaptersPublished: chapters.rows[0].published,
+        chapterDrafts: chapters.rows[0].drafts,
+        scheduledChapters: schedules.rows[0].count,
+        publicationReviews: reviews.rows[0].count,
+        auditAsActor: auditActor.rows[0].count,
+        auditAsSubject: auditSubject.rows[0].count,
+        walletCoins: wallet.rows[0]?.coins ?? '0',
+        transactions: tx.rows[0].count,
+        withdrawRequests: withdraws.rows[0].count,
+        unlockedVipChapters: unlocks.rows[0].count,
+        readingHistories: histories.rows[0].count,
+        follows: follows.rows[0].count,
+        ratings: ratings.rows[0].count,
+        activeRefreshSessions: sessions.rows[0].count
+      }
+    });
+  }
+  return accounts;
+}
+
+/**
+ * Converts each legacy `ADMIN` with `admin_access.scope='MODERATOR'` to the
+ * `MODERATOR` role through the shared grant command. Conversion runs one
+ * account per transaction; an account converted by a concurrent run is
+ * skipped, and an account that no longer matches the expected legacy state
+ * is reported for reconciliation instead of being converted.
+ */
+export async function convertLegacyModeratorAccounts(
+  actor: { userId: string },
+  reason: string,
+  options: { accounts?: string[] } = {}
+): Promise<ConversionResult> {
+  const pool = getPostgresPool();
+  const result: ConversionResult = { converted: [], skipped: [], reconciliation: [] };
+  let rows = await listLegacyModeratorAccounts(pool);
+  if (options.accounts?.length) {
+    const wanted = new Set(options.accounts);
+    for (const requested of options.accounts) {
+      if (!rows.some((row) => row.user_id === requested)) {
+        const current = (
+          await pool.query(
+            `select u.username,u.role,a.scope from users u left join admin_access a using(user_id)
+             where u.user_id=$1 and u.deleted_at is null`,
+            [requested]
+          )
+        ).rows[0];
+        if (current?.role === 'MODERATOR') {
+          result.skipped.push({ userId: requested, username: current.username, reason: 'Đã chuyển đổi trước đó.' });
+        } else {
+          result.reconciliation.push({
+            userId: requested,
+            username: current?.username ?? '',
+            role: current?.role ?? '',
+            scope: current?.scope ?? null,
+            note: 'Tài khoản yêu cầu không còn khớp điều kiện legacy (role ADMIN + scope MODERATOR).'
+          });
+        }
+      }
+    }
+    rows = rows.filter((row) => wanted.has(row.user_id));
+  }
+  for (const row of rows) {
+    const outcome = await withPostgresTransaction(async (client) => {
+      await lockAdminAccess(client);
+      await lockFreshActor(client, actor);
+      const target = await readLockedAccountAccess(client, row.user_id);
+      if (!target) {
+        return { kind: 'reconcile' as const, note: 'Tài khoản không còn tồn tại.', role: '', scope: null };
+      }
+      if (target.role === 'MODERATOR') {
+        return { kind: 'skip' as const };
+      }
+      if (target.role !== 'ADMIN' || target.admin_scope !== 'MODERATOR') {
+        return {
+          kind: 'reconcile' as const,
+          note: 'Trạng thái khác cặp role/scope legacy dự kiến.',
+          role: target.role,
+          scope: target.admin_scope ?? null
+        };
+      }
+      const changed = await applyUserAccessChange(client, actor, row.user_id, {
+        role: 'MODERATOR',
+        reason
+      }, legacyModeratorAccessOperation.CONVERT);
+      return { kind: 'converted' as const, outcome: changed };
+    });
+    if (outcome.kind === 'converted') result.converted.push(outcome.outcome);
+    else if (outcome.kind === 'skip')
+      result.skipped.push({ userId: row.user_id, username: row.username, reason: 'Đã chuyển đổi trước đó.' });
+    else
+      result.reconciliation.push({
+        userId: row.user_id,
+        username: row.username,
+        role: outcome.role,
+        scope: outcome.scope,
+        note: outcome.note
+      });
+  }
+  return result;
+}
+
+/**
+ * Rollback returns previously converted accounts to their recorded
+ * `ADMIN` + legacy scope verified by the audit of the current access version.
+ * Older entries without the conversion marker require manual reconciliation.
+ * The shared grant command revokes sessions so affected users sign in again.
+ */
+export async function rollbackModeratorConversion(
+  actor: { userId: string },
+  accounts: Array<{ userId: string; scope: string }>,
+  reason: string
+): Promise<ConversionResult> {
+  const result: ConversionResult = { converted: [], skipped: [], reconciliation: [] };
+  for (const account of accounts) {
+    const outcome = await withPostgresTransaction(async (client) => {
+      await lockAdminAccess(client);
+      await lockFreshActor(client, actor);
+      await assertAdminPermission(actor, 'access', client);
+      const target = await readLockedAccountAccess(client, account.userId);
+      if (!target) {
+        return { kind: 'reconcile' as const, note: 'Tài khoản không còn tồn tại.', role: '', scope: null };
+      }
+      const reconcile = (note: string) => ({
+        kind: 'reconcile' as const, note, role: target.role, scope: target.admin_scope
+      });
+      // Match the exact access generation. A later grant or rollback changes
+      // access_version even if it eventually puts the same role back.
+      const { rows: [proof] } = await client.query<{ previous_scope: string | null; operation: string }>(
+        `select before_state->>'scope' as previous_scope, after_state->>'operation' as operation
+         from admin_audit
+         where action='USER_ACCESS_CHANGED' and target_type='USER'
+           and target_id=$1::uuid::text and affected_user_id=$1::uuid
+           and after_state->>'accessVersion'=$2
+           and (
+             (after_state->>'operation'=$3 and before_state->>'role'='ADMIN'
+               and after_state->>'role'='MODERATOR')
+             or
+             (after_state->>'operation'=$4 and before_state->>'role'='MODERATOR'
+               and after_state->>'role'='ADMIN' and after_state->>'scope'=$5)
+           )`,
+        [target.user_id, String(target.access_version), legacyModeratorAccessOperation.CONVERT,
+          legacyModeratorAccessOperation.ROLLBACK, target.admin_scope]
+      );
+      if (proof?.operation === legacyModeratorAccessOperation.ROLLBACK && target.role === 'ADMIN') {
+        return account.scope === target.admin_scope
+          ? { kind: 'skip' as const }
+          : reconcile('Nhóm quyền yêu cầu không khớp nhóm quyền đã khôi phục.');
+      }
+      if (target.role !== 'MODERATOR' || target.admin_scope !== null ||
+          proof?.operation !== legacyModeratorAccessOperation.CONVERT || proof.previous_scope !== 'MODERATOR') {
+        return reconcile('Không xác minh được lần chuyển đổi legacy cho phiên bản quyền hiện tại.');
+      }
+      if (account.scope !== proof.previous_scope) {
+        return reconcile('Nhóm quyền yêu cầu không khớp nhóm quyền trước khi chuyển đổi.');
+      }
+      const changed = await applyUserAccessChange(client, actor, target.user_id, {
+        role: 'ADMIN',
+        scope: proof.previous_scope,
+        reason
+      }, legacyModeratorAccessOperation.ROLLBACK);
+      return { kind: 'converted' as const, outcome: changed };
+    });
+    if (outcome.kind === 'converted') result.converted.push(outcome.outcome);
+    else if (outcome.kind === 'skip')
+      result.skipped.push({
+        userId: account.userId,
+        username: '',
+        reason: 'Tài khoản đã ở trạng thái mục tiêu.'
+      });
+    else
+      result.reconciliation.push({
+        userId: account.userId,
+        username: '',
+        role: outcome.role,
+        scope: outcome.scope,
+        note: outcome.note
+      });
+  }
+  return result;
+}

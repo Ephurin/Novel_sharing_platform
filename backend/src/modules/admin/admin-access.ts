@@ -1,10 +1,13 @@
+import { lockFreshActor } from '../../core/security/transactional-identity.js';
 import type { RequestHandler } from 'express';
 import type { PoolClient } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
+import { env } from '../../core/config/env.js';
+import { placementsEnabled } from '../../core/security/moderation-policy.js';
 
-export type AdminPermission = 'content' | 'users' | 'finance' | 'access' | 'audit';
+export type AdminPermission = 'content' | 'users' | 'finance' | 'access' | 'audit' | 'selection.reconsider' | 'placement.manage';
 export type AdminScope = 'SUPER_ADMIN' | 'MODERATOR' | 'USER_MANAGER' | 'FINANCE';
 export const scopePermissions: Record<AdminScope, AdminPermission[]> = {
   SUPER_ADMIN: ['content', 'users', 'finance', 'access', 'audit'],
@@ -12,7 +15,9 @@ export const scopePermissions: Record<AdminScope, AdminPermission[]> = {
   USER_MANAGER: ['users'],
   FINANCE: ['finance']
 };
-export async function adminAccess(auth: AuthContext, client?: PoolClient) {
+export type AccessActor = { userId: string } & Partial<Pick<AuthContext, 'role' | 'adminScope' | 'accessVersion'>>;
+
+export async function adminAccess(auth: AccessActor, client?: PoolClient) {
   const result = await (client ?? getPostgresPool()).query(
     `select u.user_id,a.scope from users u join admin_access a using(user_id) where u.user_id::text=$1 and u.role='ADMIN' and u.status='ACTIVE' and u.deleted_at is null`,
     [auth.userId]
@@ -20,10 +25,13 @@ export async function adminAccess(auth: AuthContext, client?: PoolClient) {
   if (!result.rows[0] || !scopePermissions[result.rows[0].scope as AdminScope])
     throw new AppError(403, 'ADMIN_ACCESS', 'Tài khoản không có quyền quản trị đang hoạt động.');
   const scope = result.rows[0].scope as AdminScope;
-  return { scope, permissions: scopePermissions[scope] };
+  const permissions = [...scopePermissions[scope]];
+  if (scope === 'SUPER_ADMIN' && env.NOVEL_SELECTION_ENABLED) permissions.push('selection.reconsider');
+  if (scope === 'SUPER_ADMIN' && placementsEnabled()) permissions.push('placement.manage');
+  return { scope, permissions };
 }
 export async function assertAdminPermission(
-  auth: AuthContext,
+  auth: AccessActor,
   permission: AdminPermission,
   client?: PoolClient
 ) {
@@ -45,7 +53,7 @@ export function requireAdminPermission(permission: AdminPermission): RequestHand
 }
 export async function audit(
   client: PoolClient,
-  auth: AuthContext,
+  auth: AccessActor,
   input: {
     action: string;
     targetType: string;
@@ -75,27 +83,45 @@ export function requiredReason(reason?: string) {
   if (!reason?.trim()) throw new AppError(422, 'ADMIN_REASON', 'Vui lòng nhập lý do xử lý.');
   return reason.trim();
 }
+// Account management and account sanctions take this before actor and target rows.
+export async function lockAdminAccess(client: PoolClient) {
+  await client.query("select pg_advisory_xact_lock(hashtext('storycraft-admin-access'))");
+}
+
+// Caller holds the admin-access advisory lock. Read the scope in a fresh
+// statement after locking the user; a joined FOR UPDATE may see an old scope.
+export async function readLockedAccountAccess(client: PoolClient, userId: string) {
+  const { rows: [account] } = await client.query<{
+    user_id: string; username: string; role: string; status: string; access_version: number;
+  }>(
+    `select user_id,username,role,status,access_version from users
+      where user_id=$1 and deleted_at is null and status<>'DELETED' for no key update`,
+    [userId]
+  );
+  if (!account) return null;
+  const { rows: [access] } = await client.query<{ scope: AdminScope }>(
+    'select scope from admin_access where user_id=$1', [userId]
+  );
+  return { ...account, admin_scope: access?.scope ?? null };
+}
+
 export async function protectAccount(
   client: PoolClient,
-  auth: AuthContext,
+  auth: AccessActor,
   userId: string,
   permission: AdminPermission = 'users'
 ) {
-  await client.query("select pg_advisory_xact_lock(hashtext('storycraft-admin-access'))");
+  await lockAdminAccess(client);
+  await lockFreshActor(client, auth);
   const access = await assertAdminPermission(auth, permission, client);
-  const row = (
-    await client.query(
-      `select u.*,a.scope as admin_scope from users u left join admin_access a using(user_id) where user_id=$1 and deleted_at is null and status<>'DELETED' for update of u`,
-      [userId]
-    )
-  ).rows[0];
-  if (!row) throw new AppError(404, 'USER_001', 'Không tìm thấy tài khoản.');
   if (userId.toLowerCase() === auth.userId.toLowerCase())
     throw new AppError(
       409,
       'ADMIN_SELF',
       'Không thể tự khóa hoặc thay đổi quyền của tài khoản đang dùng.'
     );
+  const row = await readLockedAccountAccess(client, userId);
+  if (!row) throw new AppError(404, 'USER_001', 'Không tìm thấy tài khoản.');
   if (row.role === 'ADMIN') {
     if (access.scope !== 'SUPER_ADMIN')
       throw new AppError(

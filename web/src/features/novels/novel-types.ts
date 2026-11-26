@@ -1,5 +1,10 @@
 export type NovelStatus = 'DRAFT' | 'PENDING_MODERATION' | 'PUBLISHED' | 'REJECTED';
 
+export type PublicationReview = {
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REVISION_REQUIRED';
+  reason: string | null;
+};
+
 export type Novel = {
   novelId: string;
   authorId: string;
@@ -10,7 +15,10 @@ export type Novel = {
   genres: string[];
   coverImageUrl: string | null;
   status: NovelStatus;
+  publicationReview?: PublicationReview | null;
   serialStatus: 'ONGOING' | 'COMPLETED' | 'HIATUS';
+  storyFormat?: 'SHORT_STORY' | null;
+  selectionEnabled?: boolean;
   ageRating: 'EVERYONE' | 'TEEN' | 'MATURE';
   likesCount: number;
   viewsCount: number;
@@ -43,6 +51,7 @@ export type Chapter = {
   status: ChapterStatus;
   updatedAt: string;
   pendingPublicationRevision?: boolean;
+  publicationReview?: PublicationReview | null;
   publicationSchedule?: { scheduledAt: string; status: string; error: string | null } | null;
   draft?: {
     title: string;

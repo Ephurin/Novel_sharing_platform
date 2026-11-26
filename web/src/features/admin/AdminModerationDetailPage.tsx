@@ -67,6 +67,7 @@ export function AdminModerationDetailPage() {
   const report = review.source === 'USER_REPORT';
   const commentReport = report && review.targetType === 'COMMENT';
   const discussionReport = report && review.targetType.startsWith('DISCUSSION');
+  const escalationOpen = review.escalation?.status === 'OPEN';
   const selectedAction = discussionReport ? 'HIDE' : reportAction || (commentReport ? 'HIDE' : 'WARN');
   const content = review.target?.content || '';
   const publication = !report && (review.targetType === 'NOVEL' || review.targetType === 'CHAPTER');
@@ -186,6 +187,12 @@ export function AdminModerationDetailPage() {
                 Quyết định đã lưu. Nội dung đang chờ đồng bộ; dùng nút tải lại để kiểm tra.
               </Alert>
             )}
+            {escalationOpen && (
+              <Alert color="blue" mb="sm" data-testid="admin-escalation-open-notice">
+                Hồ sơ đang chờ Admin quyết trong hàng đợi chuyển cấp. Truy cập{' '}
+                <Link to="/admin/escalations">hàng đợi chuyển cấp</Link> để xử lý.
+              </Alert>
+            )}
             {report && review.status === 'PENDING' && (
               <Select
                 label="Hành động khi tiếp nhận báo cáo"
@@ -210,7 +217,7 @@ export function AdminModerationDetailPage() {
             )}
             <div className="admin-review-decisions">
               <Button
-                disabled={review.status !== 'PENDING' || mutation.isPending}
+                disabled={review.status !== 'PENDING' || escalationOpen || mutation.isPending}
                 data-testid={
                   commentReport ? 'admin-approve-report-btn' : 'admin-approve-review-btn'
                 }
@@ -226,7 +233,7 @@ export function AdminModerationDetailPage() {
                 color="red"
                 className="admin-danger"
                 variant="light"
-                disabled={review.status !== 'PENDING' || mutation.isPending}
+                disabled={review.status !== 'PENDING' || escalationOpen || mutation.isPending}
                 data-testid={commentReport ? 'admin-reject-report-btn' : 'admin-reject-review-btn'}
                 onClick={() => {
                   mutation.reset();

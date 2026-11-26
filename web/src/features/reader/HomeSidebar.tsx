@@ -1,4 +1,5 @@
 import { formatDateTime } from '../../shared/lib/format-vi';
+import { hasReaderCapability } from '../auth/auth-types';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -271,7 +272,7 @@ export function HomeSidebar({
           ) : (
             <div className="sc-home-activity-list">
               {notifications.map(item => {
-                const target = notificationHref(item, user.role === 'READER') ?? '/notifications';
+                const target = notificationHref(item, hasReaderCapability(user.role)) ?? '/notifications';
                 const meta = [notificationTypeLabel(item.type), formatDateTime(item.createdAt, 'relative')].filter(Boolean).join(' · ');
                 return (
                   <Link key={item.notificationId} className="sc-home-activity-row" to={target}>

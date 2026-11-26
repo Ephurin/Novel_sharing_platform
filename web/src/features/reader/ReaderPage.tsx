@@ -1,4 +1,5 @@
 import { formatDateTime } from '../../shared/lib/format-vi';
+import { hasReaderCapability } from '../auth/auth-types';
 import { AuthorPrivateFeedback } from './PrivateComments';
 import { ReaderCatalog } from './ReaderCatalog';
 import { ChapterReader } from './ChapterReader';
@@ -192,7 +193,7 @@ export function ReaderLibraryPage() {
   const progressByNovel = new Map((progressQuery.data?.items ?? []).map(item => [item.novelId, item]));
   const removeMutation = useMutation({
     mutationFn: async (novelId: string) => {
-      if (user?.role === 'READER') await followNovel(novelId, false);
+      if (hasReaderCapability(user?.role)) await followNovel(novelId, false);
       else await removeFromLibrary(novelId);
     },
     onSuccess: async () => {

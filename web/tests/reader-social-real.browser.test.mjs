@@ -89,7 +89,9 @@ test('reader social uses real APIs: follow, mention, private replies, anchors an
       await publicEditor.press('Home');
       return publicEditor.evaluate(element => {
         const selection = window.getSelection();
-        if (!selection?.anchorNode || !element.contains(selection.anchorNode)) return false;
+        const editorSelection = element.editor?.state.selection;
+        if (!editorSelection?.empty || editorSelection.from !== 1) return false;
+        if (!selection?.isCollapsed || !element.contains(selection.anchorNode)) return false;
         const prefix = document.createRange();
         prefix.selectNodeContents(element);
         prefix.setEnd(selection.anchorNode, selection.anchorOffset);

@@ -11,7 +11,7 @@ aiCopilotRoutes.get('/health', getLlmHealthController);
 aiCopilotRoutes.post(
   '/copilot/suggestions',
   requireAuth,
-  requireRoles(['AUTHOR', 'ADMIN']),
+  requireRoles(['AUTHOR', 'ADMIN', 'MODERATOR']),
   validateRequest(copilotSuggestionSchema),
   createCopilotSuggestionController
 );

@@ -13,6 +13,7 @@ function mapAuthUser(row: QueryResultRow): AuthUser {
     avatarUrl: row.avatar_url,
     role: row.role,
     status: row.status,
+    accessVersion: Number(row.access_version ?? 0),
     passwordHash: row.password_hash
   };
 }
@@ -33,8 +34,8 @@ export async function findAuthUserByEmailOrUsername(identifier: string) {
   return result.rows[0] ? mapAuthUser(result.rows[0]) : null;
 }
 
-export async function findAuthUserById(userId: string) {
-  const result = await getPostgresPool().query(
+export async function findAuthUserById(userId: string, client?: DbClient) {
+  const result = await (client ?? getPostgresPool()).query(
     `
       select u.*, p.display_name, p.avatar_url
       from users u
@@ -217,8 +218,8 @@ export async function createUserAccount(
   });
 }
 
-export async function updateLastLoginAt(userId: string, client?: DbClient) {
-  await (client ?? getPostgresPool()).query(
+export async function updateLastLoginAt(userId: string, client: DbClient) {
+  await client.query(
     `
       update users
       set last_login_at = now(), updated_at = now()
@@ -254,11 +255,17 @@ export async function linkGoogleAccount(client: DbClient, userId: string, subjec
   );
 }
 
-export async function consumeGoogleChallenge(client: DbClient, nonce: string, expiresAt: Date) {
+export async function consumeGoogleChallenge(
+  client: DbClient,
+  nonce: string,
+  purpose: string,
+  expiresAt: Date
+) {
   await client.query('delete from consumed_google_challenges where expires_at <= now()');
   const result = await client.query(
-    'insert into consumed_google_challenges (nonce, expires_at) select $1, $2::timestamptz where $2 > now() on conflict do nothing',
-    [nonce, expiresAt]
+    `insert into consumed_google_challenges (nonce, purpose, expires_at)
+     select $1, $2, $3::timestamptz where $3 > now() on conflict do nothing`,
+    [nonce, purpose, expiresAt]
   );
   return result.rowCount === 1;
 }
@@ -291,22 +298,25 @@ export async function createRefreshToken(
   );
 }
 
-export async function findValidRefreshToken(tokenHash: string) {
+export async function findRefreshSession(tokenHash: string) {
   const result = await getPostgresPool().query(
     `
-      select rt.*, u.status
+      select u.*, p.display_name, p.avatar_url
       from refresh_tokens rt
       join users u on u.user_id = rt.user_id
+      left join user_profiles p on p.user_id = u.user_id
       where rt.token_hash = $1
         and rt.revoked_at is null
         and rt.expires_at > now()
         and u.deleted_at is null
+        and u.status = 'ACTIVE'
       limit 1
     `,
     [tokenHash]
   );
 
-  return result.rows[0] ?? null;
+  const row = result.rows[0];
+  return row ? mapAuthUser(row) : null;
 }
 
 export async function revokeRefreshToken(tokenHash: string) {
@@ -320,7 +330,7 @@ export async function revokeRefreshToken(tokenHash: string) {
   );
 }
 
-export async function promoteReaderToAuthor(userId: string) {
-  await getPostgresPool().query("update users set role = 'AUTHOR', updated_at = now() where user_id = $1 and role = 'READER' and status = 'ACTIVE' and deleted_at is null", [userId]);
-  return findAuthUserById(userId);
+export async function promoteReaderToAuthor(userId: string, client: DbClient) {
+  await client.query("update users set role = 'AUTHOR', updated_at = now() where user_id = $1 and role = 'READER' and status = 'ACTIVE' and deleted_at is null", [userId]);
+  return findAuthUserById(userId, client);
 }

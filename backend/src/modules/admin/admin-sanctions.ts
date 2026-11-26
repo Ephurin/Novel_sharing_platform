@@ -1,9 +1,16 @@
+import { lockFreshActor } from '../../core/security/transactional-identity.js';
 import type { PoolClient } from 'pg';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { AppError } from '../../core/errors/app-error.js';
-import { assertAdminPermission, audit, protectAccount, requiredReason } from './admin-access.js';
+import { assertAdminPermission, audit, lockAdminAccess, protectAccount, requiredReason } from './admin-access.js';
 import { queueAdminNotification } from './admin-jobs.js';
 import { findCommentRecordById } from '../interactions/comments.repository.js';
+import {
+  applyDiscussionSanction,
+  discussionTargetKind,
+  revertDiscussionSanctionEffect,
+  type DiscussionOperationalPermission
+} from '../discussions/discussions.sanctions.js';
 
 export type SanctionAction = 'WARN' | 'HIDE' | 'LOCK';
 export async function applySanction(
@@ -15,11 +22,35 @@ export async function applySanction(
     action: SanctionAction;
     reason: string;
     reviewId?: string;
+    permission?: DiscussionOperationalPermission;
+    expectedTopicId?: string;
+    expectedStatus?: string;
   }
 ) {
   const reason = requiredReason(input.reason);
-  if (input.targetType === 'USER')
-    await client.query("select pg_advisory_xact_lock(hashtext('storycraft-admin-access'))");
+  if (input.targetType === 'USER') await lockAdminAccess(client);
+  await lockFreshActor(client, auth);
+  if (auth.role === 'ADMIN' && input.targetType !== 'USER') {
+    await assertAdminPermission(auth, 'content', client);
+  }
+  const discussionKind = discussionTargetKind(input.targetType);
+  if (discussionKind) {
+    // Forum HIDE shares this one sanction workflow for reports and direct
+    // moderation; the caller states which operational permission it carries.
+    if (!input.permission)
+      throw new AppError(422, 'ADMIN_TARGET', 'Thao tác chế tài thảo luận cần quyền tác nghiệp rõ ràng.');
+    if (input.action !== 'HIDE')
+      throw new AppError(422, 'ADMIN_ACTION', 'Hành động không phù hợp với đối tượng.');
+    return applyDiscussionSanction(client, auth, {
+      kind: discussionKind,
+      id: input.targetId,
+      reason,
+      reviewId: input.reviewId,
+      permission: input.permission,
+      expectedTopicId: input.expectedTopicId,
+      expectedStatus: input.expectedStatus
+    });
+  }
   await client.query('select pg_advisory_xact_lock(hashtext($1))', [
     `sanction:${input.targetType}:${input.targetId}`
   ]);
@@ -33,14 +64,34 @@ export async function applySanction(
     ownerId = comment.userId;
   } else if (input.targetType === 'USER') {
     if (input.action === 'LOCK') await assertAdminPermission(auth, 'users', client);
-    const row = await protectAccount(
-      client,
-      auth,
-      input.targetId,
-      input.reviewId ? 'content' : 'users'
-    );
-    before = { status: row.status };
-    ownerId = row.user_id;
+    if (auth.role === 'MODERATOR') {
+      // The report-resolution path gates sanction.warn/sanction.hide and the privileged-target
+      // ban upstream; direct account management still belongs to Admin's protectAccount.
+      if (!input.reviewId)
+        throw new AppError(403, 'ADMIN_PERMISSION', 'Chỉ quản trị trực tiếp xử phạt tài khoản.');
+      const row = (
+        await client.query(
+          "select user_id,status,role from users where user_id=$1 and deleted_at is null and status<>'DELETED' for no key update",
+          [input.targetId]
+        )
+      ).rows[0];
+      if (!row) throw new AppError(404, 'USER_001', 'Không tìm thấy tài khoản.');
+      if (row.role === 'ADMIN' || row.role === 'MODERATOR')
+        throw new AppError(403, 'MOD_PRIVILEGED_TARGET', 'Báo cáo nhắm tài khoản đặc quyền phải chuyển cấp cho Admin.');
+      if (String(row.user_id).toLowerCase() === auth.userId.toLowerCase())
+        throw new AppError(409, 'ADMIN_SELF', 'Không thể tự xử phạt tài khoản đang dùng.');
+      before = { status: row.status };
+      ownerId = row.user_id;
+    } else {
+      const row = await protectAccount(
+        client,
+        auth,
+        input.targetId,
+        input.reviewId ? 'content' : 'users'
+      );
+      before = { status: row.status };
+      ownerId = row.user_id;
+    }
   } else {
     const type = input.targetType;
     if (type !== 'NOVEL' && type !== 'CHAPTER')
@@ -172,8 +223,9 @@ export async function restoreSanction(
   sanction: any,
   reason: string
 ) {
-  if (sanction.target_type === 'USER')
-    await client.query("select pg_advisory_xact_lock(hashtext('storycraft-admin-access'))");
+  if (sanction.target_type === 'USER') await lockAdminAccess(client);
+  await lockFreshActor(client, auth);
+  await assertAdminPermission(auth, sanction.target_type === 'USER' ? 'users' : 'content', client);
   await client.query('select pg_advisory_xact_lock(hashtext($1))', [
     `sanction:${sanction.target_type}:${sanction.target_id}`
   ]);
@@ -185,13 +237,15 @@ export async function restoreSanction(
   if (!row?.active) return;
   if (row.action === 'LOCK') {
     const user = (
-      await client.query('select status from users where user_id=$1 for update', [row.target_id])
+      await client.query('select status from users where user_id=$1 for no key update', [row.target_id])
     ).rows[0];
     if (user?.status === 'LOCKED')
       await client.query('update users set status=$2,updated_at=now() where user_id=$1', [
         row.target_id,
         row.previous_state.status
       ]);
+  } else if (row.action === 'HIDE' && discussionTargetKind(row.target_type)) {
+    await revertDiscussionSanctionEffect(client, row);
   } else if (row.action === 'HIDE' && row.target_type !== 'COMMENT') {
     const table = row.target_type === 'NOVEL' ? 'novels' : 'chapters';
     const column = row.target_type === 'NOVEL' ? 'novel_id' : 'chapter_id';

@@ -76,6 +76,7 @@ import {
 } from '../ai-copilot/ai-copilot-api';
 import { getApiErrorMessage } from '../../shared/api/api-client';
 import { chapterPublicationLabel, publishCopy, publishedToast } from './publish-copy';
+import { chapterPublicationDecision } from '../novels/publication-review';
 import { useReadingFonts } from '../../theme/load-reading-fonts';
 
 export type FontOption = 'merriweather' | 'lora' | 'literata' | 'playfair' | 'roboto-slab' | 'vietnam' | 'jakarta';
@@ -1032,6 +1033,7 @@ export function AuthorWritingIde() {
   const rawChapterStatus = chapterQuery.data?.status;
   const awaitingPublicationReview = rawChapterStatus === 'PENDING_MODERATION' || Boolean(chapterQuery.data?.pendingPublicationRevision);
   const chapterStatusLabel = chapterPublicationLabel(chapterQuery.data);
+  const chapterDecision = chapterPublicationDecision(chapterQuery.data);
   const chapterPublished = rawChapterStatus === 'PUBLISHED';
 
   const chapterSettings = !focusMode && !planning && (
@@ -1041,7 +1043,7 @@ export function AuthorWritingIde() {
             <div
               aria-label={`Trạng thái: ${chapterStatusLabel}`}
               title={`Trạng thái: ${chapterStatusLabel}`}
-              data-status={chapterPublished ? 'published' : 'draft'}
+              data-status={chapterPublished && !chapterDecision ? 'published' : 'draft'}
               className="sc-studio-status-badge"
             >
               <span className="sc-studio-status-dot" aria-hidden="true"></span>
@@ -1263,7 +1265,7 @@ export function AuthorWritingIde() {
       {planningMounted&&novelQuery.data&&<div key={JSON.stringify([user?.userId,activeNovelId])} style={{display:planning?'flex':'none',flex:1,minHeight:0}}><PlanningStudio novelId={activeNovelId} title={novelQuery.data.title} step={planningStep} onStep={setPlanningStep} chapters={chaptersQuery.data??[]} onWrite={id=>{if(id)setSearchParams({novelId:activeNovelId,chapterId:id});setPlanning(false);}} onCreate={()=>createChapterMutation.mutate()} creating={createChapterMutation.isPending} onMemory={tab=>{setMemoryTab(tab??'review');setMemoryPanelOpen(true);}} onRefreshChapters={()=>void queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] })}/></div>}
       {!planning && <StudioWorkbench onSearchNovel={() => setNovelSearchOpen(true)} notesOpen={rightPanel === 'notes'} onNotesOpenChange={changeNotesOpen} onLookup={setReferenceQuery} formatToolbarVisible={formatToolbarVisible} chapterSettings={chapterSettings} primaryActions={studioPrimaryActions} sidebarToggle={sidebarToggle} fileActions={manuscriptActions} key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
         publishedContent={chapterQuery.data?.status === 'PUBLISHED' ? chapterQuery.data.content : undefined} chapterStatus={chapterQuery.data?.status}
-        awaitingPublicationReview={awaitingPublicationReview} onPublish={() => setPublishModalOpen(true)}
+        awaitingPublicationReview={awaitingPublicationReview} publicationReason={!focusMode ? chapterDecision?.reason : null} onPublish={() => setPublishModalOpen(true)}
         apply={applyStudioEdit} undo={() => moveStudioHistory()} redo={() => moveStudioHistory(true)} canUndo={studioHistory.canUndo} canRedo={studioHistory.canRedo}
         save={async () => { await persistence.flush(); }} onError={message => showToast(message, 'error')} />}
       {!planning && <StudioSelectionTools key={`selection:${activeDraftScope}`} editor={editorRef} disabled={!studioReady || isAcceptingAi}

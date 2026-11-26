@@ -1,6 +1,14 @@
+import { lockFreshActor } from '../../core/security/transactional-identity.js';
 import { authorizeComment, privateComment } from '../interactions/comment-privacy.js';
 import { assertAdminPermission, audit } from '../admin/admin-access.js';
 import { resolveUserReport } from './report-resolution.js';
+import {
+  assertIndependentResolver,
+  assertResolverAccess,
+  reviewInvolvedUserIds,
+  reviewPermissionFor
+} from './review-authorization.js';
+import { assertModeratorOperational } from '../moderator/moderator-access.js';
 import type { PoolClient } from 'pg';
 import { getAdminReviewTarget } from './admin-target.repository.js';
 import { assertDiscussionReportable, isDiscussionTarget } from '../discussions/discussions.admin.js';
@@ -31,6 +39,7 @@ import {
   createModerationEvidence,
   findModerationEvidence
 } from './moderation-evidence.repository.js';
+import { findModerationReviewEscalation } from './moderation-escalations.js';
 import type {
   ContentControlResult,
   MatchedRule,
@@ -39,7 +48,7 @@ import type {
 import {
   findCommentRecordById,
   updateCommentModerationStatus,
-  withCommentWriteLock,
+  advisoryCommentWriteLock,
   type CommentStatus
 } from '../interactions/comments.repository.js';
 import { findReadableChapter } from '../reading/reading.repository.js';
@@ -56,6 +65,25 @@ import { validateGiphyGif } from '../media/giphy.service.js';
 import { blockingRules, builtInFilterRules, highestSeverity, scanContent } from './content-filter.js';
 
 const uuidPattern = /^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i;
+
+async function listOwnerViolations(review: { target_type: string; target_id: string }) {
+  // Read-only supporting panel: a failed lookup must not break the detail view,
+  // but it stays visible in logs so an empty panel is never mistaken for clean data.
+  const involved = await reviewInvolvedUserIds(review).catch((error) => {
+    console.error('moderation: owner violation history unavailable', error);
+    return [] as string[];
+  });
+  if (!involved.length) return [];
+  const violations = await getPostgresPool().query(
+    `select s.sanction_id, s.action, s.active, s.created_at, a.reason
+       from admin_sanctions s join admin_audit a using(audit_id)
+      where s.owner_id = any($1::uuid[])
+      order by s.created_at desc
+      limit 10`,
+    [involved]
+  );
+  return violations.rows;
+}
 
 export async function checkContent(
   input: ContentControlCheckInput & {
@@ -352,19 +380,38 @@ export async function getModerationReview(reviewId: string, auth?: AuthContext) 
     throw new AppError(404, 'ADMIN_001', 'Review item not found');
   }
 
+  if (auth?.role === 'MODERATOR') {
+    assertModeratorOperational(auth, reviewPermissionFor(review));
+    // The moderator workspace serves target evidence and bounded violation history,
+    // so each detail reading keeps an access-log row next to the decision audit trail.
+    await withPostgresTransaction((client) =>
+      audit(client, auth, {
+        action: 'REVIEW_DETAIL_VIEW',
+        targetType: review.target_type,
+        targetId: review.target_id
+      })
+    );
+  }
+
   if (review.target_type === 'COMMENT') {
     const comment = await findCommentRecordById(review.target_id);
     if (comment && privateComment(comment)) {
       if (!auth) throw new AppError(403,'ADMIN_PERMISSION','Content review permission required');
-      await assertAdminPermission(auth,'content');
+      if (auth.role === 'MODERATOR') {
+        assertModeratorOperational(auth, 'comment.review');
+      } else {
+        await assertAdminPermission(auth,'content');
+      }
       await withPostgresTransaction(client=>audit(client,auth,{action:'PRIVATE_COMMENT_REVIEW_VIEW',targetType:'COMMENT',targetId:review.target_id}));
     }
   }
-  const [evidence, reportCount, reports, target] = await Promise.all([
+  const [evidence, reportCount, reports, target, ownerViolations, escalation] = await Promise.all([
     findModerationEvidence(review.evidence_id),
     countReportsForReview(reviewId),
     listReportsForReview(reviewId),
-    getAdminReviewTarget(review.target_type, review.target_id)
+    getAdminReviewTarget(review.target_type, review.target_id),
+    listOwnerViolations(review),
+    findModerationReviewEscalation(reviewId)
   ]);
   const submitted = review.submitted_content ??
     (review.target_type === 'CHAPTER' && review.source === 'KEYWORD_FILTER' &&
@@ -406,7 +453,9 @@ export async function getModerationReview(reviewId: string, auth?: AuthContext) 
       matchedRules: evidence?.matchedRules ?? [],
       reportCount,
       summary: evidence?.summary ?? null
-    }
+    },
+    ownerViolations,
+    escalation
   };
 }
 
@@ -418,7 +467,9 @@ async function recoverResolvedCommentReview(
   commentId: string,
   decision: ResolveReviewInput['decision']
 ) {
-  return withCommentWriteLock(commentId, async (client) => {
+  return withPostgresTransaction(async (client) => {
+    await lockFreshActor(client, auth);
+    await advisoryCommentWriteLock(client, commentId);
     const review = await findReviewById(reviewId, client);
     if (
       !review || review.source !== 'KEYWORD_FILTER' || review.target_type !== 'COMMENT' ||
@@ -426,10 +477,12 @@ async function recoverResolvedCommentReview(
     ) {
       throw new AppError(409, 'ADMIN_002', 'Review item already resolved');
     }
+    await assertResolverAccess(auth, review, client);
     const comment = await findCommentRecordById(commentId);
     if (!comment || comment.deletedAt !== null || comment.moderationReviewId !== reviewId) {
       throw new AppError(409, 'CONTENT_REVIEW_STALE', 'Comment no longer matches the reviewed version');
     }
+    await assertIndependentResolver(auth, review, client);
     const commentStatus: CommentStatus = review.status === 'APPROVED' ? 'APPROVED' : 'REJECTED';
     const result = {
       reviewId: review.review_id,
@@ -537,7 +590,16 @@ export async function resolveModerationReview(
     throw new AppError(404, 'ADMIN_001', 'Review item not found');
   }
 
-  await assertAdminPermission(auth, 'content');
+  await assertResolverAccess(auth, review);
+  // Each variant carries its own decision set: revision decisions exist only for
+  // publication requests of novels and chapters.
+  if (
+    input.decision === 'REVISION_REQUIRED' &&
+    !(review.source === 'PUBLICATION_REQUEST' &&
+      (review.target_type === 'NOVEL' || review.target_type === 'CHAPTER'))
+  ) {
+    throw new AppError(422, 'VARIANT_DECISION', 'Hồ sơ này không nhận quyết định yêu cầu sửa. Chọn duyệt hoặc từ chối.');
+  }
   if (review.source === 'USER_REPORT') return resolveUserReport(auth, reviewId, input);
 
   if (review.status !== 'PENDING') {
@@ -547,14 +609,17 @@ export async function resolveModerationReview(
     throw new AppError(409, 'ADMIN_002', 'Review item already resolved');
   }
 
-  if (input.decision === 'REJECTED' && !input.reason) {
+  if ((input.decision === 'REJECTED' || input.decision === 'REVISION_REQUIRED') && !input.reason) {
     throw new AppError(422, 'ADMIN_003', 'Rejection reason required');
   }
 
   const resolved = await withPostgresTransaction(async (client) => {
+    await lockFreshActor(client, auth);
+    await assertResolverAccess(auth, review, client);
     await lockPublicationTarget(client, review.target_type, review.target_id, input.decision === 'APPROVED');
+    if (review.target_type === 'COMMENT') await advisoryCommentWriteLock(client, review.target_id);
+    await assertIndependentResolver(auth, review, client);
     if (review.target_type === 'COMMENT') {
-      await client.query("select pg_advisory_xact_lock(hashtextextended('comment:' || $1, 0))", [review.target_id]);
       const comment = await findCommentRecordById(review.target_id);
       if (comment?.status === 'PENDING_MODERATION' && comment.moderationReviewId === reviewId && input.decision === 'APPROVED') {
         if (comment.imageUrl) throw new AppError(409, 'GIF_UPLOAD_DISABLED', 'Remove the uploaded GIF before review.');

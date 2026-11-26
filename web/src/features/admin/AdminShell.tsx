@@ -20,9 +20,12 @@ const navigation = [
   ['/admin/taxonomy', 'sell', 'Thể loại và thẻ'],
   ['/admin/moderation', 'fact_check', 'Kiểm duyệt'],
   ['/admin/reports', 'flag', 'Báo cáo người dùng'],
+  ['/admin/escalations', 'add_moderator', 'Chuyển cấp'],
   ['/admin/discussions', 'forum', 'Thảo luận'],
   ['/admin/withdraws', 'payments', 'Yêu cầu rút xu'],
   ['/admin/appeals', 'forum', 'Khiếu nại'],
+  ['/admin/selection-reconsiderations', 'fact_check', 'Xét lại tuyển chọn'],
+  ['/admin/placements', 'calendar_month', 'Lịch giới thiệu'],
   ['/admin/audit', 'history', 'Nhật ký quản trị']
 ] as const;
 
@@ -60,6 +63,8 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
 
   const can = (path: string) => {
     const permissions = access.data?.permissions || [];
+    if (path.startsWith('/admin/placements')) return permissions.includes('placement.manage');
+    if (path.startsWith('/admin/selection-reconsiderations')) return permissions.includes('selection.reconsider');
     const permission: Permission | undefined =
       path === '/admin'
         ? 'audit'
@@ -67,7 +72,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
           ? 'users'
           : path.startsWith('/admin/withdraws')
             ? 'finance'
-            : /^\/admin\/(novels|taxonomy|moderation|reports|discussions)/.test(path)
+            : /^\/admin\/(novels|taxonomy|moderation|reports|discussions|escalations)/.test(path)
               ? 'content'
               : undefined;
     if (path.startsWith('/admin/appeals'))

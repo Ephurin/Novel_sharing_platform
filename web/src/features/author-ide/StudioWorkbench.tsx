@@ -32,8 +32,9 @@ type Props = {
   onSearchNovel?: () => void;
   notesOpen: boolean; onNotesOpenChange: (open: boolean) => void;
   publishedContent?: string | null; chapterStatus?: string; awaitingPublicationReview?: boolean; onPublish?: () => void;
+  publicationReason?: string | null;
 };
-export function StudioWorkbench({ scope, title, content, editor, disabled, apply, undo, redo, canUndo, canRedo, save, onError, exportOpen, onExportClose, chapterSettings, primaryActions, sidebarToggle, fileActions, formatToolbarVisible, onLookup, onSearchNovel, notesOpen, onNotesOpenChange, publishedContent, chapterStatus, awaitingPublicationReview, onPublish }: Props) {
+export function StudioWorkbench({ scope, title, content, editor, disabled, apply, undo, redo, canUndo, canRedo, save, onError, exportOpen, onExportClose, chapterSettings, primaryActions, sidebarToggle, fileActions, formatToolbarVisible, onLookup, onSearchNovel, notesOpen, onNotesOpenChange, publishedContent, chapterStatus, awaitingPublicationReview, onPublish, publicationReason }: Props) {
   const [panel, setPanel] = useState<'search' | 'replace' | 'scenes' | null>(null);
   const [preview, setPreview] = useState(false), [statistics, setStatistics] = useState(false), [help, setHelp] = useState(false);
   const [symbolsOpen, setSymbolsOpen] = useState(false);
@@ -256,6 +257,7 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
       <AnimatedTooltip label="Xem trước như độc giả"><button type="button" className="sc-studio-preview-button" aria-label="Xem trước như độc giả" onClick={() => setPreview(true)}><span className="material-symbols-outlined" aria-hidden="true">visibility</span><span className="sc-studio-preview-label">Xem trước như độc giả</span></button></AnimatedTooltip>
       {!online && <span role="status" className="sc-studio-offline">Ngoại tuyến · kiểm tra trạng thái lưu trước khi rời trang</span>}
     </div></div>{(chapterSettings || primaryActions) && <div className="sc-studio-command-right">{chapterSettings}{chapterSettings && primaryActions && <span className="sc-studio-cluster-divider hidden md:block" aria-hidden="true" />}{primaryActions && <div className="sc-studio-command-actions">{primaryActions}</div>}</div>}</div>
+    {publicationReason && <p className="px-3 py-1.5 break-words text-meta" style={{ color: 'var(--sc-text-muted)' }}>Lý do: {publicationReason}</p>}
     <AnimatePresence initial={false}>
       {panel && <motion.section key="studio-tool-panel" ref={panelRef} className="sc-studio-tool-panel" aria-label={panel === 'search' ? 'Tìm kiếm bản thảo' : panel === 'replace' ? 'Thay thế bản thảo' : 'Điều hướng cảnh'}
         initial={reduce ? false : { opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0 }}

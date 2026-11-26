@@ -1,3 +1,4 @@
+import { hasAuthorCapability } from '../../features/auth/auth-types';
 import { NotificationBell } from '../../features/notifications/NotificationBell';
 import { readerCollections } from '../../features/reader/ReaderCollectionsLayout';
 import { GlobalSearchDropdown } from './GlobalSearchDropdown';
@@ -94,7 +95,7 @@ export function AuthorNavbar() {
   const name = user?.displayName || user?.username || 'Tài khoản';
   // Readers and guests share this navbar so every StoryCraft page has one header; only authors and
   // admins get the writing workspace links.
-  const isWriter = user?.role === 'AUTHOR' || user?.role === 'ADMIN';
+  const isWriter = hasAuthorCapability(user?.role);
   const path = location.pathname;
   const discussionsActive = path === '/discussions' || path.startsWith('/discussions/');
   const catalogPath: '/reader' | '/public' = user ? '/reader' : '/public';
@@ -149,12 +150,26 @@ export function AuthorNavbar() {
                 const authorActive = (path === '/author' || path.startsWith('/author/')) && path !== '/author/profile';
                 const readerActive = path === '/reader';
                 const profileActive = path === '/author/profile';
+                const moderatorActive = path.startsWith('/moderator/reviews');
+                const moderatorHistoryActive = path.startsWith('/moderator/history');
                 return (
                   <>
                     <NavLink to="/author/projects" className={authorActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
                       {authorActive && navPill}
                       <span>{navigationLabels.authorHome}</span>
                     </NavLink>
+                    {user?.role === 'MODERATOR' && (
+                      <NavLink to="/moderator/reviews" className={moderatorActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
+                        {moderatorActive && navPill}
+                        <span>Hồ sơ điều hành</span>
+                      </NavLink>
+                    )}
+                    {user?.role === 'MODERATOR' && (
+                      <NavLink to="/moderator/history" className={moderatorHistoryActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
+                        {moderatorHistoryActive && navPill}
+                        <span>Lịch sử thao tác</span>
+                      </NavLink>
+                    )}
                     <NavLink to="/reader" end className={readerActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
                       {readerActive && navPill}
                       <span>{navigationLabels.readerHome}</span>

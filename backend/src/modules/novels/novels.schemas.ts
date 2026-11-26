@@ -23,12 +23,16 @@ export const listNovelsSchema = z.object({
 // at least 50 characters. The synopsis is a short introduction; story setup lives in the Story Bible.
 export const NOVEL_TITLE_MAX = 254;
 export const NOVEL_SYNOPSIS_MIN = 50;
+const storyFormat = z.literal('SHORT_STORY').nullable().optional();
+const serialStatus = z.enum(['ONGOING', 'COMPLETED', 'HIATUS']).optional();
 
 export const createNovelSchema = z.object({
   body: z.object({
     title: z.string().trim().min(1).max(NOVEL_TITLE_MAX),
     synopsis: z.string().trim().min(NOVEL_SYNOPSIS_MIN),
     authorNote: z.string().trim().max(5000).nullable().optional(),
+    storyFormat,
+    serialStatus,
     genres: boundedArray(z.string().trim().min(1).max(100), 5).optional(),
     genre: z.string().max(100).optional(),
     tags: boundedArray(z.string().min(1).max(100), MAX_NOVEL_TAGS).default([]),
@@ -43,6 +47,8 @@ export const updateNovelSchema = z.object({
     // Length is checked in updateNovel against the stored synopsis: an unchanged legacy synopsis is accepted.
     synopsis: z.string().trim().optional(),
     authorNote: z.string().trim().max(5000).nullable().optional(),
+    storyFormat,
+    serialStatus,
     genres: boundedArray(z.string().trim().min(1).max(100), 5).optional(),
     genre: z.string().max(100).nullable().optional(),
     tags: boundedArray(z.string().min(1).max(100), MAX_NOVEL_TAGS).optional(),

@@ -1,4 +1,10 @@
-export type UserRole = 'READER' | 'AUTHOR' | 'ADMIN';
+export type UserRole = 'READER' | 'AUTHOR' | 'ADMIN' | 'MODERATOR';
+
+export const authorCapabilityRoles = ['AUTHOR', 'ADMIN', 'MODERATOR'] as const;
+
+export function hasAuthorCapability(role?: UserRole | null) {
+  return role != null && (authorCapabilityRoles as readonly UserRole[]).includes(role);
+}
 
 export type CurrentUser = {
   userId: string;

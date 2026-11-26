@@ -1,4 +1,5 @@
 import { formatDateTime } from '../../shared/lib/format-vi';
+import { hasAuthorCapability } from '../auth/auth-types';
 import { AnimatedNumber } from '../../shared/components/AuthorAdminMotion';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { AnimatedChoiceGroup } from '../../shared/components/AnimatedChoiceGroup';
@@ -54,7 +55,7 @@ export function WalletPage() {
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
   const role = useAuthStore((s) => s.user?.role);
-  const isAuthor = role === 'AUTHOR' || role === 'ADMIN';
+  const isAuthor = hasAuthorCapability(role);
   const animateAuthor = isAuthor;
   const pageTitle = isAuthor ? navigationLabels.authorWallet : navigationLabels.readerWallet;
 

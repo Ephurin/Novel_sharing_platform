@@ -1,3 +1,4 @@
+import { lockFreshActor } from '../../core/security/transactional-identity.js';
 import { Router, type Request, type RequestHandler } from 'express';
 import { z } from 'zod';
 import { getPostgresPool } from '../../core/database/postgres.js';
@@ -9,11 +10,14 @@ import {
   adminAccess,
   assertAdminPermission,
   audit,
+  lockAdminAccess,
   protectAccount,
   requireAdminPermission
 } from './admin-access.js';
+import { applyUserAccessChange, userAccessChangeSchema } from './admin-access-change.js';
 import { applySanction, restoreSanction } from './admin-sanctions.js';
-import { drainAdminJobs, queueAdminNotification, retryAdminJob } from './admin-jobs.js';
+import { assertNotOriginalDecider } from './sanction-guard.js';
+import { drainAdminJobs, drainAdminJobsSafely, queueAdminNotification, retryAdminJob } from './admin-jobs.js';
 
 export const adminOperationsRoutes = Router();
 const uuid = (value: unknown) => z.string().uuid().parse(value);
@@ -152,41 +156,10 @@ adminOperationsRoutes.patch(
   requireAdminPermission('access'),
   http(async (req) => {
     const userId = uuid(req.params.userId);
-    const input = z
-      .object({
-        role: z.enum(['ADMIN', 'AUTHOR', 'READER']),
-        scope: z.enum(['SUPER_ADMIN', 'MODERATOR', 'USER_MANAGER', 'FINANCE']).optional(),
-        reason: reasonSchema
-      })
-      .parse(req.body);
-    if (input.role === 'ADMIN' && !input.scope)
-      throw new AppError(422, 'ADMIN_SCOPE', 'Chọn nhóm quyền admin.');
+    const input = userAccessChangeSchema.parse(req.body);
     return withPostgresTransaction(async (client) => {
-      const before = await protectAccount(client, req.auth!, userId, 'access');
-      await client.query('update users set role=$2,updated_at=now() where user_id=$1', [
-        userId,
-        input.role
-      ]);
-      if (input.role === 'ADMIN')
-        await client.query(
-          'insert into admin_access(user_id,scope,updated_by) values($1,$2,$3) on conflict(user_id) do update set scope=excluded.scope,updated_by=excluded.updated_by,updated_at=now()',
-          [userId, input.scope, req.auth!.userId]
-        );
-      else await client.query('delete from admin_access where user_id=$1', [userId]);
-      await client.query(
-        'update refresh_tokens set revoked_at=now() where user_id=$1 and revoked_at is null',
-        [userId]
-      );
-      await audit(client, req.auth!, {
-        action: 'USER_ACCESS_CHANGED',
-        targetType: 'USER',
-        targetId: userId,
-        affectedUserId: userId,
-        reason: input.reason,
-        before: { role: before.role, scope: before.admin_scope },
-        after: input
-      });
-      return { userId, ...input };
+      const outcome = await applyUserAccessChange(client, req.auth!, userId, input);
+      return { userId, ...input, accessVersion: outcome.accessVersion };
     });
   })
 );
@@ -250,11 +223,20 @@ adminOperationsRoutes.post(
       const sanction = (
         await client.query('select * from admin_sanctions where audit_id=$1', [row.audit_id])
       ).rows[0];
+      if (!sanction)
+        throw new AppError(409, 'APPEAL_SANCTION_INACTIVE', 'Chế tài đã được đảo trước đó. Hãy tải lại danh sách.');
+      if (sanction.target_type === 'USER') await lockAdminAccess(client);
+      await lockFreshActor(client, req.auth!);
       await assertAdminPermission(
         req.auth!,
         sanction.target_type === 'USER' ? 'users' : 'content',
         client
       );
+      if (String(row.user_id).toLowerCase() === String(req.auth!.userId).toLowerCase())
+        throw new AppError(403, 'APPEAL_SELF_SUBJECT', 'Không thể tự xử khiếu nại của chính mình.');
+      await assertNotOriginalDecider(client, req.auth!, sanction.sanction_id);
+      if (input.decision === 'ACCEPTED' && !sanction.active)
+        throw new AppError(409, 'APPEAL_SANCTION_INACTIVE', 'Chế tài đã được đảo trước đó. Hãy tải lại danh sách.');
       if (input.decision === 'ACCEPTED') {
         if (sanction.target_type === 'USER')
           await protectAccount(client, req.auth!, sanction.target_id, 'users');
@@ -282,7 +264,7 @@ adminOperationsRoutes.post(
       });
       return { appealId, status: input.decision };
     });
-    await drainAdminJobs();
+    await drainAdminJobsSafely();
     return result;
   })
 );

@@ -39,7 +39,7 @@ novelEngagementRoutes.get('/novels/:novelId/reviews', optionalAuth, validateRequ
     response.json(successResponse(result.data, result.meta));
   } catch (error) { next(error); }
 });
-const requireReader = [requireAuth, requireRoles(['READER'])];
+const requireReader = [requireAuth, requireRoles(['READER', 'MODERATOR'])];
 novelEngagementRoutes.put('/novels/:novelId/follow', ...requireReader, validateRequest(novelIdParamSchema), change);
 novelEngagementRoutes.delete('/novels/:novelId/follow', ...requireReader, validateRequest(novelIdParamSchema), change);
 novelEngagementRoutes.put('/novels/:novelId/notifications', ...requireReader, validateRequest(novelNotificationsSchema), change);
