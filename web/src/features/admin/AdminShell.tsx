@@ -21,7 +21,7 @@ const navigation = [
   ['/admin/moderation', 'fact_check', 'Kiểm duyệt'],
   ['/admin/reports', 'flag', 'Báo cáo người dùng'],
   ['/admin/discussions', 'forum', 'Thảo luận'],
-  ['/admin/withdraws', 'payments', 'Yêu cầu rút Xu'],
+  ['/admin/withdraws', 'payments', 'Yêu cầu rút xu'],
   ['/admin/appeals', 'forum', 'Khiếu nại'],
   ['/admin/audit', 'history', 'Nhật ký quản trị']
 ] as const;

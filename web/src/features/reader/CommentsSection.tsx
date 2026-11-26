@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { Alert, Avatar, Badge, Button, Group, Pagination, Paper, Stack, Text, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
@@ -127,7 +128,7 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
         <Text fw={600} style={{ overflowWrap: 'anywhere' }}><Link to={`/readers/${comment.userId}`}>{comment.displayName}</Link>{own ? ' (Bạn)' : ''}{comment.isAuthor && <Badge ml="xs" size="xs" variant="light">Tác giả</Badge>}</Text>
         {showContext && <Link className="sc-comment-source" title={comment.chapterTitle ?? undefined}
           to={comment.audience && comment.audience !== 'PUBLIC' ? `${base}/${comment.chapterId ? 'chapters/' + comment.chapterId : 'novels/' + comment.novelId}?threadId=${comment.parentCommentId ?? comment.commentId}&commentId=${comment.commentId}` : comment.chapterId ? `${base}/chapters/${comment.chapterId}` : `${base}/novels/${comment.novelId}#reader-comments`}>{source}</Link>}
-        <Text component="time" dateTime={comment.createdAt} size="xs" c="dimmed">{new Date(comment.createdAt).toLocaleString('vi-VN')}</Text>
+        <Text component="time" dateTime={comment.createdAt} title={formatDateTime(comment.createdAt)} size="xs" c="dimmed">{formatDateTime(comment.createdAt, 'relative')}</Text>
       </Stack>
       {comment.status !== 'APPROVED' && <Badge variant="light" color={comment.status === 'REJECTED' ? 'red' : 'yellow'}>{comment.status === 'REJECTED' ? 'Không được duyệt' : 'Chờ duyệt'}</Badge>}
     </Group>

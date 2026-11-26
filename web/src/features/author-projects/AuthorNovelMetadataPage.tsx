@@ -1,3 +1,5 @@
+import { AuthorNovelStatusBadge } from './AuthorNovelStatusBadge';
+import { formatDateTime, formatNumber } from '../../shared/lib/format-vi';
 import { LoadedImage } from '../../shared/components/AuthorAdminMotion';
 import { useWorkspacePreference, stringArray } from '../../shared/components/WorkspacePreferences';
 import { ResponsiveFilters, SelectionToolbar, useUpdatedItems } from '../../shared/components/InteractionWidgets';
@@ -299,13 +301,6 @@ export function AuthorNovelMetadataPage() {
     }
   };
 
-  const serialStatusLabel =
-    novel?.serialStatus === 'COMPLETED'
-      ? 'Đã hoàn thành'
-      : novel?.serialStatus === 'HIATUS'
-      ? 'Tạm ngưng'
-      : 'Đang ra';
-
   const ageRatingLabel =
     novel?.ageRating === 'MATURE' ? '18+' : novel?.ageRating === 'TEEN' ? '16+' : 'Mọi lứa tuổi';
 
@@ -377,7 +372,7 @@ export function AuthorNovelMetadataPage() {
                 </button>
                 <div className="sc-novel-description">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <span className={`sc-novel-status ${novel.status === 'PUBLISHED' ? 'sc-novel-status-public' : ''}`}>{novel.status === 'PUBLISHED' ? serialStatusLabel : novel.status === 'PENDING_MODERATION' ? 'Chờ duyệt' : novel.status === 'REJECTED' ? 'Từ chối' : 'Bản nháp'}</span>
+                    <AuthorNovelStatusBadge status={novel.status} serialStatus={novel.serialStatus} />
                     <span className="text-meta text-stone-500">{ageRatingLabel}</span>
                   </div>
                   <h1 className="text-page-title text-stone-900 mb-2">{novel.title}</h1>
@@ -388,7 +383,7 @@ export function AuthorNovelMetadataPage() {
                   </div>
                   <p className="text-meta text-stone-500 mb-2">
                     Tác giả: <Link className="text-stone-800 font-medium hover:underline" to={`/authors/${novel.authorId}`}>{user?.displayName || user?.username || 'Tác giả'}</Link>
-                    {' · '}Cập nhật {new Date(novel.updatedAt).toLocaleString('vi-VN')}
+                    {' · '}Cập nhật {formatDateTime(novel.updatedAt)}
                   </p>
                   <p className="sc-novel-synopsis text-body text-stone-600">
                     {novel.synopsis && novel.synopsis.length > 260 && !synopsisExpanded
@@ -424,7 +419,7 @@ export function AuthorNovelMetadataPage() {
               <dl className="sc-novel-metrics">
                 <div><dt>Tổng chương</dt><dd>{chaptersQuery.isPending ? '…' : chaptersQuery.isError ? '—' : <NumberFlow value={chapters.length} locales="vi-VN" animated={!reduce} />}</dd></div>
                 <div><dt>Lượt đọc</dt><dd><NumberFlow value={novel.viewsCount} locales="vi-VN" animated={!reduce} /></dd></div>
-                <div><dt>Doanh thu</dt><dd>{earningsQuery.isPending ? '…' : earningsQuery.isError ? '—' : <NumberFlow value={earningsQuery.data.unlockCoins} locales="vi-VN" animated={!reduce} />} <span className="text-meta font-normal">Xu</span></dd></div>
+                <div><dt>Doanh thu</dt><dd>{earningsQuery.isPending ? '…' : earningsQuery.isError ? '—' : <NumberFlow value={earningsQuery.data.unlockCoins} locales="vi-VN" animated={!reduce} />} <span className="text-meta font-normal">xu</span></dd></div>
                 <div><dt>Đánh giá</dt><dd><Link className="sc-rating-metric" to={`/author/novels/${novelId}/reviews`} title="Xem đánh giá độc giả" aria-label="Xem đánh giá độc giả">{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : statisticsQuery.data.ratingAverage === null ? 'Chưa có' : statisticsQuery.data.ratingAverage.toLocaleString('vi-VN', { maximumFractionDigits: 1 })}<span className="material-symbols-outlined" aria-hidden="true">chevron_right</span></Link></dd></div>
                 <div><dt>Theo dõi</dt><dd>{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : <NumberFlow value={statisticsQuery.data.followersCount} locales="vi-VN" animated={!reduce} />}</dd></div>
                 <div><dt>Tổng số từ</dt><dd>{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : <NumberFlow value={statisticsQuery.data.totalWords} locales="vi-VN" animated={!reduce} />}</dd></div>
@@ -752,16 +747,16 @@ export function AuthorNovelMetadataPage() {
                             )}
                           </div>
                           <div className="text-stone-400 text-meta mt-0.5">
-                            {chapter.publicationSchedule?.status === 'PENDING' ? 'Gửi duyệt lúc ' + new Date(chapter.publicationSchedule.scheduledAt).toLocaleString('vi-VN') : chapter.publicationSchedule?.status === 'PENDING_MODERATION' ? 'Lịch đăng đang chờ duyệt' : chapter.pendingPublicationRevision ? 'Phiên bản mới đang chờ duyệt' : chapter.publicationSchedule?.error ?? (chapter.draft?.autosave && 'Đang soạn trong Studio')}
+                            {chapter.publicationSchedule?.status === 'PENDING' ? 'Gửi duyệt lúc ' + formatDateTime(chapter.publicationSchedule.scheduledAt) : chapter.publicationSchedule?.status === 'PENDING_MODERATION' ? 'Lịch đăng đang chờ duyệt' : chapter.pendingPublicationRevision ? 'Phiên bản mới đang chờ duyệt' : chapter.publicationSchedule?.error ?? (chapter.draft?.autosave && 'Đang soạn trong Studio')}
                           </div>
                         </td>
                         <td className="py-3 px-3.5 text-right font-mono text-stone-800">
-                          {chapter.wordCount.toLocaleString()}
+                          {formatNumber(chapter.wordCount)}
                         </td>
                         <td className="py-3 px-3.5 text-center">
                           {chapter.isVip ? (
                             <span className="inline-flex items-center gap-1 text-meta font-medium text-amber-700 bg-amber-500/10 px-2 py-0.5 rounded-full">
-                              VIP • {chapter.priceCoins} Xu
+                              VIP • {formatNumber(chapter.priceCoins)} xu
                             </span>
                           ) : (
                             <span className="inline-flex items-center text-meta text-stone-600 bg-stone-100 px-2 py-0.5 rounded-full">
@@ -771,7 +766,7 @@ export function AuthorNovelMetadataPage() {
                         </td>
                         <td className="py-3 px-3.5 text-center">{renderStatusBadge(chapter.status)}</td>
                         <td className="py-3 px-3.5 text-stone-500 text-meta">
-                          {new Date(chapter.draft?.updatedAt ?? chapter.updatedAt).toLocaleDateString('vi-VN')}
+                          {formatDateTime(chapter.draft?.updatedAt ?? chapter.updatedAt, 'relative')}
                         </td>
                         <td className="py-3 px-3.5 text-right">
                           <div className="inline-flex items-center gap-1.5">
@@ -952,7 +947,7 @@ export function AuthorNovelMetadataPage() {
               <div className="flex items-center justify-between p-2.5 rounded-lg bg-stone-50 border border-stone-200">
                 <label htmlFor="new-chapter-vip" className="cursor-pointer">
                   <span className="font-semibold text-stone-800 block text-meta">Chế độ chương VIP</span>
-                  <span className="text-meta text-stone-500">Độc giả trả Xu để mở khóa</span>
+                  <span className="text-meta text-stone-500">Độc giả trả xu để mở khóa</span>
                 </label>
                 <input
                   id="new-chapter-vip"
@@ -965,7 +960,7 @@ export function AuthorNovelMetadataPage() {
 
               {newChapterVip && (
                 <div>
-                  <label htmlFor="new-chapter-price" className="block font-semibold text-stone-700 mb-1">Giá mở khóa (Xu)</label>
+                  <label htmlFor="new-chapter-price" className="block font-semibold text-stone-700 mb-1">Giá mở khóa (xu)</label>
                   <input
                     id="new-chapter-price"
                     type="number"

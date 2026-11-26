@@ -135,11 +135,26 @@ export function WorkspaceTable({ name, columns, children }: PropsWithChildren<{ 
     element.addEventListener('scroll', save, { passive: true }); element.addEventListener('wheel', cancel, { passive: true }); element.addEventListener('touchstart', cancel, { passive: true }); element.addEventListener('keydown', keydown);
     return () => { save(); cancelAnimationFrame(frame); element.removeEventListener('scroll', save); element.removeEventListener('wheel', cancel); element.removeEventListener('touchstart', cancel); element.removeEventListener('keydown', keydown); };
   }, [scrollKey, navigation]);
+  const normalizeColumnLabel = (label: string) => label === 'Số Xu yêu cầu' ? 'Số xu yêu cầu' : label;
+  const hiddenLabels = hidden.map(normalizeColumnLabel);
   const optional = columns.map((label, index) => ({ label, index })).filter(({ index, label }) => index > 0 && label !== 'Thao tác');
-  const indexes = optional.filter(c => hidden.includes(c.label)).map(c => c.index + 1);
+  const indexes = optional.filter(c => hiddenLabels.includes(c.label)).map(c => c.index + 1);
   const id = `sc-table-${name.replace(/[^a-z0-9-]/gi, '')}`;
   return <div id={id} className="sc-workspace-table">
-    <details className="sc-column-settings"><summary>Cột hiển thị</summary><div className="sc-workspace-row">{optional.map(({ label }) => <label key={label}><input type="checkbox" checked={!hidden.includes(label)} onChange={() => setHidden(old => old.includes(label) ? old.filter(c => c !== label) : [...old, label])} /> {label}</label>)}<button type="button" onClick={() => setHidden([])}>Khôi phục</button></div></details>
+    <details className="sc-column-settings">
+      <summary>Cột hiển thị</summary>
+      <div className="sc-workspace-row">
+        {optional.map(({ label }) => (
+          <label key={label}>
+            <input type="checkbox" checked={!hiddenLabels.includes(label)} onChange={() => setHidden(old => {
+              const labels = old.map(normalizeColumnLabel);
+              return labels.includes(label) ? labels.filter(column => column !== label) : [...labels, label];
+            })} /> {label}
+          </label>
+        ))}
+        <button type="button" onClick={() => setHidden([])}>Khôi phục</button>
+      </div>
+    </details>
     <style>{indexes.map(index => `#${id} > .admin-table-scroll > table > :is(thead,tbody) > tr > :nth-child(${index}){display:none}`).join('\n')}</style>
     <div ref={scrollRef} className="admin-table-scroll sc-sticky-table" tabIndex={0} role="region" aria-label="Bảng dữ liệu có thể cuộn">{children}</div>
   </div>;

@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
 import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { StateComparison } from '../../shared/components/StateComparison';
@@ -47,7 +48,7 @@ export function AuditRows({ items }: { items: AuditEntry[] }) {
           {items.map((item) => (
             <tr key={item.audit_id}>
               <td>
-                {dateTime(item.created_at)}
+                <time dateTime={item.created_at} title={dateTime(item.created_at)}>{formatDateTime(item.created_at, 'relative')}</time>
                 <small className="admin-block">@{item.actor_username}</small>
               </td>
               <td>{labels[item.action] || item.action}</td>

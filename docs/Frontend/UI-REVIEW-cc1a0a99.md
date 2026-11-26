@@ -30,7 +30,7 @@ Tài liệu giao cho team dev. Gộp ba bản đánh giá độc lập, đã b�
 
 ## Tiến độ
 
-**P1 (UI-01 → UI-07) đã sửa** trên nhánh `claude/ui-review-p1`. P2, P3 và UI-22 chưa làm.
+**P1 (UI-01 → UI-07) đã sửa** trên nhánh `claude/ui-review-p1`. Tiến độ P2/P3 được ghi theo từng nhóm bên dưới.
 
 | ID | Đã làm |
 |---|---|
@@ -41,6 +41,13 @@ Tài liệu giao cho team dev. Gộp ba bản đánh giá độc lập, đã b�
 | UI-05 | "Bookmark" → "Đoạn đã đánh dấu"; "Thể loại & Tag" → "Thể loại và thẻ"; `VISIBLE` → "Đang hiển thị"; ảnh bìa mặc định hết chữ tiếng Anh; "Xuất file Bible" → "Xuất cẩm nang (JSON)"; ô "Mã thao tác" thành danh sách chọn. |
 | UI-06 | "Đặt lại / Xóa bộ lọc" giữ từ khóa; nút riêng "Xóa toàn bộ" để xóa cả từ khóa. |
 | UI-07 | Lỗi thật duy nhất: thẻ phía độc giả đếm cả chương nháp (`novels.chapters_count`). Giờ chỉ đếm chương đã xuất bản. Lượt đọc 1/2 và tổng xu 0/500 là do chụp ảnh ở các thời điểm khác nhau (admin 09:47, giao dịch nạp 09:48), không phải lỗi. |
+
+### P2 · Hệ thống chung
+
+| ID | Đã làm trên nhánh `codex/ui-review-shared` |
+|---|---|
+| UI-10 | Danh sách dùng thời gian tương đối, mốc chi tiết dùng `HH:mm dd/MM/yyyy` theo giờ Việt Nam. Dùng số định dạng theo `vi-VN` và thống nhất “xu”, “Xóa”. |
+| UI-11 | Danh sách và quản lý tác phẩm dùng cùng huy hiệu. Dropdown dùng mũi tên xuống. Trang rộng dùng 1240 px, trang gọn dùng 960 px. Hai thẻ bên Diễn đàn dùng màu StoryCraft, giữ Literata cho tiêu đề theo quy ước đã ghi trong `design-system.md`. |
 
 ## Bảng tóm tắt
 

@@ -1,4 +1,5 @@
 import { apiClient, getApiErrorMessage, type ApiEnvelope } from '../../shared/api/api-client';
+import { formatNumber } from '../../shared/lib/format-vi';
 
 export type AppNotification = {
   notificationId: string;
@@ -22,8 +23,8 @@ const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   MODERATION_APPROVED: 'Đã duyệt nội dung',
   MODERATION_REJECTED: 'Từ chối nội dung',
   MODERATION_REVISION_REQUIRED: 'Cần chỉnh sửa',
-  WITHDRAW_APPROVED: 'Duyệt rút Xu',
-  WITHDRAW_REJECTED: 'Từ chối rút Xu',
+  WITHDRAW_APPROVED: 'Duyệt rút xu',
+  WITHDRAW_REJECTED: 'Từ chối rút xu',
   ADMIN_DECISION: 'Quyết định quản trị',
   APPEAL_RESOLVED: 'Kết quả khiếu nại',
   REPORT_RESOLVED: 'Kết quả báo cáo',
@@ -45,7 +46,7 @@ export function notificationTypeLabel(type: string): string {
   const mapped = NOTIFICATION_TYPE_LABELS[type];
   if (mapped) return mapped;
   const upper = type.toUpperCase();
-  if (upper.includes('WITHDRAW')) return 'Rút Xu';
+  if (upper.includes('WITHDRAW')) return 'Rút xu';
   if (upper.includes('APPEAL')) return 'Khiếu nại';
   if (upper.includes('MODERATION') || upper.includes('REVIEW')) return 'Kiểm duyệt';
   if (upper.includes('COMMENT')) return 'Bình luận';
@@ -81,6 +82,10 @@ export async function listNotifications(status?: 'UNREAD' | 'READ', page = 1) {
   });
   return {
     ...response.data,
+    data: response.data.data.map((item) => {
+      const amount = item.type === 'AUTHOR_INCOME' ? /^([0-9]+) xu$/i.exec(item.content) : null;
+      return amount ? { ...item, content: `${formatNumber(Number(amount[1]))} xu` } : item;
+    }),
     meta: {
       ...response.data.meta,
       totalItems: Number(response.data.meta.totalItems ?? response.data.data.length),

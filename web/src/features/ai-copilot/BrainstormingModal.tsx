@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { useState, useEffect, useRef } from 'react';
 import {
   Modal,
@@ -759,7 +760,7 @@ export function BrainstormingModal({
                 )}
                 <AnimatedDisclosure summary="Nguồn gốc gợi ý & mô hình AI">
                   <Text size="xs" c="dimmed" pt={4}>
-                    Nhà cung cấp <strong>{provenance.provider}</strong> · Mô hình <strong>{provenance.model}</strong> · Tham chiếu: {provenance.grounding_rules_count} quy tắc, {provenance.grounding_entities_count} nhân vật đã duyệt · Thời gian: {new Date(provenance.timestamp).toLocaleString('vi-VN')}
+                    Nhà cung cấp <strong>{provenance.provider}</strong> · Mô hình <strong>{provenance.model}</strong> · Tham chiếu: {provenance.grounding_rules_count} quy tắc, {provenance.grounding_entities_count} nhân vật đã duyệt · Thời gian: {formatDateTime(provenance.timestamp)}
                   </Text>
                 </AnimatedDisclosure>
               </Card>

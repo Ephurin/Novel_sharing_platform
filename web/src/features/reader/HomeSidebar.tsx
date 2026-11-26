@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -17,17 +18,6 @@ import {
 import { HomeNovelCover } from './HomeNovelCover';
 
 const count = (value = 0) => value.toLocaleString('vi-VN');
-
-function relativeTime(date?: string | null) {
-  if (!date) return '';
-  const elapsed = Math.max(0, Math.floor((Date.now() - new Date(date).getTime()) / 1000));
-  if (!Number.isFinite(elapsed)) return '';
-  const format = new Intl.RelativeTimeFormat('vi', { numeric: 'auto' });
-  if (elapsed < 60) return 'Vừa xong';
-  if (elapsed < 3600) return format.format(-Math.floor(elapsed / 60), 'minute');
-  if (elapsed < 86400) return format.format(-Math.floor(elapsed / 3600), 'hour');
-  return format.format(-Math.floor(elapsed / 86400), 'day');
-}
 
 function activityIconName(type: string) {
   const upper = (type || '').toUpperCase();
@@ -282,7 +272,7 @@ export function HomeSidebar({
             <div className="sc-home-activity-list">
               {notifications.map(item => {
                 const target = notificationHref(item, user.role === 'READER') ?? '/notifications';
-                const meta = [notificationTypeLabel(item.type), relativeTime(item.createdAt)].filter(Boolean).join(' · ');
+                const meta = [notificationTypeLabel(item.type), formatDateTime(item.createdAt, 'relative')].filter(Boolean).join(' · ');
                 return (
                   <Link key={item.notificationId} className="sc-home-activity-row" to={target}>
                     <span className="sc-home-activity-icon" aria-hidden="true">

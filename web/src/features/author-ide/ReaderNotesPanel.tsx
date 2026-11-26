@@ -1,3 +1,4 @@
+import { formatNumber } from '../../shared/lib/format-vi';
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { addAuthorNote, assertAuthorNoteRange, authorNoteRemovalEdits, authorNotesPublicationSignature, AUTHOR_NOTE_BODY_LIMIT, AUTHOR_NOTE_LIMIT, parseAuthorNotes, reattachAuthorNote, removeAuthorNote, updateAuthorNote } from '../../shared/lib/author-notes';
 import { locateAnchor, passageAnchor, rememberAnnotationEdits, type AnchorEdit, type TextAnchor } from './studio-annotations';
@@ -74,7 +75,7 @@ export function ReaderNotesPanel({ content, ready, request, getSelection, apply,
       {composer.mode === 'create' && <blockquote>{plainStudioText(composer.anchor.quote)}</blockquote>}
       <label htmlFor="studio-reader-note-body">Nội dung chú thích</label>
       <textarea id="studio-reader-note-body" ref={input} value={body} maxLength={AUTHOR_NOTE_BODY_LIMIT} onChange={event => setBody(event.target.value)} placeholder="Ví dụ: Nhân vật dùng ‘huynh’ để gọi người anh kết nghĩa, không phải anh ruột." />
-      <span className="text-meta">{body.length}/{AUTHOR_NOTE_BODY_LIMIT}</span>
+      <span className="text-meta">{formatNumber(body.length)}/{formatNumber(AUTHOR_NOTE_BODY_LIMIT)}</span>
       <div className="sc-studio-tool-row"><button type="button" disabled={!ready || !body.trim()} onClick={save}>Lưu chú thích</button><button type="button" onClick={() => { setComposer(null); setError(''); }}>Hủy chú thích</button></div>
     </div>}
     {all.map(note => <article className="sc-passage-note" key={note.id}>

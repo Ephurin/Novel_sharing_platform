@@ -1,3 +1,4 @@
+import { formatDateTime, formatNumber } from '../../shared/lib/format-vi';
 import { motion, useReducedMotion } from 'motion/react';
 import NumberFlow from '@number-flow/react';
 import { useToast } from '../../shared/components/ToastProvider';
@@ -498,7 +499,7 @@ export function AuthorWritingIde() {
       if (!value) return;
       setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins);
       setAutosaveStatus('saved');
-      setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }));
+      setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }));
     }
   }, [chapterQuery.data, activeChapterId, user?.userId]);
 
@@ -633,7 +634,7 @@ export function AuthorWritingIde() {
     applyStudioEdit(newContent, start + prefix.length, start + prefix.length);
   };
 
-  useEffect(() => { setAutosaveStatus(persistence.status); if (persistence.status === 'saved') setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })); }, [persistence.status]);
+  useEffect(() => { setAutosaveStatus(persistence.status); if (persistence.status === 'saved') setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })); }, [persistence.status]);
   const triggerAutosave = (newTitle: string, newContent: string, newIsVip: boolean, newPrice: number) => persistence.queue({ title: newTitle, content: newContent, isVip: newIsVip, priceCoins: newIsVip ? Math.max(1, newPrice) : 0 });
   const handleTitleChange = (val: string) => {
     if (isAcceptingAi || loadedChapter.current !== activeDraftScope) return;
@@ -1072,8 +1073,8 @@ export function AuthorWritingIde() {
               </button>
 
               {isVip && (
-                <div className="sc-studio-vip-price" title="Giá mở khóa chương VIP (Xu)">
-                  <label htmlFor="studio-vip-price" className="sc-motion-sr-only">Giá mở khóa (Xu)</label>
+                <div className="sc-studio-vip-price" title="Giá mở khóa chương VIP (xu)">
+                  <label htmlFor="studio-vip-price" className="sc-motion-sr-only">Giá mở khóa (xu)</label>
                   <input
                     id="studio-vip-price"
                     type="number"
@@ -1081,10 +1082,10 @@ export function AuthorWritingIde() {
                     max={999}
                     value={priceCoins}
                     onChange={(e) => handlePriceChange(parseInt(e.target.value, 10))}
-                    aria-label="Giá mở khóa (Xu)"
+                    aria-label="Giá mở khóa (xu)"
                     className="sc-studio-vip-input"
                   />
-                  <span>Xu</span>
+                  <span>xu</span>
                 </div>
               )}
             </div>
@@ -1249,7 +1250,7 @@ export function AuthorWritingIde() {
           }}>Xác nhận tải bản máy chủ</Button>
         </Group>
       </AnimatedModal>
-      {persistence.recovery && <Alert title="Có bản lưu trên máy chưa đồng bộ" color="orange"><Text size="sm">Bản lưu lúc {new Date(persistence.recovery.savedAt).toLocaleString('vi-VN')}. Nội dung máy chủ vẫn được giữ nguyên.</Text><Group mt="xs"><Button size="xs" onClick={() => { const value = persistence.recovery!.value; setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); persistence.dismissRecovery(); triggerAutosave(value.title, value.content, value.isVip, value.priceCoins); }}>Khôi phục vào trình soạn thảo</Button><Button size="xs" variant="default" onClick={persistence.dismissRecovery}>Bỏ bản lưu trên máy</Button></Group></Alert>}
+      {persistence.recovery && <Alert title="Có bản lưu trên máy chưa đồng bộ" color="orange"><Text size="sm">Bản lưu lúc {formatDateTime(persistence.recovery.savedAt)}. Nội dung máy chủ vẫn được giữ nguyên.</Text><Group mt="xs"><Button size="xs" onClick={() => { const value = persistence.recovery!.value; setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); persistence.dismissRecovery(); triggerAutosave(value.title, value.content, value.isVip, value.priceCoins); }}>Khôi phục vào trình soạn thảo</Button><Button size="xs" variant="default" onClick={persistence.dismissRecovery}>Bỏ bản lưu trên máy</Button></Group></Alert>}
       <AnimatedModal opened={persistence.blocker.state === 'blocked'} onClose={() => persistence.blocker.reset?.()} title="Bản nháp chưa lưu xong" size="md" centered>
         <p className="text-body">Bạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.</p>
         <Group mt="md" justify="flex-end">
@@ -1396,7 +1397,7 @@ export function AuthorWritingIde() {
                       {ch.title || `Chương ${ch.chapterNumber}`}
                     </p>
                     <div className="flex items-center justify-between text-meta text-stone-400 mt-0.5 pl-1">
-                      <span>{ch.wordCount ? `${ch.wordCount.toLocaleString()} từ` : 'Bản nháp'}</span>
+                      <span>{ch.wordCount ? `${formatNumber(ch.wordCount)} từ` : 'Bản nháp'}</span>
                       {isActive && <span className="text-primary-600 font-medium text-meta">Đang mở</span>}
                     </div>
                   </button>
@@ -2147,7 +2148,7 @@ export function AuthorWritingIde() {
               <div className="flex justify-between">
                 <span className="text-stone-500">Độ dài:</span>
                 <span className="font-medium text-stone-800">
-                  {wordCount.toLocaleString()} từ ({readTime} đọc)
+                  {formatNumber(wordCount)} từ ({readTime} đọc)
                 </span>
               </div>
               <div className="flex justify-between items-center pt-1 border-t border-stone-200/60">
@@ -2162,7 +2163,7 @@ export function AuthorWritingIde() {
                   {isVip ? (
                     <>
                       <span className="material-symbols-outlined text-meta text-amber-500 fill-icon">stars</span>
-                      Chương VIP ({priceCoins} Xu)
+                      Chương VIP ({formatNumber(priceCoins)} xu)
                     </>
                   ) : (
                     'Chương Miễn Phí'

@@ -14,7 +14,7 @@ const navItems: Array<{ to: string; label: string; roles: UserRole[] }> = [
   { to: '/reader', label: 'Khám phá truyện', roles: ['READER', 'AUTHOR'] },
   { to: '/reader/library', label: 'Thư viện của tôi', roles: ['READER', 'AUTHOR'] },
   { to: '/reader/history', label: 'Lịch sử đọc', roles: ['READER', 'AUTHOR'] },
-  { to: '/wallet', label: 'Ví Xu', roles: ['READER', 'AUTHOR'] },
+  { to: '/wallet', label: 'Ví xu', roles: ['READER', 'AUTHOR'] },
   { to: '/notifications', label: 'Thông báo', roles: ['READER', 'AUTHOR'] },
   { to: '/appeals', label: 'Khiếu nại', roles: ['READER', 'AUTHOR'] },
   { to: '/profile/me', label: 'Hồ sơ & cài đặt', roles: ['READER', 'AUTHOR'] },
@@ -24,7 +24,7 @@ const navItems: Array<{ to: string; label: string; roles: UserRole[] }> = [
   { to: '/admin/taxonomy', label: 'Thể loại & Nhãn', roles: ['ADMIN'] },
   { to: '/admin/moderation', label: 'Kiểm duyệt', roles: ['ADMIN'] },
   { to: '/admin/reports', label: 'Báo cáo vi phạm', roles: ['ADMIN'] },
-  { to: '/admin/withdraws', label: 'Yêu cầu rút Xu', roles: ['ADMIN'] }
+  { to: '/admin/withdraws', label: 'Yêu cầu rút xu', roles: ['ADMIN'] }
 ];
 
 export function WebAppShell() {

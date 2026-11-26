@@ -21,7 +21,7 @@ type Page<T> = { items: T[]; hasNext: boolean };
 const LIMIT = 20;
 const unwrap = <T,>(res: { data: ApiEnvelope<T> }) => res.data.data;
 const STATUS_COLOR: Record<TopicStatus, string> = { VISIBLE: 'teal', HIDDEN: 'orange', DELETED: 'red' };
-const STATUS_LABEL: Record<TopicStatus, string> = { VISIBLE: 'Đang hiển thị', HIDDEN: 'Đã ẩn', DELETED: 'Đã xoá' };
+const STATUS_LABEL: Record<TopicStatus, string> = { VISIBLE: 'Đang hiển thị', HIDDEN: 'Đã ẩn', DELETED: 'Đã xóa' };
 
 /** Reason is mandatory for every moderation and for retiring a category. */
 type ReasonTarget = { kind: 'topic' | 'comment' | 'category'; id: string; commentId?: string; label: string; patch: Record<string, unknown> };
@@ -111,7 +111,7 @@ export function AdminDiscussionsPage() {
             <SegmentedControl
               value={status}
               onChange={(value) => { setStatus(value as TopicStatus); setPage(1); setExpanded(null); }}
-              data={[{ label: 'Hiển thị', value: 'VISIBLE' }, { label: 'Đã ẩn', value: 'HIDDEN' }, { label: 'Đã xoá', value: 'DELETED' }]}
+              data={[{ label: 'Hiển thị', value: 'VISIBLE' }, { label: 'Đã ẩn', value: 'HIDDEN' }, { label: 'Đã xóa', value: 'DELETED' }]}
             />
             {topicsQuery.isPending ? <LoadingState variant="table" label="Đang tải chủ đề…" /> : null}
             {topicsQuery.isError ? <ErrorState error={topicsQuery.error} onRetry={() => void topicsQuery.refetch()} /> : null}
@@ -182,7 +182,7 @@ export function AdminDiscussionsPage() {
                               )}
                               {isDeleted ? null : (
                                 <Button size="compact-xs" color="red" variant="subtle"
-                                  onClick={() => askReason({ kind: 'topic', id: topic.topicId, label: topic.title, patch: { status: 'DELETED' } })}>Xoá</Button>
+                                  onClick={() => askReason({ kind: 'topic', id: topic.topicId, label: topic.title, patch: { status: 'DELETED' } })}>Xóa</Button>
                               )}
                             </Group>
                           </Table.Td>
@@ -300,7 +300,7 @@ function CommentList({ query, page, deletable, onPage, onModerate }: {
               <Text size="sm" lineClamp={3}>{comment.body}</Text>
             </Stack>
             <Group gap={4} wrap="nowrap">
-              {deleted ? <Text size="xs" c="dimmed">Đã xoá</Text> : comment.status === 'VISIBLE' ? (
+              {deleted ? <Text size="xs" c="dimmed">Đã xóa</Text> : comment.status === 'VISIBLE' ? (
                 <Button size="compact-xs" color="orange" variant="subtle"
                   onClick={() => onModerate(comment, { status: 'HIDDEN' }, 'Ẩn bình luận')}>Ẩn</Button>
               ) : (
@@ -309,7 +309,7 @@ function CommentList({ query, page, deletable, onPage, onModerate }: {
               )}
               {deletable && !deleted ? (
                 <Button size="compact-xs" color="red" variant="subtle"
-                  onClick={() => onModerate(comment, { status: 'DELETED' }, 'Xoá bình luận')}>Xoá</Button>
+                  onClick={() => onModerate(comment, { status: 'DELETED' }, 'Xóa bình luận')}>Xóa</Button>
               ) : null}
             </Group>
           </Group>

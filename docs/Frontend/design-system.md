@@ -1,6 +1,16 @@
 # Frontend Design System
 
-> **Outdated.** This describes the earlier dark, violet MVP theme. The current web UI uses the StoryCraft theme; see `ui-conventions.md`.
+## Quy ước StoryCraft hiện hành
+
+- **Độ rộng** dùng `--sc-content-width` (1240 px) cho trang danh sách và Thư viện. Dùng `--sc-content-compact` (960 px) cho Thông báo và các trang nội dung Diễn đàn. Vùng đọc chương và trình soạn thảo có bố cục riêng.
+- **Trạng thái tác phẩm** dùng hổ phách cho Chờ duyệt, cam đất cho Đang sáng tác, xanh bạc hà cho Hoàn thành, đỏ trầm cho Từ chối và trung tính cho Bản nháp hoặc Tạm ngưng. Danh sách và quản lý tác phẩm dùng cùng huy hiệu, với token theo giao diện sáng hoặc tối.
+- **Dropdown** dùng một mũi tên hướng xuống trên điều khiển chọn. Chế độ tương phản cưỡng bức giữ mũi tên gốc của hệ điều hành cho điều khiển HTML.
+- **Diễn đàn** dùng Be Vietnam Pro cho điều khiển và nội dung giao diện. Literata là ngoại lệ có chủ ý cho tiêu đề hiển thị. “Đáng chú ý” dùng nền trung tính và “Đang được quan tâm” dùng tông cam đất của StoryCraft.
+- **Ngày giờ và số** dùng `formatDateTime` và `formatNumber` trong `web/src/shared/lib/format-vi.ts`. Danh sách hiện thời gian tương đối. Chi tiết hiện `HH:mm dd/MM/yyyy` theo giờ Việt Nam. Số theo `vi-VN`, đơn vị tiền ảo viết “xu” và thao tác xóa viết “Xóa”.
+
+## Quy ước MVP trước đây
+
+Phần dưới lưu lại hệ thống giao diện MVP. Quy ước StoryCraft hiện hành được ghi ở trên và trong `ui-conventions.md`.
 
 This document defines the MVP visual and component rules for the Ephurin web UI.
 
