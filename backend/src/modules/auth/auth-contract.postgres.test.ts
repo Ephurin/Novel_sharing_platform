@@ -2,7 +2,9 @@ import { before, after, describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import type { Server } from 'node:http';
-import { spawn } from 'node:child_process';
+import { devNull } from 'node:os';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createApp } from '../../app.js';
@@ -630,32 +632,23 @@ describe('PR-01: moderator role capability and access-version session contract',
     assert.throws(() => assertIndependentActor(moderator, [null, undefined, moderator]), { httpStatus: 403, code: 'MOD_CONFLICT' });
   });
 
-  test('MODERATOR_ENABLED keeps the operational permission set off by default', async () => {
-    const flagOn = await new Promise<{ code: number; stdout: string; stderr: string }>((resolve, reject) => {
-      const program =
-        "import {moderatorPermissionsFor} from './src/core/security/moderation-policy.ts';import {disconnectPostgres} from './src/core/database/postgres.ts';console.log(JSON.stringify(moderatorPermissionsFor('MODERATOR')));await disconnectPostgres();";
-      const child = spawn(process.execPath, ['--import', 'tsx', '--input-type=module', '-e', program], {
-        cwd: process.cwd(),
-        env: { ...process.env, MODERATOR_ENABLED: 'true' },
-        windowsHide: true,
-        stdio: ['ignore', 'pipe', 'pipe']
-      });
-      let stdout = '';
-      let stderr = '';
-      child.stdout.on('data', (data) => (stdout += data));
-      child.stderr.on('data', (data) => (stderr += data));
-      child.on('error', reject);
-      child.on('exit', (code) => resolve({ code: code ?? 1, stdout, stderr }));
-    });
-    assert.equal(flagOn.code, 0, flagOn.stderr);
-    assert.deepEqual(JSON.parse(flagOn.stdout), [
-      'publication.review',
-      'comment.review',
-      'report.review',
-      'sanction.warn',
-      'sanction.hide',
-      'discussion.operate',
-      'escalation.submit'
-    ]);
+  test('Moderator, selection and placement default to enabled and accept explicit false', async () => {
+    const flags = ['MODERATOR_ENABLED', 'NOVEL_SELECTION_ENABLED', 'NOVEL_FEATURED_PLACEMENTS_ENABLED'];
+    const readFlags = async (override?: 'false') => {
+      const childEnv: NodeJS.ProcessEnv = { ...process.env, DOTENV_CONFIG_PATH: devNull };
+      for (const flag of flags) {
+        if (override === undefined) delete childEnv[flag];
+        else childEnv[flag] = override;
+      }
+      const program = `import { env } from './src/core/config/env.ts';
+        console.log(JSON.stringify(${JSON.stringify(flags)}.map(flag => env[flag])));`;
+      const { stdout } = await promisify(execFile)(
+        process.execPath, ['--import', 'tsx', '--input-type=module', '-e', program],
+        { env: childEnv, windowsHide: true }
+      );
+      return JSON.parse(stdout) as unknown;
+    };
+    assert.deepEqual(await readFlags(), [true, true, true]);
+    assert.deepEqual(await readFlags('false'), [false, false, false]);
   });
 });

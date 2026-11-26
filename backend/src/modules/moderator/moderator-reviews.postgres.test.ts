@@ -116,6 +116,8 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
 
   before(async () => {
     env.MODERATOR_ENABLED = true;
+    env.NOVEL_SELECTION_ENABLED = true;
+    env.NOVEL_FEATURED_PLACEMENTS_ENABLED = true;
     await validateTestDatabaseIsolation(pool, getMongoDatabase());
     for (const [id, role, scope] of [
       [admin, 'ADMIN', 'SUPER_ADMIN'],
@@ -213,7 +215,9 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
       'sanction.warn',
       'sanction.hide',
       'discussion.operate',
-      'escalation.submit'
+      'escalation.submit',
+      'selection.review',
+      'placement.manage'
     ]);
     assert.equal((await bearerCall('/moderator/access', { token: mint(reader1, 'READER') })).status, 403);
     assert.equal((await bearerCall('/moderator/access')).status, 401);
