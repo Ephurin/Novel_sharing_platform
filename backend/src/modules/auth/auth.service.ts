@@ -1,12 +1,13 @@
-import { promoteReaderToAuthor } from './auth.repository.js';
 import bcrypt from 'bcryptjs';
 import { createHash, createHmac, randomBytes, randomInt, randomUUID, timingSafeEqual } from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import type { PoolClient } from 'pg';
+import { z } from 'zod';
 import { env } from '../../core/config/env.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
+import { lockFreshActor } from '../../core/security/transactional-identity.js';
 import {
   consumeGoogleChallenge,
   clearEmailRegistration,
@@ -20,6 +21,7 @@ import {
   linkGoogleAccount,
   lockPendingRegistration,
   findRegistrationContext,
+  promoteReaderToAuthor,
   pruneExpiredRegistrationData,
   recordFailedRegistrationCode,
   registrationConflicts,
@@ -38,10 +40,16 @@ import type { AuthUser, PublicAuthUser } from './auth.types.js';
 import type { ChangePasswordInput, LoginInput, RegisterInput } from './auth.schemas.js';
 import { sendRegistrationEmail, withRegistrationDeliverySlot } from './registration-mail.js';
 
-const refreshTokenPayloadSchema = {
+const tokenClaims = {
   issuer: 'ephurin-api',
   audience: 'ephurin-client'
 };
+
+const refreshTokenPayloadSchema = z.object({
+  sub: z.string().min(1),
+  typ: z.literal('refresh'),
+  ver: z.number().int().nonnegative().default(0)
+});
 
 function toPublicUser(user: AuthUser): PublicAuthUser {
   return {
@@ -70,8 +78,8 @@ function createAccessToken(user: AuthUser) {
     env.JWT_ACCESS_SECRET,
     {
       expiresIn: env.JWT_ACCESS_EXPIRES_SECONDS,
-      issuer: refreshTokenPayloadSchema.issuer,
-      audience: refreshTokenPayloadSchema.audience
+      issuer: tokenClaims.issuer,
+      audience: tokenClaims.audience
     }
   );
 }
@@ -81,14 +89,15 @@ function createRefreshJwt(user: AuthUser) {
     {
       sub: user.userId,
       role: user.role,
+      ver: user.accessVersion,
       jti: randomUUID(),
       typ: 'refresh'
     },
     env.JWT_REFRESH_SECRET,
     {
       expiresIn: `${env.JWT_REFRESH_EXPIRES_DAYS}d`,
-      issuer: refreshTokenPayloadSchema.issuer,
-      audience: refreshTokenPayloadSchema.audience
+      issuer: tokenClaims.issuer,
+      audience: tokenClaims.audience
     }
   );
 }
@@ -99,18 +108,18 @@ function getRefreshExpiryDate() {
   return expiresAt;
 }
 
-async function issueTokenPair(user: AuthUser, client?: PoolClient) {
+async function issueTokenPair(user: AuthUser, client: PoolClient, recordLogin = false) {
+  // Access changes lock the user before revoking refresh sessions. Session
+  // issuance follows that order and keeps the verified generation until commit.
+  await lockFreshActor(client, user, recordLogin ? 'write' : 'read');
+  if (recordLogin) await updateLastLoginAt(user.userId, client);
   const accessToken = createAccessToken(user);
   const refreshToken = createRefreshJwt(user);
-  const tokenHash = hashToken(refreshToken);
-  const expiresAt = getRefreshExpiryDate();
-
-  const persist = (sessionClient: PoolClient) => createRefreshToken(sessionClient, {
+  await createRefreshToken(client, {
     userId: user.userId,
-    tokenHash,
-    expiresAt
+    tokenHash: hashToken(refreshToken),
+    expiresAt: getRefreshExpiryDate()
   });
-  await (client ? persist(client) : withPostgresTransaction(persist));
 
   return {
     accessToken,
@@ -313,8 +322,7 @@ export async function login(input: LoginInput) {
     throw new AppError(401, 'AUTH_003', 'Invalid credentials');
   }
 
-  await updateLastLoginAt(user.userId);
-  const tokens = await issueTokenPair(user);
+  const tokens = await withPostgresTransaction((client) => issueTokenPair(user, client, true));
 
   return {
     user: toPublicUser(user),
@@ -372,8 +380,7 @@ export async function loginWithGoogle(input: {
         }
       }
 
-      await updateLastLoginAt(user.userId, client);
-      return { user: toPublicUser(user), ...await issueTokenPair(user, client) };
+      return { user: toPublicUser(user), ...await issueTokenPair(user, client, true) };
     });
   } catch (error) {
     if (typeof error === 'object' && error !== null && 'constraint' in error && error.constraint === 'users_email_key') {
@@ -388,11 +395,12 @@ export async function refreshAccessToken(refreshToken: string | undefined) {
     throw new AppError(401, 'AUTH_006', 'Invalid refresh token');
   }
 
+  let session: z.infer<typeof refreshTokenPayloadSchema>;
   try {
-    jwt.verify(refreshToken, env.JWT_REFRESH_SECRET, {
-      issuer: refreshTokenPayloadSchema.issuer,
-      audience: refreshTokenPayloadSchema.audience
-    });
+    session = refreshTokenPayloadSchema.parse(jwt.verify(refreshToken, env.JWT_REFRESH_SECRET, {
+      issuer: tokenClaims.issuer,
+      audience: tokenClaims.audience
+    }));
   } catch {
     throw new AppError(401, 'AUTH_006', 'Invalid refresh token');
   }
@@ -400,7 +408,7 @@ export async function refreshAccessToken(refreshToken: string | undefined) {
   const tokenHash = hashToken(refreshToken);
   const user = await findRefreshSession(tokenHash);
 
-  if (!user) {
+  if (!user || user.userId !== session.sub || user.accessVersion !== session.ver) {
     throw new AppError(401, 'AUTH_006', 'Invalid refresh token');
   }
 
@@ -450,9 +458,13 @@ export async function changePassword(auth: AuthContext, input: ChangePasswordInp
 }
 
 export async function becomeAuthor(auth: AuthContext) {
-  const account = await findAuthUserById(auth.userId);
-  if (!account || account.status !== 'ACTIVE' || account.role !== auth.role || !['READER', 'AUTHOR'].includes(account.role)) throw new AppError(403, 'AUTH_008', 'Tài khoản không thể đăng ký sáng tác');
-  const user = await promoteReaderToAuthor(auth.userId);
-  if (!user || user.status !== 'ACTIVE' || user.role !== 'AUTHOR') throw new AppError(409, 'AUTH_008', 'Không thể đăng ký sáng tác');
-  return { user: toPublicUser(user), ...await issueTokenPair(user) };
+  if (auth.role !== 'READER' && auth.role !== 'AUTHOR') {
+    throw new AppError(403, 'AUTH_008', 'Tài khoản không thể đăng ký sáng tác');
+  }
+  return withPostgresTransaction(async (client) => {
+    await lockFreshActor(client, auth, 'write');
+    const user = await promoteReaderToAuthor(auth.userId, client);
+    if (!user || user.role !== 'AUTHOR') throw new AppError(409, 'AUTH_008', 'Không thể đăng ký sáng tác');
+    return { user: toPublicUser(user), ...await issueTokenPair(user, client) };
+  });
 }

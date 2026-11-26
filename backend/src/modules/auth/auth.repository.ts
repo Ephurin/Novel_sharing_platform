@@ -34,8 +34,8 @@ export async function findAuthUserByEmailOrUsername(identifier: string) {
   return result.rows[0] ? mapAuthUser(result.rows[0]) : null;
 }
 
-export async function findAuthUserById(userId: string) {
-  const result = await getPostgresPool().query(
+export async function findAuthUserById(userId: string, client?: DbClient) {
+  const result = await (client ?? getPostgresPool()).query(
     `
       select u.*, p.display_name, p.avatar_url
       from users u
@@ -218,8 +218,8 @@ export async function createUserAccount(
   });
 }
 
-export async function updateLastLoginAt(userId: string, client?: DbClient) {
-  await (client ?? getPostgresPool()).query(
+export async function updateLastLoginAt(userId: string, client: DbClient) {
+  await client.query(
     `
       update users
       set last_login_at = now(), updated_at = now()
@@ -330,7 +330,7 @@ export async function revokeRefreshToken(tokenHash: string) {
   );
 }
 
-export async function promoteReaderToAuthor(userId: string) {
-  await getPostgresPool().query("update users set role = 'AUTHOR', updated_at = now() where user_id = $1 and role = 'READER' and status = 'ACTIVE' and deleted_at is null", [userId]);
-  return findAuthUserById(userId);
+export async function promoteReaderToAuthor(userId: string, client: DbClient) {
+  await client.query("update users set role = 'AUTHOR', updated_at = now() where user_id = $1 and role = 'READER' and status = 'ACTIVE' and deleted_at is null", [userId]);
+  return findAuthUserById(userId, client);
 }

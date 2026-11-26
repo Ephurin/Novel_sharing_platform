@@ -10,6 +10,8 @@ import { env } from '../../core/config/env.js';
 import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
 import { getMongoDatabase, disconnectMongo } from '../../core/database/mongo.js';
 import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
+import { waitForBlockedTransaction } from '../../core/database/test-postgres-locks.js';
+import { applyUserAccessChange } from '../admin/admin-access-change.js';
 import { publishDueChapters } from '../novels/chapter-schedules.js';
 import {
   assertIndependentActor
@@ -257,6 +259,51 @@ describe('PR-01: moderator role capability and access-version session contract',
     assert.equal((await bearerCall(base, '/auth/me', { token: moderatorToken(1) })).status, 200);
   });
 
+  for (const [role, nextRole] of [['READER', 'MODERATOR'], ['MODERATOR', 'READER']] as const) {
+    test(`E09: password login during ${role} to ${nextRole} access change discards the stale session`, async () => {
+      const userId = randomUUID();
+      const identifier = `pr01-${userId}@example.test`;
+      await insertUser(pool, { id: userId, role, passwordHash: await bcrypt.hash(PASSWORD, 4) });
+      const gate = await pool.connect();
+      const moderatorEnabled = env.MODERATOR_ENABLED;
+      let inFlight: ReturnType<typeof login> | undefined;
+      try {
+        env.MODERATOR_ENABLED = true;
+        await gate.query('begin');
+        await applyUserAccessChange(gate, { userId: root }, userId, {
+          role: nextRole, reason: 'Đổi quyền trong khi đăng nhập.'
+        });
+        inFlight = login(identifier, PASSWORD);
+        await waitForBlockedTransaction(pool, gate);
+        await gate.query('commit');
+
+        const rejected = await inFlight;
+        assert.equal(rejected.status, 401);
+        assert.equal(rejected.refreshToken, undefined);
+        const { rows: [account] } = await pool.query(
+          `select last_login_at, (select count(*)::int from refresh_tokens where user_id=$1) as sessions
+           from users where user_id=$1`, [userId]
+        );
+        assert.deepEqual(account, { last_login_at: null, sessions: 0 });
+
+        const fresh = await login(identifier, PASSWORD);
+        assert.equal(fresh.status, 200);
+        assert.equal(fresh.body.data.user.role, nextRole);
+        assert.ok(fresh.refreshToken);
+        const refreshed = await bearerCall(base, '/auth/refresh-token', {
+          method: 'POST',
+          cookie: `${env.REFRESH_TOKEN_COOKIE_NAME}=${fresh.refreshToken}`
+        });
+        assert.equal(refreshed.status, 200);
+      } finally {
+        await gate.query('rollback');
+        gate.release();
+        await Promise.allSettled([inFlight]);
+        env.MODERATOR_ENABLED = moderatorEnabled;
+      }
+    });
+  }
+
   test('E09: refresh racing an access change can only mint an already-stale token', async () => {
     const racing = randomUUID();
     await insertUser(pool, { id: racing, role: 'READER', passwordHash: await bcrypt.hash(PASSWORD, 4) });
@@ -285,6 +332,10 @@ describe('PR-01: moderator role capability and access-version session contract',
     }
 
     assert.equal((await bearerCall(base, '/auth/me', { token: oldAccessToken })).status, 401);
+    assert.equal((await bearerCall(base, '/auth/refresh-token', {
+      method: 'POST',
+      cookie: `${env.REFRESH_TOKEN_COOKIE_NAME}=${session.refreshToken}`
+    })).status, 401);
     const afterCommit = await bearerCall(base, '/auth/me', { token: mint(racing,'AUTHOR',1) });
     assert.equal(afterCommit.status, 200);
     assert.equal((afterCommit.body as { data: { role?: string } }).data.role, 'AUTHOR');
@@ -303,6 +354,14 @@ describe('PR-01: moderator role capability and access-version session contract',
     const me = await bearerCall(base, '/auth/me', { token: oldAccessToken });
     assert.equal(me.status, 200);
     assert.equal((me.body as { data: { role?: string } }).data.role, 'AUTHOR');
+    const refresh = await bearerCall(base, '/auth/refresh-token', {
+      method: 'POST',
+      cookie: `${env.REFRESH_TOKEN_COOKIE_NAME}=${session.refreshToken}`
+    });
+    assert.equal(refresh.status, 200);
+    const refreshed = await bearerCall(base, '/auth/me', { token: refresh.body.data.accessToken });
+    assert.equal(refreshed.status, 200);
+    assert.equal(refreshed.body.data.role, 'AUTHOR');
   });
 
   test('PR-07: MODERATOR grants stay blocked while the rollout flag is off', async () => {
