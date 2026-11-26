@@ -98,8 +98,14 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
         await expect(page.getByRole('button', { name: 'Theo dõi tác giả', exact: true })).toHaveCount(0);
         const coverBounds = await page.locator('.sc-reader-detail-cover').boundingBox();
         assert.equal(Math.round(coverBounds.width), width > 640 ? 192 : 144);
-        const genreBounds = await page.locator('.sc-reader-genres').boundingBox(), tagBounds = await page.locator('.sc-reader-tags').boundingBox();
-        assert.ok(tagBounds.y >= genreBounds.y + genreBounds.height);
+        await expect(page.locator('.sc-reader-genres')).toBeVisible();
+        await expect(page.locator('.sc-reader-tags')).toBeVisible();
+        await page.evaluate(() => document.fonts.ready);
+        await expect.poll(() => page.locator('.sc-reader-taxonomy').evaluate((taxonomy) => {
+          const genres = taxonomy.querySelector('.sc-reader-genres').getBoundingClientRect();
+          const tags = taxonomy.querySelector('.sc-reader-tags').getBoundingClientRect();
+          return tags.top - genres.bottom;
+        }), { message: `Tags should appear below genres for ${role} at ${width}px in ${theme} mode` }).toBeGreaterThanOrEqual(0);
         for (const selector of ['.sc-reader-genres a', '.sc-reader-tags a']) {
           const link = page.locator(selector).first();
           const normalColor = await link.evaluate(element => getComputedStyle(element).color);
