@@ -30,6 +30,17 @@ type SelectionDetail = SelectionCase & {
 type Comparison = { title: string; content: string | null } | null;
 type Page<T> = { items: T[]; hasMore: boolean };
 type Nomination = { nomination_id: string; novel_id: string; reason: string; title: string; status: SelectionCase['status'] };
+export const reconsiderationLabels = { OPEN: 'Chờ xét lại', ACCEPTED: 'Đã chấp nhận', REJECTED: 'Đã bác' };
+export type Reconsideration = {
+  reconsideration_id: string; case_id: string; decision_version: number;
+  decision_status: 'REJECTED' | 'REVOKED'; reason: string; status: keyof typeof reconsiderationLabels;
+  resolution: string | null; created_at: string; resolved_at: string | null;
+};
+type ReconsiderationWindow = { caseId: string; decisionVersion: number; deadline: string; inWindow: boolean; canSubmit: boolean; submitted: boolean };
+export type AdminReconsideration = Reconsideration & {
+  novel_id: string; title: string; decision_reason: string; can_resolve: boolean; version: number;
+};
+export type ReconsiderationOutcome = 'ACCEPTED' | 'REJECTED';
 
 export async function nominateNovel(novelId: string, reason: string, key: string) {
   return (await apiClient.post<ApiEnvelope<{ caseId: string }>>(`/novels/${novelId}/nominations`, { reason }, {
@@ -42,7 +53,25 @@ export async function ownNominations(page: number) {
 }
 
 export async function getAuthorSelection(novelId: string) {
-  return (await apiClient.get<ApiEnvelope<{ item: SelectionCase | null; eligibility: Eligibility }>>(`/author/novels/${novelId}/selection`)).data.data;
+  return (await apiClient.get<ApiEnvelope<{ item: SelectionCase | null; eligibility: Eligibility;
+    reconsiderationWindow?: ReconsiderationWindow | null; reconsiderations?: Reconsideration[]
+  }>>(`/author/novels/${novelId}/selection`)).data.data;
+}
+
+export async function requestReconsideration(novelId: string, decision: ReconsiderationWindow, reason: string) {
+  return (await apiClient.post(`/novels/${novelId}/selections/${decision.caseId}/reconsiderations`, {
+    decisionVersion: decision.decisionVersion, reason
+  })).data.data;
+}
+
+export async function listAdminReconsiderations(status: Reconsideration['status'], page: number) {
+  return (await apiClient.get<ApiEnvelope<Page<AdminReconsideration>>>('/admin/selection-reconsiderations', { params: { status, page } })).data.data;
+}
+
+export async function resolveAdminReconsideration(item: AdminReconsideration, outcome: ReconsiderationOutcome, reason: string) {
+  return (await apiClient.post(`/admin/selection-reconsiderations/${item.reconsideration_id}/resolve`, {
+    outcome, reason, expectedVersion: item.version
+  })).data.data;
 }
 
 export async function supplementSelection(item: SelectionCase, notes: string) {

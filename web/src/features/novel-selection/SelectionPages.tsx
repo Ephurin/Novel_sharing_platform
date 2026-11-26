@@ -5,11 +5,12 @@ import { Link, useParams } from 'react-router-dom';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
 import { getApiErrorMessage } from '../../shared/api/api-client';
-import { AdminHeader, AdminPanel } from '../admin/AdminShared';
+import { AdminHeader, AdminPanel, dateTime } from '../admin/AdminShared';
 import { getModeratorAccess } from '../moderator/moderator-api';
 import {
   criteriaLabels, decisionLabels, decideSelection, getAuthorSelection, getSelectionChapter, getSelectionDetail,
-  getSelectionQueue, nominateNovel, ownNominations, selectionLabels, supplementSelection, type Criteria, type Decision
+  getSelectionQueue, nominateNovel, ownNominations, reconsiderationLabels, requestReconsideration, selectionLabels,
+  supplementSelection, type Criteria, type Decision
 } from './selection-api';
 
 export function NominationForm({ novelId, own = false }: { novelId: string; own?: boolean }) {
@@ -57,6 +58,18 @@ export function AuthorSelection({ novelId, maySelfNominate }: { novelId: string;
   const [notes, setNotes] = useState('');
   const query = useQuery({ queryKey: ['author-selection', novelId], queryFn: () => getAuthorSelection(novelId) });
   const item = query.data?.item;
+  const window = query.data?.reconsiderationWindow;
+  const [reconsiderationOpen, setReconsiderationOpen] = useState(false);
+  const [reconsiderationReason, setReconsiderationReason] = useState('');
+  const reconsider = useMutation({
+    mutationFn: (decision: NonNullable<typeof window>) => requestReconsideration(novelId, decision, reconsiderationReason.trim()),
+    onSuccess: () => {
+      setReconsiderationReason('');
+      setReconsiderationOpen(false);
+      void query.refetch();
+    },
+    onError: () => { void query.refetch(); }
+  });
   const addNotes = useMutation({
     mutationFn: (target: NonNullable<typeof item>) => supplementSelection(target, notes.trim()),
     onSuccess: () => {
@@ -74,6 +87,19 @@ export function AuthorSelection({ novelId, maySelfNominate }: { novelId: string;
       {query.isPending && <LoadingState />}
       {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
       {item?.last_reason && <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>{item.last_reason}</Text>}
+      {window && !window.submitted && <Group justify="space-between">
+        <Text size="sm" c="dimmed">{window.inWindow ? `Hạn gửi yêu cầu xét lại: ${dateTime(window.deadline)}` : 'Đã hết hạn gửi yêu cầu xét lại.'}</Text>
+        {window.canSubmit && <Button variant="default" size="compact-sm" onClick={() => {
+          reconsider.reset();
+          setReconsiderationOpen(true);
+        }}>Yêu cầu xét lại</Button>}
+      </Group>}
+      {query.data?.reconsiderations?.map((entry) => <Paper key={entry.reconsideration_id} withBorder p="sm">
+        <Group justify="space-between"><Text fw={600} size="sm">Xét lại quyết định {selectionLabels[entry.decision_status].toLocaleLowerCase('vi')}</Text>
+          <Badge variant="light">{reconsiderationLabels[entry.status]}</Badge></Group>
+        <Text size="sm" c="dimmed">Đã gửi {dateTime(entry.created_at)}</Text>
+        {entry.resolution && <Text size="sm" style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{entry.resolution}</Text>}
+      </Paper>)}
       {query.isSuccess && !item && !query.data.eligibility && <Text size="sm" c="dimmed">Tác phẩm chưa đủ điều kiện tuyển chọn.</Text>}
       {query.data?.eligibility && maySelfNominate && (!item || ['REJECTED', 'REVOKED'].includes(item.status)) &&
         <Group><NominationForm novelId={novelId} own /></Group>}
@@ -86,6 +112,21 @@ export function AuthorSelection({ novelId, maySelfNominate }: { novelId: string;
         </Stack>
       </form>}
     </Stack>
+    <AnimatedModal opened={reconsiderationOpen} onClose={() => !reconsider.isPending && setReconsiderationOpen(false)} title="Yêu cầu xét lại" centered>
+      <form onSubmit={(event) => {
+        event.preventDefault();
+        if (window?.canSubmit && reconsiderationReason.trim()) reconsider.mutate(window);
+      }}>
+        <Stack>
+          {window && <Text size="sm" c="dimmed">Hạn gửi {dateTime(window.deadline)}</Text>}
+          <Textarea label="Lý do xét lại" value={reconsiderationReason} required maxLength={2000} minRows={4}
+            onChange={(event) => setReconsiderationReason(event.currentTarget.value)} />
+          {reconsider.isError && <Alert color="red" role="alert">{getApiErrorMessage(reconsider.error)}</Alert>}
+          <Group justify="flex-end"><Button type="submit" disabled={!window?.canSubmit || !reconsiderationReason.trim()}
+            loading={reconsider.isPending}>Gửi yêu cầu xét lại</Button></Group>
+        </Stack>
+      </form>
+    </AnimatedModal>
   </Paper>;
 }
 

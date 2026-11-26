@@ -33,16 +33,16 @@ function notFound() {
   return new AppError(404, 'SELECTION_NOT_FOUND', 'Không tìm thấy hồ sơ tuyển chọn.');
 }
 
-async function lockActor(client: PoolClient, auth: AuthContext) {
+export async function lockActor(client: PoolClient, auth: AuthContext, mode: 'share' | 'update' = 'share') {
   const { rows: [actor] } = await client.query<{ role: UserRole; access_version: number }>(
-    "select role,access_version from users where user_id=$1 and status='ACTIVE' and deleted_at is null for share", [auth.userId]
+    `select role,access_version from users where user_id=$1 and status='ACTIVE' and deleted_at is null for ${mode}`, [auth.userId]
   );
   if (!actor || actor.access_version !== (auth.accessVersion ?? 0) || actor.role !== auth.role) {
     throw new AppError(403, 'SELECTION_ACTOR_INACTIVE', 'Phiên đăng nhập hoặc quyền truy cập đã thay đổi.');
   }
 }
 
-async function lockNovel(client: PoolClient, novelId: string) {
+export async function lockNovel(client: PoolClient, novelId: string) {
   const { rows: [novel] } = await client.query<Novel>(
     'select novel_id,author_id,title,synopsis from novels where novel_id=$1 for update', [novelId]
   );
@@ -50,7 +50,7 @@ async function lockNovel(client: PoolClient, novelId: string) {
   return novel;
 }
 
-async function lockCase(client: PoolClient, novelId: string, caseId: string) {
+export async function lockCase(client: PoolClient, novelId: string, caseId: string) {
   const { rows: [item] } = await client.query<SelectionCase>(
     'select * from novel_selection_cases where novel_id=$1 and case_id=$2 for update', [novelId, caseId]
   );
@@ -58,7 +58,7 @@ async function lockCase(client: PoolClient, novelId: string, caseId: string) {
   return item;
 }
 
-async function eligibility(novelId: string, db: Pick<PoolClient, 'query'> = getPostgresPool()) {
+export async function eligibility(novelId: string, db: Pick<PoolClient, 'query'> = getPostgresPool()) {
   const { rows: [row] } = await db.query<{ branches: Eligibility[] }>(
     'select novel_selection_branches($1) as branches', [novelId]
   );
@@ -98,7 +98,7 @@ function snapshotSummary(snapshot: Snapshot | null) {
   };
 }
 
-async function appendEvent(client: PoolClient, input: {
+export async function appendEvent(client: PoolClient, input: {
   caseId: string; version: number; actorId: string; action: string; reason: string; evidence?: unknown;
 }) {
   await client.query(
@@ -137,6 +137,11 @@ export async function nominate(auth: AuthContext, novelId: string, reason: strin
       `select case_id,status from novel_selection_cases where novel_id=$1 and ${active} for update`, [novelId]
     );
     if (!item) {
+      const openReconsideration = await client.query(`select 1 from novel_selection_cases s
+        join novel_selection_reconsiderations r using(case_id) where s.novel_id=$1 and r.status='OPEN' limit 1`, [novelId]);
+      if (openReconsideration.rowCount) {
+        throw new AppError(409, 'RECONSIDERATION_OPEN', 'Tác phẩm đang có yêu cầu xét lại.');
+      }
       const { rowCount } = await client.query(`select 1 from novel_selection_cases where novel_id=$1
         and status in ('REJECTED','REVOKED') and terminal_at > now() - interval '30 days' limit 1`, [novelId]);
       if (rowCount) throw new AppError(422, 'SELECTION_COOLDOWN', 'Tác phẩm có thể được đề cử lại sau 30 ngày.');
@@ -276,7 +281,7 @@ export async function decide(auth: AuthContext, caseId: string, input: Selection
     const status = transition.to;
     const approving = decision === 'APPROVE';
     await client.query(`update novel_selection_cases set status=$2,version=$3,last_reason=$4,updated_at=now(),
-      needs_comparison=false, terminal_at=case when $2 in ('REJECTED','REVOKED') then now() else null end,
+      needs_comparison=false, terminal_at=case when $2 in ('REJECTED','REVOKED') then clock_timestamp() else null end,
       reviewed_branch=case when $5 then $6 else reviewed_branch end,
       reviewed_snapshot=case when $5 then $7::jsonb else reviewed_snapshot end,
       classified_snapshot=case when $5 or $8 then $7::jsonb else classified_snapshot end,

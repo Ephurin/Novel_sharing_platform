@@ -1,9 +1,11 @@
 import { Router, type Request, type RequestHandler } from 'express';
 import { z } from 'zod';
 import { AppError } from '../../core/errors/app-error.js';
-import { requireAuth } from '../../core/security/auth.middleware.js';
+import { requireAuth, requireRoles } from '../../core/security/auth.middleware.js';
 import { successResponse } from '../../core/response/response.js';
 import { requireModeratorOperational } from '../moderator/moderator-access.js';
+import { requireAdminPermission } from '../admin/admin-access.js';
+import { authorReconsiderations, listReconsiderations, resolveReconsideration, submitReconsideration } from './selection-reconsiderations.js';
 import { caseParams, decisionBody, nominationBody, nominationKey, novelParams, pageQuery, supplementBody, supplementParams } from './novel-selection.schemas.js';
 import { decide, getAuthorSelection, getReview, getReviewChapter, listOwnNominations, listSelectionReviews, nominate, requireSelectionEnabled, supplement } from './novel-selection.service.js';
 
@@ -12,10 +14,10 @@ function auth(request: Request) {
   return request.auth;
 }
 
-function respond(handler: (request: Request) => Promise<unknown>): RequestHandler {
+function respond(handler: (request: Request) => Promise<unknown>, status = 200): RequestHandler {
   return async (request, response, next) => {
     try {
-      response.json(successResponse(await handler(request)));
+      response.status(status).json(successResponse(await handler(request)));
     } catch (error) {
       next(error);
     }
@@ -27,6 +29,9 @@ const enabled: RequestHandler = (_request, _response, next) => {
   next();
 };
 const reviewer = [enabled, requireAuth, requireModeratorOperational('selection.review')];
+const adminReviewer = [enabled, requireAuth, requireRoles(['ADMIN']), requireAdminPermission('selection.reconsider')];
+const reconsiderationReason = z.string().trim().min(1).max(2000);
+const reconsiderationVersion = z.number().int().positive();
 
 export const novelSelectionRoutes = Router();
 novelSelectionRoutes.post('/novels/:novelId/nominations', enabled, requireAuth, async (request, response, next) => {
@@ -42,8 +47,27 @@ novelSelectionRoutes.post('/novels/:novelId/nominations', enabled, requireAuth, 
 });
 novelSelectionRoutes.get('/account/nominations', enabled, requireAuth, respond((request) =>
   listOwnNominations(auth(request).userId, pageQuery.parse(request.query))));
-novelSelectionRoutes.get('/author/novels/:novelId/selection', enabled, requireAuth, respond((request) =>
-  getAuthorSelection(auth(request), novelParams.parse(request.params).novelId)));
+novelSelectionRoutes.get('/author/novels/:novelId/selection', enabled, requireAuth, respond(async (request) => {
+  const { novelId } = novelParams.parse(request.params);
+  const actor = auth(request);
+  const selection = await getAuthorSelection(actor, novelId);
+  return { ...selection, ...await authorReconsiderations(actor.userId, novelId, selection.item) };
+}));
+novelSelectionRoutes.post('/novels/:novelId/selections/:caseId/reconsiderations', enabled, requireAuth, respond((request) => {
+  const params = supplementParams.parse(request.params);
+  const body = z.object({ decisionVersion: reconsiderationVersion, reason: reconsiderationReason }).parse(request.body);
+  return submitReconsideration(auth(request), { ...params, ...body });
+}, 201));
+novelSelectionRoutes.get('/admin/selection-reconsiderations', ...adminReviewer, respond((request) => {
+  const query = pageQuery.omit({ view: true }).extend({ status: z.enum(['OPEN', 'ACCEPTED', 'REJECTED']).default('OPEN') }).parse(request.query);
+  return listReconsiderations(auth(request).userId, query);
+}));
+novelSelectionRoutes.post('/admin/selection-reconsiderations/:id/resolve', ...adminReviewer, respond((request) => {
+  const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+  const input = z.object({ outcome: z.enum(['ACCEPTED', 'REJECTED']), reason: reconsiderationReason,
+    expectedVersion: reconsiderationVersion }).parse(request.body);
+  return resolveReconsideration(auth(request), id, input);
+}));
 novelSelectionRoutes.post('/novels/:novelId/selections/:caseId/supplement', enabled, requireAuth, respond((request) => {
   const { novelId, caseId } = supplementParams.parse(request.params);
   const { notes, expectedVersion } = supplementBody.parse(request.body);
