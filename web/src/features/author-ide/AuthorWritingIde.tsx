@@ -1,3 +1,4 @@
+import { chapterTitleWithoutNumber } from '../novels/chapter-title';
 import { formatDateTime, formatNumber } from '../../shared/lib/format-vi';
 import { motion, useReducedMotion } from 'motion/react';
 import NumberFlow from '@number-flow/react';
@@ -1106,18 +1107,19 @@ export function AuthorWritingIde() {
         aria-label="Trợ lý viết"
         type="button"
       >
-        <span className="material-symbols-outlined text-primary-600 text-[16px] fill-icon">auto_awesome</span>
+        <span className="material-symbols-outlined text-primary-600 text-[16px] fill-icon" aria-hidden="true">auto_awesome</span>
         <span className="hidden sm:inline sc-studio-ai-label">Trợ lý viết</span>
       </button>
 
       <button
         onClick={() => setPublishModalOpen(true)}
         disabled={awaitingPublicationReview}
+        title={awaitingPublicationReview ? 'Chương đang chờ duyệt; bạn sẽ được báo khi có kết quả.' : undefined}
         className="inline-flex items-center gap-1.5 px-3 py-1 text-meta font-semibold rounded-lg text-white bg-primary-600 hover:bg-primary-700 shadow-sm shadow-primary-200 transition-all"
         type="button"
       >
         <span>{awaitingPublicationReview ? 'Chờ admin duyệt' : 'Gửi duyệt chương'}</span>
-        <span className="material-symbols-outlined text-[15px]">send</span>
+        <span className="material-symbols-outlined text-[15px]" aria-hidden="true">send</span>
       </button>
     </>
   );
@@ -1172,15 +1174,16 @@ export function AuthorWritingIde() {
                 className="sc-studio-cluster-btn is-icon"
                 type="button"
               >
-                <span className="material-symbols-outlined text-stone-500 text-[15px]">text_format</span>
+                <span className="material-symbols-outlined text-stone-500 text-[15px]" aria-hidden="true">text_format</span>
               </button>
               <button
                 onClick={() => setStoryBibleOpen(true)}
                 className="sc-studio-cluster-btn"
-                title="Cẩm nang thế giới truyện (Story Bible)"
+                title="Cẩm nang thế giới truyện"
+                aria-label="Cẩm nang"
                 type="button"
               >
-                <span className="material-symbols-outlined text-stone-500 text-[15px]">menu_book</span>
+                <span className="material-symbols-outlined text-stone-500 text-[15px]" aria-hidden="true">menu_book</span>
                 <span className="hidden xl:inline">Cẩm nang</span>
               </button>
               <button
@@ -1195,7 +1198,7 @@ export function AuthorWritingIde() {
                   : 'Bộ nhớ cốt truyện: nhân vật, quan hệ, sự kiện đã duyệt và kiểm tra nhất quán (Story Brain)'}
                 type="button"
               >
-                <span className="material-symbols-outlined text-stone-500 text-[15px]">psychology</span>
+                <span className="material-symbols-outlined text-stone-500 text-[15px]" aria-hidden="true">psychology</span>
                 <span className="hidden xl:inline">Bộ nhớ cốt truyện</span>
                 {pendingMemory.total > 0 && (
                   <span data-testid="story-brain-pending" aria-hidden="true"
@@ -1207,10 +1210,12 @@ export function AuthorWritingIde() {
               <button
                 onClick={() => setFocusMode((prev: boolean) => !prev)}
                 className="sc-studio-cluster-btn"
-                title="Chế độ tập trung (Zen Mode)"
+                title="Chế độ tập trung"
+                aria-label={focusMode ? 'Thoát chế độ tập trung' : 'Chế độ tập trung'}
+                aria-pressed={focusMode}
                 type="button"
               >
-                <span className="material-symbols-outlined text-stone-500 text-[15px]">
+                <span className="material-symbols-outlined text-stone-500 text-[15px]" aria-hidden="true">
                   {focusMode ? 'fullscreen_exit' : 'fullscreen'}
                 </span>
                 <span className="hidden md:inline">{focusMode ? 'Thoát Focus' : 'Tập trung'}</span>
@@ -1222,8 +1227,9 @@ export function AuthorWritingIde() {
 
         {/* Right: Studio Mode Switch */}
         <Group gap="xs" wrap="nowrap" aria-label="Chế độ Author IDE" className="shrink-0">
-          <Button size="xs" aria-pressed={planning} variant={planning ? 'filled' : 'light'} onClick={() => void openPlanning()}>Lập kế hoạch</Button>
-          <Button size="xs" aria-pressed={!planning} variant={!planning ? 'filled' : 'light'} onClick={() => setPlanning(false)}>Viết bản thảo</Button>
+          {/* UI-13: the mode switch is a toggle, not a second primary action competing with "Gửi duyệt chương". */}
+          <Button size="xs" aria-pressed={planning} variant={planning ? 'light' : 'subtle'} color={planning ? undefined : 'gray'} onClick={() => void openPlanning()}>Lập kế hoạch</Button>
+          <Button size="xs" aria-pressed={!planning} variant={!planning ? 'light' : 'subtle'} color={!planning ? undefined : 'gray'} onClick={() => setPlanning(false)}>Viết bản thảo</Button>
         </Group>
       </section>
 
@@ -1396,7 +1402,7 @@ export function AuthorWritingIde() {
                         isActive ? 'font-semibold text-stone-900' : 'font-medium text-stone-700'
                       }`}
                     >
-                      {ch.title || `Chương ${ch.chapterNumber}`}
+                      {chapterTitleWithoutNumber(ch.title) || 'Chưa đặt tên'}
                     </p>
                     <div className="flex items-center justify-between text-meta text-stone-400 mt-0.5 pl-1">
                       <span>{ch.wordCount ? `${formatNumber(ch.wordCount)} từ` : 'Bản nháp'}</span>

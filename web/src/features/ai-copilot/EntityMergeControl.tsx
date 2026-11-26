@@ -42,7 +42,14 @@ export function EntityMergeControl({ novelId, version, entities, disabled = fals
     label: `${e.name} · ${TYPE_LABEL[entityKind(e.entity_type)] ?? e.entity_type}${characters.some(o => o.entity_id !== e.entity_id
       && o.name.trim().toLowerCase() === e.name.trim().toLowerCase()) ? ` · #${e.entity_id.slice(-6)}` : ''}` }));
   const sameType = (o: { type: string }, other: MemoryEntity | undefined) => !other || o.type === entityKind(other.entity_type);
+  // UI-20: say which names look duplicated, so the control reads as a hint, not a warning banner.
+  const norm = (name: string) => name.trim().toLocaleLowerCase('vi-VN');
+  const duplicates = characters.filter((e, i) => characters.some((o, j) => j < i && norm(o.name) === norm(e.name)
+    && entityKind(o.entity_type) === entityKind(e.entity_type))).map(e => e.name);
   return <Stack gap="xs">
+    <Text size="xs" c="dimmed">{duplicates.length
+      ? `Có thể trùng: ${[...new Set(duplicates)].slice(0, 3).map(name => `“${name}”`).join(', ')}. Gộp nếu đó là cùng một mục.`
+      : 'Dùng khi hai mục là cùng một nhân vật, địa danh hoặc vật mang tên khác nhau.'}</Text>
     <Button size="xs" variant="light" disabled={disabled || characters.length < 2} onClick={() => { merge.reset(); setOpened(true); }}>
       Gộp hai tên trùng
     </Button>

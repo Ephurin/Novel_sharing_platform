@@ -1,3 +1,4 @@
+import { chapterShortLabel } from '../novels/chapter-title';
 import { AuthorNovelStatusBadge } from './AuthorNovelStatusBadge';
 import { formatDateTime, formatNumber } from '../../shared/lib/format-vi';
 import { FilterPresets, useUrlFilters, useWorkspacePreference, stringArray, useListScroll } from '../../shared/components/WorkspacePreferences';
@@ -537,7 +538,7 @@ export function AuthorProjectsPage() {
 
                             <div className="flex items-center gap-1 text-meta text-stone-400">
                               <span className="material-symbols-outlined text-table">update</span>
-                              <span className="truncate">{project.latestChapter ? `Ch. ${project.latestChapter.chapterNumber}: ${project.latestChapter.title} · Sửa` : 'Cập nhật:'} {formatDateTime(project.latestChapter?.updatedAt ?? project.updatedAt, 'relative')}</span>
+                              <span className="truncate">{project.latestChapter ? `${chapterShortLabel(project.latestChapter.chapterNumber, project.latestChapter.title)} · Sửa` : 'Cập nhật:'} {formatDateTime(project.latestChapter?.updatedAt ?? project.updatedAt, 'relative')}</span>
                             </div>
                           </div>
                         </div>
@@ -558,7 +559,7 @@ export function AuthorProjectsPage() {
                             <button
                               type="button"
                               onClick={() => openIde(project.novelId)}
-                              className="inline-flex items-center justify-center gap-1 flex-1 py-1 px-2.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-meta font-semibold shadow-2xs transition-colors cursor-pointer"
+                              className="inline-flex items-center justify-center gap-1 flex-1 py-1 px-2.5 rounded-lg bg-primary-50 hover:bg-primary-100 border border-primary-200 text-primary-700 text-meta font-semibold transition-colors cursor-pointer"
                             >
                               <span className="material-symbols-outlined text-[15px]" aria-hidden="true">draw</span>
                               <span>Viết tiếp</span>
@@ -661,7 +662,7 @@ export function AuthorProjectsPage() {
                             </span>
                             <span>•</span>
                             <span>
-                              {project.latestChapter ? `Ch. ${project.latestChapter.chapterNumber}: ${project.latestChapter.title} · Sửa` : 'Cập nhật:'} {formatDateTime(project.latestChapter?.updatedAt ?? project.updatedAt, 'relative')}
+                              {project.latestChapter ? `${chapterShortLabel(project.latestChapter.chapterNumber, project.latestChapter.title)} · Sửa` : 'Cập nhật:'} {formatDateTime(project.latestChapter?.updatedAt ?? project.updatedAt, 'relative')}
                             </span>
                           </div>
                         </div>
@@ -687,7 +688,7 @@ export function AuthorProjectsPage() {
                           <button
                             type="button"
                             onClick={() => openIde(project.novelId)}
-                            className="inline-flex items-center justify-center px-3 py-1 min-h-[32px] rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-meta font-semibold shadow-2xs transition-colors cursor-pointer"
+                            className="inline-flex items-center justify-center px-3 py-1 min-h-[32px] rounded-lg bg-primary-50 hover:bg-primary-100 border border-primary-200 text-primary-700 text-meta font-semibold transition-colors cursor-pointer"
                           >
                             Viết tiếp
                           </button>
