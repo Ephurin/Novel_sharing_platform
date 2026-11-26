@@ -1,3 +1,5 @@
+import { AuthorNovelStatusBadge } from './AuthorNovelStatusBadge';
+import { formatDateTime, formatNumber } from '../../shared/lib/format-vi';
 import { FilterPresets, useUrlFilters, useWorkspacePreference, stringArray, useListScroll } from '../../shared/components/WorkspacePreferences';
 import { ActiveFilterChips, AnimatedCollection, AnimatedNumber, LoadedImage, ProjectLayout, ProjectMotionCard, ResultsSurface, SuggestionReveal } from '../../shared/components/AuthorAdminMotion';
 import { ImageLightbox, useUpdatedItems } from '../../shared/components/InteractionWidgets';
@@ -27,22 +29,6 @@ import './author-projects.css';
 
 function ProjectPin({ title, active, onClick }: { title: string; active: boolean; onClick: () => void }) {
   return <button type="button" className="sc-project-pin" aria-pressed={active} aria-label={`${active ? 'Bỏ ghim' : 'Ghim'} ${title}`} title={active ? 'Bỏ ghim' : 'Ghim lên đầu'} onClick={onClick}><ReactionIcon icon="push_pin" active={active} /></button>;
-}
-
-function formatTimeAgo(dateStr?: string) {
-  if (!dateStr) return 'Mới cập nhật';
-  try {
-    const diffMs = Date.now() - new Date(dateStr).getTime();
-    if (isNaN(diffMs)) return 'Mới cập nhật';
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    if (diffHours < 1) return 'Vừa xong';
-    if (diffHours < 24) return `${diffHours} giờ trước`;
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays < 30) return `${diffDays} ngày trước`;
-    return new Date(dateStr).toLocaleDateString('vi-VN');
-  } catch {
-    return 'Mới cập nhật';
-  }
 }
 
 export function AuthorProjectsPage() {
@@ -390,9 +376,6 @@ export function AuthorProjectsPage() {
                       </option>
                     ))}
                   </select>
-                  <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400 text-[16px]">
-                    expand_more
-                  </span>
                 </div>
 
                 {/* View Mode Toggle */}
@@ -503,15 +486,6 @@ export function AuthorProjectsPage() {
               <AnimatedCollection key="grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-4">
                 {filteredProjects.map((project) => {
                   const cover = project.coverImageUrl;
-                  const statusLabel =
-                    project.status === 'DRAFT'
-                      ? 'Bản nháp'
-                      : project.status === 'PENDING_MODERATION'
-                      ? 'Chờ duyệt'
-                      : project.serialStatus === 'COMPLETED'
-                      ? 'Hoàn thành'
-                      : 'Đang sáng tác';
-
                   const readsFormatted = (project.viewsCount ?? 0).toLocaleString('vi-VN');
 
                   return (
@@ -536,17 +510,7 @@ export function AuthorProjectsPage() {
                                 {project.genre || 'Chưa phân loại'}
                               </span>
                               <div className="flex items-center gap-1 shrink-0">
-                                <span
-                                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-meta font-semibold whitespace-nowrap ${
-                                    project.status === 'DRAFT'
-                                      ? 'bg-stone-100 text-stone-600 border border-stone-200/60'
-                                      : project.serialStatus === 'COMPLETED'
-                                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
-                                      : 'bg-primary-50 text-primary-700 border border-primary-200/60'
-                                  }`}
-                                >
-                                  {statusLabel}
-                                </span>
+                                <AuthorNovelStatusBadge status={project.status} serialStatus={project.serialStatus} />
                                 <ProjectPin title={project.title} active={pinnedIds.includes(project.novelId)} onClick={() => togglePin(project.novelId)} />
                               </div>
                             </div>
@@ -573,7 +537,7 @@ export function AuthorProjectsPage() {
 
                             <div className="flex items-center gap-1 text-meta text-stone-400">
                               <span className="material-symbols-outlined text-table">update</span>
-                              <span className="truncate">{project.latestChapter ? `Ch. ${project.latestChapter.chapterNumber}: ${project.latestChapter.title} · Sửa` : 'Cập nhật:'} {formatTimeAgo(project.latestChapter?.updatedAt ?? project.updatedAt)}</span>
+                              <span className="truncate">{project.latestChapter ? `Ch. ${project.latestChapter.chapterNumber}: ${project.latestChapter.title} · Sửa` : 'Cập nhật:'} {formatDateTime(project.latestChapter?.updatedAt ?? project.updatedAt, 'relative')}</span>
                             </div>
                           </div>
                         </div>
@@ -664,15 +628,6 @@ export function AuthorProjectsPage() {
               <AnimatedCollection key="list" className="bg-surface-container-lowest rounded-xl shadow-2xs border border-stone-200/80 overflow-hidden divide-y divide-stone-100">
                 {filteredProjects.map((project) => {
                   const cover = project.coverImageUrl;
-                  const statusLabel =
-                    project.status === 'DRAFT'
-                      ? 'Bản nháp'
-                      : project.status === 'PENDING_MODERATION'
-                      ? 'Chờ duyệt'
-                      : project.serialStatus === 'COMPLETED'
-                      ? 'Hoàn thành'
-                      : 'Đang sáng tác';
-
                   return (
                     <ProjectMotionCard id={project.novelId} as="div"
                       key={project.novelId}
@@ -693,17 +648,7 @@ export function AuthorProjectsPage() {
                             >
                               {project.title}
                             </Link>
-                            <span
-                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-meta font-semibold whitespace-nowrap ${
-                                project.status === 'DRAFT'
-                                  ? 'bg-stone-100 text-stone-600 border border-stone-200/60'
-                                  : project.serialStatus === 'COMPLETED'
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
-                                  : 'bg-primary-50 text-primary-700 border border-primary-200/60'
-                              }`}
-                            >
-                              {statusLabel}
-                            </span>
+                            <AuthorNovelStatusBadge status={project.status} serialStatus={project.serialStatus} />
                           </div>
                           <p className="text-meta text-stone-500 font-normal mt-0.5 truncate">
                             {project.genre || 'Chưa phân loại'}
@@ -716,7 +661,7 @@ export function AuthorProjectsPage() {
                             </span>
                             <span>•</span>
                             <span>
-                              {project.latestChapter ? `Ch. ${project.latestChapter.chapterNumber}: ${project.latestChapter.title} · Sửa` : 'Cập nhật:'} {formatTimeAgo(project.latestChapter?.updatedAt ?? project.updatedAt)}
+                              {project.latestChapter ? `Ch. ${project.latestChapter.chapterNumber}: ${project.latestChapter.title} · Sửa` : 'Cập nhật:'} {formatDateTime(project.latestChapter?.updatedAt ?? project.updatedAt, 'relative')}
                             </span>
                           </div>
                         </div>
@@ -759,7 +704,7 @@ export function AuthorProjectsPage() {
 
         </div>
       </main>
-      <WorkspacePreview selected={previewId} onSelect={setPreviewId} records={filteredProjects.map(project => ({ id: project.novelId, title: project.title, to: `/author/novels/${project.novelId}`, fields: [['Giới thiệu', project.synopsis || 'Chưa có giới thiệu'], ['Thể loại', project.genres?.join(', ') || project.genre || 'Chưa phân loại'], ['Chương', String(project.chaptersCount ?? 0)], ['Lượt đọc', (project.viewsCount ?? 0).toLocaleString('vi-VN')], ['Cập nhật', formatTimeAgo(project.latestChapter?.updatedAt ?? project.updatedAt)]] }))} />
+      <WorkspacePreview selected={previewId} onSelect={setPreviewId} records={filteredProjects.map(project => ({ id: project.novelId, title: project.title, to: `/author/novels/${project.novelId}`, fields: [['Giới thiệu', project.synopsis || 'Chưa có giới thiệu'], ['Thể loại', project.genres?.join(', ') || project.genre || 'Chưa phân loại'], ['Chương', formatNumber(project.chaptersCount ?? 0)], ['Lượt đọc', (project.viewsCount ?? 0).toLocaleString('vi-VN')], ['Cập nhật', formatDateTime(project.latestChapter?.updatedAt ?? project.updatedAt, 'relative')]] }))} />
 
       {/* ──────────────────────────────────────────
           3. Create Novel Modal Dialog
@@ -818,7 +763,7 @@ export function AuthorProjectsPage() {
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <label htmlFor="create-novel-synopsis" className="text-meta font-bold text-stone-900">Giới thiệu ngắn</label>
-                  <span className="text-meta text-stone-400 font-normal">Tối thiểu {NOVEL_SYNOPSIS_MIN} ký tự · {newSynopsis.trim().length}/{NOVEL_SYNOPSIS_MIN}</span>
+                  <span className="text-meta text-stone-400 font-normal">Tối thiểu {NOVEL_SYNOPSIS_MIN} ký tự · {formatNumber(newSynopsis.trim().length)}/{formatNumber(NOVEL_SYNOPSIS_MIN)}</span>
                 </div>
                 <textarea
                   id="create-novel-synopsis"

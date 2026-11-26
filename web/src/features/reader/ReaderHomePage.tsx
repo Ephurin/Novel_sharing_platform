@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
@@ -21,17 +22,6 @@ const FEATURE_TABS: Array<{ key: FeatureTabKey; label: string }> = [
   { key: 'liked', label: 'Được yêu thích' },
   { key: 'new', label: 'Mới cập nhật' },
 ];
-
-function relativeTime(date?: string | null) {
-  if (!date) return '';
-  const elapsed = Math.max(0, Math.floor((Date.now() - new Date(date).getTime()) / 1000));
-  if (!Number.isFinite(elapsed)) return '';
-  const format = new Intl.RelativeTimeFormat('vi', { numeric: 'auto' });
-  if (elapsed < 60) return 'Vừa cập nhật';
-  if (elapsed < 3600) return format.format(-Math.floor(elapsed / 60), 'minute');
-  if (elapsed < 86400) return format.format(-Math.floor(elapsed / 3600), 'hour');
-  return format.format(-Math.floor(elapsed / 86400), 'day');
-}
 
 function resolveNovelPills(novel: ReaderNovel): Array<{ label: string; kind: 'genre' | 'tag' }> {
   const genres = (novel.genres?.length ? novel.genres : novel.genre ? [novel.genre] : [])
@@ -347,9 +337,9 @@ export function ReaderHomePage() {
                         <time
                           className="sc-home-chapter-time"
                           dateTime={item.publishedAt ?? undefined}
-                          title={item.publishedAt ? new Date(item.publishedAt).toLocaleString('vi-VN') : undefined}
+                          title={item.publishedAt ? formatDateTime(item.publishedAt) : undefined}
                         >
-                          {relativeTime(item.publishedAt)}
+                          {formatDateTime(item.publishedAt, 'relative')}
                         </time>
                       </Link>
                     );

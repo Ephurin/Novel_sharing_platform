@@ -41,7 +41,7 @@ export function AdminOverviewPage() {
                 stats.pendingModerationItems,
                 'Bao gồm nội dung và báo cáo người dùng'
               ],
-              ['Tổng Xu đã nạp', stats.totalDepositedCoins, 'Các giao dịch nạp thành công']
+              ['Tổng xu đã nạp', stats.totalDepositedCoins, 'Các giao dịch nạp thành công']
             ].map(([label, value, note]) => (
               <div className="admin-metric" key={label}>
                 <span>{label}</span>
@@ -118,7 +118,7 @@ export function AdminOverviewPage() {
                   Math.max(0, stats.pendingModerationItems - stats.pendingReports)
                 ],
                 ['/admin/reports', 'flag', 'Báo cáo người dùng', stats.pendingReports],
-                ['/admin/withdraws', 'payments', 'Yêu cầu rút Xu', stats.pendingWithdraws]
+                ['/admin/withdraws', 'payments', 'Yêu cầu rút xu', stats.pendingWithdraws]
               ].map(([path, icon, label, count]) => (
                 <Link className="admin-task" to={String(path)} key={path}>
                   <AdminIcon name={String(icon)} />

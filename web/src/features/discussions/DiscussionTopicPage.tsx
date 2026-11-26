@@ -1,3 +1,4 @@
+import { formatDateTime, formatNumber } from '../../shared/lib/format-vi';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Avatar, Button, Group, Loader, Select, Stack, Text, TextInput } from '@mantine/core';
@@ -28,17 +29,6 @@ const REPORT_REASONS = [
   { value: 'OTHER', label: 'Lý do khác' }
 ];
 
-const formatDate = (value: string) => new Date(value).toLocaleString('vi-VN');
-const relativeTime = (value: string) => {
-  const diff = Date.now() - new Date(value).getTime();
-  const minutes = Math.round(diff / 60000);
-  if (!Number.isFinite(minutes) || minutes < 1) return 'vừa xong';
-  if (minutes < 60) return `${minutes} phút trước`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours} giờ trước`;
-  const days = Math.round(hours / 24);
-  return days < 30 ? `${days} ngày trước` : formatDate(value);
-};
 const authorName = (author: TopicAuthor | null) => author?.displayName ?? 'Thành viên';
 const profilePath = (author: TopicAuthor) => `/${author.role === 'AUTHOR' ? 'authors' : 'readers'}/${author.userId}`;
 
@@ -165,8 +155,8 @@ function DiscussionTopic({ id }: { id: string }) {
     mutationFn: () => updateComment(id, editing!.commentId, editing!.body.trim()),
     onSuccess: () => { setEditing(null); onSuccess('Đã cập nhật nội dung.'); }, onError
   });
-  const deleteTopicMutation = useMutation({ mutationFn: () => deleteTopic(id), onSuccess: () => { onSuccess('Đã xoá chủ đề.'); navigate('/discussions'); }, onError });
-  const deleteCommentMutation = useMutation({ mutationFn: (commentId: string) => deleteComment(id, commentId), onSuccess: () => onSuccess('Đã xoá bình luận.'), onError });
+  const deleteTopicMutation = useMutation({ mutationFn: () => deleteTopic(id), onSuccess: () => { onSuccess('Đã xóa chủ đề.'); navigate('/discussions'); }, onError });
+  const deleteCommentMutation = useMutation({ mutationFn: (commentId: string) => deleteComment(id, commentId), onSuccess: () => onSuccess('Đã xóa bình luận.'), onError });
   const likeMutation = useMutation({
     mutationFn: (input: { commentId: string | null; liked: boolean }) => setLike(id, input.commentId, input.liked),
     onSuccess: () => refresh(), onError
@@ -240,14 +230,14 @@ function DiscussionTopic({ id }: { id: string }) {
             <div className="forum-identity">
               <AuthorLink author={topic.author} />
               <span className="sc-byline-dot" aria-hidden="true">·</span>
-              <time className="forum-time" dateTime={topic.createdAt} title={formatDate(topic.createdAt)}>{relativeTime(topic.createdAt)}</time>
-              {topic.editedAt ? <span className="forum-time" title={formatDate(topic.editedAt)}>(đã sửa)</span> : null}
+              <time className="forum-time" dateTime={topic.createdAt} title={formatDateTime(topic.createdAt)}>{formatDateTime(topic.createdAt)}</time>
+              {topic.editedAt ? <span className="forum-time" title={formatDateTime(topic.editedAt)}>(đã sửa)</span> : null}
             </div>
             {user && <AnimatedMenu>
               <AnimatedMenu.Target><button type="button" className="forum-icon-btn" aria-label="Tùy chọn chủ đề"><IconDots size={18} aria-hidden="true" /></button></AnimatedMenu.Target>
               <AnimatedMenu.Dropdown>
                 {isOwner && !locked ? <AnimatedMenu.Item component={Link} to={`/discussions/${id}/edit`} leftSection={<IconPencil size={16} />}>Sửa chủ đề</AnimatedMenu.Item> : null}
-                {isOwner ? <AnimatedMenu.Item color="red" leftSection={<IconTrash size={16} />} onClick={() => setConfirmDelete({ scope: 'TOPIC' })}>Xoá chủ đề</AnimatedMenu.Item> : null}
+                {isOwner ? <AnimatedMenu.Item color="red" leftSection={<IconTrash size={16} />} onClick={() => setConfirmDelete({ scope: 'TOPIC' })}>Xóa chủ đề</AnimatedMenu.Item> : null}
                 {user && !isOwner ? <AnimatedMenu.Item leftSection={<IconReportAnalytics size={16} />} onClick={() => setReportTarget({ type: 'DISCUSSION', id })}>Báo cáo chủ đề</AnimatedMenu.Item> : null}
               </AnimatedMenu.Dropdown>
             </AnimatedMenu>}
@@ -263,16 +253,16 @@ function DiscussionTopic({ id }: { id: string }) {
             onClick={() => likeMutation.mutate({ commentId: null, liked: !topic.viewerLiked })}>
             <IconHeart size={15} aria-hidden="true" /> {topic.likeCount}<span className="forum-stat-label">{topic.viewerLiked ? 'Đã thích' : 'Thích'}</span>
           </button>
-          <span className="forum-stat" title={`${topic.viewCount} lượt xem`} aria-label={`${topic.viewCount} lượt xem`}>
-            <IconEye size={15} aria-hidden="true" /> {topic.viewCount}
+          <span className="forum-stat" title={`${formatNumber(topic.viewCount)} lượt xem`} aria-label={`${formatNumber(topic.viewCount)} lượt xem`}>
+            <IconEye size={15} aria-hidden="true" /> {formatNumber(topic.viewCount)}
             <span className="forum-stat-label" aria-hidden="true">lượt xem</span>
           </span>
-          <span className="forum-stat" title={`${topic.replyCount} trả lời`} aria-label={`${topic.replyCount} trả lời`}>
-            <IconMessage size={15} aria-hidden="true" /> {topic.replyCount}
+          <span className="forum-stat" title={`${formatNumber(topic.replyCount)} trả lời`} aria-label={`${formatNumber(topic.replyCount)} trả lời`}>
+            <IconMessage size={15} aria-hidden="true" /> {formatNumber(topic.replyCount)}
             <span className="forum-stat-label" aria-hidden="true">trả lời</span>
           </span>
           <span className="forum-stat forum-stat-quiet">
-            <time dateTime={topic.lastActivityAt} title={formatDate(topic.lastActivityAt)}>Hoạt động {relativeTime(topic.lastActivityAt)}</time>
+            <time dateTime={topic.lastActivityAt} title={formatDateTime(topic.lastActivityAt)}>Hoạt động {formatDateTime(topic.lastActivityAt, 'relative')}</time>
           </span>
         </footer>
       </article>
@@ -280,7 +270,7 @@ function DiscussionTopic({ id }: { id: string }) {
       <section className="forum-comments sc-discussion" aria-labelledby="forum-comments-heading" data-category={topic.category.slug}>
         <div className="forum-comments-head sc-discussion-head">
           <div className="sc-discussion-title-wrap">
-            <h2 id="forum-comments-heading">Bình luận <span className="forum-count">{topic.replyCount}</span></h2>
+            <h2 id="forum-comments-heading">Bình luận <span className="forum-count">{formatNumber(topic.replyCount)}</span></h2>
           </div>
         </div>
 
@@ -330,20 +320,20 @@ function DiscussionTopic({ id }: { id: string }) {
           onClick={() => rootsQuery.fetchNextPage()}>Tải thêm bình luận</Button> : null}
       </section>
 
-      <AnimatedModal opened={confirmDelete?.scope === 'TOPIC'} onClose={() => setConfirmDelete(null)} title="Xoá chủ đề" size="sm">
+      <AnimatedModal opened={confirmDelete?.scope === 'TOPIC'} onClose={() => setConfirmDelete(null)} title="Xóa chủ đề" size="sm">
         <Stack gap="md">
           <Text size="sm">Chủ đề và toàn bộ bình luận sẽ bị gỡ khỏi trang thảo luận. Bạn có chắc chắn?</Text>
           <Group justify="flex-end"><Button size="xs" variant="default" onClick={() => setConfirmDelete(null)}>Huỷ</Button>
-            <Button size="xs" color="red" loading={deleteTopicMutation.isPending} onClick={() => deleteTopicMutation.mutate()}>Xoá</Button></Group>
+            <Button size="xs" color="red" loading={deleteTopicMutation.isPending} onClick={() => deleteTopicMutation.mutate()}>Xóa</Button></Group>
         </Stack>
       </AnimatedModal>
 
-      <AnimatedModal opened={confirmDelete?.scope === 'COMMENT'} onClose={() => setConfirmDelete(null)} title="Xoá bình luận" size="sm">
+      <AnimatedModal opened={confirmDelete?.scope === 'COMMENT'} onClose={() => setConfirmDelete(null)} title="Xóa bình luận" size="sm">
         <Stack gap="md">
-          <Text size="sm">Bình luận này sẽ bị xoá. Bạn có chắc chắn?</Text>
+          <Text size="sm">Bình luận này sẽ bị xóa. Bạn có chắc chắn?</Text>
           <Group justify="flex-end"><Button size="xs" variant="default" onClick={() => setConfirmDelete(null)}>Huỷ</Button>
             <Button size="xs" color="red" loading={deleteCommentMutation.isPending}
-              onClick={() => { const commentId = confirmDelete?.commentId; if (!commentId) return; setConfirmDelete(null); deleteCommentMutation.mutate(commentId); }}>Xoá</Button></Group>
+              onClick={() => { const commentId = confirmDelete?.commentId; if (!commentId) return; setConfirmDelete(null); deleteCommentMutation.mutate(commentId); }}>Xóa</Button></Group>
         </Stack>
       </AnimatedModal>
 
@@ -431,7 +421,7 @@ function CommentRow({ comment, currentUserId, locked, topicId, onReply, onEdit, 
             <AuthorLink author={comment.author} compact />
             {isOwner ? <span className="forum-badge" data-tone="muted">Bạn</span> : null}
             <span className="sc-byline-dot" aria-hidden="true">·</span>
-            <time className="forum-time" dateTime={comment.createdAt} title={formatDate(comment.createdAt)}>{relativeTime(comment.createdAt)}</time>
+            <time className="forum-time" dateTime={comment.createdAt} title={formatDateTime(comment.createdAt)}>{formatDateTime(comment.createdAt, 'relative')}</time>
             {comment.editedAt ? <><span className="sc-byline-dot" aria-hidden="true">·</span><span className="forum-time">đã sửa</span></> : null}
           </div>
           {comment.replyToId && comment.replyToId !== root.commentId ? <Link className="forum-reply-ref" to={`/discussions/${topicId}?commentId=${comment.replyToId}#comment-${comment.replyToId}`}>

@@ -117,7 +117,11 @@ const WorkspaceTableContext = createContext({ name: '', hiddenIndexes: [] as num
 export function WorkspaceTableOptions({
   name, columns, presets, children
 }: PropsWithChildren<{ name: string; columns: string[]; presets: { name: string; fields: string[] } }>) {
-  const [hidden, setHidden] = useWorkspacePreference<string[]>(`columns:${name}`, [], stringArray);
+  const [storedHidden, setStoredHidden] = useWorkspacePreference<string[]>(`columns:${name}`, [], stringArray);
+  // UI-10 renamed "Số Xu yêu cầu"; keep columns hidden under the old label hidden.
+  const normalizeColumnLabel = (label: string) => label === 'Số Xu yêu cầu' ? 'Số xu yêu cầu' : label;
+  const hidden = storedHidden.map(normalizeColumnLabel);
+  const setHidden = (update: (old: string[]) => string[]) => setStoredHidden((old) => update(old.map(normalizeColumnLabel)));
   const optional = columns.flatMap((label, index) => index > 0 && label !== 'Thao tác' ? [{ label, index: index + 1 }] : []);
   const hiddenIndexes = optional.filter(({ label }) => hidden.includes(label)).map(({ index }) => index);
   return (
@@ -134,7 +138,7 @@ export function WorkspaceTableOptions({
               } /> {label}
             </label>
           ))}
-          <button type="button" onClick={() => setHidden([])}>Khôi phục</button>
+          <button type="button" onClick={() => setStoredHidden([])}>Khôi phục</button>
         </div>
       </details>
       {children}

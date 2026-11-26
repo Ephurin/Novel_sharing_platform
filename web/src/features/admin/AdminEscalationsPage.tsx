@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Select } from '@mantine/core';
@@ -114,7 +115,7 @@ export function AdminEscalationsPage() {
                       </td>
                       <td>
                         <div>@{item.proposedByUsername ?? item.proposedBy}</div>
-                        <small>{new Date(item.createdAt).toLocaleString('vi-VN')}</small>
+                        <small>{formatDateTime(item.createdAt, 'relative')}</small>
                       </td>
                       <td>
                         <div>

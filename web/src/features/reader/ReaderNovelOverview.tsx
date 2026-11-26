@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { hasReaderCapability } from '../auth/auth-types';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { animate, motion, useReducedMotion } from 'motion/react';
@@ -14,17 +15,6 @@ import type { ReaderChapter, ReaderNovel } from './reader-api';
 import './reader-detail.css';
 
 const labels: Record<string, string> = { ONGOING: 'Đang ra', COMPLETED: 'Hoàn thành', HIATUS: 'Tạm ngưng' };
-
-function lastUpdate(value?: string | null) {
-  if (!value || !Number.isFinite(Date.parse(value))) return 'Chưa có';
-  const seconds = Math.max(0, Math.floor((Date.now() - Date.parse(value)) / 1000));
-  if (seconds < 60) return 'Vừa xong';
-  const format = new Intl.RelativeTimeFormat('vi', { numeric: 'auto' });
-  if (seconds < 3600) return format.format(-Math.floor(seconds / 60), 'minute');
-  if (seconds < 86400) return format.format(-Math.floor(seconds / 3600), 'hour');
-  if (seconds < 86400 * 30) return format.format(-Math.floor(seconds / 86400), 'day');
-  return new Date(value).toLocaleDateString('vi-VN');
-}
 
 export function NovelOverview({ novel, chapters, authorLink, notice, actions }: {
   novel: ReaderNovel; chapters: ReaderChapter[]; authorLink?: string; notice?: string | null; actions?: ReactNode;
@@ -109,7 +99,7 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
       </div>
     </div>
     <dl className="sc-novel-metrics sc-reader-detail-metrics" aria-label="Thống kê truyện">
-      <div><dt>Cập nhật</dt><dd className="sc-reader-updated"><time dateTime={updated ?? undefined} title={updated ? new Date(updated).toLocaleString('vi-VN') : undefined}>{lastUpdate(updated)}</time></dd></div>
+      <div><dt>Cập nhật</dt><dd className="sc-reader-updated"><time dateTime={updated ?? undefined} title={updated ? formatDateTime(updated) : undefined}>{formatDateTime(updated)}</time></dd></div>
       <div><dt>Tổng chương</dt><dd><MetricNumber value={chapters.length} /></dd></div>
       <div><dt>Lượt đọc</dt><dd><MetricNumber value={novel.viewsCount ?? 0} /></dd></div>
       <div><dt>Đánh giá</dt><dd><span className="sc-rating-metric">{statistics.isPending ? '…' : statistics.isError ? '—' : score}</span></dd></div>

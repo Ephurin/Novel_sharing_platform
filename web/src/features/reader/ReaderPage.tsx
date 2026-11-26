@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { hasReaderCapability } from '../auth/auth-types';
 import { AuthorPrivateFeedback } from './PrivateComments';
 import { ReaderCatalog } from './ReaderCatalog';
@@ -283,7 +284,7 @@ export function ReaderHistoryPage() {
                   <p className="text-meta text-stone-600 truncate">
                     Đang đọc: {formatChapterTitle(item.chapter.chapterNumber, item.chapter.title)}
                   </p>
-                  <p className="text-meta text-stone-400">Lần cuối: {new Date(item.readAt).toLocaleString('vi-VN')}</p>
+                  <p className="text-meta text-stone-400">Lần cuối: <time dateTime={item.readAt} title={formatDateTime(item.readAt)}>{formatDateTime(item.readAt, 'relative')}</time></p>
                 </div>
                 <Link
                   to={`/reader/chapters/${item.chapterId}`}

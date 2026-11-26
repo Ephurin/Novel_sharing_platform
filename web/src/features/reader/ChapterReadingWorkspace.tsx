@@ -1,3 +1,4 @@
+import { formatNumber } from '../../shared/lib/format-vi';
 import { ParagraphDiscussion, useChapterAuthorFeedback, useChapterDiscussions, usePrivateCommentFocus } from './PrivateComments';
 import { parseAuthorNotes } from '../../shared/lib/author-notes';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -293,7 +294,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
         <h1 ref={heading} tabIndex={-1}>{chapterDisplayTitle(chapter)}</h1>
         <div className="sc-reader-chapter-meta">
           {chapter.wordCount != null && <span>{chapter.wordCount.toLocaleString('vi-VN')} từ</span>}
-          {chapter.isVip && <span className="sc-reader-vip">VIP · {chapter.priceCoins} xu</span>}
+          {chapter.isVip && <span className="sc-reader-vip">VIP · {formatNumber(chapter.priceCoins)} xu</span>}
           {onReport && <button type="button" onClick={onReport} disabled={reporting} aria-label="Báo cáo chương" title="Báo cáo chương"><Icon name="flag" /></button>}
         </div>
       </header>
@@ -421,7 +422,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
         </div>}
         {tocPending && <p role="status">Đang tải mục lục…</p>}
         {tocFailed && <div role="alert"><p>Không tải được mục lục.</p><button type="button" className="sc-button" onClick={onRetryToc}>Thử lại</button></div>}
-        <nav ref={toc} className="sc-chapter-toc sc-reader-toc-list" aria-label="Mục lục chương">{chapters.map(item => <Link key={item.chapterId} to={`${base}/chapters/${item.chapterId}`} aria-current={item.chapterId === chapter.chapterId ? 'page' : undefined} onClick={() => setPanel(null)}><span>{chapterDisplayTitle(item)}</span>{item.isVip && <small>VIP · {item.priceCoins} xu</small>}</Link>)}</nav>
+        <nav ref={toc} className="sc-chapter-toc sc-reader-toc-list" aria-label="Mục lục chương">{chapters.map(item => <Link key={item.chapterId} to={`${base}/chapters/${item.chapterId}`} aria-current={item.chapterId === chapter.chapterId ? 'page' : undefined} onClick={() => setPanel(null)}><span>{chapterDisplayTitle(item)}</span>{item.isVip && <small>VIP · {formatNumber(item.priceCoins)} xu</small>}</Link>)}</nav>
       </>}
       {panel === 'bookmarks' && <>
         <Link className="sc-button" to={`${base}/bookmarks?novelId=${encodeURIComponent(chapter.novelId)}`} onClick={() => setPanel(null)}>Mở trang Đoạn đã đánh dấu</Link>

@@ -47,13 +47,16 @@
   --sc-danger: #b84d49;
   --sc-danger-bg: #fff0ef;
   --sc-neutral-bg: #f1f0ed;
-  --sc-content-width: 1380px;
+  --sc-content-width: 1240px;
+  --sc-content-compact: 960px;
+  --sc-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%2377736f' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --sc-radius-card: 12px;
   --sc-radius-control: 8px;
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
+  --sc-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23bdb6ad' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --sc-bg-rgb: 23 23 21;
   --sc-surface-rgb: 36 34 31;
   --sc-subtle-rgb: 44 41 38;
@@ -128,7 +131,11 @@
 .sc-novel-description { flex: 1; min-width: 0; }
 .sc-novel-synopsis { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
 .sc-novel-status, .sc-genre-tag { padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 500; line-height: 18px; background: var(--sc-neutral-bg); color: var(--sc-text); }
-.sc-novel-status-public { color: var(--sc-success); background: var(--sc-success-bg); }
+.sc-novel-status { display: inline-flex; white-space: nowrap; }
+.sc-novel-status[data-tone="success"] { color: var(--sc-success); background: var(--sc-success-bg); }
+.sc-novel-status[data-tone="primary"] { color: var(--sc-primary-text); background: var(--sc-primary-soft); }
+.sc-novel-status[data-tone="warning"] { color: var(--sc-warning); background: var(--sc-warning-bg); }
+.sc-novel-status[data-tone="danger"] { color: var(--sc-danger); background: var(--sc-danger-bg); }
 .sc-novel-metrics { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; margin: 24px 0 0; padding: 20px 0; border-block: 1px solid var(--sc-border); text-align: center; }
 .sc-novel-metrics > div { min-width: 0; }
 .sc-novel-metrics dt { margin-bottom: 8px; color: var(--sc-text-muted); font-size: 12px; line-height: 18px; }
@@ -313,6 +320,27 @@
 }
 .sc-author-theme .sc-avatar { width: 36px; height: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 50%; border: 1px solid var(--sc-border); background: var(--sc-primary-soft); color: var(--sc-primary-text); font-size: 13px; }
 .sc-avatar img { width: 100%; height: 100%; object-fit: cover; }
+/* Preserve Mantine’s clear button and replace only the decorative chevron. */
+svg[data-combobox-chevron] {
+  background-color: currentColor;
+  mask: var(--sc-select-chevron) center / contain no-repeat;
+}
+svg[data-combobox-chevron] path { visibility: hidden; }
+:is(.sc-author-theme, .admin-shell, .sc-animated-modal-body) select:not([multiple]):not([size]) {
+  appearance: none;
+  padding-inline-end: 32px;
+  background-image: var(--sc-select-chevron);
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+}
+@media (forced-colors: active) {
+  svg[data-combobox-chevron] { background-color: ButtonText; forced-color-adjust: none; }
+  :is(.sc-author-theme, .admin-shell, .sc-animated-modal-body) select:not([multiple]):not([size]) {
+    appearance: auto;
+    background-image: none;
+  }
+}
 .sc-shell-content { max-width: var(--sc-content-width); padding: 24px; margin: auto; }
 .sc-chapter-toolbar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; overflow-x: auto; background: var(--sc-surface); border-bottom: 1px solid var(--sc-border); }
 .sc-chapter-filters, .sc-chapter-toolbar-actions { display: contents; }

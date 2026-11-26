@@ -160,25 +160,24 @@ for (const [theme, forum] of [['light', forumLight], ['dark', forumDark]]) {
   ])).concat([
     ['body text on page wash', v('--sc-text-rgb'), page],
     ['muted strong on page wash', v('--forum-muted-strong'), page],
-    ['muted strong on sage card', v('--forum-muted-strong'), v('--forum-tint-sage')],
-    ['muted strong on plum card', v('--forum-muted-strong'), v('--forum-tint-plum')],
-    ['sage heading on sage card', v('--forum-sage-ink'), v('--forum-tint-sage')],
-    ['plum heading on plum card', v('--forum-plum-ink'), v('--forum-tint-plum')],
-    ['feature title on featured wash', v('--sc-text-rgb'), v('--forum-tint-sage')],
+    ['muted text on the notices card', v('--forum-muted-strong'), v('--sc-subtle-rgb')],
+    ['muted text on the trending card', v('--forum-muted-strong'), v('--sc-primary-soft-rgb')],
+    ['notice heading on the notices card', v('--sc-text-rgb'), v('--sc-subtle-rgb')],
+    ['accent on the trending card', v('--sc-primary-text-rgb'), v('--sc-primary-soft-rgb')],
     // Paper surfaces: the article, the comment panel and the composer field.
     ['body text on paper', v('--sc-text-rgb'), paper],
     ['muted strong on paper', v('--forum-muted-strong'), paper],
     ['body text on composer field', v('--sc-text-rgb'), field],
     ['placeholder on composer field', v('--forum-muted-strong'), field],
-    // Secondary notices sit on their own surface inside the sage panel.
+    // Secondary notices sit on their own surface inside the notices panel.
     ['notice title on notice surface', v('--sc-text-rgb'), notice],
     ['notice meta on notice surface', v('--forum-muted-strong'), notice],
     ['coral kicker on notice surface', v('--forum-coral-ink'), notice],
     ['sage kicker on notice surface', v('--forum-sage-ink'), notice],
     ['amber kicker on notice surface', v('--forum-amber-ink'), notice],
-    // Trending ranks ride a 15% plum chip (24% for the lead row).
-    ['plum rank on 15% chip', v('--forum-plum-ink'), blend(v('--forum-plum'), paper, 0.15)],
-    ['plum rank on 24% chip', v('--forum-plum-ink'), blend(v('--forum-plum'), paper, 0.24)]
+    // Trending ranks ride a 15% terracotta chip (24% for the lead row).
+    ['trending rank on 15% chip', v('--sc-text-rgb'), blend(v('--sc-primary-rgb'), paper, 0.15)],
+    ['trending rank on 24% chip', v('--sc-text-rgb'), blend(v('--sc-primary-rgb'), paper, 0.24)]
   ]);
 
   for (const [label, foreground, background] of pairs) {

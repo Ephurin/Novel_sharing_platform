@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { useUrlFilters, useListScroll, WorkspaceTable, WorkspaceTableOptions } from '../../shared/components/WorkspacePreferences';
 import { AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { ResponsiveFilters } from '../../shared/components/InteractionWidgets';
@@ -28,16 +29,6 @@ const REPORT_REASON_LABELS: Record<string, string> = {
   'Reader report': 'Độc giả báo cáo'
 };
 const reportReason = (value: string) => REPORT_REASON_LABELS[value] ?? value;
-
-/** How long an item has been waiting, so the oldest work stands out. */
-function waited(value: string) {
-  const minutes = Math.max(0, Math.round((Date.now() - new Date(value).getTime()) / 60000));
-  if (!Number.isFinite(minutes)) return '–';
-  if (minutes < 60) return `${minutes} phút`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 48) return `${hours} giờ`;
-  return `${Math.round(hours / 24)} ngày`;
-}
 
 export function AdminModerationPage({ reports = false }: { reports?: boolean }) {
   const urlFilters = useUrlFilters({ targetType: '', status: 'PENDING', source: '', page: 1 }, { targetType: ['', 'NOVEL', 'CHAPTER', 'COMMENT', 'USER', 'DISCUSSION', 'DISCUSSION_COMMENT'], status: ['', 'PENDING', 'APPROVED', 'REJECTED', 'REVISION_REQUIRED'], source: ['', 'PUBLICATION_REQUEST', 'KEYWORD_FILTER', 'USER_REPORT'] });
@@ -168,7 +159,7 @@ export function AdminModerationPage({ reports = false }: { reports?: boolean }) 
                           </>
                         )}
                       </td>
-                      <td title={dateTime(review.createdAt)}>{waited(review.createdAt)}</td>
+                      <td title={dateTime(review.createdAt)}>{formatDateTime(review.createdAt, 'relative')}</td>
                       <td>
                         <Status value={review.status} />
                       </td>

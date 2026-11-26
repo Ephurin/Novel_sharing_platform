@@ -22,7 +22,7 @@ const navigation = [
   ['/admin/reports', 'flag', 'Báo cáo người dùng'],
   ['/admin/escalations', 'add_moderator', 'Chuyển cấp'],
   ['/admin/discussions', 'forum', 'Thảo luận'],
-  ['/admin/withdraws', 'payments', 'Yêu cầu rút Xu'],
+  ['/admin/withdraws', 'payments', 'Yêu cầu rút xu'],
   ['/admin/appeals', 'forum', 'Khiếu nại'],
   ['/admin/selection-reconsiderations', 'fact_check', 'Xét lại tuyển chọn'],
   ['/admin/placements', 'calendar_month', 'Lịch giới thiệu'],

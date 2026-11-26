@@ -30,7 +30,7 @@ Tài liệu giao cho team dev. Gộp ba bản đánh giá độc lập, đã b�
 
 ## Tiến độ
 
-**P1 (UI-01 → UI-07) đã sửa** trên nhánh `claude/ui-review-p1`. Nhóm Admin của P2 (UI-08, UI-12, UI-17) đã sửa trên nhánh `codex/ui-review-admin`, phụ thuộc PR #218. Các mục P2/P3 còn lại đang chờ.
+**P1 (UI-01 → UI-07) đã sửa** trên nhánh `claude/ui-review-p1`. Nhóm Admin của P2 (UI-08, UI-12, UI-17) đã sửa trên nhánh `codex/ui-review-admin`. Các mục P2/P3 khác được ghi theo từng nhóm bên dưới.
 
 | ID | Đã làm |
 |---|---|
@@ -44,6 +44,13 @@ Tài liệu giao cho team dev. Gộp ba bản đánh giá độc lập, đã b�
 | UI-08 | Khóa tài khoản, duyệt/từ chối rút xu và xóa/gộp danh mục nằm trong menu ⋯. Ẩn thao tác khóa với chính mình và tài khoản quản trị viên. Hộp xác nhận rút xu vẫn hiện người yêu cầu, số xu và tài khoản nhận. Các thao tác phá hủy dùng màu cảnh báo và xác nhận rõ hành động. |
 | UI-12 | Diễn đàn dùng chung tiêu đề, bộ lọc, bảng, tùy chọn bảng và phân trang Admin. Có tìm kiếm tiêu đề không dấu trước khi phân trang, nút làm mới và menu ⋯ cho chủ đề. Bình luận vẫn mở ngay dưới chủ đề. |
 | UI-17 | Gom Xem nhanh và Chi tiết vào menu ⋯ trên bảng truyện. Thể loại và thẻ có bảng riêng và ô tìm kiếm. Gộp bộ lọc đã lưu và cột hiển thị vào “Tùy chọn bảng”, bỏ các chip lặp giá trị bộ lọc. |
+
+### P2 · Hệ thống chung
+
+| ID | Đã làm trên nhánh `codex/ui-review-shared` |
+|---|---|
+| UI-10 | Danh sách dùng thời gian tương đối, mốc chi tiết dùng `HH:mm dd/MM/yyyy` theo giờ Việt Nam. Dùng số định dạng theo `vi-VN` và thống nhất “xu”, “Xóa”. |
+| UI-11 | Danh sách và quản lý tác phẩm dùng cùng huy hiệu. Dropdown dùng mũi tên xuống. Trang rộng dùng 1240 px, trang gọn dùng 960 px. Hai thẻ bên Diễn đàn dùng màu StoryCraft, giữ Literata cho tiêu đề theo quy ước đã ghi trong `design-system.md`. |
 
 ## Bảng tóm tắt
 

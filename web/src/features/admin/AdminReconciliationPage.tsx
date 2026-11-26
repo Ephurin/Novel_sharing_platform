@@ -83,16 +83,16 @@ export function AdminReconciliationPage() {
   return (
     <>
       <Link className="admin-link" to="/admin/withdraws">
-        ← Yêu cầu rút Xu
+        ← Yêu cầu rút xu
       </Link>
       <AdminHeader
         title="Đối soát thanh toán"
-        description={`@${request.username} · ${number(Number(request.amount_coins))} Xu`}
+        description={`@${request.username} · ${number(Number(request.amount_coins))} xu`}
         refresh={() => void query.refetch()}
       />
       <Alert mb="md">
         Đây là ghi nhận đối soát thủ công. Thao tác không gọi ngân hàng và không thay đổi số dư
-        Xu.
+        xu.
       </Alert>
       {mutation.isSuccess && (
         <Alert color="green" mb="md" role="status">

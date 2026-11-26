@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { Alert, Avatar, Button, Group, Select, Stack, Text, TextInput, Title } from '@mantine/core';
 import {
   IconArrowLeft, IconArrowRight, IconEye, IconFeather, IconFlame, IconHelp, IconLayoutGrid,
@@ -24,9 +25,7 @@ const SORTS: Array<{ value: TopicSort; label: string }> = [
   { value: 'replies', label: 'Nhiều trả lời' }
 ];
 const TITLE_MIN = 3, TITLE_MAX = 200, BODY_MAX = 20000;
-const RELATIVE = new Intl.RelativeTimeFormat('vi-VN', { numeric: 'auto' });
 const NUMBER = new Intl.NumberFormat('vi-VN');
-const UNITS: Array<[Intl.RelativeTimeFormatUnit, number]> = [['year', 31536000], ['month', 2592000], ['week', 604800], ['day', 86400], ['hour', 3600], ['minute', 60]];
 
 /** Icon + one-line explanation for a category, resolved from the live category list. */
 const CATEGORY_GUIDE: Record<string, { icon: ReactNode; hint: string }> = {
@@ -54,15 +53,6 @@ function guideFor(category: Category) {
   return CATEGORY_GUIDE[category.slug] ?? { icon: <IconLayoutList size={18} aria-hidden="true" />, hint: category.name };
 }
 
-function validDate(value: string | null | undefined) { if (!value) return null; const d = new Date(value); return Number.isNaN(d.getTime()) ? null : d; }
-function fmtTime(value: string) { const d = validDate(value); return d ? d.toLocaleString('vi-VN') : '—'; }
-function relTime(value: string) {
-  const d = validDate(value);
-  if (!d) return '—';
-  const diff = Math.round((d.getTime() - Date.now()) / 1000);
-  for (const [unit, secs] of UNITS) if (Math.abs(diff) >= secs) return RELATIVE.format(Math.round(diff / secs), unit);
-  return RELATIVE.format(diff, 'second');
-}
 function authorName(a: { displayName: string | null } | null) { return a?.displayName?.trim() || 'Ẩn danh'; }
 
 /* ── Shared bits ─────────────────────────────────────────────────────────── */
@@ -153,9 +143,9 @@ function TopicRow({ topic }: { topic: Topic }) {
           <span className="forum-row-author">{author}</span>
           <RoleBadge role={topic.author?.role} />
           <span className="forum-row-sep" aria-hidden="true">·</span>
-          <time className="forum-row-time" dateTime={validDate(topic.lastActivityAt)?.toISOString()}
-            title={fmtTime(topic.lastActivityAt)}>
-            {relTime(topic.lastActivityAt)}
+          <time className="forum-row-time" dateTime={topic.lastActivityAt}
+            title={formatDateTime(topic.lastActivityAt)}>
+            {formatDateTime(topic.lastActivityAt, 'relative')}
           </time>
         </span>
       </span>
@@ -228,8 +218,8 @@ function NoticeCard({ items }: { items: Topic[] }) {
                 <span className="forum-notice-meta">
                   <span className="forum-notice-kicker">{topic.category.name}</span>
                   <span aria-hidden="true">·</span>
-                  <time dateTime={validDate(topic.lastActivityAt)?.toISOString()} title={fmtTime(topic.lastActivityAt)}>
-                    {relTime(topic.lastActivityAt)}
+                  <time dateTime={topic.lastActivityAt} title={formatDateTime(topic.lastActivityAt)}>
+                    {formatDateTime(topic.lastActivityAt, 'relative')}
                   </time>
                 </span>
               </span>

@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Alert, Button, Divider, PasswordInput, TextInput, Textarea, useComputedColorScheme } from '@mantine/core';
@@ -279,7 +280,7 @@ export function AccountAppealsPage() {
                       label={item.active ? 'Còn hiệu lực' : 'Đã thu hồi'}
                     />
                   </div>
-                  <p className="admin-muted">{dateTime(item.created_at)}</p>
+                  <p className="admin-muted"><time dateTime={item.created_at} title={dateTime(item.created_at)}>{formatDateTime(item.created_at, 'relative')}</time></p>
                   <p className="admin-prose">{item.reason}</p>
                   <AdminId value={item.target_id} label="mã đối tượng" />
                   {item.appeal_id ? (

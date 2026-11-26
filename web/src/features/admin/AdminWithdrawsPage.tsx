@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { useUrlFilters, useListScroll, WorkspaceTable, WorkspaceTableOptions } from '../../shared/components/WorkspacePreferences';
 import { AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { ResponsiveFilters, useUpdatedItems } from '../../shared/components/InteractionWidgets';
@@ -55,7 +56,7 @@ export function AdminWithdrawsPage() {
       setSuccess(
         action?.approve
           ? 'Đã duyệt yêu cầu trong hệ thống.'
-          : 'Đã từ chối yêu cầu và hoàn lại Xu khả dụng.'
+          : 'Đã từ chối yêu cầu và hoàn lại xu khả dụng.'
       );
       setAction(null);
       setReason('');
@@ -78,8 +79,8 @@ export function AdminWithdrawsPage() {
   return (
     <>
       <AdminHeader
-        title="Yêu cầu rút Xu"
-        description="Theo dõi và xử lý các yêu cầu rút Xu của tác giả."
+        title="Yêu cầu rút xu"
+        description="Theo dõi và xử lý các yêu cầu rút xu của tác giả."
         refresh={() => void query.refetch()}
       >
         <span className="admin-muted">
@@ -107,12 +108,12 @@ export function AdminWithdrawsPage() {
           />
         </ResponsiveFilters>
         <WorkspaceTableOptions name="adminwithdrawspage"
-              columns={['Người yêu cầu', 'Số Xu yêu cầu', 'Tài khoản nhận', 'Trạng thái', 'Thao tác']} presets={{ name: 'AdminWithdrawsPage', fields: ['status'] }}>
+              columns={['Người yêu cầu', 'Số xu yêu cầu', 'Tài khoản nhận', 'Trạng thái', 'Thao tác']} presets={{ name: 'AdminWithdrawsPage', fields: ['status'] }}>
         <ResultsSurface identity={String(query.dataUpdatedAt)} busy={query.isFetching} retain={Boolean(status)}>
-          {query.isLoading && <LoadingState variant="table" label="Đang tải yêu cầu rút Xu..." />}
+          {query.isLoading && <LoadingState variant="table" label="Đang tải yêu cầu rút xu..." />}
           {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
           {query.data && !query.data.items.length && (
-            <EmptyState description="Không có yêu cầu rút Xu phù hợp." />
+            <EmptyState description="Không có yêu cầu rút xu phù hợp." />
           )}
           {!!query.data?.items.length && (
             <WorkspaceTable>
@@ -120,7 +121,7 @@ export function AdminWithdrawsPage() {
                 <thead>
                   <tr>
                     <th>Người yêu cầu</th>
-                    <th>Số Xu yêu cầu</th>
+                    <th>Số xu yêu cầu</th>
                     <th>Tài khoản nhận</th>
                     <th>Trạng thái</th>
                     <th>Thao tác</th>
@@ -134,10 +135,10 @@ export function AdminWithdrawsPage() {
                     >
                       <td>
                         <strong>@{request.username}</strong>
-                        <small>{dateTime(request.createdAt)}</small>
+                        <small><time dateTime={request.createdAt} title={dateTime(request.createdAt)}>{formatDateTime(request.createdAt, 'relative')}</time></small>
                       </td>
                       <td>
-                        <strong>{number(request.amountCoins)} Xu</strong>
+                        <strong>{number(request.amountCoins)} xu</strong>
                       </td>
                       <td>{request.bankAccountLabel || <span className="admin-muted">Chưa cung cấp</span>}</td>
                       <td>
@@ -196,7 +197,7 @@ export function AdminWithdrawsPage() {
       <AdminConfirm
         destructive={!action?.approve}
         opened={!!action}
-        title={action?.approve ? 'Duyệt yêu cầu rút Xu' : 'Từ chối yêu cầu rút Xu'}
+        title={action?.approve ? 'Duyệt yêu cầu rút xu' : 'Từ chối yêu cầu rút xu'}
         confirmLabel={action?.approve ? 'Xác nhận duyệt' : 'Xác nhận từ chối'}
         reason={reason}
         setReason={action?.approve ? undefined : setReason}
@@ -208,13 +209,13 @@ export function AdminWithdrawsPage() {
       >
         <p>
           @{action?.request.username} ·{' '}
-          <strong>{number(action?.request.amountCoins ?? 0)} Xu</strong>
+          <strong>{number(action?.request.amountCoins ?? 0)} xu</strong>
         </p>
         <p>Đích nhận: {action?.request.bankAccountLabel || 'Chưa có thông tin'}</p>
         <p>
           {action?.approve
-            ? 'Duyệt yêu cầu cập nhật trạng thái và trừ Xu đang giữ. Trạng thái này không xác nhận tiền đã vào tài khoản ngân hàng.'
-            : 'Số Xu đang giữ sẽ được hoàn lại số dư khả dụng của tác giả.'}
+            ? 'Duyệt yêu cầu cập nhật trạng thái và trừ xu đang giữ. Trạng thái này không xác nhận tiền đã vào tài khoản ngân hàng.'
+            : 'Số xu đang giữ sẽ được hoàn lại số dư khả dụng của tác giả.'}
         </p>
       </AdminConfirm>
     </>

@@ -26,7 +26,7 @@
 /* ── Shell ───────────────────────────────────────────────────────────────── */
 
 .sc-discussions-shell {
-  width: min(100%, 1280px);
+  width: min(100%, var(--sc-content-width));
   margin-inline: auto;
   padding: clamp(.9rem, 2.2vw, 1.85rem) clamp(.875rem, 3vw, 2rem) 4rem;
   color: var(--sc-text);
@@ -84,8 +84,6 @@
   --forum-amber-ink: #8a611c;
 
   /* Section washes: pastel in light mode, colour-tinted charcoal in dark. */
-  --forum-tint-sage: #eef3e7;
-  --forum-tint-plum: #f4eef5;
   --forum-muted-strong: #66615c;
   --forum-page: #f7f4ef;
 
@@ -122,8 +120,6 @@
   --forum-plum-ink: #d8b4e2;
   --forum-amber-ink: #f0c684;
 
-  --forum-tint-sage: #242b21;
-  --forum-tint-plum: #2b222a;
   --forum-muted-strong: #cfc5bc;
   --forum-page: #1b1817;
 
@@ -378,8 +374,8 @@
  */
 
 .forum-notices {
-  border-color: color-mix(in srgb, var(--forum-sage) 28%, var(--forum-paper-border));
-  background: var(--forum-tint-sage);
+  border-color: var(--sc-border);
+  background: var(--sc-surface-subtle);
 }
 
 .forum-notices h2 { margin-block-end: .5rem; }
@@ -731,7 +727,7 @@
   margin-block-start: .9rem;
 }
 
-.forum-page { max-width: 980px; margin-inline: auto; }
+.forum-page { max-width: var(--sc-content-compact); margin-inline: auto; }
 
 /* Secondary community pages and the board header share one strip: same surface,
  * same padding, same action row — the board only adds its mark and swaps the
@@ -791,11 +787,9 @@
 
 /* ── Sidebar cards ──────────────────────────────────────────────────────── */
 
-/* The trending card carries the column's colour — plum for what is drawing
- * attention — so the rail has hue without a single illustration in it. */
 .forum-trending {
-  border-color: color-mix(in srgb, var(--forum-plum) 28%, var(--forum-paper-border));
-  background: var(--forum-tint-plum);
+  border-color: color-mix(in srgb, var(--sc-primary) 28%, var(--forum-paper-border));
+  background: var(--sc-primary-soft);
 }
 .forum-trending h2 { margin-block-end: .55rem; }
 
@@ -816,9 +810,9 @@
   border-radius: var(--sc-radius-control);
   transition: background-color .16s ease;
 }
-.forum-trending li:hover { background: color-mix(in srgb, var(--forum-plum) 8%, transparent); }
+.forum-trending li:hover { background: color-mix(in srgb, var(--sc-primary) 8%, transparent); }
 
-/* Rank as a small tinted counter: one plum chip per row, denser for the lead
+/* Rank as a small tinted counter: one terracotta chip per row, denser for the lead
  * story. It keeps the order readable without adding a second colour family. */
 .forum-trending-rank {
   display: inline-grid;
@@ -827,16 +821,16 @@
   block-size: 1.25rem;
   margin-block-start: .08rem;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--forum-plum) 15%, var(--forum-paper));
-  color: var(--forum-plum-ink);
+  background: color-mix(in srgb, var(--sc-primary) 15%, var(--forum-paper));
+  color: var(--sc-text);
   font-size: .72rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 .forum-trending li:first-child .forum-trending-rank {
-  background: color-mix(in srgb, var(--forum-plum) 24%, var(--forum-paper));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--forum-plum) 30%, transparent);
+  background: color-mix(in srgb, var(--sc-primary) 24%, var(--forum-paper));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sc-primary) 30%, transparent);
 }
 
 .forum-trending-link {
@@ -883,10 +877,10 @@
   align-items: center;
   gap: .24rem;
   padding: .1rem .45rem;
-  border: 1px solid color-mix(in srgb, var(--forum-plum) 26%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sc-primary) 26%, transparent);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--forum-plum) 12%, var(--forum-paper));
-  color: var(--forum-plum-ink);
+  background: color-mix(in srgb, var(--sc-primary) 12%, var(--forum-paper));
+  color: var(--sc-text);
   font-size: .745rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -894,14 +888,14 @@
   white-space: nowrap;
 }
 .forum-trending-replies svg { flex: 0 0 auto; opacity: .85; }
-.forum-trending-link:hover .forum-trending-title { color: var(--forum-plum-ink); }
+.forum-trending-link:hover .forum-trending-title { color: var(--sc-primary-text); }
 .forum-trending-link:focus-visible { outline-offset: 2px; }
 
-.forum-trending .forum-section-icon { color: var(--forum-plum-ink); }
+.forum-trending .forum-section-icon { color: var(--sc-primary-text); }
 
 /* ── Topic detail ───────────────────────────────────────────────────────── */
 
-.forum-topic, .forum-editor { max-width: 940px; margin-inline: auto; }
+.forum-topic, .forum-editor { max-width: var(--sc-content-compact); margin-inline: auto; }
 
 .forum-breadcrumb {
   display: flex;

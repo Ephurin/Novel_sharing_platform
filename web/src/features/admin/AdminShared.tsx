@@ -1,3 +1,4 @@
+import { formatNumber } from '../../shared/lib/format-vi';
 import type { PropsWithChildren, ReactNode } from 'react';
 import { useEffect } from 'react';
 import {
@@ -17,15 +18,7 @@ import { AnimatedTooltip } from '../../shared/components/AnimatedTooltip';
 import { FeedbackIcon } from '../../shared/components/ActionFeedback';
 import { AnimatedModal as Modal } from '../../shared/components/AnimatedModal';
 
-export const number = (value: number) => value.toLocaleString('vi-VN');
-export const dateTime = (value?: string | null) =>
-  value
-    ? new Date(value).toLocaleString('vi-VN', {
-        timeZone: 'Asia/Bangkok',
-        dateStyle: 'short',
-        timeStyle: 'short'
-      })
-    : '—';
+export { formatNumber as number, formatDateTime as dateTime } from '../../shared/lib/format-vi';
 export const labels: Record<string, string> = {
   ADMIN: 'Quản trị viên',
   AUTHOR: 'Tác giả',
@@ -59,7 +52,7 @@ export const labels: Record<string, string> = {
   HIDDEN: 'Đã ẩn',
   USER: 'Người dùng',
   APPEAL: 'Khiếu nại',
-  WITHDRAW: 'Yêu cầu rút Xu',
+  WITHDRAW: 'Yêu cầu rút xu',
   ADMIN_JOB: 'Tác vụ nền',
   genres: 'Thể loại',
   tags: 'Thẻ',
@@ -97,8 +90,8 @@ export const labels: Record<string, string> = {
   DISMISSED: 'Đã bác đề nghị',
   APPEAL_ACCEPTED: 'Chấp nhận khiếu nại',
   APPEAL_REJECTED: 'Bác khiếu nại',
-  WITHDRAW_APPROVED: 'Duyệt rút Xu',
-  WITHDRAW_REJECTED: 'Từ chối rút Xu',
+  WITHDRAW_APPROVED: 'Duyệt rút xu',
+  WITHDRAW_REJECTED: 'Từ chối rút xu',
   WITHDRAW_RECONCILED: 'Cập nhật đối soát',
   TAXONOMY_CREATED: 'Thêm danh mục',
   TAXONOMY_UPDATED: 'Sửa danh mục',
@@ -221,8 +214,8 @@ export function AdminPagination({
   return (
     <div className="admin-pagination">
       <span>
-        Hiển thị {number(Math.min((meta.page - 1) * meta.limit + 1, meta.totalItems))} –{' '}
-        {number(Math.min(meta.page * meta.limit, meta.totalItems))} của {number(meta.totalItems)}{' '}
+        Hiển thị {formatNumber(Math.min((meta.page - 1) * meta.limit + 1, meta.totalItems))} –{' '}
+        {formatNumber(Math.min(meta.page * meta.limit, meta.totalItems))} của {formatNumber(meta.totalItems)}{' '}
         mục
       </span>
       <Pagination

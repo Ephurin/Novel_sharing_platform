@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { hasReaderCapability } from '../auth/auth-types';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -49,7 +50,7 @@ export function NotificationsPage() {
     (typeof unreadCountQuery.data === 'number' && unreadCountQuery.data > 0);
 
   return (
-    <Box maw={840} mx="auto" w="100%">
+    <Box maw="var(--sc-content-compact)" mx="auto" w="100%">
       <Group justify="space-between" wrap="wrap" gap="sm" mb="lg">
         <Title order={1}>Thông báo</Title>
         <Group wrap="wrap" gap="sm">
@@ -115,7 +116,7 @@ export function NotificationsPage() {
                       {item.content}
                     </Text>
                     <Text size="xs" c="dimmed">
-                      {new Date(item.createdAt).toLocaleString('vi-VN')}
+                      <time dateTime={item.createdAt} title={formatDateTime(item.createdAt)}>{formatDateTime(item.createdAt, 'relative')}</time>
                     </Text>
                     <Group wrap="wrap" gap="xs">
                       {href && (
