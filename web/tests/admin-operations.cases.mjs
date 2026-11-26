@@ -543,8 +543,9 @@ export async function adminOperationsCases({ t, api, pg, mongo, id, page, goto, 
         })
       ).data;
       await goto('/admin/taxonomy');
-      const row = page.locator('.admin-taxonomy-row').filter({ hasText: 'UI Operations Tag' });
-      await row.getByRole('button', { name: 'Sửa', exact: true }).click();
+      const table = page.getByRole('region', { name: 'Bảng thẻ' });
+      await table.getByRole('button', { name: 'Thao tác với UI Operations Tag', exact: true }).click();
+      await page.getByRole('menuitem', { name: 'Sửa', exact: true }).click();
       await page
         .getByRole('dialog')
         .getByLabel('Tên', { exact: true })
@@ -554,10 +555,7 @@ export async function adminOperationsCases({ t, api, pg, mongo, id, page, goto, 
         .getByRole('dialog')
         .getByRole('button', { name: 'Lưu thay đổi', exact: true })
         .click();
-      await page
-        .locator('.admin-taxonomy-row')
-        .getByText('# UI Operations Tag Updated', { exact: true })
-        .waitFor();
+      await table.getByText('# UI Operations Tag Updated', { exact: true }).waitFor();
       await api(`/admin/taxonomy/tags/${tag.tagId}`, {
         method: 'DELETE',
         body: { confirm: true, reason }

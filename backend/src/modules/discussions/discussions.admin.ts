@@ -62,6 +62,7 @@ const updateCategorySchema = z.object({
 
 const listAdminTopicsSchema = z.object({
   query: z.object({
+    q: z.string().trim().max(500).optional(),
     status: statusSchema.optional(),
     page: pageSchema,
     limit: limitSchema
@@ -308,6 +309,9 @@ discussionAdminRoutes.get(
       const { page, limit } = query;
       const offset = (page - 1) * limit;
       const data = await withPostgresTransaction(async (client) => {
+        const where = `where ($1::discussion_topic_status is null or t.status = $1)
+                          and ($2::text is null or strpos(lower(f_unaccent(t.title)), lower(f_unaccent($2))) > 0)`;
+        const filters = [query.status ?? null, query.q || null];
         const rows: QueryResult<{
           topic_id: string;
           title: string;
@@ -326,10 +330,10 @@ discussionAdminRoutes.get(
              left join discussion_categories c on c.category_id=t.category_id
              left join users u on u.user_id=t.author_id
              left join user_profiles p on p.user_id = u.user_id
-            where ($1::text is null or t.status=$1::discussion_topic_status)
+            ${where}
             order by t.is_pinned desc, t.last_activity_at desc, t.topic_id desc
-            limit $2 offset $3`,
-          [query.status ?? null, limit + 1, offset]
+            limit $3 offset $4`,
+          [...filters, limit + 1, offset]
         );
         const items = rows.rows.slice(0, limit).map((row) => ({
           topicId: row.topic_id,
@@ -341,7 +345,16 @@ discussionAdminRoutes.get(
           authorName: row.author_name,
           createdAt: new Date(row.created_at).toISOString()
         }));
-        return { items, hasNext: rows.rows.length > limit };
+        const count = await client.query<{ total: string }>(
+          `select count(*) as total from discussion_topics t ${where}`,
+          filters
+        );
+        const totalItems = Number(count.rows[0].total);
+        return {
+          items,
+          hasNext: rows.rows.length > limit,
+          meta: { page, limit, totalItems, totalPages: Math.ceil(totalItems / limit) }
+        };
       });
       response.json(successResponse(data));
     } catch (error) {

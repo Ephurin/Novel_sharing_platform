@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type Dispatch, type SetStateAction, type PropsWithChildren } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type Dispatch, type SetStateAction, type PropsWithChildren } from 'react';
 import { useLocation, useNavigationType, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../features/auth/useAuthStore';
 import { Popover } from '@animate-ui/react/primitives/radix-ui/popover';
@@ -64,7 +64,7 @@ export function useUrlFilters<T extends Record<string, FilterValue>>(defaults: T
 
 type Preset = { name: string; query: string };
 const presetsValid = (v: unknown): v is Preset[] => Array.isArray(v) && v.length <= 20 && v.every(p => typeof p?.name === 'string' && p.name.length <= 50 && typeof p?.query === 'string' && p.query.length <= 4000);
-export function FilterPresets({ name, fields, presentation = 'inline' }: { name: string; fields: string[]; presentation?: 'inline' | 'popover' }) {
+export function FilterPresets({ name, fields, presentation = 'inline' }: { name: string; fields: string[]; presentation?: 'inline' | 'popover' | 'embedded' }) {
   const [params, setParams] = useSearchParams();
   const [presets, setPresets] = useWorkspacePreference<Preset[]>(`filters:${name}`, [], presetsValid);
   const [title, setTitle] = useState('');
@@ -89,6 +89,7 @@ export function FilterPresets({ name, fields, presentation = 'inline' }: { name:
       {content}
     </Popover.Content>}</Popover.Portal>
   </Popover.Root>;
+  if (presentation === 'embedded') return <div className="sc-filter-presets"><strong>{label}</strong>{content}</div>;
   return <details className="sc-filter-presets"><summary>{label}</summary>{content}</details>;
 }
 
@@ -111,9 +112,43 @@ export function useListScroll(ready: boolean) {
   }, [key, navigation, ready]);
 }
 
-/** Opt-in table controls; identity and action columns always remain visible. */
-export function WorkspaceTable({ name, columns, children }: PropsWithChildren<{ name: string; columns: string[] }>) {
+const WorkspaceTableContext = createContext({ name: '', hiddenIndexes: [] as number[], visibleCount: 0 });
+
+export function WorkspaceTableOptions({
+  name, columns, presets, children
+}: PropsWithChildren<{ name: string; columns: string[]; presets: { name: string; fields: string[] } }>) {
   const [hidden, setHidden] = useWorkspacePreference<string[]>(`columns:${name}`, [], stringArray);
+  const optional = columns.flatMap((label, index) => index > 0 && label !== 'Thao tác' ? [{ label, index: index + 1 }] : []);
+  const hiddenIndexes = optional.filter(({ label }) => hidden.includes(label)).map(({ index }) => index);
+  return (
+    <WorkspaceTableContext.Provider value={{ name, hiddenIndexes, visibleCount: columns.length - hiddenIndexes.length }}>
+      <details className="sc-column-settings">
+        <summary>Tùy chọn bảng</summary>
+        <FilterPresets {...presets} presentation="embedded" />
+        <strong>Cột hiển thị</strong>
+        <div className="sc-workspace-row">
+          {optional.map(({ label }) => (
+            <label key={label}>
+              <input type="checkbox" checked={!hidden.includes(label)} onChange={() =>
+                setHidden((old) => old.includes(label) ? old.filter((column) => column !== label) : [...old, label])
+              } /> {label}
+            </label>
+          ))}
+          <button type="button" onClick={() => setHidden([])}>Khôi phục</button>
+        </div>
+      </details>
+      {children}
+    </WorkspaceTableContext.Provider>
+  );
+}
+
+export function WorkspaceTableDetail({ children }: PropsWithChildren) {
+  const { visibleCount } = useContext(WorkspaceTableContext);
+  return <tr><td colSpan={visibleCount}>{children}</td></tr>;
+}
+
+export function WorkspaceTable({ children }: PropsWithChildren) {
+  const { name, hiddenIndexes } = useContext(WorkspaceTableContext);
   const scrollRef = useRef<HTMLDivElement>(null);
   const location = useLocation(), navigation = useNavigationType();
   const userId = useAuthStore(s => s.user?.userId ?? 'guest');
@@ -135,12 +170,9 @@ export function WorkspaceTable({ name, columns, children }: PropsWithChildren<{ 
     element.addEventListener('scroll', save, { passive: true }); element.addEventListener('wheel', cancel, { passive: true }); element.addEventListener('touchstart', cancel, { passive: true }); element.addEventListener('keydown', keydown);
     return () => { save(); cancelAnimationFrame(frame); element.removeEventListener('scroll', save); element.removeEventListener('wheel', cancel); element.removeEventListener('touchstart', cancel); element.removeEventListener('keydown', keydown); };
   }, [scrollKey, navigation]);
-  const optional = columns.map((label, index) => ({ label, index })).filter(({ index, label }) => index > 0 && label !== 'Thao tác');
-  const indexes = optional.filter(c => hidden.includes(c.label)).map(c => c.index + 1);
   const id = `sc-table-${name.replace(/[^a-z0-9-]/gi, '')}`;
   return <div id={id} className="sc-workspace-table">
-    <details className="sc-column-settings"><summary>Cột hiển thị</summary><div className="sc-workspace-row">{optional.map(({ label }) => <label key={label}><input type="checkbox" checked={!hidden.includes(label)} onChange={() => setHidden(old => old.includes(label) ? old.filter(c => c !== label) : [...old, label])} /> {label}</label>)}<button type="button" onClick={() => setHidden([])}>Khôi phục</button></div></details>
-    <style>{indexes.map(index => `#${id} > .admin-table-scroll > table > :is(thead,tbody) > tr > :nth-child(${index}){display:none}`).join('\n')}</style>
+    <style>{hiddenIndexes.map(index => `#${id} > .admin-table-scroll > table > :is(thead,tbody) > tr > :nth-child(${index}){display:none}`).join('\n')}</style>
     <div ref={scrollRef} className="admin-table-scroll sc-sticky-table" tabIndex={0} role="region" aria-label="Bảng dữ liệu có thể cuộn">{children}</div>
   </div>;
 }

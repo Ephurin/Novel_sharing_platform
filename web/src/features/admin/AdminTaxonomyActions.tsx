@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Button, Select, TextInput, Textarea } from '@mantine/core';
+import { Menu, Select, TextInput, Textarea } from '@mantine/core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { AdminConfirm, number } from './AdminShared';
+import { AdminConfirm, AdminRowMenu, number } from './AdminShared';
+import { EmptyState } from '../../shared/components/PageStates';
 import { adminSend } from './admin-operations-api';
 
 type Item = { id: string; name: string; description?: string; usageCount: number };
@@ -11,6 +12,9 @@ export function AdminTaxonomyActions({ kind, items }: { kind: 'genres' | 'tags';
     item: Item;
     action: 'edit' | 'merge' | 'delete';
   } | null>(null);
+  const [search, setSearch] = useState('');
+  const term = search.trim().replace(/^#+\s*/, '').toLocaleLowerCase('vi');
+  const matches = items.filter((item) => item.name.toLocaleLowerCase('vi').includes(term));
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [targetId, setTargetId] = useState('');
@@ -48,41 +52,43 @@ export function AdminTaxonomyActions({ kind, items }: { kind: 'genres' | 'tags';
   };
   return (
     <>
-      <div className="admin-taxonomy-list">
-        {items.map((item) => (
-          <div className="admin-taxonomy-row" key={item.id}>
-            <div>
-              <strong>
-                {kind === 'tags' ? '# ' : ''}
-                {item.name}
-              </strong>
-              <small className="admin-block">{number(item.usageCount)} truyện</small>
-            </div>
-            <div className="admin-actions">
-              <Button variant="subtle" size="xs" onClick={() => open(item, 'edit')}>
-                Sửa
-              </Button>
-              <Button
-                variant="subtle"
-                size="xs"
-                disabled={items.length < 2}
-                onClick={() => open(item, 'merge')}
-              >
-                Gộp
-              </Button>
-              <Button
-                variant="subtle"
-                color="red"
-                size="xs"
-                disabled={item.usageCount > 0}
-                onClick={() => open(item, 'delete')}
-              >
-                Xóa
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
+      <TextInput
+        label={kind === 'genres' ? 'Tìm thể loại' : 'Tìm thẻ'}
+        value={search}
+        onChange={(event) => setSearch(event.currentTarget.value)}
+        mb="sm"
+      />
+      {matches.length ? (
+        <div className="admin-table-scroll sc-sticky-table" tabIndex={0} role="region"
+          aria-label={kind === 'genres' ? 'Bảng thể loại' : 'Bảng thẻ'}>
+          <table className="admin-compact-table">
+            <thead>
+              <tr><th>Tên</th><th>Số truyện</th><th>Thao tác</th></tr>
+            </thead>
+            <tbody>
+              {matches.map((item) => (
+                <tr key={item.id}>
+                  <td><strong>{kind === 'tags' ? '# ' : ''}{item.name}</strong></td>
+                  <td>{number(item.usageCount)}</td>
+                  <td>
+                    <AdminRowMenu label={`Thao tác với ${item.name}`}>
+                      <Menu.Item onClick={() => open(item, 'edit')}>Sửa</Menu.Item>
+                      <Menu.Item color="red" disabled={items.length < 2} onClick={() => open(item, 'merge')}>
+                        Gộp
+                      </Menu.Item>
+                      <Menu.Item color="red" disabled={item.usageCount > 0} onClick={() => open(item, 'delete')}>
+                        Xóa
+                      </Menu.Item>
+                    </AdminRowMenu>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <EmptyState description="Không tìm thấy danh mục phù hợp." />
+      )}
       <AdminConfirm
         opened={!!selected}
         title={
@@ -92,7 +98,8 @@ export function AdminTaxonomyActions({ kind, items }: { kind: 'genres' | 'tags';
               ? 'Gộp danh mục'
               : 'Xóa danh mục'
         }
-        confirmLabel="Lưu thay đổi"
+        confirmLabel={selected?.action === 'delete' ? 'Xóa danh mục' : selected?.action === 'merge' ? 'Gộp danh mục' : 'Lưu thay đổi'}
+        disabled={selected?.action === 'merge' && !targetId}
         destructive={selected?.action !== 'edit'}
         reason={reason}
         setReason={setReason}

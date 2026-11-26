@@ -1,8 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  ActionIcon, Anchor, Badge, Button, Card, Group, Loader, Modal, Pagination, SegmentedControl,
-  Stack, Switch, Table, Tabs, Text, Textarea, TextInput, Title, Tooltip
+  ActionIcon, Badge, Button, Card, Group, Loader, Menu, Modal, Pagination, Select,
+  Stack, Switch, Tabs, Text, Textarea, TextInput, Tooltip
 } from '@mantine/core';
+import { Link } from 'react-router-dom';
+import { AdminConfirm, AdminHeader, AdminPagination, AdminPanel, AdminRowMenu, type PageMeta } from '../admin/AdminShared';
+import { ResponsiveFilters } from '../../shared/components/InteractionWidgets';
+import { useUrlFilters, WorkspaceTable, WorkspaceTableDetail, WorkspaceTableOptions } from '../../shared/components/WorkspacePreferences';
 import { useToast } from '../../shared/components/ToastProvider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -21,16 +25,25 @@ type Page<T> = { items: T[]; hasNext: boolean };
 const LIMIT = 20;
 const unwrap = <T,>(res: { data: ApiEnvelope<T> }) => res.data.data;
 const STATUS_COLOR: Record<TopicStatus, string> = { VISIBLE: 'teal', HIDDEN: 'orange', DELETED: 'red' };
-const STATUS_LABEL: Record<TopicStatus, string> = { VISIBLE: 'Đang hiển thị', HIDDEN: 'Đã ẩn', DELETED: 'Đã xoá' };
+const STATUS_LABEL: Record<TopicStatus, string> = { VISIBLE: 'Đang hiển thị', HIDDEN: 'Đã ẩn', DELETED: 'Đã xóa' };
+const STATUS_OPTIONS = [
+  { value: '', label: 'Tất cả trạng thái' },
+  ...Object.entries(STATUS_LABEL).map(([value, label]) => ({ value, label }))
+];
+const TOPIC_COLUMNS = ['Chủ đề', 'Danh mục', 'Tác giả', 'Trạng thái', 'Thao tác'];
 
 /** Reason is mandatory for every moderation and for retiring a category. */
-type ReasonTarget = { kind: 'topic' | 'comment' | 'category'; id: string; commentId?: string; label: string; patch: Record<string, unknown> };
+type ReasonTarget = { kind: 'topic' | 'comment' | 'category'; id: string; commentId?: string; label: string; action: string; patch: Record<string, unknown> };
 
 export function AdminDiscussionsPage() {
   const [tab, setTab] = useState<string | null>('topics');
-  const [status, setStatus] = useState<TopicStatus>('VISIBLE');
-  const [page, setPage] = useState(1);
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const { values: { q, status, page }, update } = useUrlFilters(
+    { q: '', status: 'VISIBLE', page: 1 },
+    { status: STATUS_OPTIONS.map((option) => option.value) }
+  );
+  const filterKey = JSON.stringify([q, status, page]);
+  const [expandedTopic, setExpandedTopic] = useState<{ id: string; filterKey: string } | null>(null);
+  const expanded = expandedTopic?.filterKey === filterKey ? expandedTopic.id : null;
   const [commentPage, setCommentPage] = useState(1);
   const [reasonTarget, setReasonTarget] = useState<ReasonTarget | null>(null);
   const [categoryForm, setCategoryForm] = useState<{ open: boolean; category: Category | null }>({ open: false, category: null });
@@ -42,8 +55,10 @@ export function AdminDiscussionsPage() {
     queryFn: async () => unwrap(await apiClient.get<ApiEnvelope<Category[]>>('/admin/discussions/categories'))
   });
   const topicsQuery = useQuery({
-    queryKey: ['admin', 'discussions', 'topics', status, page],
-    queryFn: async () => unwrap(await apiClient.get<ApiEnvelope<Page<Topic>>>('/admin/discussions/topics', { params: { status, page, limit: LIMIT } }))
+    queryKey: ['admin', 'discussions', 'topics', q.trim(), status, page],
+    queryFn: async ({ signal }) => unwrap(await apiClient.get<ApiEnvelope<Page<Topic> & { meta: PageMeta }>>(
+      '/admin/discussions/topics', { params: { q: q.trim(), status: status || undefined, page, limit: LIMIT }, signal }
+    ))
   });
   const commentsQuery = useQuery({
     queryKey: ['admin', 'discussions', 'comments', expanded, commentPage],
@@ -92,13 +107,21 @@ export function AdminDiscussionsPage() {
 
   return (
     <Stack gap="lg">
-      <Group justify="space-between" align="flex-start" wrap="wrap">
-        <Stack gap={2}>
-          <Title order={2}>Thảo luận cộng đồng</Title>
-          <Text size="sm" c="dimmed">Quản lý danh mục, chủ đề và bình luận.</Text>
-        </Stack>
-        <Anchor href="/admin/reports" size="sm"><Group gap={4}><IconReportAnalytics size={16} />Hàng đợi báo cáo</Group></Anchor>
-      </Group>
+      <AdminHeader
+        title="Thảo luận cộng đồng"
+        description="Quản lý danh mục, chủ đề và bình luận."
+        refresh={() => {
+          if (tab === 'categories') void categoriesQuery.refetch();
+          else {
+            void topicsQuery.refetch();
+            if (expanded) void commentsQuery.refetch();
+          }
+        }}
+      >
+        <Button component={Link} to="/admin/reports" variant="subtle" leftSection={<IconReportAnalytics size={16} />}>
+          Hàng đợi báo cáo
+        </Button>
+      </AdminHeader>
 
       <Tabs value={tab} onChange={setTab} keepMounted={false}>
         <Tabs.List>
@@ -107,112 +130,109 @@ export function AdminDiscussionsPage() {
         </Tabs.List>
 
         <Tabs.Panel value="topics" pt="md">
-          <Stack gap="md">
-            <SegmentedControl
-              value={status}
-              onChange={(value) => { setStatus(value as TopicStatus); setPage(1); setExpanded(null); }}
-              data={[{ label: 'Hiển thị', value: 'VISIBLE' }, { label: 'Đã ẩn', value: 'HIDDEN' }, { label: 'Đã xoá', value: 'DELETED' }]}
-            />
-            {topicsQuery.isPending ? <LoadingState variant="table" label="Đang tải chủ đề…" /> : null}
-            {topicsQuery.isError ? <ErrorState error={topicsQuery.error} onRetry={() => void topicsQuery.refetch()} /> : null}
-            {topicsQuery.data && topicsQuery.data.items.length === 0 ? (
-              <EmptyState description={`Không có chủ đề nào ở trạng thái này. Hãy đổi bộ lọc hoặc chờ thành viên tạo mới.`} />
-            ) : null}
-            {topicsQuery.data?.items.length ? (
-              <Table.ScrollContainer minWidth={760}>
-                <Table striped highlightOnHover>
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th style={{ width: 40 }} />
-                      <Table.Th>Chủ đề</Table.Th>
-                      <Table.Th>Danh mục</Table.Th>
-                      <Table.Th>Tác giả</Table.Th>
-                      <Table.Th>Trạng thái</Table.Th>
-                      <Table.Th style={{ width: 120 }}>Thao tác</Table.Th>
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {topicsQuery.data.items.map((topic) => {
-                      const isOpen = expanded === topic.topicId;
-                      const isDeleted = topic.status === 'DELETED';
-                      return (
-                        <>
-                        <Table.Tr key={topic.topicId}>
-                          <Table.Td>
-                            <Tooltip label={isOpen ? 'Thu gọn bình luận' : 'Xem bình luận'}>
-                              <ActionIcon
-                                variant="subtle"
-                                aria-label={isOpen ? 'Thu gọn bình luận' : 'Xem bình luận'}
-                                onClick={() => { setExpanded(isOpen ? null : topic.topicId); setCommentPage(1); }}
-                              >
-                                {isOpen ? <IconChevronDown size={16} /> : <IconChevronRight size={16} />}
-                              </ActionIcon>
-                            </Tooltip>
-                          </Table.Td>
-                          <Table.Td>
-                            <Group gap={6}>
-                              {topic.isPinned ? <IconPin size={14} aria-label="Đã ghim" /> : null}
-                              {topic.isLocked ? <IconLock size={14} aria-label="Đã khoá" /> : null}
-                              <Text size="sm" lineClamp={1}>{topic.title}</Text>
-                            </Group>
-                          </Table.Td>
-                          <Table.Td><Text size="sm">{topic.categoryName}</Text></Table.Td>
-                          <Table.Td><Text size="sm">{topic.authorName}</Text></Table.Td>
-                          <Table.Td><Badge color={STATUS_COLOR[topic.status]} variant="light">{STATUS_LABEL[topic.status] ?? topic.status}</Badge></Table.Td>
-                          <Table.Td>
-                            <Group gap={4}>
-                              <Tooltip label={topic.isPinned ? 'Bỏ ghim' : 'Ghim'}>
-                                <ActionIcon size="sm" variant="subtle" disabled={isDeleted} aria-label={topic.isPinned ? 'Bỏ ghim' : 'Ghim'}
-                                  onClick={() => askReason({ kind: 'topic', id: topic.topicId, label: topic.title, patch: { isPinned: !topic.isPinned } })}>
-                                  <IconPin size={15} />
-                                </ActionIcon>
-                              </Tooltip>
-                              <Tooltip label={topic.isLocked ? 'Mở khoá' : 'Khoá'}>
-                                <ActionIcon size="sm" variant="subtle" disabled={isDeleted} aria-label={topic.isLocked ? 'Mở khoá' : 'Khoá'}
-                                  onClick={() => askReason({ kind: 'topic', id: topic.topicId, label: topic.title, patch: { isLocked: !topic.isLocked } })}>
-                                  <IconLock size={15} />
-                                </ActionIcon>
-                              </Tooltip>
-                              {isDeleted ? null : topic.status === 'VISIBLE' ? (
-                                <Button size="compact-xs" color="orange" variant="subtle"
-                                  onClick={() => askReason({ kind: 'topic', id: topic.topicId, label: topic.title, patch: { status: 'HIDDEN' } })}>Ẩn</Button>
-                              ) : (
-                                <Button size="compact-xs" color="teal" variant="subtle"
-                                  onClick={() => askReason({ kind: 'topic', id: topic.topicId, label: topic.title, patch: { status: 'VISIBLE' } })}>Khôi phục</Button>
-                              )}
-                              {isDeleted ? null : (
-                                <Button size="compact-xs" color="red" variant="subtle"
-                                  onClick={() => askReason({ kind: 'topic', id: topic.topicId, label: topic.title, patch: { status: 'DELETED' } })}>Xoá</Button>
-                              )}
-                            </Group>
-                          </Table.Td>
-                        </Table.Tr>
-                        {isOpen ? (
-                          <Table.Tr key={`${topic.topicId}-comments`}>
-                            <Table.Td colSpan={6}>
-                              <CommentList
-                                query={commentsQuery}
-                                page={commentPage}
-                                deletable={!isDeleted && status !== 'DELETED'}
-                                onPage={setCommentPage}
-                                onModerate={(comment, patch, action) => askReason({
-                                  kind: 'comment', id: topic.topicId, commentId: comment.commentId, label: action, patch
-                                })}
-                              />
-                            </Table.Td>
-                          </Table.Tr>
-                        ) : null}
-                        </>
-                      );
-                    })}
-                  </Table.Tbody>
-                </Table>
-              </Table.ScrollContainer>
-            ) : null}
-            {topicsQuery.data?.hasNext || page > 1 ? (
-              <Pagination total={topicsQuery.data?.hasNext ? page + 1 : page} value={page} onChange={setPage} size="sm" />
-            ) : null}
-          </Stack>
+          <AdminPanel>
+            <ResponsiveFilters className="admin-toolbar">
+              <TextInput
+                className="admin-search"
+                label="Tìm kiếm"
+                placeholder="Tiêu đề chủ đề"
+                maxLength={500}
+                value={q}
+                onChange={(event) => update({ q: event.currentTarget.value, page: 1 })}
+              />
+              <Select
+                comboboxProps={{ withinPortal: false }}
+                label="Trạng thái"
+                allowDeselect={false}
+                data={STATUS_OPTIONS}
+                value={status}
+                onChange={(value) => update({ status: value ?? '', page: 1 })}
+              />
+              <Button variant="subtle" onClick={() => update({ q: '', status: 'VISIBLE', page: 1 })}>
+                Đặt lại
+              </Button>
+            </ResponsiveFilters>
+            <WorkspaceTableOptions name="admindiscussions" columns={TOPIC_COLUMNS}
+              presets={{ name: 'AdminDiscussionsPage', fields: ['q', 'status'] }}>
+              {topicsQuery.isPending && <LoadingState variant="table" label="Đang tải chủ đề…" />}
+              {topicsQuery.isError && <ErrorState error={topicsQuery.error} onRetry={() => void topicsQuery.refetch()} />}
+              {topicsQuery.data?.items.length === 0 && <EmptyState description="Không tìm thấy chủ đề phù hợp." />}
+              {!!topicsQuery.data?.items.length && (
+                <WorkspaceTable>
+                  <table className="admin-compact-table">
+                    <thead><tr>{TOPIC_COLUMNS.map((column) => <th key={column}>{column}</th>)}</tr></thead>
+                    <tbody>
+                      {topicsQuery.data.items.map((topic) => {
+                        const isOpen = expanded === topic.topicId;
+                        const isDeleted = topic.status === 'DELETED';
+                        const moderate = (action: string, patch: Record<string, unknown>) =>
+                          askReason({ kind: 'topic', id: topic.topicId, label: topic.title, action, patch });
+                        return (
+                          <Fragment key={topic.topicId}>
+                            <tr>
+                              <td className="admin-table-title">
+                                <Group gap={8} wrap="nowrap">
+                                  <Tooltip label={isOpen ? 'Thu gọn bình luận' : 'Xem bình luận'}>
+                                    <ActionIcon variant="subtle" aria-label={isOpen ? 'Thu gọn bình luận' : 'Xem bình luận'}
+                                      aria-expanded={isOpen}
+                                      onClick={() => {
+                                        setExpandedTopic(isOpen ? null : { id: topic.topicId, filterKey });
+                                        setCommentPage(1);
+                                      }}>
+                                      {isOpen ? <IconChevronDown size={16} /> : <IconChevronRight size={16} />}
+                                    </ActionIcon>
+                                  </Tooltip>
+                                  {topic.isPinned && <IconPin size={14} aria-label="Đã ghim" />}
+                                  {topic.isLocked && <IconLock size={14} aria-label="Đã khóa" />}
+                                  <strong>{topic.title}</strong>
+                                </Group>
+                              </td>
+                              <td>{topic.categoryName}</td>
+                              <td>{topic.authorName}</td>
+                              <td><Badge color={STATUS_COLOR[topic.status]} variant="light">{STATUS_LABEL[topic.status]}</Badge></td>
+                              <td>
+                                {!isDeleted && (
+                                  <AdminRowMenu label={`Thao tác với ${topic.title}`}>
+                                    <Menu.Item onClick={() => moderate(topic.isPinned ? 'Bỏ ghim chủ đề' : 'Ghim chủ đề', { isPinned: !topic.isPinned })}>
+                                      {topic.isPinned ? 'Bỏ ghim' : 'Ghim'}
+                                    </Menu.Item>
+                                    <Menu.Item color={topic.isLocked ? undefined : 'red'}
+                                      onClick={() => moderate(topic.isLocked ? 'Mở khóa chủ đề' : 'Khóa chủ đề', { isLocked: !topic.isLocked })}>
+                                      {topic.isLocked ? 'Mở khóa' : 'Khóa'}
+                                    </Menu.Item>
+                                    {topic.status === 'VISIBLE' ? (
+                                      <Menu.Item color="red" onClick={() => moderate('Ẩn chủ đề', { status: 'HIDDEN' })}>Ẩn</Menu.Item>
+                                    ) : (
+                                      <Menu.Item onClick={() => moderate('Khôi phục chủ đề', { status: 'VISIBLE' })}>Khôi phục</Menu.Item>
+                                    )}
+                                    <Menu.Item color="red" onClick={() => moderate('Xóa chủ đề', { status: 'DELETED' })}>Xóa</Menu.Item>
+                                  </AdminRowMenu>
+                                )}
+                              </td>
+                            </tr>
+                            {isOpen && (
+                              <WorkspaceTableDetail>
+                                <CommentList
+                                  query={commentsQuery}
+                                  page={commentPage}
+                                  deletable={!isDeleted}
+                                  onPage={setCommentPage}
+                                  onModerate={(comment, patch, action) => askReason({
+                                    kind: 'comment', id: topic.topicId, commentId: comment.commentId, label: comment.authorName, action, patch
+                                  })}
+                                />
+                              </WorkspaceTableDetail>
+                            )}
+                          </Fragment>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </WorkspaceTable>
+              )}
+              <AdminPagination meta={topicsQuery.data?.meta} onChange={(page) => update({ page })} />
+            </WorkspaceTableOptions>
+          </AdminPanel>
         </Tabs.Panel>
 
         <Tabs.Panel value="categories" pt="md">
@@ -226,7 +246,7 @@ export function AdminDiscussionsPage() {
             {categoriesQuery.data && categories.length === 0 ? (
               <EmptyState description="Chưa có danh mục thảo luận nào. Hãy tạo danh mục đầu tiên." />
             ) : null}
-            {categories.map((category, index) => {
+            {categories.map((category) => {
               const busy = categoriesMutation.isPending;
               return (
                 <Card key={category.categoryId} withBorder p="md">
@@ -244,10 +264,10 @@ export function AdminDiscussionsPage() {
                       <Button size="compact-xs" variant="light" disabled={busy} onClick={() => setCategoryForm({ open: true, category })}>Sửa</Button>
                       {['thao-luan-truyen', 'gop-y-tac-pham'].includes(category.slug) ? null : category.isActive ? (
                         <Button size="compact-xs" color="red" variant="light" disabled={busy}
-                          onClick={() => askReason({ kind: 'category', id: category.categoryId, label: category.name, patch: { isActive: false } })}>Ngừng dùng</Button>
+                          onClick={() => askReason({ kind: 'category', id: category.categoryId, label: category.name, action: 'Ngừng dùng danh mục', patch: { isActive: false } })}>Ngừng dùng</Button>
                       ) : (
                         <Button size="compact-xs" color="teal" variant="light" disabled={busy}
-                          onClick={() => askReason({ kind: 'category', id: category.categoryId, label: category.name, patch: { isActive: true } })}>Kích hoạt</Button>
+                          onClick={() => askReason({ kind: 'category', id: category.categoryId, label: category.name, action: 'Kích hoạt danh mục', patch: { isActive: true } })}>Kích hoạt</Button>
                       )}
                     </Group>
                   </Group>
@@ -300,7 +320,7 @@ function CommentList({ query, page, deletable, onPage, onModerate }: {
               <Text size="sm" lineClamp={3}>{comment.body}</Text>
             </Stack>
             <Group gap={4} wrap="nowrap">
-              {deleted ? <Text size="xs" c="dimmed">Đã xoá</Text> : comment.status === 'VISIBLE' ? (
+              {deleted ? <Text size="xs" c="dimmed">Đã xóa</Text> : comment.status === 'VISIBLE' ? (
                 <Button size="compact-xs" color="orange" variant="subtle"
                   onClick={() => onModerate(comment, { status: 'HIDDEN' }, 'Ẩn bình luận')}>Ẩn</Button>
               ) : (
@@ -309,7 +329,7 @@ function CommentList({ query, page, deletable, onPage, onModerate }: {
               )}
               {deletable && !deleted ? (
                 <Button size="compact-xs" color="red" variant="subtle"
-                  onClick={() => onModerate(comment, { status: 'DELETED' }, 'Xoá bình luận')}>Xoá</Button>
+                  onClick={() => onModerate(comment, { status: 'DELETED' }, 'Xóa bình luận')}>Xóa</Button>
               ) : null}
             </Group>
           </Group>
@@ -375,19 +395,24 @@ function ReasonModal({ target, pending, onClose, onSubmit }: {
   const [reason, setReason] = useState('');
   useEffect(() => { if (target) setReason(''); }, [target]);
 
+  const destructive = target?.patch.status === 'DELETED' || target?.patch.status === 'HIDDEN'
+    || target?.patch.isLocked === true || target?.patch.isActive === false;
   return (
-    <Modal opened={Boolean(target)} onClose={onClose} title="Lý do thao tác">
-      <Stack gap="sm">
-        <Text size="sm" c="dimmed">Nội dung: {target?.label}</Text>
-        <Textarea
-          label="Lý do" required minRows={3} maxLength={500} value={reason} onChange={(event) => setReason(event.currentTarget.value)}
-          error={reason.trim().length < 5 ? 'Lý do phải có ít nhất 5 ký tự.' : undefined}
-        />
-        <Group justify="flex-end">
-          <Button variant="default" onClick={onClose} disabled={pending}>Huỷ</Button>
-          <Button color="red" loading={pending} disabled={reason.trim().length < 5} onClick={() => onSubmit(reason.trim())}>Xác nhận</Button>
-        </Group>
-      </Stack>
-    </Modal>
+    <AdminConfirm
+      opened={Boolean(target)}
+      title={target?.action ?? 'Xác nhận thao tác'}
+      destructive={destructive}
+      confirmLabel="Xác nhận"
+      reason={reason}
+      setReason={setReason}
+      reasonMaxLength={500}
+      required
+      disabled={reason.trim().length < 5}
+      pending={pending}
+      onClose={onClose}
+      onConfirm={() => onSubmit(reason.trim())}
+    >
+      <p>{target?.label}</p>
+    </AdminConfirm>
   );
 }

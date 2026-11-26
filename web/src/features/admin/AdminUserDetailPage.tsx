@@ -138,15 +138,16 @@ export function AdminUserDetailPage() {
             >
               Cảnh báo
             </Button>
-            <Button
-              disabled={isSelfOrDeleted}
-              variant="light"
-              color={user.status === 'LOCKED' ? undefined : 'red'}
-              className={user.status === 'LOCKED' ? undefined : 'admin-danger'}
-              onClick={() => open(user.status === 'LOCKED' ? 'unlock' : 'lock')}
-            >
-              {user.status === 'LOCKED' ? 'Mở khóa' : 'Khóa tài khoản'}
-            </Button>
+            {!isSelfOrDeleted && (user.role !== 'ADMIN' || user.status === 'LOCKED') && (
+              <Button
+                variant="light"
+                color={user.status === 'LOCKED' ? undefined : 'red'}
+                className={user.status === 'LOCKED' ? undefined : 'admin-danger'}
+                onClick={() => open(user.status === 'LOCKED' ? 'unlock' : 'lock')}
+              >
+                {user.status === 'LOCKED' ? 'Mở khóa' : 'Khóa tài khoản'}
+              </Button>
+            )}
             {access.data?.permissions.includes('access') && (
               <Button
                 variant="default"

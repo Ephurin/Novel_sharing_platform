@@ -69,7 +69,7 @@ test('moderation covers report dedupe, scoped admin review, hide and public visi
     assert.equal(guestTopics.status, 200);
     assert.equal((await call('GET', '/admin/moderation/reviews', undefined, readerToken)).status, 403);
     assert.equal((await call('GET', '/admin/discussions/categories', undefined, financeToken)).status, 403);
-    const topic = await call<{ topicId: string }>('POST', '/discussions', { categoryId, title: 'Fixture topic ' + stamp, body: 'Body text' }, readerToken);
+    const topic = await call<{ topicId: string }>('POST', '/discussions', { categoryId, title: 'Fixture tópico ' + stamp, body: 'Body text' }, readerToken);
     assert.equal(topic.status, 200);
     const topicId = topic.data.topicId;
     const comment = await call<{ commentId: string }>('POST', '/discussions/' + topicId + '/comments', { body: 'Reported comment' }, readerToken);
@@ -110,9 +110,19 @@ test('moderation covers report dedupe, scoped admin review, hide and public visi
     assert.equal(topicResolved.status, 200);
     const hiddenTopic = await call('GET', '/discussions/' + topicId);
     assert.equal(hiddenTopic.status, 404);
-    const topics = await call<{ items: Array<{ topicId: string }> }>('GET', '/admin/discussions/topics?status=HIDDEN', undefined, moderatorToken);
+    const topics = await call<{ items: Array<{ topicId: string }>; hasNext: boolean; meta: { totalItems: number; totalPages: number } }>(
+      'GET', '/admin/discussions/topics?' + new URLSearchParams({ status: 'HIDDEN', q: 'FIXTURE TOPICO ' + stamp, limit: '1' }),
+      undefined, moderatorToken
+    );
     assert.equal(topics.status, 200);
-    assert.ok(topics.data.items.some(item => item.topicId === topicId));
+    assert.deepEqual(topics.data.items.map(item => item.topicId), [topicId]);
+    assert.equal(topics.data.hasNext, false);
+    assert.equal(topics.data.meta.totalItems, 1);
+    assert.equal(topics.data.meta.totalPages, 1);
+    const noMatch = await call<typeof topics.data>('GET', '/admin/discussions/topics?status=VISIBLE&q=' + stamp, undefined, moderatorToken);
+    assert.equal(noMatch.status, 200);
+    assert.deepEqual(noMatch.data.items, []);
+    assert.equal(noMatch.data.meta.totalItems, 0);
   } finally {
     if (server) await new Promise<void>(resolve => server!.close(() => resolve()));
     await disconnectMongo().catch(() => undefined);
