@@ -1,7 +1,4 @@
 import { Router, json } from 'express';
-import { randomUUID } from 'node:crypto';
-import { mkdir, writeFile } from 'node:fs/promises';
-import path from 'node:path';
 import { z } from 'zod';
 import { requireAuth } from '../../core/security/auth.middleware.js';
 import { requireActiveAccount } from '../../core/security/active-account.js';
@@ -9,7 +6,9 @@ import { AppError } from '../../core/errors/app-error.js';
 import { successResponse } from '../../core/response/response.js';
 import { env } from '../../core/config/env.js';
 import { limitMediaUploads } from './media-limits.js';
-export const mediaDirectory = path.resolve(process.env.MEDIA_DIRECTORY || './uploads');
+import { mediaDirectory, storeUploadedImage } from './media-storage.js';
+
+export { mediaDirectory };
 export const mediaRoutes = Router();
 export function imageExtension(buffer: Buffer): 'png' | 'jpg' | 'webp' | 'gif' {
   if (buffer.length >= 24 && buffer.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10])) && buffer.toString('ascii',12,16) === 'IHDR') return 'png';
@@ -26,10 +25,8 @@ mediaRoutes.post('/', requireAuth, requireActiveAccount, limitMediaUploads, json
     if (buffer.length > 1024*1024) throw new AppError(413, 'MEDIA_TOO_LARGE', 'Ảnh tối đa 1 MB');
     const extension = imageExtension(buffer);
     if (extension === 'gif') throw new AppError(400, 'GIF_UPLOAD_DISABLED', 'Tạm ngưng tải GIF cá nhân. Hãy chọn GIF từ kho GIPHY.');
-    const fileName = randomUUID() + '.' + extension;
-    await mkdir(mediaDirectory, { recursive: true });
-    await writeFile(path.join(mediaDirectory, fileName), buffer, { flag: 'wx' });
-    res.status(201).json(successResponse({ path: '/api/v1/media/' + fileName }));
+    const imagePath = await storeUploadedImage(buffer, extension);
+    res.status(201).json(successResponse({ path: imagePath }));
   } catch (error) { next(error); }
 });
 // GIPHY's browser integration uses a client key and makes provider requests directly.

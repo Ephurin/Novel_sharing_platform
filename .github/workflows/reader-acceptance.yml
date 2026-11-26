@@ -53,6 +53,9 @@ jobs:
       - run: npm ci --prefix backend && npm ci --prefix web
       - name: Check the backend/web/mobile role contract for drift
         run: node scripts/check_role_contract.mjs
+      - name: Test media storage and migration without Cloudinary credentials
+        working-directory: backend
+        run: node --env-file=.env.example --import tsx --test src/modules/media/media.test.ts src/modules/media/media-cloudinary.test.ts
       - run: npx playwright install --with-deps chromium
         working-directory: web
       - name: Test the PR head with disposable databases and provider-free browser fixtures
