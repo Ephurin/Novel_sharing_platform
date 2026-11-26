@@ -1,4 +1,5 @@
 import { navigationHref, profileHref, chapterHref, novelHref } from '../../shared/routes';
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { hasReaderCapability } from '../auth/auth-types';
 import { Alert, Avatar, Badge, Button, Group, Pagination, Paper, Stack, Text, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
@@ -131,7 +132,7 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
           to={comment.audience && comment.audience !== 'PUBLIC'
             ? `${comment.chapterId ? chapterHref({ ...comment, chapterId: comment.chapterId }, base) : novelHref(comment, base)}?threadId=${comment.parentCommentId ?? comment.commentId}&commentId=${comment.commentId}`
             : comment.chapterId ? chapterHref({ ...comment, chapterId: comment.chapterId }, base) : `${novelHref(comment, base)}#reader-comments`}>{source}</Link>}
-        <Text component="time" dateTime={comment.createdAt} size="xs" c="dimmed">{new Date(comment.createdAt).toLocaleString('vi-VN')}</Text>
+        <Text component="time" dateTime={comment.createdAt} title={formatDateTime(comment.createdAt)} size="xs" c="dimmed">{formatDateTime(comment.createdAt, 'relative')}</Text>
       </Stack>
       {comment.status !== 'APPROVED' && <Badge variant="light" color={comment.status === 'REJECTED' ? 'red' : 'yellow'}>{comment.status === 'REJECTED' ? 'Không được duyệt' : 'Chờ duyệt'}</Badge>}
     </Group>

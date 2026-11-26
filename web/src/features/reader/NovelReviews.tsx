@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { Avatar, Group, Pagination, Select, Stack, Text } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -79,7 +80,7 @@ export function NovelReviews({
             <Avatar src={item.avatarUrl} alt={`Ảnh đại diện ${item.displayName}`} radius="xl" size={compact ? 28 : 40}>{item.displayName.trim().slice(0, 1).toLocaleUpperCase('vi-VN') || '?'}</Avatar>
             <div className="sc-reader-review-identity">
               <Text fw={600} size={compact ? 'sm' : undefined}>{item.displayName}</Text>
-              <Text size={compact ? 'xs' : 'sm'} c="dimmed" component="time" dateTime={item.updatedAt}>{new Date(item.updatedAt).toLocaleDateString('vi-VN')}</Text>
+              <Text size={compact ? 'xs' : 'sm'} c="dimmed" component="time" dateTime={item.updatedAt} title={formatDateTime(item.updatedAt)}>{formatDateTime(item.updatedAt, 'relative')}</Text>
             </div>
             <Text fw={600} size={compact ? 'sm' : undefined} className="sc-reader-review-score" aria-label={`${item.score} trên 10 điểm`}>{item.score}/10</Text>
           </div>

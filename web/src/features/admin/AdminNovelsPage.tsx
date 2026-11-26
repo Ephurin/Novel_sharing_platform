@@ -1,15 +1,15 @@
 import { managedNovelHref } from '../../shared/routes';
-import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
+import { useUrlFilters, useListScroll, WorkspaceTable, WorkspaceTableOptions } from '../../shared/components/WorkspacePreferences';
 import { WorkspacePreview } from '../../shared/components/WorkspacePreview';
-import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
+import { AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { labels as filterLabels } from './AdminShared';
 import { ResponsiveFilters, useUpdatedItems } from '../../shared/components/InteractionWidgets';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Checkbox, Select, TextInput } from '@mantine/core';
+import { Button, Checkbox, Menu, Select, TextInput } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { getAdminList, type AdminNovel } from './admin-api';
-import { AdminHeader, AdminPagination, AdminPanel, number, options, Status } from './AdminShared';
+import { AdminHeader, AdminPagination, AdminPanel, AdminRowMenu, number, options, Status } from './AdminShared';
 import { ErrorState, LoadingState } from '../../shared/components/PageStates';
 import { AdminIcon } from './AdminShell';
 
@@ -99,21 +99,15 @@ export function AdminNovelsPage() {
             Đặt lại
           </Button>
         </ResponsiveFilters>
-        <FilterPresets name={'AdminNovelsPage'} fields={["q", "status", "serialStatus", "includeDeleted"]} />
-        <ActiveFilterChips items={[
-          ...(q.trim() ? [{ id: 'q', label: `Tìm: ${q.trim()}`, onRemove: () => { setQ(''); setPage(1); } }] : []),
-          ...(status ? [{ id: 'status', label: filterLabels[status] || status, onRemove: () => { setStatus(''); setPage(1); } }] : []),
-          ...(serialStatus ? [{ id: 'serial', label: filterLabels[serialStatus] || serialStatus, onRemove: () => { setSerialStatus(''); setPage(1); } }] : []),
-          ...(includeDeleted ? [{ id: 'deleted', label: 'Hiện truyện đã gỡ', onRemove: () => { setIncludeDeleted(false); setPage(1); } }] : [])
-        ]} />
+        <WorkspaceTableOptions name="adminnovelspage" columns={['Tác phẩm', 'Tác giả', 'Xuất bản', 'Tiến độ', 'Số chương', 'Tình trạng gỡ', 'Thao tác']} presets={{ name: 'AdminNovelsPage', fields: ["q", "status", "serialStatus", "includeDeleted"] }}>
         <ResultsSurface identity={String(query.dataUpdatedAt)} busy={query.isFetching} retain={Boolean(q.trim() || status || serialStatus || includeDeleted)}>{query.isLoading && <LoadingState variant="table" label="Đang tải truyện..." />}
         {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
         {query.data && !query.data.items.length && (
           <EmptyState description="Không tìm thấy truyện phù hợp." />
         )}
         {!!query.data?.items.length && (
-          <WorkspaceTable name="adminnovelspage" columns={['Tác phẩm', 'Tác giả', 'Xuất bản', 'Tiến độ', 'Số chương', 'Tình trạng gỡ', 'Thao tác']}>
-            <table>
+          <WorkspaceTable>
+            <table className="admin-compact-table">
               <thead>
                 <tr>
                   <th>Tác phẩm</th>
@@ -145,17 +139,12 @@ export function AdminNovelsPage() {
                     <td>{number(novel.chaptersCount)}</td>
                     <td>{novel.deletedAt ? <Status value="DELETED" label="Đã gỡ" /> : 'Bình thường'}</td>
                     <td>
-                      <div className="admin-actions">
-                        <Button variant="subtle" size="xs" onClick={() => setPreviewId(novel.novelId)}>Xem nhanh</Button>
-                        <Button
-                          component={Link}
-                          to={managedNovelHref('/admin/novels/:novelId', novel)}
-                          size="xs"
-                          variant="light"
-                        >
+                      <AdminRowMenu label={`Thao tác với ${novel.title}`}>
+                        <Menu.Item onClick={() => setPreviewId(novel.novelId)}>Xem nhanh</Menu.Item>
+                        <Menu.Item component={Link} to={managedNovelHref('/admin/novels/:novelId', novel)}>
                           Chi tiết →
-                        </Button>
-                      </div>
+                        </Menu.Item>
+                      </AdminRowMenu>
                     </td>
                   </tr>
                 ))}
@@ -165,6 +154,7 @@ export function AdminNovelsPage() {
         )}
         <AdminPagination meta={query.data?.meta} onChange={setPage} />
       </ResultsSurface>
+        </WorkspaceTableOptions>
       </AdminPanel>
       <WorkspacePreview selected={previewId} onSelect={setPreviewId} records={(query.data?.items ?? []).map(novel => ({ id: novel.novelId, title: novel.title, to: managedNovelHref('/admin/novels/:novelId', novel), fields: [['Tác giả', `@${novel.authorUsername}`], ['Xuất bản', filterLabels[novel.status] || novel.status], ['Tiến độ', filterLabels[novel.serialStatus] || novel.serialStatus], ['Số chương', number(novel.chaptersCount)], ['Giới thiệu', novel.synopsis || '—']] }))} />
     </>

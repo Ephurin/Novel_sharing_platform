@@ -217,7 +217,7 @@ export function AdminNovelDetailPage() {
                     <td>
                       <Status value={ch.status} />
                     </td>
-                    <td>{ch.isVip ? `VIP · ${number(ch.priceCoins)} Xu` : 'Miễn phí'}</td>
+                    <td>{ch.isVip ? `VIP · ${number(ch.priceCoins)} xu` : 'Miễn phí'}</td>
                     <td>{ch.deletedAt ? 'Đã gỡ' : 'Bình thường'}</td>
                     <td>
                       <div className="admin-actions">

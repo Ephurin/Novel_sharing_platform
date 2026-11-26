@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import { formatNumber } from '../../shared/lib/format-vi';
+import type { PropsWithChildren, ReactNode } from 'react';
 import { useEffect } from 'react';
 import {
   ActionIcon,
@@ -6,24 +7,18 @@ import {
   Button,
   CopyButton,
   Group,
+  Menu,
   Pagination,
   Textarea,
   VisuallyHidden
 } from '@mantine/core';
+import { IconDots } from '@tabler/icons-react';
 import { AdminIcon } from './AdminShell';
 import { AnimatedTooltip } from '../../shared/components/AnimatedTooltip';
 import { FeedbackIcon } from '../../shared/components/ActionFeedback';
 import { AnimatedModal as Modal } from '../../shared/components/AnimatedModal';
 
-export const number = (value: number) => value.toLocaleString('vi-VN');
-export const dateTime = (value?: string | null) =>
-  value
-    ? new Date(value).toLocaleString('vi-VN', {
-        timeZone: 'Asia/Bangkok',
-        dateStyle: 'short',
-        timeStyle: 'short'
-      })
-    : '—';
+export { formatNumber as number, formatDateTime as dateTime } from '../../shared/lib/format-vi';
 export const labels: Record<string, string> = {
   ADMIN: 'Quản trị viên',
   AUTHOR: 'Tác giả',
@@ -57,12 +52,12 @@ export const labels: Record<string, string> = {
   HIDDEN: 'Đã ẩn',
   USER: 'Người dùng',
   APPEAL: 'Khiếu nại',
-  WITHDRAW: 'Yêu cầu rút Xu',
+  WITHDRAW: 'Yêu cầu rút xu',
   ADMIN_JOB: 'Tác vụ nền',
   genres: 'Thể loại',
-  tags: 'Tag',
+  tags: 'Thẻ',
   GENRE: 'Thể loại',
-  TAG: 'Tag',
+  TAG: 'Thẻ',
   KEYWORD_FILTER: 'Từ khóa',
   PUBLICATION_REQUEST: 'Yêu cầu xuất bản',
   USER_REPORT: 'Báo cáo người dùng',
@@ -95,8 +90,8 @@ export const labels: Record<string, string> = {
   DISMISSED: 'Đã bác đề nghị',
   APPEAL_ACCEPTED: 'Chấp nhận khiếu nại',
   APPEAL_REJECTED: 'Bác khiếu nại',
-  WITHDRAW_APPROVED: 'Duyệt rút Xu',
-  WITHDRAW_REJECTED: 'Từ chối rút Xu',
+  WITHDRAW_APPROVED: 'Duyệt rút xu',
+  WITHDRAW_REJECTED: 'Từ chối rút xu',
   WITHDRAW_RECONCILED: 'Cập nhật đối soát',
   TAXONOMY_CREATED: 'Thêm danh mục',
   TAXONOMY_UPDATED: 'Sửa danh mục',
@@ -186,6 +181,19 @@ export function AdminPanel({
 }) {
   return <section className={`admin-panel ${className}`}>{children}</section>;
 }
+
+export function AdminRowMenu({ label, disabled, children }: PropsWithChildren<{ label: string; disabled?: boolean }>) {
+  return (
+    <Menu position="bottom-end" withinPortal>
+      <Menu.Target>
+        <ActionIcon variant="subtle" color="gray" size={30} disabled={disabled} aria-label={label} title={label}>
+          <IconDots size={18} />
+        </ActionIcon>
+      </Menu.Target>
+      <Menu.Dropdown>{children}</Menu.Dropdown>
+    </Menu>
+  );
+}
 export type PageMeta = {
   page: number;
   limit: number;
@@ -206,8 +214,8 @@ export function AdminPagination({
   return (
     <div className="admin-pagination">
       <span>
-        Hiển thị {number(Math.min((meta.page - 1) * meta.limit + 1, meta.totalItems))} –{' '}
-        {number(Math.min(meta.page * meta.limit, meta.totalItems))} của {number(meta.totalItems)}{' '}
+        Hiển thị {formatNumber(Math.min((meta.page - 1) * meta.limit + 1, meta.totalItems))} –{' '}
+        {formatNumber(Math.min(meta.page * meta.limit, meta.totalItems))} của {formatNumber(meta.totalItems)}{' '}
         mục
       </span>
       <Pagination
@@ -233,6 +241,7 @@ export function AdminConfirm({
   children,
   reason,
   setReason,
+  reasonMaxLength = 1000,
   required = false,
   destructive = false,
   confirmLabel,
@@ -247,6 +256,7 @@ export function AdminConfirm({
   children: ReactNode;
   reason?: string;
   setReason?: (value: string) => void;
+  reasonMaxLength?: number;
   required?: boolean;
   destructive?: boolean;
   confirmLabel: string;
@@ -274,7 +284,7 @@ export function AdminConfirm({
             required={required}
             value={reason}
             onChange={(event) => setReason(event.currentTarget.value)}
-            maxLength={1000}
+            maxLength={reasonMaxLength}
             minRows={3}
           />
         )}

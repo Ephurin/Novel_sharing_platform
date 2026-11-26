@@ -1,4 +1,5 @@
 import { navigationHref } from '../../shared/routes';
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
@@ -48,13 +49,13 @@ export function PublishChecklist({ scope, title, content, isVip, price, saved, s
     { label: !title.trim() ? 'Chưa đặt tiêu đề chương' : title.length > CHAPTER_TITLE_MAX ? `Tiêu đề chương cần dưới ${CHAPTER_TITLE_MAX + 1} ký tự` : 'Đã có tiêu đề chương', ok: !!title.trim() && title.length <= CHAPTER_TITLE_MAX },
     { label: !plainStudioText(content).trim() ? 'Bản thảo đang trống' : contentLength < CHAPTER_CONTENT_MIN ? `Cần ít nhất ${CHAPTER_CONTENT_MIN} ký tự để xuất bản · hiện có ${contentLength}` : 'Bản thảo đủ độ dài để xuất bản', ok: contentLength >= CHAPTER_CONTENT_MIN },
     { label: error ? 'Lưu thất bại · cần thử lưu lại' : saving ? 'Đang lưu bản nháp…' : saved ? 'Bản nháp đã được lưu' : 'Có thay đổi chưa lưu · hệ thống sẽ lưu trước khi gửi', ok: saved, pending: saving },
-    { label: isVip ? `Chương VIP · ${price} Xu${price > 0 ? '' : ' · kiểm tra lại giá'}` : 'Chương miễn phí', ok: !isVip || Number.isFinite(price) && price > 0 },
+    { label: isVip ? `Chương VIP · ${price} xu${price > 0 ? '' : ' · kiểm tra lại giá'}` : 'Chương miễn phí', ok: !isVip || Number.isFinite(price) && price > 0 },
     { label: notes.unavailable ? 'Không đọc được ghi chú trên trình duyệt này' : notes.open ? `${notes.open} ghi chú chưa xử lý · nên rà lại trước khi gửi` : 'Không có ghi chú đang mở trên trình duyệt này', ok: !notes.unavailable && notes.open === 0 },
     { label: unlinked ? `${unlinked} chú thích cho độc giả chưa gắn vào lời văn · cần gắn lại vị trí` : `${publicNotes.notes.length} chú thích cho độc giả đi cùng phiên bản chương`, ok: unlinked === 0 }
   ];
   return <section className="sc-publish-checklist" aria-label="Kiểm tra trước xuất bản"><h4>Kiểm tra trước xuất bản</h4>
     <ul>{checks.map((item, index) => <li key={index} data-state={item.ok ? 'ok' : item.pending ? 'pending' : 'review'}><FeedbackIcon icon={item.ok ? 'check_circle' : item.pending ? 'sync' : 'info'} busy={item.pending} /><span>{item.label}</span></li>)}</ul>
-    {scheduledAt && <p className="text-meta">Đã có lịch đăng: {new Date(scheduledAt).toLocaleString('vi-VN', { timeZone: 'Asia/Bangkok' })} (Asia/Bangkok). Kiểm tra lịch trước khi gửi duyệt ngay.</p>}
+    {scheduledAt && <p className="text-meta">Đã có lịch đăng: {formatDateTime(scheduledAt)} (giờ Việt Nam). Kiểm tra lịch trước khi gửi duyệt ngay.</p>}
     <p className="text-meta">Ghi chú riêng không được xuất bản. Chú thích trong mục “Cho độc giả” đi cùng nội dung chương và chỉ hiện khi phiên bản này được xuất bản. Máy chủ vẫn kiểm tra điều kiện xuất bản.</p>
   </section>;
 }

@@ -8,6 +8,7 @@ import type { AuthContext } from '../../core/security/auth-context.js';
 import { requireAuth, requireRoles } from '../../core/security/auth.middleware.js';
 import {
   createUserReport,
+  listModerationReviews,
   resolveModerationReview
 } from './content-control.service.js';
 import {
@@ -648,6 +649,17 @@ describe('Phase C: Comment User Report, Admin Moderation, and Notifications Inva
     const reporterIds = reports.map((r) => r.reporter_id);
     assert.ok(reporterIds.includes(reporter1Id));
     assert.ok(reporterIds.includes(reporter2Id));
+  });
+
+  // UI-03: the queue row must be recognisable without opening it.
+  test('Invariant 6a: moderation queue rows carry the comment excerpt, report count and main reason', async () => {
+    const page = await listModerationReviews({ targetType: 'COMMENT', status: 'PENDING', source: 'USER_REPORT', page: 1, limit: 100 });
+    const row = page.data.find((item) => item.reviewId === reviewC1Id);
+    assert.ok(row, 'review must be listed');
+    assert.equal(row.excerpt, 'Target comment C1 for duplicate report testing');
+    assert.equal(row.reportCount, 2);
+    assert.ok(['Offensive language', 'Harassment'].includes(row.topReason ?? ''), `unexpected top reason ${row.topReason}`);
+    assert.deepEqual(row.matchedKeywords, []);
   });
 
   // =========================================================================

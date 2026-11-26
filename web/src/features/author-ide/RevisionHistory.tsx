@@ -1,3 +1,4 @@
+import { formatDateTime, formatNumber } from '../../shared/lib/format-vi';
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Alert, Button, Group, Select, SimpleGrid, Stack, Text, Textarea } from '@mantine/core';
@@ -60,7 +61,7 @@ export function RevisionHistory({ chapterId, content, onRestore, onClose }: Revi
           onChange={setSelected}
           data={(revisions.data ?? []).map(item => ({
             value: item.revisionId,
-            label: `${new Date(item.createdAt).toLocaleString('vi-VN')} · ${item.wordCount} từ`
+            label: `${formatDateTime(item.createdAt)} · ${formatNumber(item.wordCount)} từ`
           }))}
         />
         {chosen && (

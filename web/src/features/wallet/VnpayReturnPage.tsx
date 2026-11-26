@@ -56,12 +56,12 @@ export function VnpayReturnPage() {
     detail = getApiErrorMessage(resultQuery.error);
   } else if (result?.status === 'SUCCESS') {
     tone = 'success';
-    title = `Đã nạp ${result.amountCoins.toLocaleString('vi-VN')} Xu vào ví`;
+    title = `Đã nạp ${result.amountCoins.toLocaleString('vi-VN')} xu vào ví`;
     detail = 'Giao dịch thử nghiệm qua VNPay Sandbox đã được xác nhận.';
   } else if (result?.status === 'FAILED') {
     tone = 'failed';
     title = 'Thanh toán không thành công';
-    detail = VNPAY_FAILURE_REASONS[result.responseCode ?? ''] ?? `VNPay trả về mã ${result.responseCode ?? 'không xác định'}. Ví của bạn không bị trừ hay cộng Xu.`;
+    detail = VNPAY_FAILURE_REASONS[result.responseCode ?? ''] ?? `VNPay trả về mã ${result.responseCode ?? 'không xác định'}. Ví của bạn không bị trừ hay cộng xu.`;
   } else if (result?.status === 'PENDING') {
     title = 'Giao dịch đang chờ xử lý';
     detail = 'VNPay chưa xác nhận giao dịch này. Hãy kiểm tra lại lịch sử ví sau ít phút.';

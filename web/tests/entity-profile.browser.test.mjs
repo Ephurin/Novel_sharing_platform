@@ -72,7 +72,7 @@ test('AX02 mounted AuthorMemoryPanel profile component (MOCK HTTP ONLY)', { time
     });
     page.setDefaultTimeout(5000);
     await page.goto(url);
-    try { await page.getByRole('tab', { name: 'Hồ sơ Codex' }).click(); }
+    try { await page.getByRole('tab', { name: 'Hồ sơ', exact: true }).click(); }
     catch { await context.close(); throw new Error('Fixture bootstrap failed: ' + consoleMessages.join(' | ').replaceAll('PRIVATE_SENTINEL', '[redacted]')); }
     const choose = async entity => {
       await page.getByRole('textbox', { name: 'Chọn mục cần xem hồ sơ', exact: true }).click();
@@ -96,7 +96,7 @@ test('AX02 mounted AuthorMemoryPanel profile component (MOCK HTTP ONLY)', { time
         assert.ok(patch.headers['idempotency-key']);
         await f.choose(B); await expect(page.getByLabel('Ngoại hình', { exact: true })).toHaveValue('Red hair');
         await f.choose(A); await expect(page.getByLabel('Ngoại hình', { exact: true })).toHaveValue('Green eyes');
-        await page.reload(); await page.getByRole('tab', { name: 'Hồ sơ Codex' }).click(); await f.choose(A);
+        await page.reload(); await page.getByRole('tab', { name: 'Hồ sơ', exact: true }).click(); await f.choose(A);
         await expect(page.getByLabel('Ngoại hình', { exact: true })).toHaveValue('Green eyes');
         if (process.env.AX02_EVIDENCE_DIR) {
           await mkdir(process.env.AX02_EVIDENCE_DIR, { recursive: true });

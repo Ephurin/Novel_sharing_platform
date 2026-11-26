@@ -1,4 +1,5 @@
 import { navigationHref } from '../../shared/routes';
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Select, Alert } from '@mantine/core';
@@ -87,7 +88,7 @@ export function AdminAppealsPage() {
               <div>
                 <h2>@{item.username}</h2>
                 <span className="admin-muted">
-                  {dateTime(item.created_at)} · {labels[item.target_type] || item.target_type} ·{' '}
+                  <time dateTime={item.created_at} title={dateTime(item.created_at)}>{formatDateTime(item.created_at, 'relative')}</time> · {labels[item.target_type] || item.target_type} ·{' '}
                   {labels[item.action] || item.action}
                 </span>
               </div>

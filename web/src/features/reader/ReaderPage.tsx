@@ -1,4 +1,5 @@
 import { chapterHref, novelHref, profileHref, navigationHref } from '../../shared/routes';
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { hasReaderCapability } from '../auth/auth-types';
 import { AuthorPrivateFeedback } from './PrivateComments';
 import { ReaderCatalog } from './ReaderCatalog';
@@ -30,10 +31,13 @@ import {
   getHistoryForNovel,
   getReaderNovel,
   listHistory,
+  listHistoryPage,
   listLibrary,
   removeFromLibrary,
-  type ReaderNovel
+  type ReaderNovel,
+  type ReadingHistoryItem
 } from './reader-api';
+import { Menu } from '@mantine/core';
 
 // Reader screens reuse the StoryCraft author vocabulary: sc-navbar/sc-shell-content for layout,
 // sc-novel-card/sc-novel-overview/sc-novel-metrics for novels and sc-button for actions.
@@ -187,6 +191,9 @@ export function ReaderLibraryPage() {
   const { showToast } = useToast();
   const user = useAuthStore(state => state.user);
   const libraryQuery = useQuery({ queryKey: ['reader-library'], queryFn: listLibrary });
+  // UI-01: the main action on a followed novel is to keep reading, so look up where the reader stopped.
+  const progressQuery = useQuery({ queryKey: ['reader-history', 'library-progress'], queryFn: () => listHistoryPage(1, 100) });
+  const progressByNovel = new Map((progressQuery.data?.items ?? []).map(item => [item.novelId, item]));
   const removeMutation = useMutation({
     mutationFn: async (novelId: string) => {
       if (hasReaderCapability(user?.role)) await followNovel(novelId, false);
@@ -224,17 +231,14 @@ export function ReaderLibraryPage() {
               key={novel.novelId}
               novel={novel}
               extraAction={
-                <button
-                  type="button"
-                  onClick={() => removeMutation.mutate(novel.novelId)}
+                <LibraryCardActions
+                  novel={novel}
+                  progress={progressByNovel.get(novel.novelId)}
+                  progressPending={progressQuery.isPending}
+                  removing={removeMutation.isPending && removeMutation.variables === novel.novelId}
                   disabled={removeMutation.isPending}
-                  className="sc-button sc-button-soft sc-library-unfollow"
-                  aria-busy={removeMutation.isPending && removeMutation.variables === novel.novelId}
-                  data-testid={`reader-remove-library-${novel.novelId}`}
-                >
-                  <span className="material-symbols-outlined text-[15px]" aria-hidden="true">favorite</span>
-                  <span>{removeMutation.isPending && removeMutation.variables === novel.novelId ? 'Đang bỏ theo dõi…' : 'Bỏ theo dõi'}</span>
-                </button>
+                  onRemove={() => removeMutation.mutate(novel.novelId)}
+                />
               }
             />
           ))}
@@ -283,7 +287,7 @@ export function ReaderHistoryPage() {
                   <p className="text-meta text-stone-600 truncate">
                     Đang đọc: {formatChapterTitle(item.chapter.chapterNumber, item.chapter.title)}
                   </p>
-                  <p className="text-meta text-stone-400">Lần cuối: {new Date(item.readAt).toLocaleString('vi-VN')}</p>
+                  <p className="text-meta text-stone-400">Lần cuối: <time dateTime={item.readAt} title={formatDateTime(item.readAt)}>{formatDateTime(item.readAt, 'relative')}</time></p>
                 </div>
                 <Link
                   to={chapterHref(item)}
@@ -387,6 +391,58 @@ function Cover({ url, title }: { url?: string | null; title: string }) {
   );
 }
 
+function LibraryCardActions({ novel, progress, progressPending, removing, disabled, onRemove }: {
+  novel: ReaderNovel;
+  progress?: ReadingHistoryItem;
+  progressPending: boolean;
+  removing: boolean;
+  disabled: boolean;
+  onRemove: () => void;
+}) {
+  const chapterNumber = progress?.chapter.chapterNumber;
+  const total = novel.chaptersCount ?? 0;
+  const percent = chapterNumber && total ? Math.min(100, Math.round((chapterNumber / total) * 100)) : 0;
+  return (
+    <div className="sc-library-actions">
+      {progress ? (
+        <div className="sc-library-progress" aria-label={`Đã đọc tới chương ${chapterNumber} trên ${total} chương`}>
+          <span>Đang đọc: Chương {chapterNumber}</span>
+          <span className="sc-library-progress-track" aria-hidden="true"><span style={{ width: `${percent}%` }} /></span>
+        </div>
+      ) : null}
+      <div className="sc-library-action-row">
+        <Link
+          to={progress ? chapterHref({ ...progress, novelSlug: progress.novelSlug ?? novel.novelSlug }) : novelHref(novel)}
+          className="sc-button sc-button-primary sc-library-read"
+          aria-label={progress ? `Đọc tiếp ${novel.title}, chương ${chapterNumber}` : `Bắt đầu đọc ${novel.title}`}
+          data-testid={`reader-library-read-${novel.novelId}`}
+        >
+          <span className="material-symbols-outlined text-[15px]" aria-hidden="true">menu_book</span>
+          <span>{progressPending ? 'Đọc truyện' : progress ? 'Đọc tiếp' : 'Bắt đầu đọc'}</span>
+        </Link>
+        <Menu position="bottom-end" withinPortal={false}>
+          <Menu.Target>
+            <button type="button" className="sc-button sc-library-more" aria-label={`Tùy chọn khác cho ${novel.title}`} aria-busy={removing}>
+              <span className="material-symbols-outlined text-[18px]" aria-hidden="true">more_horiz</span>
+            </button>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item
+              color="red"
+              disabled={disabled}
+              onClick={onRemove}
+              leftSection={<span className="material-symbols-outlined text-[16px]" aria-hidden="true">heart_minus</span>}
+              data-testid={`reader-remove-library-${novel.novelId}`}
+            >
+              {removing ? 'Đang bỏ theo dõi…' : 'Bỏ theo dõi'}
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      </div>
+    </div>
+  );
+}
+
 function NovelCard({ novel, extraAction, publicMode = false }: { novel: ReaderNovel; extraAction?: ReactNode; publicMode?: boolean }) {
   const detailPath = novelHref(novel, publicMode ? '/public' : '/reader');
   const statusLabel = serialLabels[novel.serialStatus ?? novel.status ?? ''] ?? 'Đã xuất bản';
@@ -415,7 +471,7 @@ function NovelCard({ novel, extraAction, publicMode = false }: { novel: ReaderNo
             <span><span className="material-symbols-outlined" aria-hidden="true">visibility</span>{(novel.viewsCount ?? 0).toLocaleString('vi-VN')} lượt đọc</span>
           </div>
         </div>
-        {extraAction ? <div className="mt-auto flex gap-2">{extraAction}</div> : null}
+        {extraAction ? <div className="mt-auto">{extraAction}</div> : null}
     </article>
   );
 }

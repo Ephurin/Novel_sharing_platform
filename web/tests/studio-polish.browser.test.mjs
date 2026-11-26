@@ -86,7 +86,7 @@ test('Studio tooltips, numeric typography, symbols, context scope and always-ava
         await expect(canonical).toHaveValue(initial.slice(0, at) + '《》' + initial.slice(at));
         await page.keyboard.type('Tên truyện'); await expect(canonical).toHaveValue(initial.slice(0, at) + '《Tên truyện》' + initial.slice(at));
 
-        await page.getByRole('button', { name: /AI Hỗ trợ viết/ }).click();
+        await page.getByRole('button', { name: /Trợ lý viết/ }).click();
         const scope = page.getByLabel('Phạm vi ngữ cảnh', { exact: true }); await scope.selectOption('bible');
         await expect(page.locator('.sc-ai-panel')).toHaveCSS('opacity', '1');
         const geometry = await scope.evaluate(el => { const label = document.querySelector('label[for="studio-ai-context-scope"]').getBoundingClientRect(), select = el.getBoundingClientRect(), panel = el.closest('.sc-ai-panel').getBoundingClientRect(); return { aligned: Math.abs(label.x - select.x) < 1, stacked: label.bottom < select.top, contained: select.left >= panel.left && select.right <= panel.right }; });

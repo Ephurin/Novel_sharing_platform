@@ -1,4 +1,5 @@
 import { bookmarksHref, chapterHref, novelHref } from '../../shared/routes';
+import { formatNumber } from '../../shared/lib/format-vi';
 import { ParagraphDiscussion, useChapterAuthorFeedback, useChapterDiscussions, usePrivateCommentFocus } from './PrivateComments';
 import { parseAuthorNotes } from '../../shared/lib/author-notes';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -104,7 +105,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   const next = index >= 0 ? chapters[index + 1] : undefined;
   const toolsVisible = !mobile || toolsOpen;
   const selectedBookmark = bookmarks.items.find(item => item.chapterId === chapter.chapterId && item.paragraphIndex === selectedPassage?.index && (item.startOffset ?? 0) === selectedPassage?.line.startOffset);
-  const bookmarkLabel = bookmarks.pending ? 'Đang tải bookmark…' : bookmarks.error ? 'Không tải được bookmark' : selectedBookmark ? 'Xóa bookmark' : 'Bookmark';
+  const bookmarkLabel = bookmarks.pending ? 'Đang tải đoạn đã đánh dấu…' : bookmarks.error ? 'Không tải được đoạn đã đánh dấu' : selectedBookmark ? 'Bỏ đánh dấu' : 'Đánh dấu đoạn';
   const selectedDiscussionId = selectedPassage ? anchorParagraphs[selectedPassage.index]?.paragraphId : undefined;
 
   useLayoutEffect(() => {
@@ -263,7 +264,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
     if (!selectedPassage) return;
     if (selectedBookmark) { bookmarks.remove(selectedBookmark.bookmarkId); return; }
     bookmarks.save({ novelId: chapter.novelId, novelSlug, chapterId: chapter.chapterId, chapterSlug: chapter.chapterSlug, paragraphIndex: selectedPassage.index, pageOffset: selectedPassage.offset,
-      startOffset: selectedPassage.line.startOffset, endOffset: selectedPassage.line.endOffset, excerpt: selectedPassage.line.excerpt, novelTitle: novel?.title ?? 'Truyện đã lưu bookmark',
+      startOffset: selectedPassage.line.startOffset, endOffset: selectedPassage.line.endOffset, excerpt: selectedPassage.line.excerpt, novelTitle: novel?.title ?? 'Truyện đã đánh dấu',
       chapterTitle: chapter.title, chapterNumber: chapter.chapterNumber, coverImageUrl: novel?.coverImageUrl ?? null });
   };
   const startGesture = (event: PointerEvent) => {
@@ -295,7 +296,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
         <h1 ref={heading} tabIndex={-1}>{chapterDisplayTitle(chapter)}</h1>
         <div className="sc-reader-chapter-meta">
           {chapter.wordCount != null && <span>{chapter.wordCount.toLocaleString('vi-VN')} từ</span>}
-          {chapter.isVip && <span className="sc-reader-vip">VIP · {chapter.priceCoins} xu</span>}
+          {chapter.isVip && <span className="sc-reader-vip">VIP · {formatNumber(chapter.priceCoins)} xu</span>}
           {onReport && <button type="button" onClick={onReport} disabled={reporting} aria-label="Báo cáo chương" title="Báo cáo chương"><Icon name="flag" /></button>}
         </div>
       </header>
@@ -377,7 +378,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
       <Link to={novelPath} className="sc-reader-tool" aria-label="Về trang truyện" title="Về trang truyện"><Icon name="home" /></Link>
       <button type="button" className="sc-reader-tool" aria-label="Tùy chỉnh đọc" title="Tùy chỉnh đọc" aria-haspopup="dialog" onClick={() => { setSelectedPassage(null); setPanel('settings'); }}><Icon name="text_fields" /></button>
       <button type="button" className="sc-reader-tool" aria-label="Mục lục" title="Mục lục" aria-haspopup="dialog" onClick={() => { setSelectedPassage(null); setPanel('toc'); }}><Icon name="format_list_bulleted" /></button>
-      <button type="button" className="sc-reader-tool" aria-label="Bookmark" title="Bookmark" aria-haspopup="dialog" onClick={() => { setSelectedPassage(null); setPanel('bookmarks'); }}><Icon name="bookmarks" /></button>
+      <button type="button" className="sc-reader-tool" aria-label="Đoạn đã đánh dấu" title="Đoạn đã đánh dấu" aria-haspopup="dialog" onClick={() => { setSelectedPassage(null); setPanel('bookmarks'); }}><Icon name="bookmarks" /></button>
       {navigationLink(next, 'Chương sau', 'skip_next')}
     </aside>
     <footer className="sc-reader-end-navigation" aria-label="Điều hướng cuối chương">
@@ -385,7 +386,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
       {next && <Link to={chapterHref({ ...next, novelSlug }, base)} className="sc-button sc-button-primary">Chương sau<Icon name="chevron_right" /></Link>}
     </footer>
     {children}
-    <AnimatedModal opened={panel !== null} onClose={() => setPanel(null)} side="right" title={panel === 'toc' ? 'Mục lục chương' : panel === 'bookmarks' ? 'Bookmark' : 'Tùy chỉnh đọc'} className="sc-reader-tool-panel"
+    <AnimatedModal opened={panel !== null} onClose={() => setPanel(null)} side="right" title={panel === 'toc' ? 'Mục lục chương' : panel === 'bookmarks' ? 'Đoạn đã đánh dấu' : 'Tùy chỉnh đọc'} className="sc-reader-tool-panel"
       onCloseAutoFocus={event => {
         if (!jumpAfterClose.current) return;
         event.preventDefault(); jumpAfterClose.current = false; restoreBookmark();
@@ -423,10 +424,10 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
         </div>}
         {tocPending && <p role="status">Đang tải mục lục…</p>}
         {tocFailed && <div role="alert"><p>Không tải được mục lục.</p><button type="button" className="sc-button" onClick={onRetryToc}>Thử lại</button></div>}
-        <nav ref={toc} className="sc-chapter-toc sc-reader-toc-list" aria-label="Mục lục chương">{chapters.map(item => <Link key={item.chapterId} to={chapterHref({ ...item, novelSlug }, base)} aria-current={item.chapterId === chapter.chapterId ? 'page' : undefined} onClick={() => setPanel(null)}><span>{chapterDisplayTitle(item)}</span>{item.isVip && <small>VIP · {item.priceCoins} xu</small>}</Link>)}</nav>
+        <nav ref={toc} className="sc-chapter-toc sc-reader-toc-list" aria-label="Mục lục chương">{chapters.map(item => <Link key={item.chapterId} to={chapterHref({ ...item, novelSlug }, base)} aria-current={item.chapterId === chapter.chapterId ? 'page' : undefined} onClick={() => setPanel(null)}><span>{chapterDisplayTitle(item)}</span>{item.isVip && <small>VIP · {formatNumber(item.priceCoins)} xu</small>}</Link>)}</nav>
       </>}
       {panel === 'bookmarks' && <>
-        <Link className="sc-button" to={`${bookmarksHref(base)}?novelId=${encodeURIComponent(chapter.novelId)}`} onClick={() => setPanel(null)}>Mở trang Bookmark</Link>
+        <Link className="sc-button" to={`${bookmarksHref(base)}?novelId=${encodeURIComponent(chapter.novelId)}`} onClick={() => setPanel(null)}>Mở trang Đoạn đã đánh dấu</Link>
         <ReadingBookmarksList novelId={chapter.novelId} base={base} onOpen={() => { jumpAfterClose.current = true; setPanel(null); }} />
       </>}
     </AnimatedModal>

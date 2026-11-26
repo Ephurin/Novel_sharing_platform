@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { hasAuthorCapability } from '../auth/auth-types';
 import { AnimatedNumber } from '../../shared/components/AuthorAdminMotion';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
@@ -121,20 +122,20 @@ export function WalletPage() {
   const withdrawMutation = useMutation({
     mutationFn: () => createWithdrawRequest(withdrawAmount, withdrawBankLabel),
     onSuccess: async () => {
-      showToast(`Đã gửi yêu cầu rút ${withdrawAmount.toLocaleString('vi-VN')} Xu.`);
+      showToast(`Đã gửi yêu cầu rút ${withdrawAmount.toLocaleString('vi-VN')} xu.`);
       setWithdrawModalOpen(false);
       await queryClient.invalidateQueries({ queryKey: ['wallet'] });
       await queryClient.invalidateQueries({ queryKey: ['wallet-transactions'] });
       await queryClient.invalidateQueries({ queryKey: ['admin-withdraw'] });
     },
     onError: (err: unknown) => {
-      showToast(`Rút Xu thất bại: ${getApiErrorMessage(err)}`, 'error');
+      showToast(`Rút xu thất bại: ${getApiErrorMessage(err)}`, 'error');
     }
   });
 
   const depositMutation = useMutation({
     mutationFn: async () => {
-      if (!selectedPackage) throw new Error('Vui lòng chọn gói Xu.');
+      if (!selectedPackage) throw new Error('Vui lòng chọn gói xu.');
       const session = await createDepositSession(selectedPackage);
       if (session.paymentUrl) {
         // VNPay sandbox: the wallet is credited only after the backend verifies VNPay's signed result.
@@ -149,8 +150,8 @@ export function WalletPage() {
       const addedCoins = selectedDeposit?.amountCoins;
       showToast(
         addedCoins
-          ? `Đã nạp thử nghiệm ${addedCoins.toLocaleString('vi-VN')} Xu vào ví!`
-          : 'Nạp Xu thử nghiệm thành công! Số dư ví đã được cộng thêm.'
+          ? `Đã nạp thử nghiệm ${addedCoins.toLocaleString('vi-VN')} xu vào ví!`
+          : 'Nạp xu thử nghiệm thành công! Số dư ví đã được cộng thêm.'
       );
       setDepositModalOpen(false);
       await queryClient.invalidateQueries({ queryKey: ['wallet'] });
@@ -178,13 +179,13 @@ export function WalletPage() {
 
       if (isDeposit) {
         category = 'deposit';
-        categoryLabel = 'Nạp Xu vào ví';
+        categoryLabel = 'Nạp xu vào ví';
         icon = 'add_card';
         iconBg = 'bg-success-bg';
         iconColor = 'text-success';
       } else if (isWithdraw) {
         category = 'withdraw';
-        categoryLabel = 'Rút Xu';
+        categoryLabel = 'Rút xu';
         icon = 'north_east';
         iconBg = 'bg-danger-bg';
         iconColor = 'text-danger';
@@ -212,22 +213,16 @@ export function WalletPage() {
       return {
         id: t.transactionId,
         createdAt: t.createdAt,
-        time: new Date(t.createdAt).toLocaleString('vi-VN', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        }),
+        time: formatDateTime(t.createdAt),
         category,
         categoryLabel,
         icon,
         iconBg,
         iconColor,
         title: isWithdraw
-          ? 'Yêu cầu rút Xu'
+          ? 'Yêu cầu rút xu'
           : isDeposit
-            ? 'Nạp Xu vào ví'
+            ? 'Nạp xu vào ví'
             : isTip
               ? isPositive
                 ? 'Nhận ủng hộ'
@@ -347,8 +342,8 @@ export function WalletPage() {
                   </h1>
                   <p className="text-body text-on-surface-variant">
                     {isAuthor
-                      ? 'Ví thử nghiệm: giao dịch nạp và rút Xu chỉ mang tính mô phỏng, không phát sinh thanh toán thật.'
-                      : 'Ví thử nghiệm: nạp Xu mô phỏng để mở khóa chương VIP và ủng hộ tác giả.'}
+                      ? 'Ví thử nghiệm: giao dịch nạp và rút xu chỉ mang tính mô phỏng, không phát sinh thanh toán thật.'
+                      : 'Ví thử nghiệm: nạp xu mô phỏng để mở khóa chương VIP và ủng hộ tác giả.'}
                   </p>
                 </div>
                 <button
@@ -357,7 +352,7 @@ export function WalletPage() {
                   className="sc-button sc-button-primary self-start sm:self-auto"
                 >
                   <span className="material-symbols-outlined text-[16px]" aria-hidden="true">add_card</span>
-                  <span>Nạp Xu thử nghiệm</span>
+                  <span>Nạp xu thử nghiệm</span>
                 </button>
               </section>
 
@@ -383,7 +378,7 @@ export function WalletPage() {
                         <span className="text-2xl sm:text-3xl text-on-surface tracking-tight font-serif font-bold">
                           {animateAuthor ? <AnimatedNumber value={availableBalance} /> : availableBalance.toLocaleString('vi-VN')}
                         </span>
-                        <span className="text-body font-semibold text-primary-800">Xu</span>
+                        <span className="text-body font-semibold text-primary-800">xu</span>
                       </div>
                     </div>
 
@@ -397,12 +392,12 @@ export function WalletPage() {
                         className="sc-button sc-button-soft w-full"
                       >
                         <span className="material-symbols-outlined text-[16px]" aria-hidden="true">payments</span>
-                        <span>Yêu cầu rút Xu mô phỏng</span>
+                        <span>Yêu cầu rút xu mô phỏng</span>
                       </button>
                     </div>
                   </div>
 
-                  {/* Card 2: Xu bị khóa */}
+                  {/* Card 2: xu bị khóa */}
                   <div className="rounded-xl bg-surface-container-lowest p-4 flex flex-col justify-between shadow-sm transition-shadow border border-surface-container/60">
                     <div className="flex flex-col gap-2.5">
                       <div className="flex items-center justify-between">
@@ -410,7 +405,7 @@ export function WalletPage() {
                           <div className="w-7 h-7 rounded-lg bg-warning-bg flex items-center justify-center text-warning">
                             <span className="material-symbols-outlined text-[16px]" aria-hidden="true">hourglass_top</span>
                           </div>
-                          <span className="font-label-md text-meta font-semibold text-on-surface">Xu bị khóa</span>
+                          <span className="font-label-md text-meta font-semibold text-on-surface">xu bị khóa</span>
                         </div>
                         <span className="font-label-sm text-meta text-warning bg-warning-bg px-1.5 py-0.5 rounded font-medium">
                           Chờ xử lý rút
@@ -421,7 +416,7 @@ export function WalletPage() {
                         <span className="text-2xl sm:text-3xl text-on-surface tracking-tight font-serif font-bold">
                           <NumberFlow value={lockedBalance} locales="vi-VN" animated={!reduce} />
                         </span>
-                        <span className="text-body font-semibold text-outline">Xu</span>
+                        <span className="text-body font-semibold text-outline">xu</span>
                       </div>
                     </div>
                   </div>
@@ -445,7 +440,7 @@ export function WalletPage() {
                         <span className="text-2xl sm:text-3xl text-on-surface tracking-tight font-serif font-bold">
                           {animateAuthor ? <AnimatedNumber value={totalAccumulated} /> : totalAccumulated.toLocaleString('vi-VN')}
                         </span>
-                        <span className="text-body font-semibold text-outline">Xu</span>
+                        <span className="text-body font-semibold text-outline">xu</span>
                       </div>
                     </div>
                   </div>
@@ -470,7 +465,7 @@ export function WalletPage() {
                         <span className="text-2xl sm:text-3xl text-on-surface tracking-tight font-serif font-bold tabular-nums">
                           {availableBalance.toLocaleString('vi-VN')}
                         </span>
-                        <span className="text-body font-semibold text-primary-800">Xu</span>
+                        <span className="text-body font-semibold text-primary-800">xu</span>
                       </div>
                     </div>
                   </div>
@@ -490,12 +485,12 @@ export function WalletPage() {
                         <span className="text-2xl sm:text-3xl text-on-surface tracking-tight font-serif font-bold tabular-nums">
                           {readerStats.spent.toLocaleString('vi-VN')}
                         </span>
-                        <span className="text-body font-semibold text-outline">Xu</span>
+                        <span className="text-body font-semibold text-outline">xu</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Reader Card 3: Tổng Xu đã nạp */}
+                  {/* Reader Card 3: Tổng xu đã nạp */}
                   <div className="rounded-xl bg-surface-container-lowest p-4 flex flex-col justify-between shadow-sm border border-surface-container/60">
                     <div className="flex flex-col gap-2.5">
                       <div className="flex items-center justify-between">
@@ -503,14 +498,14 @@ export function WalletPage() {
                           <div className="w-7 h-7 rounded-lg bg-success-bg flex items-center justify-center text-success">
                             <span className="material-symbols-outlined text-[16px]" aria-hidden="true">add_card</span>
                           </div>
-                          <span className="font-label-md text-meta font-semibold text-on-surface">Tổng Xu đã nạp</span>
+                          <span className="font-label-md text-meta font-semibold text-on-surface">Tổng xu đã nạp</span>
                         </div>
                       </div>
                       <div className="flex items-baseline gap-1.5">
                         <span className="text-2xl sm:text-3xl text-on-surface tracking-tight font-serif font-bold tabular-nums">
                           {readerStats.deposited.toLocaleString('vi-VN')}
                         </span>
-                        <span className="text-body font-semibold text-outline">Xu</span>
+                        <span className="text-body font-semibold text-outline">xu</span>
                       </div>
                     </div>
                   </div>
@@ -529,7 +524,7 @@ export function WalletPage() {
                           <div className="flex items-center gap-2 mt-0.5">
                             <span className="text-meta text-outline">Tổng kỳ này:</span>
                             <span className="text-body text-on-surface font-bold">
-                              {animateAuthor ? <AnimatedNumber value={currentChart.total} /> : currentChart.total.toLocaleString('vi-VN')} Xu
+                              {animateAuthor ? <AnimatedNumber value={currentChart.total} /> : currentChart.total.toLocaleString('vi-VN')} xu
                             </span>
                           </div>
                         </div>
@@ -543,7 +538,7 @@ export function WalletPage() {
                       </div>
 
                       <p className="text-meta text-outline">
-                        Kỳ trước: {currentChart.previousTotal.toLocaleString('vi-VN')} Xu ·{' '}
+                        Kỳ trước: {currentChart.previousTotal.toLocaleString('vi-VN')} xu ·{' '}
                         {currentChart.previousTotal > 0
                           ? `Thay đổi ${(((currentChart.total - currentChart.previousTotal) / currentChart.previousTotal) * 100).toLocaleString('vi-VN', { maximumFractionDigits: 1 })}%`
                           : 'Chưa có tỷ lệ tăng trưởng'}
@@ -572,11 +567,11 @@ export function WalletPage() {
                                 <div
                                   key={animateAuthor ? `${chartPeriod}-${idx}` : idx}
                                   tabIndex={0}
-                                  aria-label={`${pt.label}: ${pt.amount.toLocaleString('vi-VN')} Xu`}
+                                  aria-label={`${pt.label}: ${pt.amount.toLocaleString('vi-VN')} xu`}
                                   className="group flex-1 flex flex-col items-center h-full justify-end relative cursor-pointer"
                                 >
                                   <div className="absolute -top-7 px-2 py-0.5 bg-inverse-surface text-inverse-on-surface font-label-sm text-meta rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-sm z-20">
-                                    {pt.label}: {pt.amount.toLocaleString('vi-VN')} Xu
+                                    {pt.label}: {pt.amount.toLocaleString('vi-VN')} xu
                                   </div>
                                   <div
                                     className={`w-full max-w-[32px] flex flex-col justify-end rounded-t-md overflow-hidden group-hover:brightness-95 transition-all ${
@@ -620,9 +615,9 @@ export function WalletPage() {
                         </span>
                       </div>
                       <span className="text-meta text-on-surface-variant">
-                        Mở khóa VIP: <strong className="text-on-surface font-semibold">{currentChart.unlockCoins.toLocaleString('vi-VN')} Xu</strong>
+                        Mở khóa VIP: <strong className="text-on-surface font-semibold">{currentChart.unlockCoins.toLocaleString('vi-VN')} xu</strong>
                         {' · '}
-                        Ủng hộ: <strong className="text-on-surface font-semibold">{currentChart.donateCoins.toLocaleString('vi-VN')} Xu</strong>
+                        Ủng hộ: <strong className="text-on-surface font-semibold">{currentChart.donateCoins.toLocaleString('vi-VN')} xu</strong>
                       </span>
                     </div>
                   </div>
@@ -736,8 +731,8 @@ export function WalletPage() {
                       <option value="all">Tất cả loại giao dịch</option>
                       <option value="vip">{isAuthor ? 'Chương VIP' : 'Mở khóa chương VIP'}</option>
                       <option value="tip">{isAuthor ? 'Ủng hộ / Tip' : 'Ủng hộ tác giả'}</option>
-                      {(isAuthor || hasWithdrawTx) && <option value="withdraw">Rút Xu</option>}
-                      <option value="deposit">Nạp Xu vào ví</option>
+                      {(isAuthor || hasWithdrawTx) && <option value="withdraw">Rút xu</option>}
+                      <option value="deposit">Nạp xu vào ví</option>
                     </select>
 
                     {/* Status Filter */}
@@ -776,7 +771,7 @@ export function WalletPage() {
                         <th className="py-2.5 px-3.5 font-semibold">Thời gian</th>
                         <th className="py-2.5 px-3.5 font-semibold">Loại giao dịch</th>
                         <th className="py-2.5 px-3.5 font-semibold">Nội dung chi tiết</th>
-                        <th className="py-2.5 px-3.5 font-semibold text-right">Số Xu</th>
+                        <th className="py-2.5 px-3.5 font-semibold text-right">Số xu</th>
                         <th className="py-2.5 px-3.5 font-semibold text-center">Trạng thái</th>
                         <th className="py-2.5 px-3.5 font-semibold text-right">Mã giao dịch</th>
                       </tr>
@@ -792,7 +787,7 @@ export function WalletPage() {
                         displayedTransactions.map((tx) => (
                           <tr key={tx.id} className="hover:bg-surface-container-low/60 transition-colors group">
                             <td className="py-2.5 px-3.5 text-meta font-mono text-outline whitespace-nowrap">
-                              {tx.time}
+                              <time dateTime={tx.createdAt} title={tx.time}>{formatDateTime(tx.createdAt, 'relative')}</time>
                             </td>
                             <td className="py-2.5 px-3.5 whitespace-nowrap">
                               <div className="flex items-center gap-2">
@@ -813,7 +808,7 @@ export function WalletPage() {
                             >
                               {tx.balanceChangeCoins === 0 ? '' : tx.isPositive ? '+' : '-'}
                               <span className={tx.balanceChangeCoins === 0 ? 'line-through' : ''}>{tx.amount.toLocaleString('vi-VN')}</span>{' '}
-                              <span className="text-meta font-normal text-outline">Xu</span>
+                              <span className="text-meta font-normal text-outline">xu</span>
                             </td>
                             <td className="py-2.5 px-3.5 text-center whitespace-nowrap">
                               {tx.status === 'done' ? (
@@ -876,12 +871,12 @@ export function WalletPage() {
         </div>
       </main>
 
-      {/* 5. Modal: Yêu cầu rút Xu mô phỏng (Author only) */}
+      {/* 5. Modal: Yêu cầu rút xu mô phỏng (Author only) */}
       {isAuthor && (
         <AnimatedModal
           opened={withdrawModalOpen}
           onClose={() => setWithdrawModalOpen(false)}
-          title="Yêu cầu rút Xu mô phỏng"
+          title="Yêu cầu rút xu mô phỏng"
           size="md"
           centered
         >
@@ -891,13 +886,13 @@ export function WalletPage() {
               <div className="flex flex-col">
                 <span className="text-meta text-outline">Số dư khả dụng hiện tại</span>
                 <span className="text-body text-on-surface font-bold">
-                  {availableBalance.toLocaleString('vi-VN')} Xu
+                  {availableBalance.toLocaleString('vi-VN')} xu
                 </span>
               </div>
               <div className="flex flex-col text-right">
                 <span className="text-meta text-outline">Dự kiến sau rút</span>
                 <span className="text-body text-primary-800 font-bold" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                  <NumberFlow value={Math.max(0, availableBalance - (Number.isFinite(withdrawAmount) ? withdrawAmount : 0))} locales="vi-VN" animated={!reduce} /> Xu
+                  <NumberFlow value={Math.max(0, availableBalance - (Number.isFinite(withdrawAmount) ? withdrawAmount : 0))} locales="vi-VN" animated={!reduce} /> xu
                 </span>
               </div>
             </div>
@@ -912,13 +907,13 @@ export function WalletPage() {
             >
               <div className="flex flex-col gap-1">
                 <div className="text-meta font-medium text-on-surface flex justify-between items-center">
-                  <label htmlFor="withdraw-amount">Số Xu muốn rút</label>
+                  <label htmlFor="withdraw-amount">Số xu muốn rút</label>
                   <button
                     type="button"
                     onClick={() => setWithdrawAmount(availableBalance)}
                     className="text-primary-800 hover:underline font-semibold text-meta"
                   >
-                    Rút tối đa ({availableBalance.toLocaleString('vi-VN')} Xu)
+                    Rút tối đa ({availableBalance.toLocaleString('vi-VN')} xu)
                   </button>
                 </div>
                 <div className="relative">
@@ -933,20 +928,20 @@ export function WalletPage() {
                     className="w-full pl-3 pr-14 py-2 rounded-lg bg-surface-container-lowest ring-1 ring-outline-variant focus:ring-2 focus:ring-primary outline-none text-base text-on-surface font-bold transition-all"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-meta text-outline font-semibold">
-                    Xu
+                    xu
                   </span>
                 </div>
 
                 {withdrawAmount > availableBalance && (
                   <div className="text-meta text-error flex items-center gap-1 mt-0.5" role="alert">
                     <span className="material-symbols-outlined text-table" aria-hidden="true">error</span>
-                    <span>Số Xu rút không được vượt quá số dư khả dụng ({availableBalance.toLocaleString('vi-VN')} Xu).</span>
+                    <span>Số xu rút không được vượt quá số dư khả dụng ({availableBalance.toLocaleString('vi-VN')} xu).</span>
                   </div>
                 )}
 
                 <div className="flex items-center gap-1.5 text-meta text-outline mt-0.5">
                   <span className="material-symbols-outlined text-table" aria-hidden="true">info</span>
-                  <span>Tối thiểu 100 Xu · Yêu cầu mô phỏng, không chuyển khoản ngân hàng.</span>
+                  <span>Tối thiểu 100 xu · Yêu cầu mô phỏng, không chuyển khoản ngân hàng.</span>
                 </div>
               </div>
 
@@ -998,7 +993,7 @@ export function WalletPage() {
                   className="px-4 py-1.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary text-meta font-semibold shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="material-symbols-outlined text-[16px]" aria-hidden="true">check_circle</span>
-                  <span>{withdrawMutation.isPending ? 'Đang gửi...' : 'Xác nhận rút Xu'}</span>
+                  <span>{withdrawMutation.isPending ? 'Đang gửi...' : 'Xác nhận rút xu'}</span>
                 </button>
               </div>
             </form>
@@ -1006,11 +1001,11 @@ export function WalletPage() {
         </AnimatedModal>
       )}
 
-      {/* 6. Modal: Nạp Xu thử nghiệm */}
+      {/* 6. Modal: Nạp xu thử nghiệm */}
       <AnimatedModal
         opened={depositModalOpen}
         onClose={() => setDepositModalOpen(false)}
-        title="Nạp Xu thử nghiệm"
+        title="Nạp xu thử nghiệm"
         size="sm"
         centered
       >
@@ -1023,10 +1018,10 @@ export function WalletPage() {
               </p>
             </div>
           ) : (
-            <p className="text-meta text-outline">Chọn gói Xu thử nghiệm để cộng ngay vào số dư ví.</p>
+            <p className="text-meta text-outline">Chọn gói xu thử nghiệm để cộng ngay vào số dư ví.</p>
           )}
 
-          <div className="grid grid-cols-2 gap-2" role="group" aria-label="Chọn gói Xu thử nghiệm">
+          <div className="grid grid-cols-2 gap-2" role="group" aria-label="Chọn gói xu thử nghiệm">
             {depositPackages.map((pkg) => {
               const active = selectedPackage === pkg.code;
               return (
@@ -1041,7 +1036,7 @@ export function WalletPage() {
                       : 'border-surface-container hover:bg-surface-container-low'
                   }`}
                 >
-                  <p className="font-bold text-meta text-on-surface">{pkg.amountCoins.toLocaleString('vi-VN')} Xu</p>
+                  <p className="font-bold text-meta text-on-surface">{pkg.amountCoins.toLocaleString('vi-VN')} xu</p>
                   {depositGateway === 'VNPAY' && (
                     <p className="text-[11px] text-outline">{pkg.amountVnd.toLocaleString('vi-VN')} đ</p>
                   )}
@@ -1057,10 +1052,10 @@ export function WalletPage() {
                 locales="vi-VN"
                 animated={!reduce}
               />{' '}
-              Xu
+              xu
             </span>
           </div>
-          {depositPackagesQuery.isError && <p className="text-meta text-error" role="alert">Không tải được các gói Xu.</p>}
+          {depositPackagesQuery.isError && <p className="text-meta text-error" role="alert">Không tải được các gói xu.</p>}
 
           <div className="flex items-center justify-end gap-2 pt-1">
             <button

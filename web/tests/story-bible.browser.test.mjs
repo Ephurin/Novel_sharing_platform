@@ -74,7 +74,7 @@ test('Cẩm nang shows approved knowledge, preserves author enrichment and perfo
     await page.getByRole('tab', { name: 'Địa danh & dữ kiện', exact: true }).click();
     await page.getByRole('heading', { name: 'Hà Nội', exact: true }).waitFor({ state: 'detached' });
     const downloading = page.waitForEvent('download');
-    await page.getByRole('button', { name: /Xuất file Bible/ }).click();
+    await page.getByRole('button', { name: /Xuất cẩm nang/ }).click();
     const download = await downloading;
     const chunks = [];
     for await (const chunk of await download.createReadStream()) chunks.push(chunk);

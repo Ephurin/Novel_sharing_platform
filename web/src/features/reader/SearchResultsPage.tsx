@@ -144,7 +144,14 @@ export function SearchResultsPage({ advanced = false }: { advanced?: boolean }) 
     navigate(buildSearchUrl(currentPath, { ...draft, sort: nextSort, page: 1 }));
   }
 
-  function handleReset() {
+  // Resetting filters keeps what the reader typed: only status, genres and tags go back to defaults.
+  function handleResetFilters() {
+    const next: SearchQueryState = { ...DEFAULT_SEARCH_STATE, keywords: draft.keywords, sort: draft.sort };
+    setDraft(next);
+    navigate(buildSearchUrl(currentPath, next));
+  }
+
+  function handleClearAll() {
     setDraft(DEFAULT_SEARCH_STATE);
     navigate(currentPath);
   }
@@ -387,7 +394,7 @@ export function SearchResultsPage({ advanced = false }: { advanced?: boolean }) 
                     type="button"
                     className="sc-search-reset-btn"
                     data-testid="search-advanced-reset"
-                    onClick={handleReset}
+                    onClick={handleResetFilters}
                   >
                     ↻ Đặt lại bộ lọc
                   </button>
@@ -442,7 +449,7 @@ export function SearchResultsPage({ advanced = false }: { advanced?: boolean }) 
                 <span aria-hidden="true">×</span>
               </button>
             ))}
-            <button type="button" className="sc-search-chip-clear" onClick={handleReset}>
+            <button type="button" className="sc-search-chip-clear" onClick={handleResetFilters}>
               Xóa bộ lọc
             </button>
           </div>
@@ -517,9 +524,14 @@ export function SearchResultsPage({ advanced = false }: { advanced?: boolean }) 
                 : 'Hãy thử thay đổi từ khóa hoặc nới lỏng điều kiện lọc nhé.'}
             </p>
             <div className="sc-search-empty-actions">
-              {(urlState.keywords.trim() || urlFilterCount > 0) && (
-                <button type="button" className="sc-search-reset-btn" onClick={handleReset}>
+              {urlFilterCount > 0 && (
+                <button type="button" className="sc-search-reset-btn" onClick={handleResetFilters}>
                   Đặt lại bộ lọc
+                </button>
+              )}
+              {urlState.keywords.trim() && (
+                <button type="button" className="sc-search-reset-btn" onClick={handleClearAll}>
+                  Xóa toàn bộ
                 </button>
               )}
               {!advanced && (

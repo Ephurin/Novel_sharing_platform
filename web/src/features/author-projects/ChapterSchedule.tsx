@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Group, Stack, Text, TextInput } from '@mantine/core';
@@ -33,7 +34,7 @@ export function ChapterSchedule({ chapterId, novelId, onClose }: { chapterId: st
   });
   const current = chapter.data?.publicationSchedule;
   const previewDate = new Date(date);
-  const previewTime = Number.isFinite(previewDate.getTime()) ? previewDate.toLocaleString('vi-VN', { timeZone: 'Asia/Bangkok', dateStyle: 'short', timeStyle: 'short' }) : null;
+  const previewTime = Number.isFinite(previewDate.getTime()) ? formatDateTime(previewDate) : null;
   const futureDate = previewDate.getTime() > Date.now();
   return <Modal opened onClose={() => !save.isPending && onClose()} title="Lên lịch xuất bản chương">
     <Stack>
@@ -41,7 +42,7 @@ export function ChapterSchedule({ chapterId, novelId, onClose }: { chapterId: st
       {chapter.isError && <ErrorState error={chapter.error} onRetry={() => void chapter.refetch()} />}
       {chapter.data && <>
         <Text fw={600}>{chapter.data.draft?.title ?? chapter.data.title}</Text>
-        {current?.status === 'PENDING' && <Text size="sm">Lịch hiện tại: {new Date(current.scheduledAt).toLocaleString('vi-VN')}</Text>}
+        {current?.status === 'PENDING' && <Text size="sm">Lịch hiện tại: {formatDateTime(current.scheduledAt)}</Text>}
         <TextInput type="datetime-local" label="Ngày giờ gửi duyệt" value={date} onChange={event => setDate(event.currentTarget.value)} required
           description={`Múi giờ: ${Intl.DateTimeFormat().resolvedOptions().timeZone}. Sửa bản nháp sẽ hủy lịch cũ.`} />
         {previewTime && <FeedbackReveal key={date}><Text size="sm" c={futureDate ? 'dimmed' : 'red'} role="status"><FeedbackIcon icon={futureDate ? 'event_available' : 'event_busy'} /> Dự kiến: {previewTime} (Asia/Bangkok){!futureDate && ' · Chọn thời gian trong tương lai'}</Text></FeedbackReveal>}

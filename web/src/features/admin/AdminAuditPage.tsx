@@ -1,9 +1,10 @@
-import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
-import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
+import { formatDateTime } from '../../shared/lib/format-vi';
+import { useUrlFilters, useListScroll, WorkspaceTable, WorkspaceTableOptions } from '../../shared/components/WorkspacePreferences';
+import { AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { StateComparison } from '../../shared/components/StateComparison';
 import { ResponsiveFilters } from '../../shared/components/InteractionWidgets';
 import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
-import { Button, TextInput, Alert } from '@mantine/core';
+import { Button, TextInput, Alert, Select } from '@mantine/core';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   AdminHeader,
@@ -12,15 +13,28 @@ import {
   AdminId,
   AdminError,
   dateTime,
-  labels
+  labels,
+  options
 } from './AdminShared';
 import { ErrorState, LoadingState } from '../../shared/components/PageStates';
 import { getAdminList } from './admin-api';
 import { adminGet, adminSend, useAdminAccess, type AuditEntry } from './admin-operations-api';
 
+// Audit actions an admin can filter by; the API matches the code exactly, so offer a list instead of free text.
+const AUDIT_ACTIONS = [
+  'USER_LOCK', 'USER_UNLOCKED', 'USER_WARN', 'USER_ACCESS_CHANGED',
+  'NOVEL_HIDE', 'NOVEL_WARN', 'NOVEL_RESTORED', 'CHAPTER_HIDE', 'CHAPTER_WARN',
+  'COMMENT_HIDE', 'COMMENT_WARN', 'SANCTION_RESTORED',
+  'PUBLICATION_APPROVED', 'PUBLICATION_REJECTED', 'PUBLICATION_REVISION_REQUIRED',
+  'REPORT_ACCEPTED', 'REPORT_DISMISSED', 'APPEAL_ACCEPTED', 'APPEAL_REJECTED',
+  'WITHDRAW_APPROVED', 'WITHDRAW_REJECTED', 'WITHDRAW_RECONCILED',
+  'TAXONOMY_CREATED', 'TAXONOMY_UPDATED', 'TAXONOMY_MERGED', 'TAXONOMY_DELETED',
+  'ADMIN_JOB_RETRIED', 'NOTIFY', 'NOVEL_DRAFT_SYNC', 'COMMENT_SYNC'
+];
+
 export function AuditRows({ items }: { items: AuditEntry[] }) {
   return (
-    <WorkspaceTable name="adminauditpage" columns={['Thời gian / Admin', 'Thao tác', 'Đối tượng', 'Lý do / Thay đổi']}>
+    <WorkspaceTable>
       <table>
         <thead>
           <tr>
@@ -34,7 +48,7 @@ export function AuditRows({ items }: { items: AuditEntry[] }) {
           {items.map((item) => (
             <tr key={item.audit_id}>
               <td>
-                {dateTime(item.created_at)}
+                <time dateTime={item.created_at} title={dateTime(item.created_at)}>{formatDateTime(item.created_at, 'relative')}</time>
                 <small className="admin-block">@{item.actor_username}</small>
               </td>
               <td>{labels[item.action] || item.action}</td>
@@ -159,21 +173,18 @@ export function AdminAuditPage() {
               setPage(1);
             }}
           />
-          <TextInput
-            label="Mã thao tác"
-            placeholder="Ví dụ: USER_LOCK"
+          <Select comboboxProps={{ withinPortal: false }}
+            label="Thao tác"
+            searchable
+            data={options(action && !AUDIT_ACTIONS.includes(action) ? [...AUDIT_ACTIONS, action] : AUDIT_ACTIONS, 'Tất cả thao tác')}
             value={action}
-            onChange={(e) => {
-              setAction(e.currentTarget.value);
+            onChange={(v) => {
+              setAction(v ?? '');
               setPage(1);
             }}
           />
         </ResponsiveFilters>
-        <FilterPresets name={'AdminAuditPage'} fields={["q", "action"]} />
-        <ActiveFilterChips items={[
-          ...(q.trim() ? [{ id: 'q', label: `Tìm: ${q.trim()}`, onRemove: () => { setQ(''); setPage(1); } }] : []),
-          ...(action.trim() ? [{ id: 'action', label: `Thao tác: ${labels[action.trim()] || action.trim()}`, onRemove: () => { setAction(''); setPage(1); } }] : [])
-        ]} />
+        <WorkspaceTableOptions name="adminauditpage" columns={['Thời gian / Admin', 'Thao tác', 'Đối tượng', 'Lý do / Thay đổi']} presets={{ name: 'AdminAuditPage', fields: ["q", "action"] }}>
         <ResultsSurface identity={String(query.dataUpdatedAt)} busy={query.isFetching} retain={Boolean(q.trim() || action.trim())}>{query.isLoading && <LoadingState variant="table" label="Đang tải nhật ký..." />}
         {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
         {query.data && !query.data.items.length && (
@@ -182,6 +193,7 @@ export function AdminAuditPage() {
         {!!query.data?.items.length && <AuditRows items={query.data.items} />}
         <AdminPagination meta={query.data?.meta} onChange={setPage} />
       </ResultsSurface>
+        </WorkspaceTableOptions>
       </AdminPanel>
     </>
   );

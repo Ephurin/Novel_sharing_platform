@@ -368,7 +368,7 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
     await t.test('FE-01 & FE-06: Event correction submits authoritative Brain v3 and awaits async 201', async () => {
       eventCorrectionRequests = [];
       await page.goto(`${baseUrl}/?scenario=memory-panel`);
-      await page.waitForSelector('text=Bộ nhớ và định hướng tiểu thuyết');
+      await page.waitForSelector('.mantine-Drawer-title:has-text("Bộ nhớ cốt truyện")');
 
       // Navigate to History / Events tab
       await page.click('button[role="tab"]:has-text("Sự kiện")');
@@ -716,7 +716,7 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
     // ──────────────────────────────────────────
     await t.test('FE-05: Novel switch clears draft state of previous novel', async () => {
       await page.goto(`${baseUrl}/?scenario=memory-panel`);
-      await page.waitForSelector('text=Bộ nhớ và định hướng tiểu thuyết');
+      await page.waitForSelector('.mantine-Drawer-title:has-text("Bộ nhớ cốt truyện")');
 
       // Switch novel in harness via helper
       await page.evaluate(() => window.__setNovelId('novel-test-uuid-2'));

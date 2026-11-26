@@ -117,17 +117,24 @@ export async function getReaderChapter(chapterId: string, auth?: AuthContext) {
   if (auth) await recordChapterRead(auth.userId, chapter.novelId, chapterId);
 
   if (!owner) await incrementNovelViews(chapter.novelId);
-  const { authorId: _authorId, ...readable } = chapter;
+  const { authorId: _authorId, novelTitle: _novelTitle, ...readable } = chapter;
   return { ...readable, ...chapterParagraphs(readable.content) };
 }
 
 /** History writes must satisfy the same access policy as content reads. */
-export async function assertChapterAccess(chapter: { chapterId: string; authorId: string; isVip: boolean; priceCoins?: number; novelId?: string }, auth?: AuthContext) {
+export async function assertChapterAccess(chapter: { chapterId: string; authorId: string; isVip: boolean; priceCoins?: number; novelId?: string; novelTitle?: string; chapterNumber?: number; title?: string }, auth?: AuthContext) {
   const owner = Boolean(auth && (auth.userId === chapter.authorId || isContentAdmin(auth)));
   if (auth) await assertActiveAccount(auth);
   if (chapter.isVip && !owner && (!auth || !(await userHasChapterUnlock(auth.userId, chapter.chapterId)))) {
     // UAT 2026-11-20 (BUG-001): the reader must see the price before unlocking.
-    throw new AppError(402, 'PAYMENT_002', 'Chapter unlock required', { priceCoins: chapter.priceCoins ?? null, novelId: chapter.novelId ?? null });
+    // UI-02: name the novel and chapter so the reader can check what they are about to unlock.
+    throw new AppError(402, 'PAYMENT_002', 'Chapter unlock required', {
+      priceCoins: chapter.priceCoins ?? null,
+      novelId: chapter.novelId ?? null,
+      novelTitle: chapter.novelTitle ?? null,
+      chapterNumber: chapter.chapterNumber ?? null,
+      chapterTitle: chapter.title ?? null
+    });
   }
   return owner;
 }

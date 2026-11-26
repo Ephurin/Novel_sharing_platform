@@ -309,7 +309,7 @@ export function AuthorProfilePage() {
 
         <div className="space-y-3 text-meta">
           <span id="support-preset-label" className="font-semibold text-stone-700 block">
-            Chọn mức ủng hộ (Xu):
+            Chọn mức ủng hộ (xu):
           </span>
           <LayoutGroup id={supportGroupId}>
             <div className="grid grid-cols-4 gap-2" role="group" aria-labelledby="support-preset-label">
@@ -335,7 +335,7 @@ export function AuthorProfilePage() {
                         transition={reduce ? { duration: 0 } : { duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
                       />
                     )}
-                    {amt} Xu
+                    {amt.toLocaleString('vi-VN')} xu
                   </button>
                 );
               })}
@@ -356,7 +356,7 @@ export function AuthorProfilePage() {
                 onChange={(e) => setSupportAmount(Number(e.target.value) || 0)}
                 className="w-full text-meta font-semibold rounded-lg border border-stone-200 focus:border-primary-600 focus:ring-1 focus:ring-primary-600 py-1.5 px-3 pr-10 text-stone-800 outline-none"
               />
-              <span className="absolute right-3 top-2 text-meta font-semibold text-stone-400">Xu</span>
+              <span className="absolute right-3 top-2 text-meta font-semibold text-stone-400">xu</span>
             </div>
           </div>
 
@@ -383,7 +383,7 @@ export function AuthorProfilePage() {
                     ? 'Đang tải...'
                     : walletQuery.isError
                       ? 'Không tải được'
-                      : `${availableCoins.toLocaleString('vi-VN')} Xu`}
+                      : `${availableCoins.toLocaleString('vi-VN')} xu`}
                 </strong>
               </span>
               {!walletQuery.isLoading && !walletQuery.isError && (
@@ -395,13 +395,13 @@ export function AuthorProfilePage() {
                       locales="vi-VN"
                       animated={!reduce}
                     />{' '}
-                    Xu
+                    xu
                   </strong>
                 </span>
               )}
             </div>
-            <Link to={navigationHref("/wallet")} className="text-primary-600 font-semibold hover:underline">
-              Nạp Xu
+            <Link to={navigationHref('/wallet')} className="text-primary-600 font-semibold hover:underline">
+              Nạp xu
             </Link>
           </div>
         </div>

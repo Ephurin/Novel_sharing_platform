@@ -1,5 +1,5 @@
-import { navigationHref, reviewHref } from '../../shared/routes';
-import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
+import { reviewHref } from '../../shared/routes';
+import { useUrlFilters, useListScroll, WorkspaceTable, WorkspaceTableOptions } from '../../shared/components/WorkspacePreferences';
 import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { ResponsiveFilters } from '../../shared/components/InteractionWidgets';
 import { Link } from 'react-router-dom';
@@ -94,7 +94,7 @@ export function ModeratorReviewsPage() {
             Xóa bộ lọc
           </Button>
         </ResponsiveFilters>
-        <FilterPresets name="moderator-reviews" fields={['targetType', 'status', 'source']} />
+        <WorkspaceTableOptions name="moderatorreviewspage" columns={['Mã kiểm duyệt', 'Đối tượng', 'Mã đối tượng', 'Nguồn', 'Trạng thái', 'Thao tác']} presets={{ name: 'moderator-reviews', fields: ['targetType', 'status', 'source'] }}>
         <ActiveFilterChips
           items={[
             ...(targetType ? [{ id: 'target', label: labels[targetType] || targetType, onRemove: () => { setTargetType(''); setPage(1); } }] : []),
@@ -109,7 +109,7 @@ export function ModeratorReviewsPage() {
             <EmptyState description="Không có mục nào khớp với bộ lọc hiện tại." />
           )}
           {!!query.data?.items.length && (
-            <WorkspaceTable name="moderatorreviewspage" columns={['Mã kiểm duyệt', 'Đối tượng', 'Mã đối tượng', 'Nguồn', 'Trạng thái', 'Thao tác']}>
+            <WorkspaceTable>
               <table>
                 <thead>
                   <tr>
@@ -162,6 +162,7 @@ export function ModeratorReviewsPage() {
           )}
           <AdminPagination meta={query.data?.meta} onChange={setPage} />
         </ResultsSurface>
+        </WorkspaceTableOptions>
       </AdminPanel>
     </>
   );

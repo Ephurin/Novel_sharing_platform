@@ -1,4 +1,5 @@
 import { chapterHref } from '../../shared/routes';
+import { formatDateTime, formatNumber } from '../../shared/lib/format-vi';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { ReaderChapter } from './reader-api';
@@ -44,8 +45,8 @@ export function NovelChapterCatalog({ chapters, novelSlug, publicMode = false, r
           return <tr key={chapter.chapterId} data-read={read.has(chapter.chapterId) || undefined}>
             <td><Link to={to} className="sc-reader-chapter-title" data-testid={`read-chapter-${chapter.chapterId}`} title={label}>{label}{read.has(chapter.chapterId) && <span className="sr-only"> · Đã đọc</span>}</Link></td>
             <td className="hidden md:table-cell">{(chapter.wordCount ?? 0).toLocaleString('vi-VN')}</td>
-            <td className="hidden sm:table-cell"><time className="sc-reader-chapter-date" dateTime={chapter.publishedAt}>{chapter.publishedAt ? new Date(chapter.publishedAt).toLocaleDateString('vi-VN') : '—'}</time></td>
-            <td><span className={chapter.isVip ? 'sc-chapter-access is-vip' : 'sc-chapter-access'}>{chapter.isVip ? `VIP • ${chapter.priceCoins} xu` : 'Miễn phí'}</span></td>
+            <td className="hidden sm:table-cell"><time className="sc-reader-chapter-date" dateTime={chapter.publishedAt} title={formatDateTime(chapter.publishedAt)}>{formatDateTime(chapter.publishedAt, 'relative')}</time></td>
+            <td><span className={chapter.isVip ? 'sc-chapter-access is-vip' : 'sc-chapter-access'}>{chapter.isVip ? `VIP • ${formatNumber(chapter.priceCoins)} xu` : 'Miễn phí'}</span></td>
           </tr>;
         })}</tbody>
       </table></div>

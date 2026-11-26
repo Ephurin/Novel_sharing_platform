@@ -69,7 +69,7 @@ export function mapNovelSummary(row: QueryResultRow) {
     ageRating: row.age_rating,
     likesCount: row.likes_count,
     viewsCount: row.views_count,
-    chaptersCount: row.chapters_count,
+    chaptersCount: row.published_chapters_count ?? row.chapters_count,
     latestChapter: row.latest_chapter ?? null,
     lastUpdatedAt: row.last_updated_at ?? null,
     updatedAt: row.last_updated_at ?? row.updated_at
@@ -292,6 +292,8 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
       select
         n.*,
         max(u.public_key) as author_public_key,
+        -- UI-07: readers only see published chapters, so count those (novels.chapters_count includes drafts).
+        (select count(*)::int from chapters pc where pc.novel_id = n.novel_id and pc.deleted_at is null and pc.status = 'PUBLISHED') as published_chapters_count,
         coalesce(up.display_name, u.username) as author_name,
         g.name as genre_name,
         (select array_agg(gg.name order by (ng.genre_id = n.genre_id) desc, gg.name)
@@ -456,6 +458,8 @@ export async function findPublishedNovelDetail(novelId: string, includeSelection
       ${selectionEnabled ? 'with selection_eligibility as materialized (select novel_selection_branches($1) as branches)' : ''}
       select
         n.*,
+        -- UI-07: readers only see published chapters, so count those (novels.chapters_count includes drafts).
+        (select count(*)::int from chapters pc where pc.novel_id = n.novel_id and pc.deleted_at is null and pc.status = 'PUBLISHED') as published_chapters_count,
         ${selectionEnabled ? `(select cardinality(branches)>0 from selection_eligibility) as selection_eligible,
           exists (select 1 from novel_selection_cases s cross join selection_eligibility e
             where s.novel_id=n.novel_id and s.status='SELECTED' and s.reviewed_branch=any(e.branches)) as selected,` : ''}
@@ -515,7 +519,7 @@ export async function listPublishedChaptersForNovel(novelId: string) {
 export async function findReadableChapter(chapterId: string) {
   const result = await getPostgresPool().query(
     `
-      select c.*, n.slug as novel_slug, n.status as novel_status, n.author_id
+      select c.*, n.slug as novel_slug, n.status as novel_status, n.author_id, n.title as novel_title
       from chapters c
       join novels n on n.novel_id = c.novel_id
       where c.chapter_id = $1
@@ -531,7 +535,8 @@ export async function findReadableChapter(chapterId: string) {
         ...mapChapterSummary(result.rows[0]),
         novelSlug: result.rows[0].novel_slug as string,
         content: result.rows[0].content,
-        authorId: result.rows[0].author_id as string
+        authorId: result.rows[0].author_id as string,
+        novelTitle: result.rows[0].novel_title as string
       }
     : null;
 }
@@ -647,6 +652,8 @@ export async function listBookmarks(userId: string, input: HistoryListInput) {
       select
         n.*,
         max(u.public_key) as author_public_key,
+        -- UI-07: readers only see published chapters, so count those (novels.chapters_count includes drafts).
+        (select count(*)::int from chapters pc where pc.novel_id = n.novel_id and pc.deleted_at is null and pc.status = 'PUBLISHED') as published_chapters_count,
         coalesce(up.display_name, u.username) as author_name,
         g.name as genre_name,
         coalesce(

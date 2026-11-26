@@ -4,7 +4,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 
 export const readerCollections = [
   { to: navigationHref('/reader/library'), label: 'Thư viện của tôi', icon: 'local_library' },
-  { to: navigationHref('/reader/bookmarks'), label: 'Bookmark', icon: 'bookmarks' },
+  { to: navigationHref('/reader/bookmarks'), label: 'Đoạn đã đánh dấu', icon: 'bookmarks' },
   { to: navigationHref('/reader/history'), label: 'Lịch sử đọc', icon: 'history' }
 ] as const;
 

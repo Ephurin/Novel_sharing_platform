@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { staticRouteTargets, navigationHref } from '../../shared/routes';
+import { Link, useLocation, useParams } from 'react-router-dom';
+import { staticRouteTargets, navigationHref, novelHref } from '../../shared/routes';
 import { useResourceId } from '../../app/ResourceRoute';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
@@ -14,10 +14,22 @@ import { getReaderChapter, getReaderNovel, reportContent, syncHistory, unlockVip
 import { getWallet } from '../wallet/wallet-api';
 import { useReadChapterIds } from './useReadChapterIds';
 import { ReaderNotFound, isReaderNotFound } from './ReaderNotFound';
+import './reader-detail.css';
+
+type LockDetails = {
+  priceCoins?: number | null;
+  novelId?: string | null;
+  novelTitle?: string | null;
+  chapterNumber?: number | null;
+  chapterTitle?: string | null;
+};
+
+const coins = (value: number) => value.toLocaleString('vi-VN');
 
 export function ChapterReader({ publicMode = false }: { publicMode?: boolean }) {
   const chapterId = useResourceId('chapterId') ?? '';
   const { pathname, search, hash } = useLocation();
+  const { novelSlug } = useParams();
   const userId = useAuthStore(state => state.user?.userId);
   const [feedbackRequest, setFeedbackRequest] = useState<AuthorFeedbackRequest>();
   const client = useQueryClient();
@@ -51,11 +63,12 @@ export function ChapterReader({ publicMode = false }: { publicMode?: boolean }) 
   });
   // UAT 2026-11-20 (BUG-001): show the price and the balance before the reader spends coins.
   const locked = chapterQuery.error instanceof ApiClientError && chapterQuery.error.code === 'PAYMENT_002';
-  const lockDetails = locked ? (chapterQuery.error as ApiClientError).details as { priceCoins?: number | null } | undefined : undefined;
+  const lockDetails = locked ? (chapterQuery.error as ApiClientError).details as LockDetails | undefined : undefined;
   const price = typeof lockDetails?.priceCoins === 'number' ? lockDetails.priceCoins : null;
   const walletQuery = useQuery({ queryKey: ['wallet'], queryFn: getWallet, enabled: locked && Boolean(userId), retry: false });
   const balance = walletQuery.data?.coinsBalance;
   const notEnough = price !== null && typeof balance === 'number' && balance < price;
+  const shortfall = notEnough ? price - (balance as number) : 0;
   const report = useMutation({
     mutationFn: () => reportContent({ targetType: 'CHAPTER', targetId: chapterId, reason: 'Reader report' }),
     onSuccess: () => showToast('Đã gửi báo cáo chương.', 'success'),
@@ -68,21 +81,36 @@ export function ChapterReader({ publicMode = false }: { publicMode?: boolean }) 
 
   if (chapterQuery.isPending) return <LoadingState label="Đang tải chương…" />;
   if (chapterQuery.error instanceof ApiClientError && chapterQuery.error.code === 'PAYMENT_002') {
-    return <section className="sc-reader-locked-chapter sc-reader-detail-section">
-      <span className="material-symbols-outlined" aria-hidden="true">lock</span>
-      <h1 className="text-section-title">Chương VIP đang khóa</h1>
+    // UI-02: say which chapter is locked, only allow unlocking once the price is known,
+    // say exactly how many coins are missing, and lead back to the novel rather than the catalog.
+    const base = publicMode ? '/public' : '/reader';
+    const lockNovelId = lockDetails?.novelId ?? null;
+    const lockChapterTitle = lockDetails?.chapterTitle?.replace(/^\s*(?:Chương|Chapter|Ch\.)\s*\d+\s*[:.\-–—]?\s*/i, '') ?? '';
+    const lockChapterLabel = typeof lockDetails?.chapterNumber === 'number'
+      ? `Chương ${lockDetails.chapterNumber}${lockChapterTitle ? `: ${lockChapterTitle}` : ''}`
+      : lockDetails?.chapterTitle ?? null;
+    return <section className="sc-reader-locked-chapter sc-reader-detail-section" aria-labelledby="locked-chapter-heading">
+      <span className="sc-reader-locked-icon material-symbols-outlined" aria-hidden="true">lock</span>
+      {lockDetails?.novelTitle && <p className="sc-reader-locked-novel" data-testid="locked-novel-title">{lockDetails.novelTitle}</p>}
+      <h1 id="locked-chapter-heading" className="text-section-title">Chương VIP đang khóa</h1>
+      {lockChapterLabel && <p className="sc-reader-locked-chapter-name" data-testid="locked-chapter-name">{lockChapterLabel}</p>}
       <p>{publicMode && !userId ? 'Đăng nhập để mở khóa chương VIP.' : price !== null
-        ? `Mở khóa chương này với ${price} xu. Sau khi mở khóa, bạn đọc lại được bất cứ lúc nào.`
-        : getApiErrorMessage(chapterQuery.error)}</p>
+        ? `Mở khóa chương này với ${coins(price)} xu. Sau khi mở khóa, bạn đọc lại được bất cứ lúc nào.`
+        : 'Chưa lấy được giá mở khóa của chương này. Hãy thử tải lại.'}</p>
       {userId && typeof balance === 'number' && <p className="text-meta" data-testid="unlock-balance">
-        Số dư hiện tại: {balance} xu{notEnough ? ' — chưa đủ để mở khóa chương này.' : ''}
+        Số dư hiện tại: {coins(balance)} xu{notEnough ? ` — bạn còn thiếu ${coins(shortfall)} xu.` : ''}
       </p>}
-      <div>{userId ? <>
-        <button type="button" className="sc-button sc-button-primary" disabled={unlock.isPending || notEnough} data-testid="btn-unlock-chapter"
-          onClick={() => unlock.mutate()}>{unlock.isPending ? 'Đang mở khóa…' : price !== null ? `Mở khóa · ${price} xu` : 'Mở khóa chương'}</button>
-        <Link to={navigationHref("/wallet")} className={notEnough ? 'sc-button sc-button-primary' : 'sc-button'}>{notEnough ? 'Nạp thêm xu' : 'Đến ví xu'}</Link>
+      <div className="sc-reader-locked-actions">{userId ? <>
+        {price !== null
+          ? <button type="button" className="sc-button sc-button-primary" disabled={unlock.isPending || notEnough} data-testid="btn-unlock-chapter"
+            onClick={() => unlock.mutate()}>{unlock.isPending ? 'Đang mở khóa…' : `Mở khóa · ${coins(price)} xu`}</button>
+          : <button type="button" className="sc-button sc-button-primary" disabled={chapterQuery.isFetching} data-testid="btn-unlock-retry"
+            onClick={() => void chapterQuery.refetch()}>{chapterQuery.isFetching ? 'Đang tải lại…' : 'Tải lại giá'}</button>}
+        <Link to={navigationHref('/wallet')} className={notEnough ? 'sc-button sc-button-primary' : 'sc-button'}>{notEnough ? `Nạp thêm ${coins(shortfall)} xu` : 'Đến ví xu'}</Link>
       </> : <Link to={staticRouteTargets['/login']} state={{ returnTo: { pathname, search, hash } }} className="sc-button sc-button-primary">Đăng nhập để mở khóa</Link>}
-        <Link to={publicMode ? navigationHref('/public') : navigationHref('/reader')} className="sc-button">Danh sách truyện</Link></div>
+        {lockNovelId
+          ? <Link to={novelHref({ novelId: lockNovelId, novelSlug }, base)} className="sc-button">Về mục lục truyện</Link>
+          : <Link to={navigationHref(base)} className="sc-button">Danh sách truyện</Link>}</div>
       {unlock.isError && <p role="alert">{getApiErrorMessage(unlock.error)}</p>}
     </section>;
   }

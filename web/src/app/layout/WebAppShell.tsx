@@ -15,7 +15,7 @@ const navItems: Array<{ to: string; label: string; roles: UserRole[] }> = [
   { to: navigationHref('/reader'), label: 'Khám phá truyện', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
   { to: navigationHref('/reader/library'), label: 'Thư viện của tôi', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
   { to: navigationHref('/reader/history'), label: 'Lịch sử đọc', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
-  { to: navigationHref('/wallet'), label: 'Ví Xu', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
+  { to: navigationHref('/wallet'), label: 'Ví xu', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
   { to: navigationHref('/notifications'), label: 'Thông báo', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
   { to: navigationHref('/appeals'), label: 'Khiếu nại', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
   { to: navigationHref('/profile/me'), label: 'Hồ sơ & cài đặt', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
@@ -27,7 +27,7 @@ const navItems: Array<{ to: string; label: string; roles: UserRole[] }> = [
   { to: navigationHref('/admin/taxonomy'), label: 'Thể loại & Nhãn', roles: ['ADMIN'] },
   { to: navigationHref('/admin/moderation'), label: 'Kiểm duyệt', roles: ['ADMIN'] },
   { to: navigationHref('/admin/reports'), label: 'Báo cáo vi phạm', roles: ['ADMIN'] },
-  { to: navigationHref('/admin/withdraws'), label: 'Yêu cầu rút Xu', roles: ['ADMIN'] }
+  { to: navigationHref('/admin/withdraws'), label: 'Yêu cầu rút xu', roles: ['ADMIN'] }
 ];
 
 export function WebAppShell() {

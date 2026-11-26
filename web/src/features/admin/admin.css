@@ -58,15 +58,6 @@
 .admin-appeal-portal {
   padding: 24px max(16px, calc((100vw - 1000px) / 2));
 }
-.admin-taxonomy-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--sc-border);
-}
 .admin-shell *,
 .admin-confirm * {
   box-sizing: border-box;
@@ -296,6 +287,7 @@
   font-size: 13px;
 }
 .admin-table-scroll {
+  position: relative;
   overflow-x: auto;
   max-width: 100%;
   scrollbar-gutter: stable;
@@ -323,6 +315,13 @@
 }
 .admin-shell td {
   height: 52px;
+}
+.admin-shell .admin-compact-table td {
+  padding-block: 8px;
+  overflow-wrap: anywhere;
+}
+.admin-shell .admin-compact-table :is(td, th):last-child:not([colspan]) {
+  width: 1%;
 }
 .admin-shell tbody tr:hover {
   background: var(--sc-surface-subtle);
@@ -638,18 +637,6 @@
   color: var(--sc-primary-text) !important;
   font-weight: 600;
 }
-.admin-taxonomy-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 580px;
-  overflow: auto;
-}
-.admin-taxonomy-list > div {
-  padding: 12px;
-  border: 1px solid var(--sc-border);
-  border-radius: 8px;
-}
 .admin-tags {
   display: flex;
   flex-wrap: wrap;
@@ -935,3 +922,12 @@
     overflow-y: auto;
   }
 }
+
+/* UI-03: lead each queue row with something recognisable; ids move to a quiet column for copying. */
+.admin-moderation-table .admin-moderation-subject { min-width: 260px; max-width: 420px; }
+.admin-moderation-table .admin-moderation-subject strong {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  font-weight: 600; color: var(--sc-text); overflow-wrap: anywhere;
+}
+.admin-moderation-table .admin-moderation-subject small { display: block; margin-top: 2px; }
+.admin-moderation-table .admin-moderation-ids { display: flex; flex-direction: column; gap: 2px; font-size: 12px; }

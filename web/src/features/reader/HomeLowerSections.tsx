@@ -1,4 +1,5 @@
 import { novelHref, profileHref, chapterHref, navigationHref } from '../../shared/routes';
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -37,17 +38,6 @@ function resolveNovelPills(novel: ReaderNovel): Array<{ label: string; kind: 'ge
     ...genres.map(label => ({ label, kind: 'genre' as const })),
     ...tags.map(label => ({ label, kind: 'tag' as const })),
   ].slice(0, 3);
-}
-
-function relativeTime(date?: string | null) {
-  if (!date) return '';
-  const elapsed = Math.max(0, Math.floor((Date.now() - new Date(date).getTime()) / 1000));
-  if (!Number.isFinite(elapsed)) return '';
-  const format = new Intl.RelativeTimeFormat('vi', { numeric: 'auto' });
-  if (elapsed < 60) return 'Vừa xong';
-  if (elapsed < 3600) return format.format(-Math.floor(elapsed / 60), 'minute');
-  if (elapsed < 86400) return format.format(-Math.floor(elapsed / 3600), 'hour');
-  return format.format(-Math.floor(elapsed / 86400), 'day');
 }
 
 function hashString(input: string) {
@@ -909,7 +899,7 @@ export function HomeLowerSections({
                               </span>
                             </div>
                             <time className="sc-home-review-time" dateTime={entry.createdAt}>
-                              {relativeTime(entry.createdAt)}
+                              {formatDateTime(entry.createdAt, 'relative')}
                             </time>
                           </div>
                         </div>

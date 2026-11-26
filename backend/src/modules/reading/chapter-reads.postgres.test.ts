@@ -9,7 +9,7 @@ const isolated = expected.startsWith('ephurin_test_') && process.env.EPHURIN_ALL
 
 test('chapter reads record successful access, preserve skipped chapters and isolate accounts', { skip: !isolated }, async () => {
   const { getPostgresPool, disconnectPostgres } = await import('../../core/database/postgres.js');
-  const { listReadChapterIds } = await import('./reading.repository.js');
+  const { listReadChapterIds, findPublishedNovelDetail } = await import('./reading.repository.js');
   const { getReaderChapter, getChapterLocator, getNovelLocator, syncHistory, getHistoryForNovel, listHistory } = await import('./reading.service.js');
   const { getProfileLocator } = await import('../users/users.service.js');
   const { appendNotificationWebTargets } = await import('../interactions/notification-web-targets.repository.js');
@@ -54,6 +54,14 @@ test('chapter reads record successful access, preserve skipped chapters and isol
     await getReaderChapter(ids[2], auth);
     await getReaderChapter(ids[0], auth);
     await assert.rejects(getReaderChapter(ids[3], auth), error => (error as { httpStatus: number }).httpStatus === 402);
+    // UI-02: the lock names the novel and chapter so the reader can check what they are about to unlock.
+    await assert.rejects(getReaderChapter(ids[3], auth), (error: { details?: Record<string, unknown> }) => {
+      assert.deepEqual(error.details, { priceCoins: 10, novelId: novel, novelTitle: 'Read flags', chapterNumber: 4, chapterTitle: 'Chapter' });
+      return true;
+    });
+    // UI-07: reader-facing counts include published chapters only, whatever novels.chapters_count says.
+    await pool.query('update novels set chapters_count = 5 where novel_id = $1', [novel]);
+    assert.equal((await findPublishedNovelDetail(novel))?.chaptersCount, 4);
     await assert.rejects(getReaderChapter(ids[4], auth));
     assert.deepEqual((await listReadChapterIds(reader, novel)).sort(), [ids[0], ids[2]].sort());
     assert.deepEqual(await listReadChapterIds(other, novel), []);

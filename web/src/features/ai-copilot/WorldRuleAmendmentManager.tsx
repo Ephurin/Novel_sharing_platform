@@ -1,3 +1,4 @@
+import { formatDateTime } from '../../shared/lib/format-vi';
 import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -833,7 +834,7 @@ export function WorldRuleAmendmentManager({
                         Phiên bản {idx + 1} {item.fact_id === historyData.effective_head_id ? '(đang dùng)' : ''}
                       </Text>
                       <Text size="xs" c="dimmed">
-                        {item.created_at ? new Date(item.created_at).toLocaleString('vi-VN') : ''}
+                        {item.created_at ? formatDateTime(item.created_at) : ''}
                       </Text>
                     </Group>
                     <Text size="xs" style={{ whiteSpace: 'pre-wrap' }}>
@@ -874,7 +875,7 @@ export function WorldRuleAmendmentManager({
                           </Badge>
                         </Group>
                         <Text size="xs" c="dimmed">
-                          {item.decided_at ? new Date(item.decided_at).toLocaleString('vi-VN') : ''}
+                          {item.decided_at ? formatDateTime(item.decided_at) : ''}
                         </Text>
                       </Group>
                       <Text size="xs" fw={600} c="dimmed">
