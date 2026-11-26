@@ -5,6 +5,7 @@ import { labels as filterLabels } from './AdminShared';
 import { ResponsiveFilters, useUpdatedItems } from '../../shared/components/InteractionWidgets';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
+import { userRoles } from '../auth/auth-types';
 import { useState } from 'react';
 import { Button, Select, TextInput } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -26,7 +27,7 @@ export function AdminUsersPage() {
   const cache = useQueryClient();
   const currentUser = useAuthStore((s) => s.user);
   const [reason, setReason] = useState('');
-  const urlFilters = useUrlFilters({ q: '', role: '', status: '', page: 1 }, { role: ['', 'ADMIN', 'AUTHOR', 'READER'], status: ['', 'ACTIVE', 'LOCKED'] });
+  const urlFilters = useUrlFilters({ q: '', role: '', status: '', page: 1 }, { role: ['', ...userRoles], status: ['', 'ACTIVE', 'LOCKED'] });
   const [q, setQ] = urlFilters.field('q');
   const [role, setRole] = urlFilters.field('role');
   const [status, setStatus] = urlFilters.field('status');

@@ -25,7 +25,7 @@ import {
 
 export const novelsRoutes = Router();
 
-const requireAuthor = [requireAuth, requireActiveAccount, requireRoles(['AUTHOR', 'ADMIN'])];
+const requireAuthor = [requireAuth, requireActiveAccount, requireRoles(['AUTHOR', 'ADMIN', 'MODERATOR'])];
 
 novelsRoutes.get('/', validateRequest(listNovelsSchema), listNovelsController);
 novelsRoutes.get('/genres', listGenresController);

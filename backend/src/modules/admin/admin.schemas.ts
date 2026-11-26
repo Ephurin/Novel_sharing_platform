@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import { userRoles } from '../../shared/constants/roles.js';
 
 export const listAdminUsersSchema = z.object({
   query: z.object({
-    role: z.enum(['READER', 'AUTHOR', 'ADMIN']).optional(),
+    role: z.enum(userRoles).optional(),
     status: z.enum(['ACTIVE', 'LOCKED', 'DELETED']).optional(),
     q: z.string().optional(),
     page: z.coerce.number().int().positive().default(1),

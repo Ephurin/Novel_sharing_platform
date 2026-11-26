@@ -1,4 +1,5 @@
 import type { CurrentUser } from '../api/types';
+import { hasAuthorCapability } from '../api/types';
 import { useEffect, useState } from 'react';
 import { Alert, Platform, Text, View } from 'react-native';
 import { getApiErrorMessage } from '../api/api-client';
@@ -120,7 +121,7 @@ export function ProfileScreen({ user, onLogout, onConnections, onFeedback }: { u
       {user && onConnections && onFeedback && <Card>
         <GhostButton label="Bạn bè" onPress={onConnections} />
         <GhostButton label="Góp ý đã gửi" onPress={() => onFeedback('sent')} />
-        {(user.role === 'AUTHOR' || user.role === 'ADMIN') && <GhostButton label="Góp ý gửi tôi" onPress={() => onFeedback('received')} />}
+        {hasAuthorCapability(user.role) && <GhostButton label="Góp ý gửi tôi" onPress={() => onFeedback('received')} />}
       </Card>}
       <Card>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>

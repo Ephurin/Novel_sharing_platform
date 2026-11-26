@@ -1,3 +1,4 @@
+import { hasReaderCapability } from '../auth/auth-types';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -17,7 +18,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../shared/components/Pa
 
 export function NotificationsPage() {
   const user = useAuthStore((state) => state.user);
-  const reader = user?.role === 'READER';
+  const reader = hasReaderCapability(user?.role);
   const cache = useQueryClient();
   const [filter, setFilter] = useState<'ALL' | 'UNREAD' | 'READ'>('ALL');
   const [page, setPage] = useState(1);

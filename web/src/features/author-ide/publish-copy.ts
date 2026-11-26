@@ -1,4 +1,5 @@
 import type { Chapter, ChapterStatus, NovelStatus } from '../novels/novel-types';
+import { chapterPublicationDecision } from '../novels/publication-review';
 
 const NOVEL_STATUS_LABEL: Record<NovelStatus, string> = {
   DRAFT: 'bản nháp', PENDING_MODERATION: 'đang chờ duyệt', PUBLISHED: 'công khai', REJECTED: 'bị từ chối'
@@ -12,10 +13,11 @@ const CHAPTER_STATUS_LABEL: Record<ChapterStatus, string> = {
   ARCHIVED: 'Đã lưu trữ'
 };
 
-export function chapterPublicationLabel(chapter?: Pick<Chapter, 'status' | 'pendingPublicationRevision'>) {
-  return chapter?.pendingPublicationRevision
-    ? 'Phiên bản mới chờ duyệt'
-    : CHAPTER_STATUS_LABEL[chapter?.status ?? 'DRAFT'];
+export function chapterPublicationLabel(chapter?: Pick<Chapter, 'status' | 'pendingPublicationRevision' | 'publicationReview'>) {
+  if (chapter?.pendingPublicationRevision) return 'Phiên bản mới chờ duyệt';
+  const decision = chapterPublicationDecision(chapter);
+  if (decision) return chapter?.status === 'PUBLISHED' ? `Bản gửi mới: ${decision.label}` : decision.label;
+  return CHAPTER_STATUS_LABEL[chapter?.status ?? 'DRAFT'];
 }
 
 export function novelHiddenFromReaders(status: NovelStatus | undefined): boolean {

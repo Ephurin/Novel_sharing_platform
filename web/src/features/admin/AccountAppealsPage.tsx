@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Alert, Button, PasswordInput, TextInput, Textarea } from '@mantine/core';
+import { Alert, Button, Divider, PasswordInput, TextInput, Textarea, useComputedColorScheme } from '@mantine/core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AuthorNavbar, AuthorTheme } from '../../shared/components/AuthorTheme';
 import { FeedbackReveal } from '../../shared/components/ActionFeedback';
 import { ThemeControl } from '../../shared/components/ThemeControl';
 import { apiClient } from '../../shared/api/api-client';
 import { useAuthStore } from '../auth/useAuthStore';
+import { loadGoogleIdentity } from '../auth/GoogleSignIn';
 import {
   AdminHeader,
   AdminPanel,
@@ -46,6 +47,97 @@ async function accountApi<T>(path: string, token: string, body?: unknown): Promi
   const result = await response.json();
   if (!response.ok) throw new Error(result.error?.message || 'Không thể thực hiện yêu cầu.');
   return result.data;
+}
+
+async function appealGoogleApi<T>(path: string, body?: unknown): Promise<T> {
+  const response = await fetch(`${apiClient.defaults.baseURL}/account/appeal-session/google${path}`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'content-type': 'application/json' },
+    ...(body ? { body: JSON.stringify(body) } : {})
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error?.message || 'Không thể thực hiện yêu cầu.');
+  return result.data;
+}
+
+function AppealGoogleVerify({ onSession }: { onSession: (token: string) => void }) {
+  const theme = useComputedColorScheme('light');
+  const button = useRef<HTMLDivElement>(null);
+  const sending = useRef(false);
+  const [error, setError] = useState('');
+  const { data: challenge, isError, refetch } = useQuery({
+    queryKey: ['account', 'appeal-google-challenge'],
+    queryFn: () => appealGoogleApi<{ clientId: string; nonce: string } | null>('/challenge'),
+    retry: false,
+    staleTime: Infinity,
+    gcTime: 0
+  });
+
+  const submit = async (credential: string) => {
+    if (sending.current) return;
+    sending.current = true;
+    setError('');
+    try {
+      const session = await appealGoogleApi<{ token: string }>('', { credential });
+      onSession(session.token);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Không xác minh được bằng Google lúc này.');
+      void refetch();
+    } finally {
+      sending.current = false;
+    }
+  };
+
+  useEffect(() => {
+    const mount = button.current;
+    if (!challenge || !mount) return;
+    let active = true;
+    void loadGoogleIdentity()
+      .then((identity) => {
+        if (!active) return;
+        identity.initialize({
+          client_id: challenge.clientId,
+          nonce: challenge.nonce,
+          callback: ({ credential }) => {
+            if (active && credential) void submit(credential);
+          }
+        });
+        mount.replaceChildren();
+        identity.renderButton(mount, {
+          theme: theme === 'dark' ? 'filled_black' : 'outline',
+          size: 'large',
+          text: 'continue_with',
+          width: Math.min(400, Math.floor(mount.clientWidth) || 320),
+          locale: 'vi'
+        });
+      })
+      .catch(() => {
+        if (active) setError('Không tải được nút xác minh Google.');
+      });
+    return () => {
+      active = false;
+    };
+  }, [challenge, theme]);
+
+  if (challenge === null) return null;
+  return (
+    <>
+      <Divider my="sm" label="hoặc" labelPosition="center" />
+      <h3 className="admin-muted">Xác minh bằng Google cho tài khoản Google-only</h3>
+      <div ref={button} />
+      {isError && (
+        <p className="admin-muted" role="alert">
+          Không lấy được yêu cầu xác minh Google. Hãy tải lại trang.
+        </p>
+      )}
+      {error && (
+        <Alert color="red" role="alert" mt="xs">
+          {error}
+        </Alert>
+      )}
+    </>
+  );
 }
 
 export function AccountAppealsPage() {
@@ -153,6 +245,12 @@ export function AccountAppealsPage() {
             <p className="admin-muted">
               Phiên này chỉ dùng để xem quyết định và khiếu nại, hết hạn sau 15 phút.
             </p>
+            <AppealGoogleVerify
+              onSession={(sessionToken) => {
+                sessionStorage.setItem('storycraft_appeal_token', sessionToken);
+                setToken(sessionToken);
+              }}
+            />
           </AdminPanel>
         ) : (
           <>

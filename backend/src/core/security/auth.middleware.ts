@@ -11,6 +11,7 @@ const accessTokenPayloadSchema = z.object({
   sub: z.string().min(1),
   role: z.enum(userRoles),
   jti: z.string().optional(),
+  ver: z.number().int().nonnegative().optional(),
   purpose: z.string().optional()
 });
 
@@ -36,6 +37,7 @@ function verifyAccessToken(token: string) {
     return {
       userId: parsedPayload.sub,
       role: parsedPayload.role,
+      accessVersion: parsedPayload.ver ?? 0,
       tokenId: parsedPayload.jti
     };
   } catch (error) {
@@ -51,7 +53,7 @@ async function activeIdentity(token: string) {
   const identity = verifyAccessToken(token);
   const user = (
     await getPostgresPool().query(
-      'select u.role,u.status,u.deleted_at,a.scope as admin_scope from users u left join admin_access a using(user_id) where u.user_id::text=$1',
+      'select u.role,u.status,u.deleted_at,u.access_version,a.scope as admin_scope from users u left join admin_access a using(user_id) where u.user_id::text=$1',
       [identity.userId]
     )
   ).rows[0];
@@ -61,6 +63,8 @@ async function activeIdentity(token: string) {
       'AUTH_ACCOUNT_INACTIVE',
       'Tài khoản bị khóa hoặc không còn hoạt động. Bạn có thể gửi khiếu nại tại /appeals.'
     );
+  if (identity.accessVersion !== Number(user.access_version ?? 0))
+    throw new AppError(401, 'AUTH_009', 'Phiên đăng nhập đã đổi quyền. Hãy đăng nhập lại.');
   if (user.role === 'ADMIN' && !user.admin_scope)
     throw new AppError(
       403,

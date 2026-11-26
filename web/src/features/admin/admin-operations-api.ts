@@ -1,7 +1,7 @@
 import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
 import { useQuery } from '@tanstack/react-query';
 
-export type Permission = 'content' | 'users' | 'finance' | 'access' | 'audit';
+export type Permission = 'content' | 'users' | 'finance' | 'access' | 'audit' | 'selection.reconsider' | 'placement.manage';
 export type Access = { scope: string; permissions: Permission[] };
 export async function adminGet<T>(path: string): Promise<T> {
   return (await apiClient.get<ApiEnvelope<T>>(path)).data.data;

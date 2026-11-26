@@ -1,3 +1,4 @@
+import { hasAuthorCapability } from '../../features/auth/auth-types';
 import { useEffect, useId, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -13,7 +14,7 @@ export function isTyping(target: EventTarget | null) { return target instanceof 
 export function WorkspaceCommands({ commands, author = false }: { commands: WorkspaceCommand[]; author?: boolean }) {
   const role = useAuthStore(s => s.user?.role);
   const userId = useAuthStore(s => s.user?.userId);
-  const enabled = role === 'ADMIN' || role === 'AUTHOR';
+  const enabled = hasAuthorCapability(role);
   const [opened, setOpened] = useState(false), [help, setHelp] = useState(false);
   const [query, setQuery] = useState(''), [active, setActive] = useState(0);
   const navigate = useNavigate(); const id = useId();

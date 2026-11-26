@@ -2,6 +2,7 @@ import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { logger } from '../../core/logger/logger.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
+import { hasAuthorCapability } from '../../shared/constants/roles.js';
 import { buildVnpayPaymentUrl, fromVnpayTxnRef, toVnpayTxnRef, verifyVnpayCallback, type VnpayConfig } from './vnpay.js';
 import type {
   CreateDepositSessionInput,
@@ -230,7 +231,7 @@ export async function donate(auth: AuthContext, authorId: string, input: DonateI
 }
 
 export async function createWithdrawRequest(auth: AuthContext, input: CreateWithdrawRequestInput) {
-  if (auth.role !== 'AUTHOR' && auth.role !== 'ADMIN') {
+  if (!hasAuthorCapability(auth.role)) {
     throw new AppError(403, 'AUTH_008', 'Unauthorized action');
   }
 

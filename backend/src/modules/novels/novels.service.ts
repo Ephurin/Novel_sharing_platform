@@ -1,4 +1,5 @@
 import { isContentAdmin } from '../../core/security/auth-context.js';
+import { env } from '../../core/config/env.js';
 import { assertActiveAccount } from '../../core/security/active-account.js';
 import { randomUUID } from 'node:crypto';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
@@ -92,7 +93,7 @@ export async function getNovel(novelId: string) {
     throw new AppError(404, 'CONTENT_001', 'Content not found');
   }
 
-  return novel;
+  return env.NOVEL_SELECTION_ENABLED ? { ...novel, selectionEnabled: true } : novel;
 }
 
 export async function getNovelEarnings(auth: AuthContext, novelId: string) {
@@ -112,7 +113,7 @@ export async function updateNovel(auth: AuthContext, novelId: string, input: Upd
       { field: 'synopsis', minLength: NOVEL_SYNOPSIS_MIN, length: input.synopsis.length });
   }
 
-  const updatedNovel = await updateNovelRow(novelId, input);
+  const updatedNovel = await updateNovelRow(novelId, input, auth.userId);
   if (!updatedNovel) {
     throw new AppError(404, 'CONTENT_001', 'Content not found');
   }

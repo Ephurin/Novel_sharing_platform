@@ -1,3 +1,4 @@
+import { hasAuthorCapability } from '../auth/auth-types';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Badge, Button, Divider, Group, Paper, Select, Stack, Text, Textarea, TextInput } from '@mantine/core';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -18,7 +19,7 @@ export function EntityProfileEditor(props: Props) {
   const session = useRef({ token, epoch: 0 });
   if (session.current.token !== token) session.current = { token, epoch: session.current.epoch + 1 };
   if (!props.active) return null;
-  if (!token || !user || user.status !== 'ACTIVE' || !['AUTHOR', 'ADMIN'].includes(user.role)) {
+  if (!token || !user || user.status !== 'ACTIVE' || !hasAuthorCapability(user.role)) {
     return <Alert color="orange">Đăng nhập bằng tài khoản tác giả đang hoạt động để sửa hồ sơ.</Alert>;
   }
   return <ProfileSelection key={JSON.stringify([user.userId, session.current.epoch, props.novelId])} {...props} />;

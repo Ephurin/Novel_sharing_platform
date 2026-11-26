@@ -9,15 +9,17 @@ import { AuthorNavbar, AuthorTheme, SessionMarker } from '../../shared/component
 import { AdminShell } from '../../features/admin/AdminShell';
 
 const navItems: Array<{ to: string; label: string; roles: UserRole[] }> = [
-  { to: '/author', label: 'Tác phẩm của tôi', roles: ['AUTHOR'] },
-  { to: '/author/ide', label: 'Không gian sáng tác', roles: ['AUTHOR'] },
-  { to: '/reader', label: 'Khám phá truyện', roles: ['READER', 'AUTHOR'] },
-  { to: '/reader/library', label: 'Thư viện của tôi', roles: ['READER', 'AUTHOR'] },
-  { to: '/reader/history', label: 'Lịch sử đọc', roles: ['READER', 'AUTHOR'] },
-  { to: '/wallet', label: 'Ví Xu', roles: ['READER', 'AUTHOR'] },
-  { to: '/notifications', label: 'Thông báo', roles: ['READER', 'AUTHOR'] },
-  { to: '/appeals', label: 'Khiếu nại', roles: ['READER', 'AUTHOR'] },
-  { to: '/profile/me', label: 'Hồ sơ & cài đặt', roles: ['READER', 'AUTHOR'] },
+  { to: '/author', label: 'Tác phẩm của tôi', roles: ['AUTHOR', 'MODERATOR'] },
+  { to: '/author/ide', label: 'Không gian sáng tác', roles: ['AUTHOR', 'MODERATOR'] },
+  { to: '/reader', label: 'Khám phá truyện', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
+  { to: '/reader/library', label: 'Thư viện của tôi', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
+  { to: '/reader/history', label: 'Lịch sử đọc', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
+  { to: '/wallet', label: 'Ví Xu', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
+  { to: '/notifications', label: 'Thông báo', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
+  { to: '/appeals', label: 'Khiếu nại', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
+  { to: '/profile/me', label: 'Hồ sơ & cài đặt', roles: ['READER', 'AUTHOR', 'MODERATOR'] },
+  { to: '/moderator/reviews', label: 'Hồ sơ điều hành', roles: ['MODERATOR'] },
+  { to: '/moderator/discussions', label: 'Điều hành thảo luận', roles: ['MODERATOR'] },
   { to: '/admin', label: 'Tổng quan quản trị', roles: ['ADMIN'] },
   { to: '/admin/novels', label: 'Tác phẩm', roles: ['ADMIN'] },
   { to: '/admin/users', label: 'Người dùng', roles: ['ADMIN'] },
@@ -44,8 +46,8 @@ export function WebAppShell() {
     }
   };
 
-  // Authors and readers share the StoryCraft shell; admins keep the operations shell for now.
-  if (user?.role === 'AUTHOR' || user?.role === 'READER') {
+  // Authors, readers and moderators share the StoryCraft shell; admins keep the operations shell for now.
+  if (user?.role === 'AUTHOR' || user?.role === 'READER' || user?.role === 'MODERATOR') {
     return <AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><Outlet /></main></AuthorTheme>;
   }
 
