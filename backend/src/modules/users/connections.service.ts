@@ -42,7 +42,7 @@ export type ConnectionQuery = { page: number; limit: number; q: string; type?: '
 export async function listAccounts(query: ConnectionQuery, viewerId?: string) {
   // A single statement keeps count and page on the same snapshot, including empty pages.
   const result = await getPostgresPool().query(`with candidates as (
-    select u.user_id as "userId", u.username, u.role, p.display_name as "displayName", p.avatar_url as "avatarUrl",
+    select u.user_id as "userId", u.public_key as "publicKey", u.username, u.role, p.display_name as "displayName", p.avatar_url as "avatarUrl",
       exists(select 1 from follows where follower_id=$1 and author_id=u.user_id) as following,
       exists(select 1 from follows where follower_id=u.user_id and author_id=$1) as "followedBy"
     from users u left join user_profiles p on p.user_id=u.user_id

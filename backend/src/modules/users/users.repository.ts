@@ -5,6 +5,7 @@ import type { UpdateProfileInput, UpdateSettingsInput } from './users.schemas.js
 
 export type UserProfile = {
   userId: string;
+  publicKey: string;
   username: string;
   displayName: string | null;
   avatarUrl: string | null;
@@ -19,6 +20,7 @@ export type UserProfile = {
 function mapProfile(row: QueryResultRow): UserProfile {
   return {
     userId: row.user_id,
+    publicKey: row.public_key,
     username: row.username,
     displayName: row.display_name,
     avatarUrl: row.avatar_url,
@@ -31,10 +33,21 @@ function mapProfile(row: QueryResultRow): UserProfile {
   };
 }
 
+export async function findProfileLocator(publicKey: string, author: boolean) {
+  const result = await getPostgresPool().query<{ userId: string; publicKey: string }>(
+    `select u.user_id as "userId", u.public_key as "publicKey"
+     from users u join user_profiles p using(user_id)
+     where u.public_key = $1 and u.status = 'ACTIVE' and u.deleted_at is null
+     and (not $2 or u.role in ('AUTHOR', 'ADMIN', 'MODERATOR'))`,
+    [publicKey, author]
+  );
+  return result.rows[0];
+}
+
 export async function findProfileByUserId(userId: string) {
   const result = await getPostgresPool().query(
     `
-      select u.user_id, u.username, u.role, p.display_name, p.avatar_url, p.bio, p.banner_url, p.publishing_schedule, p.language, p.notification_enabled
+      select u.user_id, u.public_key, u.username, u.role, p.display_name, p.avatar_url, p.bio, p.banner_url, p.publishing_schedule, p.language, p.notification_enabled
       from users u
       join user_profiles p on p.user_id = u.user_id
       where u.user_id = $1 and u.deleted_at is null
@@ -86,7 +99,7 @@ export async function updateSettings(userId: string, input: UpdateSettingsInput)
 export async function findAuthorProfileById(authorId: string, viewerId?: string) {
   const profileResult = await getPostgresPool().query(
     `
-      select u.user_id, u.username, u.role, u.created_at, p.display_name, p.avatar_url, p.bio, p.banner_url, p.publishing_schedule
+      select u.user_id, u.public_key, u.username, u.role, u.created_at, p.display_name, p.avatar_url, p.bio, p.banner_url, p.publishing_schedule
       from users u
       join user_profiles p on p.user_id = u.user_id
       where u.user_id = $1
@@ -106,7 +119,7 @@ export async function findAuthorProfileById(authorId: string, viewerId?: string)
     getPostgresPool().query('select count(*)::int as total from follows where author_id = $1', [authorId]),
     getPostgresPool().query(
       `
-        select n.novel_id, n.title, n.status, n.likes_count, n.views_count,
+        select n.novel_id, n.slug, n.title, n.status, n.likes_count, n.views_count,
                n.chapters_count, n.cover_image_url, n.serial_status, g.name as genre
         from novels n
         left join genres g on g.genre_id = n.genre_id
@@ -136,6 +149,7 @@ export async function findAuthorProfileById(authorId: string, viewerId?: string)
 
   return {
     authorId: profile.user_id,
+    publicKey: profile.public_key,
     username: profile.username,
     displayName: profile.display_name,
     avatarUrl: profile.avatar_url,
@@ -149,6 +163,7 @@ export async function findAuthorProfileById(authorId: string, viewerId?: string)
     isFollowing: Boolean(followingResult.rowCount),
     novels: novelsResult.rows.map((row) => ({
       novelId: row.novel_id,
+      novelSlug: row.slug,
       title: row.title,
       status: row.status,
       likesCount: row.likes_count,

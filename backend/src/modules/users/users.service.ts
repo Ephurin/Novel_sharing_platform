@@ -5,10 +5,17 @@ import type { AuthContext } from '../../core/security/auth-context.js';
 import type { UpdateProfileInput, UpdateSettingsInput } from './users.schemas.js';
 import {
   findProfileByUserId,
+  findProfileLocator,
   findAuthorProfileById,
   updateProfile as updateProfileRow,
   updateSettings as updateSettingsRow
 } from './users.repository.js';
+
+export async function getProfileLocator(publicKey: string, author: boolean) {
+  const locator = await findProfileLocator(publicKey, author);
+  if (!locator) throw new AppError(404, 'NOT_FOUND_001', 'Resource not found');
+  return locator;
+}
 
 export async function getPublicProfile(userId: string, viewerId?: string) {
   await requireActiveTarget(userId);
@@ -20,6 +27,7 @@ export async function getPublicProfile(userId: string, viewerId?: string) {
 
   return {
     userId: profile.userId,
+    publicKey: profile.publicKey,
     username: profile.username,
     displayName: profile.displayName,
     avatarUrl: profile.avatarUrl,

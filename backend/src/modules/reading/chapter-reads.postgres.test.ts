@@ -10,7 +10,8 @@ const isolated = expected.startsWith('ephurin_test_') && process.env.EPHURIN_ALL
 test('chapter reads record successful access, preserve skipped chapters and isolate accounts', { skip: !isolated }, async () => {
   const { getPostgresPool, disconnectPostgres } = await import('../../core/database/postgres.js');
   const { listReadChapterIds } = await import('./reading.repository.js');
-  const { getReaderChapter, syncHistory, getHistoryForNovel, listHistory } = await import('./reading.service.js');
+  const { getReaderChapter, getChapterLocator, getNovelLocator, syncHistory, getHistoryForNovel, listHistory } = await import('./reading.service.js');
+  const { getProfileLocator } = await import('../users/users.service.js');
   const pool = getPostgresPool();
   const author = randomUUID(), reader = randomUUID(), other = randomUUID(), novel = randomUUID();
   const ids = Array.from({ length: 5 }, () => randomUUID());
@@ -22,7 +23,25 @@ test('chapter reads record successful access, preserve skipped chapters and isol
     for (const [index, id] of ids.entries()) {
       await pool.query(`insert into chapters (chapter_id, novel_id, chapter_number, title, status, is_vip, price_coins) values ($1, $2, $3, 'Chapter', $4, $5, $6)`, [id, novel, index + 1, index === 4 ? 'DRAFT' : 'PUBLISHED', index === 3, index === 3 ? 10 : 0]);
     }
+    await pool.query("insert into user_profiles(user_id) values($1),($2)", [author, reader]);
+    assert.deepEqual(await getProfileLocator(author, true), { userId: author, publicKey: author });
+    assert.deepEqual(await getProfileLocator(reader, false), { userId: reader, publicKey: reader });
+    await assert.rejects(getProfileLocator(reader, true), { httpStatus: 404 });
     const auth = { userId: reader, role: 'READER' as const };
+    const vipLocator = await getChapterLocator({ chapterId: ids[3] });
+    assert.deepEqual(await getNovelLocator({ novelSlug: novel }), { novelId: novel, novelSlug: novel });
+    assert.deepEqual(await getChapterLocator({ novelSlug: novel, chapterSlug: vipLocator.chapterSlug }), vipLocator);
+    const otherNovel = randomUUID();
+    await pool.query("insert into novels(novel_id,author_id,title,slug,synopsis,status) values($1::uuid,$2,'Other',$1::text,'Other fixture','PUBLISHED')", [otherNovel, author]);
+    try {
+      await assert.rejects(getChapterLocator({ novelSlug: otherNovel, chapterSlug: vipLocator.chapterSlug }), { httpStatus: 404 });
+    } finally {
+      await pool.query('delete from novels where novel_id = $1', [otherNovel]);
+    }
+    await assert.rejects(getChapterLocator({ chapterId: ids[4] }), { httpStatus: 404 });
+    assert.deepEqual(await listReadChapterIds(reader, novel), []);
+    assert.equal(Number((await pool.query('select views_count from novels where novel_id=$1', [novel])).rows[0].views_count), 0);
+
     const emptyChapter = await getReaderChapter(ids[0], auth);
     assert.equal(emptyChapter.content, null);
     assert.deepEqual(emptyChapter.paragraphs, []);

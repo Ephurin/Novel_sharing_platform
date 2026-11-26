@@ -9,6 +9,8 @@ import {
   getHistoryForNovelController,
   getPreferencesController,
   getRandomNovelController,
+  getNovelLocatorController,
+  getChapterLocatorController,
   getReaderChapterController,
   getReaderNovelController,
   getReadingFiltersController,
@@ -26,6 +28,8 @@ import {
 import {
   addLibraryItemSchema,
   chapterIdParamSchema,
+  chapterSlugParamsSchema,
+  novelSlugParamSchema,
   historyListSchema,
   latestChaptersSchema,
   novelIdParamSchema,
@@ -55,6 +59,10 @@ readingRoutes.delete('/bookmarks/me/:novelId', requireAuth, validateRequest(nove
 readingRoutes.get('/search', validateRequest(searchNovelsSchema), searchNovelsController);
 readingRoutes.get('/filters', getReadingFiltersController);
 readingRoutes.get('/novels/random', getRandomNovelController);
+readingRoutes.get('/novels/by-slug/:novelSlug/locator', validateRequest(novelSlugParamSchema), getNovelLocatorController);
+readingRoutes.get('/novels/:novelId/locator', validateRequest(novelIdParamSchema), getNovelLocatorController);
+readingRoutes.get('/novels/by-slug/:novelSlug/chapters/:chapterSlug/locator', validateRequest(chapterSlugParamsSchema), getChapterLocatorController);
+readingRoutes.get('/chapters/:chapterId/locator', validateRequest(chapterIdParamSchema), getChapterLocatorController);
 readingRoutes.get('/novels/:novelId', validateRequest(novelIdParamSchema), getReaderNovelController);
 readingRoutes.get('/chapters/latest', validateRequest(latestChaptersSchema), listLatestChaptersController);
 readingRoutes.get('/chapters/:chapterId', optionalAuth, validateRequest(chapterIdParamSchema), getReaderChapterController);

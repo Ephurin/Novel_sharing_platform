@@ -16,6 +16,8 @@ import {
   addBookmark,
   findOrCreateReadingPreference,
   findPublishedNovelDetail,
+  findNovelLocator,
+  findChapterLocator,
   findRandomPublishedNovel,
   findReadableChapter,
   findReadingHistory,
@@ -74,6 +76,18 @@ export async function getLatestPublishedChapters(input: LatestChaptersInput) {
 
 export async function getRandomPublishedNovel() {
   return findRandomPublishedNovel();
+}
+
+export async function getNovelLocator(selector: Parameters<typeof findNovelLocator>[0]) {
+  const result = await findNovelLocator(selector);
+  if (!result) throw new AppError(404, 'CONTENT_001', 'Content not found');
+  return result;
+}
+
+export async function getChapterLocator(selector: Parameters<typeof findChapterLocator>[0]) {
+  const result = await findChapterLocator(selector);
+  if (!result) throw new AppError(404, 'CONTENT_001', 'Content not found');
+  return result;
 }
 
 export async function getReaderNovel(novelId: string) {

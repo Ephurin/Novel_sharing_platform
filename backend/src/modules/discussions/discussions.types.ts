@@ -19,6 +19,7 @@ export type Category = {
 
 export type TopicAuthor = {
   userId: string;
+  publicKey?: string;
   displayName: string | null;
   avatarUrl: string | null;
   /** Omitted when the role is not available for public display. */
@@ -29,6 +30,7 @@ export type TopicCategory = Category;
 
 export type Topic = {
   topicId: string;
+  topicSlug: string;
   category: TopicCategory;
   author: TopicAuthor | null;
 

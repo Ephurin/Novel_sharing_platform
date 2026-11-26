@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { urlSegmentSchema } from '../../core/validation/url-segment.js';
+
+export const profileKeyParamSchema = z.object({ params: z.object({ publicKey: urlSegmentSchema.max(80) }) });
 
 const imageUrlSchema = z.string().url().refine(value => /^https?:\/\//i.test(value), 'Ảnh phải dùng địa chỉ HTTP hoặc HTTPS');
 
