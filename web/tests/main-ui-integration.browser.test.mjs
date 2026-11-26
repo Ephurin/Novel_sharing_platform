@@ -27,7 +27,12 @@ test('main reader UI retains animated tools, themes and guest author profiles', 
       await page.route('**/api/v1/**', async route => {
         const url = new URL(route.request().url());
         let data = [];
-        if (url.pathname.endsWith('/auth/me')) data = { userId: 'reader-1', username: 'reader', email: 'reader@example.invalid', role: 'READER', status: 'ACTIVE' };
+        const chapterLocator = url.pathname.match(/\/reading\/chapters\/c-(\d)\/locator$/)
+          ?? url.pathname.match(/\/reading\/novels\/by-slug\/truyen-thu\/chapters\/chuong-(\d)\/locator$/);
+        const novelLocator = /\/reading\/novels\/(?:novel-1|by-slug\/truyen-thu)\/locator$/.test(url.pathname);
+        if (chapterLocator) data = { novelId: 'novel-1', novelSlug: 'truyen-thu', chapterId: 'c-' + chapterLocator[1], chapterSlug: 'chuong-' + chapterLocator[1] };
+        else if (novelLocator) data = { novelId: 'novel-1', novelSlug: 'truyen-thu' };
+        else if (url.pathname.endsWith('/auth/me')) data = { userId: 'reader-1', username: 'reader', email: 'reader@example.invalid', role: 'READER', status: 'ACTIVE' };
         else if (url.pathname.endsWith('/reading/search')) data = [novel];
         else if (url.pathname.endsWith('/reading/novels/novel-1')) data = novel;
         else if (/\/reading\/chapters\/c-\d$/.test(url.pathname)) data = chapters.find(chapter => url.pathname.endsWith(chapter.chapterId));
@@ -69,6 +74,12 @@ test('main reader UI retains animated tools, themes and guest author profiles', 
         await noOverflow();
         await page.screenshot({ path: path.join(output, `${width}-${theme}-public.png`), fullPage: true });
 
+        await page.goto(`${base}/public/novels/novel-1?source=legacy#reader-comments`);
+        await expect(page).toHaveURL(/\/truyen\/truyen-thu\?source=legacy#reader-comments$/);
+        await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', base + '/truyen/truyen-thu');
+        await page.reload();
+        await expect(page.getByRole('heading', { name: 'Truyện thử', exact: true })).toBeVisible();
+
         await page.goto(`${base}/authors/author-1`);
         await expect(page.getByTestId('author-profile-login-cta')).toBeVisible();
         await expect(page.locator('.sc-profile-stats > div')).toHaveCount(4);
@@ -87,12 +98,13 @@ test('main reader UI retains animated tools, themes and guest author profiles', 
         await page.screenshot({ path: path.join(output, `${width}-${theme}-reader.png`), fullPage: true });
 
         await page.goto(`${base}/reader/chapters/c-1`);
+        await expect(page).toHaveURL(/\/truyen\/truyen-thu\/chuong\/chuong-1$/);
         await expect(page.locator('.chapter-prose')).toBeVisible();
         if (width === 390) await page.locator('.chapter-prose > p').first().click();
         await page.getByRole('button', { name: 'Mục lục', exact: true }).click();
         const toc = page.getByRole('dialog', { name: 'Mục lục chương' });
         await toc.getByRole('link', { name: 'Chương 2', exact: true }).click();
-        await expect(page).toHaveURL(/\/reader\/chapters\/c-2$/);
+        await expect(page).toHaveURL(/\/truyen\/truyen-thu\/chuong\/chuong-2$/);
         if (width === 390) await page.locator('.chapter-prose > p').first().click();
         await page.getByRole('button', { name: 'Tùy chỉnh đọc', exact: true }).click();
         const settings = page.getByRole('dialog', { name: 'Tùy chỉnh đọc', exact: true });

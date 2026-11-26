@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useResourceId } from '../../app/ResourceRoute';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
 import { ErrorState, LoadingState } from '../../shared/components/PageStates';
@@ -14,18 +15,18 @@ import { useReadChapterIds } from './useReadChapterIds';
 import { ReaderNotFound, isReaderNotFound } from './ReaderNotFound';
 
 export function ChapterReader({ publicMode = false }: { publicMode?: boolean }) {
-  const { chapterId = '' } = useParams();
+  const chapterId = useResourceId('chapterId') ?? '';
   const userId = useAuthStore(state => state.user?.userId);
   const [feedbackRequest, setFeedbackRequest] = useState<AuthorFeedbackRequest>();
   const client = useQueryClient();
   const { showToast } = useToast();
   const chapterQuery = useQuery({
-    queryKey: [publicMode ? 'public-reader-chapter' : 'reader-chapter', chapterId, userId ?? 'guest'],
+    queryKey: ['reader-chapter', chapterId, userId ?? 'guest'],
     queryFn: () => getReaderChapter(chapterId), enabled: Boolean(chapterId), retry: false
   });
   const chapter = chapterQuery.data;
   const novelQuery = useQuery({
-    queryKey: [publicMode ? 'public-reader-novel' : 'reader-novel', chapter?.novelId],
+    queryKey: ['reader-novel', chapter?.novelId],
     queryFn: () => getReaderNovel(chapter!.novelId), enabled: Boolean(chapter?.novelId), retry: false
   });
   const chapters = useMemo(() => [...(novelQuery.data?.chapters ?? [])].sort((a, b) => a.chapterNumber - b.chapterNumber), [novelQuery.data?.chapters]);
@@ -40,7 +41,7 @@ export function ChapterReader({ publicMode = false }: { publicMode?: boolean }) 
   const unlock = useMutation({
     mutationFn: () => unlockVipChapter(chapterId),
     onSuccess: () => Promise.all([
-      client.invalidateQueries({ queryKey: [publicMode ? 'public-reader-chapter' : 'reader-chapter', chapterId] }),
+      client.invalidateQueries({ queryKey: ['reader-chapter', chapterId] }),
       client.invalidateQueries({ queryKey: ['wallet'] }),
       client.invalidateQueries({ queryKey: ['wallet-transactions'] })
     ]),

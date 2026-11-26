@@ -769,7 +769,6 @@ export function AuthorWritingIde() {
       queryClient.invalidateQueries({ queryKey: ['reader-chapter', activeChapterId] });
       queryClient.invalidateQueries({ queryKey: ['public-reader-chapter', activeChapterId] });
       queryClient.invalidateQueries({ queryKey: ['reader-novel', activeNovelId] });
-      queryClient.invalidateQueries({ queryKey: ['public-reader-novel', activeNovelId] });
       showToast(publishedToast(res.moderationRequired, novelQuery.data?.status));
     },
     onError: (err: unknown) => {

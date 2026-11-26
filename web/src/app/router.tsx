@@ -26,6 +26,9 @@ import { AuthorNovelCommentsPage } from '../features/author-projects/AuthorNovel
 import { AuthorNovelReviewsPage } from '../features/author-projects/AuthorNovelReviewsPage';
 import { AuthorNavbar, AuthorTheme } from '../shared/components/AuthorTheme';
 import { createBrowserRouter, Navigate, Outlet, useParams } from 'react-router-dom';
+import { routes } from '../shared/routes';
+import { ResourceRoute, UrlRedirect } from './ResourceRoute';
+import { useAuthStore } from '../features/auth/useAuthStore';
 import { AuthorWritingIde } from '../features/author-ide/AuthorWritingIde';
 import { WebAppShell } from './layout/WebAppShell';
 import { AuthorNovelMetadataPage } from '../features/author-projects/AuthorNovelMetadataPage';
@@ -61,7 +64,43 @@ import '../features/discussions/discussions.css';
 // Self-hosted display face for community headings (subset-scoped woff2).
 import '@fontsource/literata/600.css';
 
+function ReaderSurface({ view }: { view: 'catalog' | 'novel' | 'chapter' | 'reviews' | 'bookmarks' }) {
+  const user = useAuthStore(state => state.user);
+  const publicMode = !user || user.status === 'LOCKED';
+  if (publicMode) {
+    switch (view) {
+      case 'catalog': return <AuthorTheme><PublicReaderPage /></AuthorTheme>;
+      case 'novel': return <AuthorTheme><PublicReaderNovelDetailPage /></AuthorTheme>;
+      case 'chapter': return <AuthorTheme><PublicReaderChapterPage /></AuthorTheme>;
+      case 'reviews': return <AuthorTheme><ReaderNovelReviewsPage publicMode /></AuthorTheme>;
+      case 'bookmarks': return <AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><ReadingBookmarksPage publicMode /></main></AuthorTheme>;
+    }
+  }
+  const contents = {
+    catalog: <ReaderPage />,
+    novel: <ReaderNovelDetailPage />,
+    chapter: <ReaderChapterPage />,
+    reviews: <ReaderNovelReviewsPage />,
+    bookmarks: <ReaderCollectionsLayout><ReadingBookmarksPage /></ReaderCollectionsLayout>
+  }[view];
+  return <AuthorTheme><AuthorNavbar /><main className="sc-shell-content">{contents}</main></AuthorTheme>;
+}
+
 export const router = createBrowserRouter([
+  { path: routes.catalog, element: <OptionalSession><ReaderSurface view="catalog" /></OptionalSession> },
+  { path: routes.bookmarks, element: <OptionalSession><ReaderSurface view="bookmarks" /></OptionalSession> },
+  { path: routes.novel, element: <OptionalSession><ResourceRoute kind="novel"><ReaderSurface view="novel" /></ResourceRoute></OptionalSession> },
+  { path: routes.reviews, element: <OptionalSession><ResourceRoute kind="novel" suffix="/danh-gia"><ReaderSurface view="reviews" /></ResourceRoute></OptionalSession> },
+  { path: routes.chapter, element: <OptionalSession><ResourceRoute kind="chapter"><ReaderSurface view="chapter" /></ResourceRoute></OptionalSession> },
+  ...['/reader', '/public'].flatMap(base => [
+    { path: base, element: <UrlRedirect pathname={routes.catalog} /> },
+    { path: `${base}/bookmarks`, element: <UrlRedirect pathname={routes.bookmarks} /> },
+    { path: `${base}/novels/:novelId`, element: <ResourceRoute kind="novel" legacy /> },
+    { path: `${base}/novels/:novelId/reviews`, element: <ResourceRoute kind="novel" suffix="/danh-gia" legacy /> },
+    { path: `${base}/chapters/:chapterId`, element: <ResourceRoute kind="chapter" legacy /> }
+  ]),
+  { path: '/reader/library', element: <UrlRedirect pathname={routes.library} /> },
+  { path: '/reader/history', element: <UrlRedirect pathname={routes.history} /> },
   {
     path: '/discussions',
     element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content sc-discussions-shell"><Outlet /></main></AuthorTheme></OptionalSession>,
@@ -74,7 +113,6 @@ export const router = createBrowserRouter([
     ]
   },
   { path: '/readers/:userId', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><ReaderProfilePage /></main></AuthorTheme></OptionalSession> },
-  { path: '/public/bookmarks', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><ReadingBookmarksPage publicMode /></main></AuthorTheme></OptionalSession> },
   { path: '/tim-kiem', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><SearchResultsPage /></main></AuthorTheme></OptionalSession> },
   { path: '/tim-kiem-nang-cao', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><SearchResultsPage advanced /></main></AuthorTheme></OptionalSession> },
   {
@@ -87,22 +125,6 @@ export const router = createBrowserRouter([
     element: <AuthLanding />
   },
   { path: '/verify-email', element: <AuthLanding confirmEmailFromLink /> },
-  {
-    path: '/public',
-    element: <AuthorTheme><PublicReaderPage /></AuthorTheme>
-  },
-  {
-    path: '/public/novels/:novelId/reviews',
-    element: <OptionalSession><AuthorTheme><ReaderNovelReviewsPage publicMode /></AuthorTheme></OptionalSession>
-  },
-  {
-    path: '/public/novels/:novelId',
-    element: <AuthorTheme><PublicReaderNovelDetailPage /></AuthorTheme>
-  },
-  {
-    path: '/public/chapters/:chapterId',
-    element: <AuthorTheme><PublicReaderChapterPage /></AuthorTheme>
-  },
   {
     path: '/author/ide',
     element: (
@@ -266,27 +288,10 @@ export const router = createBrowserRouter([
 
       { path: '/reader/feedback', element: <FeedbackPage /> },
       {
-        path: '/reader',
-        element: <ReaderPage />
-      },
-      {
-        path: '/reader/novels/:novelId/reviews',
-        element: <ReaderNovelReviewsPage />
-      },
-      {
-        path: '/reader/novels/:novelId',
-        element: <ReaderNovelDetailPage />
-      },
-      {
-        path: '/reader/chapters/:chapterId',
-        element: <ReaderChapterPage />
-      },
-      {
         element: <ReaderCollectionsLayout />,
         children: [
-          { path: '/reader/library', element: <ReaderLibraryPage /> },
-          { path: '/reader/bookmarks', element: <ReadingBookmarksPage /> },
-          { path: '/reader/history', element: <ReaderHistoryPage /> }
+          { path: routes.library, element: <ReaderLibraryPage /> },
+          { path: routes.history, element: <ReaderHistoryPage /> }
         ]
       },
       {

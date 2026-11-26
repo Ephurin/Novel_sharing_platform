@@ -1,3 +1,4 @@
+import type { PropsWithChildren } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 
 export const readerCollections = [
@@ -6,7 +7,7 @@ export const readerCollections = [
   { to: '/reader/history', label: 'Lịch sử đọc', icon: 'history' }
 ] as const;
 
-export function ReaderCollectionsLayout() {
+export function ReaderCollectionsLayout({ children }: PropsWithChildren) {
   return <div className="sc-reader-collections">
     <nav className="sc-reader-collections-nav" aria-label="Mục đọc của tôi">
       {readerCollections.map(item => <NavLink key={item.to} to={item.to} end>
@@ -14,6 +15,6 @@ export function ReaderCollectionsLayout() {
         <span>{item.label}</span>
       </NavLink>)}
     </nav>
-    <div className="sc-reader-collections-content"><Outlet /></div>
+    <div className="sc-reader-collections-content">{children ?? <Outlet />}</div>
   </div>;
 }

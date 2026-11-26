@@ -231,7 +231,6 @@ function ModeratorSelectionDetail({ caseId }: { caseId: string }) {
       setReason('');
       await Promise.all([cache.invalidateQueries({ queryKey: ['selection-queue'] }), query.refetch(),
         cache.invalidateQueries({ queryKey: ['reader-novel', item.novel_id] }),
-        cache.invalidateQueries({ queryKey: ['public-reader-novel', item.novel_id] }),
         cache.invalidateQueries({ queryKey: ['featured-selections'] }),
         cache.invalidateQueries({ queryKey: ['featured-placements'] })]);
     },

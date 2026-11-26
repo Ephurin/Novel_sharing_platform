@@ -12,7 +12,8 @@ import { NovelReviews } from './NovelReviews';
 import { useAuthStore } from '../auth/useAuthStore';
 import { followNovel } from '../novels/novel-statistics-api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useResourceId } from '../../app/ResourceRoute';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { getApiErrorMessage } from '../../shared/api/api-client';
@@ -57,7 +58,7 @@ export function PublicReaderPage() {
 // ─── Novel detail ───────────────────────────────────────────────────────────
 
 export function ReaderNovelDetailPage() {
-  const { novelId = '' } = useParams();
+  const novelId = useResourceId('novelId') ?? '';
   const navigate = useNavigate();
   const userId = useAuthStore(state => state.user?.userId);
   const novelQuery = useQuery({
@@ -124,10 +125,10 @@ function formatChapterTitle(chapterNumber: number, title: string) {
 }
 
 export function PublicReaderNovelDetailPage() {
-  const { novelId = '' } = useParams();
+  const novelId = useResourceId('novelId') ?? '';
   const readChapterIds = useReadChapterIds(novelId);
   const novelQuery = useQuery({
-    queryKey: ['public-reader-novel', novelId],
+    queryKey: ['reader-novel', novelId],
     queryFn: () => getReaderNovel(novelId),
     enabled: Boolean(novelId)
   });

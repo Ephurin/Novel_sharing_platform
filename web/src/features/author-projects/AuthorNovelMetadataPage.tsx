@@ -161,7 +161,6 @@ export function AuthorNovelMetadataPage() {
       await queryClient.invalidateQueries({ queryKey: ['novel-genres'] });
       await queryClient.invalidateQueries({ queryKey: ['author-profile'] });
       await queryClient.invalidateQueries({ queryKey: ['reader-novel', novelId] });
-      await queryClient.invalidateQueries({ queryKey: ['public-reader-novel', novelId] });
       await queryClient.invalidateQueries({ queryKey: ['author-selection', novelId] });
       showToast('Đã lưu cập nhật thông tin tác phẩm thành công!');
     },
