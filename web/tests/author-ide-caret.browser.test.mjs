@@ -60,7 +60,7 @@ for (const mode of ['source', 'visual']) test('Writing studio preserves insertio
     const editor = page.locator('textarea.sc-manuscript');
     const surface = mode === 'visual' ? page.locator('[data-studio-rich-editor]') : editor;
     await page.waitForFunction(expected => document.querySelector('textarea.sc-manuscript')?.value === expected, initial);
-    await page.getByRole('button', { name: /AI Hỗ trợ viết/ }).click();
+    await page.getByRole('button', { name: /Trợ lý viết/ }).click();
     for (const [start, end] of [[initial.indexOf('Đoạn'), initial.indexOf('Đoạn')], [0, 0], [3, 9]]) {
       const before = content;
       await surface.focus();

@@ -10,12 +10,34 @@ import {
   AdminId,
   AdminPagination,
   AdminPanel,
+  dateTime,
   labels,
   number,
   options,
   Status
 } from './AdminShared';
 import { ErrorState, LoadingState } from '../../shared/components/PageStates';
+
+const REPORT_REASON_LABELS: Record<string, string> = {
+  SPAM: 'Spam hoặc quảng cáo',
+  HARASSMENT: 'Quấy rối',
+  HATE_SPEECH: 'Ngôn từ thù ghét',
+  SPOILER: 'Tiết lộ nội dung',
+  ADULT_CONTENT: 'Nội dung không phù hợp',
+  OTHER: 'Lý do khác',
+  'Reader report': 'Độc giả báo cáo'
+};
+const reportReason = (value: string) => REPORT_REASON_LABELS[value] ?? value;
+
+/** How long an item has been waiting, so the oldest work stands out. */
+function waited(value: string) {
+  const minutes = Math.max(0, Math.round((Date.now() - new Date(value).getTime()) / 60000));
+  if (!Number.isFinite(minutes)) return '–';
+  if (minutes < 60) return `${minutes} phút`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 48) return `${hours} giờ`;
+  return `${Math.round(hours / 24)} ngày`;
+}
 
 export function AdminModerationPage({ reports = false }: { reports?: boolean }) {
   const urlFilters = useUrlFilters({ targetType: '', status: 'PENDING', source: '', page: 1 }, { targetType: ['', 'NOVEL', 'CHAPTER', 'COMMENT', 'USER', 'DISCUSSION', 'DISCUSSION_COMMENT'], status: ['', 'PENDING', 'APPROVED', 'REJECTED', 'REVISION_REQUIRED'], source: ['', 'PUBLICATION_REQUEST', 'KEYWORD_FILTER', 'USER_REPORT'] });
@@ -107,57 +129,72 @@ export function AdminModerationPage({ reports = false }: { reports?: boolean }) 
           <EmptyState description="Không có mục nào khớp với bộ lọc hiện tại." />
         )}
         {!!query.data?.items.length && (
-          <WorkspaceTable name={reports ? 'adminreportspage' : 'adminmoderationpage'} columns={['Mã kiểm duyệt', 'Đối tượng', 'Mã đối tượng', reports ? 'Số báo cáo' : 'Nguồn', 'Trạng thái', 'Thao tác']}>
-            <table>
+          <WorkspaceTable name={reports ? 'adminreportspage' : 'adminmoderationpage'} columns={['Nội dung', reports ? 'Báo cáo' : 'Nguồn', 'Đã chờ', 'Trạng thái', 'Mã', 'Thao tác']}>
+            <table className="admin-moderation-table">
               <thead>
                 <tr>
-                  <th>Mã kiểm duyệt</th>
-                  <th>Đối tượng</th>
-                  <th>Mã đối tượng</th>
-                  <th>{reports ? 'Số báo cáo' : 'Nguồn'}</th>
+                  <th>Nội dung</th>
+                  <th>{reports ? 'Báo cáo' : 'Nguồn'}</th>
+                  <th>Đã chờ</th>
                   <th>Trạng thái</th>
+                  <th>Mã</th>
                   <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
-                {query.data.items.map((review) => (
-                  <tr
-                    key={review.reviewId}
-                    data-testid={`moderation-review-card-${review.reviewId}`}
-                  >
-                    <td>
-                      <AdminId value={review.reviewId} label="mã kiểm duyệt" />
-                    </td>
-                    <td>
-                      <div>{labels[review.targetType] || review.targetType}</div>
-                      {(review.targetTitle || review.summary || review.reason) && (
-                        <small>{review.targetTitle || review.summary || review.reason}</small>
-                      )}
-                    </td>
-                    <td>
-                      <AdminId value={review.targetId} label="mã đối tượng" />
-                    </td>
-                    <td>
-                      {reports
-                        ? `${number(review.reportCount ?? 0)} báo cáo`
-                        : labels[review.source]}
-                    </td>
-                    <td>
-                      <Status value={review.status} />
-                    </td>
-                    <td>
-                      <Button
-                        component={Link}
-                        to={`/admin/moderation/${review.reviewId}`}
-                        variant="light"
-                        size="xs"
-                        data-testid={`moderation-review-inspect-${review.reviewId}`}
-                      >
-                        Chi tiết →
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
+                {query.data.items.map((review) => {
+                  const heading = review.excerpt
+                    ? `“${review.excerpt}”`
+                    : review.targetTitle || review.summary || review.reason || `${labels[review.targetType] || review.targetType} không có tiêu đề`;
+                  return (
+                    <tr
+                      key={review.reviewId}
+                      data-testid={`moderation-review-card-${review.reviewId}`}
+                    >
+                      <td className="admin-moderation-subject">
+                        <strong>{heading}</strong>
+                        <small>
+                          {labels[review.targetType] || review.targetType}
+                          {review.targetContext ? ` · ${review.targetContext}` : ''}
+                        </small>
+                      </td>
+                      <td>
+                        {reports || review.source === 'USER_REPORT' ? (
+                          <>
+                            <div>{number(review.reportCount ?? 0)} báo cáo</div>
+                            {review.topReason && <small className="admin-block">Lý do chính: {reportReason(review.topReason)}</small>}
+                          </>
+                        ) : (
+                          <>
+                            <div>{labels[review.source] || review.source}</div>
+                            {!!review.matchedKeywords?.length && (
+                              <small className="admin-block">Khớp: {review.matchedKeywords.join(', ')}</small>
+                            )}
+                          </>
+                        )}
+                      </td>
+                      <td title={dateTime(review.createdAt)}>{waited(review.createdAt)}</td>
+                      <td>
+                        <Status value={review.status} />
+                      </td>
+                      <td className="admin-moderation-ids">
+                        <AdminId value={review.reviewId} label="mã kiểm duyệt" />
+                        <AdminId value={review.targetId} label="mã đối tượng" />
+                      </td>
+                      <td>
+                        <Button
+                          component={Link}
+                          to={`/admin/moderation/${review.reviewId}`}
+                          variant="light"
+                          size="xs"
+                          data-testid={`moderation-review-inspect-${review.reviewId}`}
+                        >
+                          Chi tiết →
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </WorkspaceTable>

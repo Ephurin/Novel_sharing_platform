@@ -21,6 +21,7 @@ type Page<T> = { items: T[]; hasNext: boolean };
 const LIMIT = 20;
 const unwrap = <T,>(res: { data: ApiEnvelope<T> }) => res.data.data;
 const STATUS_COLOR: Record<TopicStatus, string> = { VISIBLE: 'teal', HIDDEN: 'orange', DELETED: 'red' };
+const STATUS_LABEL: Record<TopicStatus, string> = { VISIBLE: 'Đang hiển thị', HIDDEN: 'Đã ẩn', DELETED: 'Đã xoá' };
 
 /** Reason is mandatory for every moderation and for retiring a category. */
 type ReasonTarget = { kind: 'topic' | 'comment' | 'category'; id: string; commentId?: string; label: string; patch: Record<string, unknown> };
@@ -157,7 +158,7 @@ export function AdminDiscussionsPage() {
                           </Table.Td>
                           <Table.Td><Text size="sm">{topic.categoryName}</Text></Table.Td>
                           <Table.Td><Text size="sm">{topic.authorName}</Text></Table.Td>
-                          <Table.Td><Badge color={STATUS_COLOR[topic.status]} variant="light">{topic.status}</Badge></Table.Td>
+                          <Table.Td><Badge color={STATUS_COLOR[topic.status]} variant="light">{STATUS_LABEL[topic.status] ?? topic.status}</Badge></Table.Td>
                           <Table.Td>
                             <Group gap={4}>
                               <Tooltip label={topic.isPinned ? 'Bỏ ghim' : 'Ghim'}>
@@ -294,7 +295,7 @@ function CommentList({ query, page, deletable, onPage, onModerate }: {
             <Stack gap={2}>
               <Group gap="xs">
                 <Text size="sm" fw={500}>{comment.authorName}</Text>
-                <Badge size="xs" color={STATUS_COLOR[comment.status]} variant="light">{comment.status}</Badge>
+                <Badge size="xs" color={STATUS_COLOR[comment.status]} variant="light">{STATUS_LABEL[comment.status] ?? comment.status}</Badge>
               </Group>
               <Text size="sm" lineClamp={3}>{comment.body}</Text>
             </Stack>

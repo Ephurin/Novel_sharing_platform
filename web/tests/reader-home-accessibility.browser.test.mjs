@@ -34,7 +34,7 @@ test('home maintains contrast, focus, reduced motion and reflow at narrow widths
       });
       try {
         await page.goto(base);
-        await expect(page.getByRole('link', { name: 'Bookmark', exact: true })).toHaveCount(0);
+        await expect(page.getByRole('link', { name: 'Đoạn đã đánh dấu', exact: true })).toHaveCount(0);
         await expect(page.locator('.sc-home-featured-card')).toHaveCount(8);
         const featuredTitle = page.locator('.sc-home-featured-title').first();
         await expect(featuredTitle).toBeVisible();

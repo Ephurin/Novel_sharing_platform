@@ -471,12 +471,12 @@ function CatalogCard({ novel, to }: { novel: ReaderNovel; to: string }) {
           />
         ) : (
           <div className="sc-catalog-placeholder" aria-hidden="true">
-            <span className="mini-label">STORYCRAFT · ORIGINAL</span>
+            <span className="mini-label">{novelGenres[0] ?? 'Truyện'}</span>
             <div>
               <div className="decor">{symbol}</div>
               <div className="cover-title">{novel.title}</div>
             </div>
-            <span className="footer-label">A STORY TO DISCOVER</span>
+            <span className="footer-label">{statusLabel}</span>
           </div>
         )}
       </Link>

@@ -3,7 +3,7 @@ import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } f
 import { StateComparison } from '../../shared/components/StateComparison';
 import { ResponsiveFilters } from '../../shared/components/InteractionWidgets';
 import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
-import { Button, TextInput, Alert } from '@mantine/core';
+import { Button, TextInput, Alert, Select } from '@mantine/core';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   AdminHeader,
@@ -12,11 +12,24 @@ import {
   AdminId,
   AdminError,
   dateTime,
-  labels
+  labels,
+  options
 } from './AdminShared';
 import { ErrorState, LoadingState } from '../../shared/components/PageStates';
 import { getAdminList } from './admin-api';
 import { adminGet, adminSend, useAdminAccess, type AuditEntry } from './admin-operations-api';
+
+// Audit actions an admin can filter by; the API matches the code exactly, so offer a list instead of free text.
+const AUDIT_ACTIONS = [
+  'USER_LOCK', 'USER_UNLOCKED', 'USER_WARN', 'USER_ACCESS_CHANGED',
+  'NOVEL_HIDE', 'NOVEL_WARN', 'NOVEL_RESTORED', 'CHAPTER_HIDE', 'CHAPTER_WARN',
+  'COMMENT_HIDE', 'COMMENT_WARN', 'SANCTION_RESTORED',
+  'PUBLICATION_APPROVED', 'PUBLICATION_REJECTED', 'PUBLICATION_REVISION_REQUIRED',
+  'REPORT_ACCEPTED', 'REPORT_DISMISSED', 'APPEAL_ACCEPTED', 'APPEAL_REJECTED',
+  'WITHDRAW_APPROVED', 'WITHDRAW_REJECTED', 'WITHDRAW_RECONCILED',
+  'TAXONOMY_CREATED', 'TAXONOMY_UPDATED', 'TAXONOMY_MERGED', 'TAXONOMY_DELETED',
+  'ADMIN_JOB_RETRIED', 'NOTIFY', 'NOVEL_DRAFT_SYNC', 'COMMENT_SYNC'
+];
 
 export function AuditRows({ items }: { items: AuditEntry[] }) {
   return (
@@ -159,12 +172,13 @@ export function AdminAuditPage() {
               setPage(1);
             }}
           />
-          <TextInput
-            label="Mã thao tác"
-            placeholder="Ví dụ: USER_LOCK"
+          <Select comboboxProps={{ withinPortal: false }}
+            label="Thao tác"
+            searchable
+            data={options(action && !AUDIT_ACTIONS.includes(action) ? [...AUDIT_ACTIONS, action] : AUDIT_ACTIONS, 'Tất cả thao tác')}
             value={action}
-            onChange={(e) => {
-              setAction(e.currentTarget.value);
+            onChange={(v) => {
+              setAction(v ?? '');
               setPage(1);
             }}
           />

@@ -98,8 +98,14 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
         await expect(page.getByRole('button', { name: 'Theo dõi tác giả', exact: true })).toHaveCount(0);
         const coverBounds = await page.locator('.sc-reader-detail-cover').boundingBox();
         assert.equal(Math.round(coverBounds.width), width > 640 ? 192 : 144);
-        const genreBounds = await page.locator('.sc-reader-genres').boundingBox(), tagBounds = await page.locator('.sc-reader-tags').boundingBox();
-        assert.ok(tagBounds.y >= genreBounds.y + genreBounds.height);
+        await expect(page.locator('.sc-reader-genres')).toBeVisible();
+        await expect(page.locator('.sc-reader-tags')).toBeVisible();
+        await page.evaluate(() => document.fonts.ready);
+        await expect.poll(() => page.locator('.sc-reader-taxonomy').evaluate((taxonomy) => {
+          const genres = taxonomy.querySelector('.sc-reader-genres').getBoundingClientRect();
+          const tags = taxonomy.querySelector('.sc-reader-tags').getBoundingClientRect();
+          return tags.top - genres.bottom;
+        }), { message: `Tags should appear below genres for ${role} at ${width}px in ${theme} mode` }).toBeGreaterThanOrEqual(0);
         for (const selector of ['.sc-reader-genres a', '.sc-reader-tags a']) {
           const link = page.locator(selector).first();
           const normalColor = await link.evaluate(element => getComputedStyle(element).color);
@@ -155,17 +161,16 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
           await page.reload();
           await expect(page.getByTestId('reader-follow-novel-btn')).toHaveAttribute('aria-pressed', 'true');
           await page.goto(`${base}/reader/library`);
-          await expect(page.locator('.sc-novel-card')).toHaveCount(1);
-          const unfollow = page.getByRole('button', { name: 'Bỏ theo dõi', exact: true });
-          const unfollowStyle = await unfollow.evaluate(button => {
-            const style = getComputedStyle(button);
-            return { background: style.backgroundColor, border: style.borderTopColor, borderWidth: style.borderTopWidth, color: style.color, height: button.getBoundingClientRect().height };
-          });
-          assert.notEqual(unfollowStyle.background, 'rgba(0, 0, 0, 0)');
-          assert.equal(unfollowStyle.border, unfollowStyle.color);
-          assert.equal(unfollowStyle.borderWidth, '1px');
-          assert.ok(unfollowStyle.height >= (width < 768 ? 44 : 40));
+          const card = page.locator('.sc-novel-card');
+          await expect(card).toHaveCount(1);
+          const read = card.getByRole('link', { name: `Bắt đầu đọc ${novel.title}`, exact: true });
+          await expect(read.getByText('Bắt đầu đọc', { exact: true })).toBeVisible();
+          await expect(read).toHaveAttribute('href', `/reader/novels/${novel.novelId}`);
+          const unfollow = page.getByRole('menuitem', { name: 'Bỏ theo dõi', exact: true });
+          await expect(unfollow).toBeHidden();
           await page.screenshot({ path: path.join(output, `${role}-${width}-${theme}-library.png`), fullPage: true });
+          await card.getByRole('button', { name: `Tùy chọn khác cho ${novel.title}`, exact: true }).click();
+          await expect(unfollow).toBeVisible();
           await unfollow.click();
           await expect(page.locator('.sc-novel-card')).toHaveCount(0);
           await expect(page.locator('.sc-toast').filter({ hasText: 'Đã bỏ theo dõi truyện.' }).last()).toBeVisible();

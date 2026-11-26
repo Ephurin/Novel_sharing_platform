@@ -240,8 +240,8 @@ test('Real AuthorWritingIde: editor typing, autosave, S10 consistency checking &
     await storyBrainBtn.click();
 
     // Verify Drawer opened
-    await page.getByText('Bộ nhớ và định hướng tiểu thuyết').waitFor({ timeout: 10000 });
-    await page.getByText(/Bộ nhớ chính thức v1/).waitFor({ timeout: 10000 });
+    await page.getByRole('heading', { name: 'Bộ nhớ cốt truyện', exact: true }).waitFor({ timeout: 10000 });
+    await page.getByText(/phiên bản v1/).waitFor({ timeout: 10000 });
 
     // Switch to "Sự kiện" tab (value="history")
     const historyTab = page.getByRole('tab', { name: 'Sự kiện' });

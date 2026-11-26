@@ -442,9 +442,9 @@ test(
             body: { name: 'Thể loại kiểm thử' },
             status: 409
           });
-          await page.getByLabel('Tên tag mới').fill('#Kiểm thử');
-          await page.getByRole('button', { name: 'Thêm tag', exact: true }).click();
-          await page.getByText('Đã thêm tag.', { exact: true }).waitFor();
+          await page.getByLabel('Tên thẻ mới').fill('#Kiểm thử');
+          await page.getByRole('button', { name: 'Thêm thẻ', exact: true }).click();
+          await page.getByText('Đã thêm thẻ.', { exact: true }).waitFor();
           await page.reload();
           await page.getByText('# Kiểm thử', { exact: true }).waitFor();
           checks.push('Taxonomy persistent creation and duplicate validation');
@@ -685,9 +685,9 @@ test(
           await page.getByRole('button', { name: 'Mở điều hướng', exact: true }).click();
           await page
             .getByRole('navigation')
-            .getByRole('link', { name: 'Thể loại & Tag', exact: true })
+            .getByRole('link', { name: 'Thể loại và thẻ', exact: true })
             .click();
-          await page.getByRole('heading', { name: 'Thể loại & Tag', exact: true }).waitFor();
+          await page.getByRole('heading', { name: 'Thể loại và thẻ', exact: true }).waitFor();
           assert.equal(
             await page.getByRole('button', { name: 'Đóng điều hướng', exact: true }).count(),
             0

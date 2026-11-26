@@ -38,7 +38,7 @@ function migrateGuestBookmarks() {
       const old = JSON.parse(localStorage.getItem(key) ?? 'null');
       if (!old) continue;
       if (items.some(item => item.chapterId === old.chapterId && item.paragraphIndex === old.paragraphIndex)) { migrated.push(key); continue; }
-      const entry = { ...old, bookmarkId: `legacy-${old.novelId}`, excerpt: '', novelTitle: 'Truyện đã lưu bookmark', chapterTitle: 'Chương đã lưu', chapterNumber: 0, coverImageUrl: null };
+      const entry = { ...old, bookmarkId: `legacy-${old.novelId}`, excerpt: '', novelTitle: 'Truyện đã đánh dấu', chapterTitle: 'Chương đã lưu', chapterNumber: 0, coverImageUrl: null };
       if (parse(JSON.stringify([entry])).length) { items.push(entry); migrated.push(key); added = true; }
     }
     if (added) write(items);
@@ -62,7 +62,7 @@ export function useReadingBookmarks(novelId?: string, { loadAll = false } = {}) 
   useEffect(() => {
     if (needsMore && !query.isFetching && !query.isError) void query.fetchNextPage();
   }, [needsMore, query.isFetching, query.isError, query.fetchNextPage]);
-  const success = (operation: Operation) => showToast(operation.type === 'save' ? 'Đã lưu bookmark.' : 'Đã xóa bookmark.', 'success');
+  const success = (operation: Operation) => showToast(operation.type === 'save' ? 'Đã đánh dấu đoạn.' : 'Đã bỏ đánh dấu.', 'success');
   const mutation = useMutation({
     scope: { id: `reading-bookmarks:${userId}` },
     mutationFn: async ({ account, operation }: { account: string; operation: Operation }) => {
@@ -97,7 +97,7 @@ export function useReadingBookmarks(novelId?: string, { loadAll = false } = {}) 
       success(operation);
       return true;
     } catch {
-      showToast('Không lưu được bookmark trên thiết bị. Hãy kiểm tra bộ nhớ trình duyệt.', 'error');
+      showToast('Không lưu được đoạn đánh dấu trên thiết bị. Hãy kiểm tra bộ nhớ trình duyệt.', 'error');
       return false;
     }
   };

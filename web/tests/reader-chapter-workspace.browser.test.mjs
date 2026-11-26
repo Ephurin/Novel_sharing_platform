@@ -91,11 +91,11 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
         await expect(rail).toBeVisible();
         if (role === 'GUEST') {
           await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('storycraft-guest-reading-bookmarks') ?? '[]').length)).toBe(1);
-          await rail.getByRole('button', { name: 'Bookmark', exact: true }).click();
-          const legacyMarks = page.getByRole('dialog', { name: 'Bookmark', exact: true });
+          await rail.getByRole('button', { name: 'Đoạn đã đánh dấu', exact: true }).click();
+          const legacyMarks = page.getByRole('dialog', { name: 'Đoạn đã đánh dấu', exact: true });
           await expect(legacyMarks.locator('.sc-reading-bookmark-entry')).toHaveCount(1);
-          await legacyMarks.getByRole('button', { name: 'Xóa bookmark đoạn 6', exact: true }).click();
-          await expect(legacyMarks.getByText('Chưa có bookmark', { exact: true })).toBeVisible();
+          await legacyMarks.getByRole('button', { name: 'Bỏ đánh dấu đoạn 6', exact: true }).click();
+          await expect(legacyMarks.getByText('Chưa có đoạn nào được đánh dấu', { exact: true })).toBeVisible();
           await legacyMarks.getByRole('button', { name: 'Đóng hộp thoại', exact: true }).click();
           await expect(legacyMarks).toHaveCount(0);
           assert.equal(await page.evaluate(() => localStorage.getItem('storycraft-workspace:guest:reading-bookmark:novel-1')), null);
@@ -167,7 +167,7 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
           failBookmark = false;
         }
         await page.locator('.sc-reading-bookmark-action').click();
-        await expect(page.getByRole('button', { name: 'Xóa bookmark', exact: true })).toHaveAttribute('aria-pressed', 'true');
+        await expect(page.getByRole('button', { name: 'Bỏ đánh dấu', exact: true })).toHaveAttribute('aria-pressed', 'true');
         const saved = role === 'READER' ? bookmarks[0] : await page.evaluate(() => JSON.parse(localStorage.getItem('storycraft-guest-reading-bookmarks'))[0]);
         await page.screenshot({ path: path.join(output, `${role}-${width}-${theme}-reading.png`) });
         assert.equal(saved.paragraphIndex, 20);
@@ -179,12 +179,12 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
         const secondLineY = await passage.evaluate(node => parseFloat(getComputedStyle(node).lineHeight) + 10);
         await passage.click({ position: { x: 10, y: secondLineY } });
         await page.locator('.sc-reading-bookmark-action').click();
-        await expect(page.getByRole('button', { name: 'Xóa bookmark', exact: true })).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Bỏ đánh dấu', exact: true })).toBeVisible();
         const secondLine = role === 'READER' ? bookmarks[0] : await page.evaluate(() => JSON.parse(localStorage.getItem('storycraft-guest-reading-bookmarks'))[0]);
         assert.equal(secondLine.paragraphIndex, saved.paragraphIndex);
         assert.notEqual(secondLine.bookmarkId, saved.bookmarkId);
         assert.ok(secondLine.startOffset >= saved.endOffset, JSON.stringify({ saved, secondLine }));
-        await page.getByRole('button', { name: 'Xóa bookmark', exact: true }).click();
+        await page.getByRole('button', { name: 'Bỏ đánh dấu', exact: true }).click();
         await page.locator('.chapter-prose > p').nth(25).click({ position: { x: 10, y: 10 } });
         await page.locator('.sc-reading-bookmark-action').click();
         await expect.poll(() => role === 'READER' ? bookmarks.length : page.evaluate(() => JSON.parse(localStorage.getItem('storycraft-guest-reading-bookmarks') ?? '[]').length)).toBe(2);
@@ -206,8 +206,8 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
         await expect(toc.locator('.sc-reader-toc-book img')).toHaveCount(0);
         await toc.screenshot({ path: path.join(output, `${role}-${width}-${theme}-toc.png`) });
         await page.keyboard.press('Escape');
-        await rail.getByRole('button', { name: 'Bookmark', exact: true }).click();
-        const marks = page.getByRole('dialog', { name: 'Bookmark', exact: true });
+        await rail.getByRole('button', { name: 'Đoạn đã đánh dấu', exact: true }).click();
+        const marks = page.getByRole('dialog', { name: 'Đoạn đã đánh dấu', exact: true });
         await expect(marks.locator('.sc-reading-bookmark-entry')).toHaveCount(2);
         const removeButton = marks.locator('.sc-reading-bookmark-remove').first();
         await expect(removeButton).toBeVisible();
@@ -229,8 +229,8 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
         await expect(page.locator('.sc-reading-line-highlight')).toHaveCount(0, { timeout: 4500 });
         await expect(passage).toHaveCSS('outline-style', 'none');
         await passage.press('Enter');
-        await expect(page.getByRole('button', { name: 'Xóa bookmark', exact: true })).toBeFocused();
-        await page.getByRole('button', { name: 'Xóa bookmark', exact: true }).click();
+        await expect(page.getByRole('button', { name: 'Bỏ đánh dấu', exact: true })).toBeFocused();
+        await page.getByRole('button', { name: 'Bỏ đánh dấu', exact: true }).click();
         await expect.poll(() => role === 'READER' ? bookmarks.length : page.evaluate(() => JSON.parse(localStorage.getItem('storycraft-guest-reading-bookmarks') ?? '[]').length)).toBe(1);
         await page.keyboard.press('Escape');
         const beforeBreak = page.locator('.chapter-prose > p').nth(64);
@@ -238,21 +238,21 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
         await expect(page.locator('.chapter-prose > p').nth(65)).toBeFocused();
         await page.keyboard.press('ArrowUp'); await expect(beforeBreak).toBeFocused();
         await showTools();
-        await rail.getByRole('button', { name: 'Bookmark', exact: true }).click();
-        await marks.getByRole('link', { name: 'Mở trang Bookmark', exact: true }).click();
-        await expect(page.getByRole('heading', { name: 'Bookmark', exact: true })).toBeVisible();
+        await rail.getByRole('button', { name: 'Đoạn đã đánh dấu', exact: true }).click();
+        await marks.getByRole('link', { name: 'Mở trang Đoạn đã đánh dấu', exact: true }).click();
+        await expect(page.getByRole('heading', { name: 'Đoạn đã đánh dấu', exact: true })).toBeVisible();
         await expect(page.locator('.sc-reading-bookmark-entry')).toHaveCount(1);
         await page.reload(); await expect(page.locator('.sc-reading-bookmark-entry')).toHaveCount(1);
         await page.screenshot({ path: path.join(output, `${role}-${width}-${theme}-bookmarks.png`) });
         if (role === 'READER') {
           const sections = page.getByRole('navigation', { name: 'Mục đọc của tôi', exact: true });
-          await expect(sections.getByRole('link', { name: 'Bookmark', exact: true })).toHaveAttribute('aria-current', 'page');
+          await expect(sections.getByRole('link', { name: 'Đoạn đã đánh dấu', exact: true })).toHaveAttribute('aria-current', 'page');
           await sections.getByRole('link', { name: 'Thư viện của tôi', exact: true }).click();
           await expect(page.getByRole('heading', { name: 'Thư viện của tôi', exact: true })).toBeVisible();
           await sections.getByRole('link', { name: 'Lịch sử đọc', exact: true }).click();
           await expect(sections.getByRole('link', { name: 'Lịch sử đọc', exact: true })).toHaveAttribute('aria-current', 'page');
           await page.getByTestId('shell-avatar-btn').click();
-          await page.locator('.sc-account-menu').getByRole('menuitem', { name: 'Bookmark', exact: true }).click();
+          await page.locator('.sc-account-menu').getByRole('menuitem', { name: 'Đoạn đã đánh dấu', exact: true }).click();
           await page.getByRole('button', { name: /Hành trình qua những mùa gió/ }).click();
           await expect(page.locator('.sc-reading-bookmark-entry')).toHaveCount(1);
         }

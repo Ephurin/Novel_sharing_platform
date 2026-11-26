@@ -17,7 +17,7 @@ const navigation = [
   ['/admin', 'grid_view', 'Tổng quan'],
   ['/admin/users', 'group', 'Người dùng'],
   ['/admin/novels', 'menu_book', 'Danh sách truyện'],
-  ['/admin/taxonomy', 'sell', 'Thể loại & Tag'],
+  ['/admin/taxonomy', 'sell', 'Thể loại và thẻ'],
   ['/admin/moderation', 'fact_check', 'Kiểm duyệt'],
   ['/admin/reports', 'flag', 'Báo cáo người dùng'],
   ['/admin/escalations', 'add_moderator', 'Chuyển cấp'],

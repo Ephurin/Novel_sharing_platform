@@ -254,13 +254,16 @@
 }
 .sc-novel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; }
 .sc-author-theme .sc-novel-card.sc-reader-book { padding: 0; border: 0; background: transparent; box-shadow: none; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
-.sc-author-theme .sc-reader-book .sc-button.sc-library-unfollow {
-  width: 100%; min-height: 40px; gap: 8px;
-  border: 1px solid var(--sc-danger); background: var(--sc-danger-bg); color: var(--sc-danger);
-}
-.sc-author-theme .sc-reader-book .sc-button.sc-library-unfollow:hover:not(:disabled) { background: var(--sc-danger); color: var(--sc-surface); }
-.sc-author-theme .sc-reader-book .sc-button.sc-library-unfollow:disabled { opacity: .65; cursor: wait; }
-@media (max-width: 767px) { .sc-author-theme .sc-reader-book .sc-button.sc-library-unfollow { min-height: 44px; } }
+/* UI-01: library cards lead with "Đọc tiếp"; unfollowing sits in the ⋯ menu. */
+.sc-author-theme .sc-reader-book .sc-library-actions { display: flex; flex-direction: column; gap: 8px; }
+.sc-author-theme .sc-reader-book .sc-library-progress { display: flex; flex-direction: column; gap: 4px; font-size: var(--sc-text-meta, 13px); color: var(--sc-text-muted); }
+.sc-author-theme .sc-reader-book .sc-library-progress-track { display: block; height: 4px; border-radius: 999px; background: var(--sc-border); overflow: hidden; }
+.sc-author-theme .sc-reader-book .sc-library-progress-track > span { display: block; height: 100%; border-radius: inherit; background: var(--sc-primary); }
+.sc-author-theme .sc-reader-book .sc-library-action-row { display: flex; gap: 8px; }
+.sc-author-theme .sc-reader-book .sc-button.sc-library-read { flex: 1; min-width: 0; min-height: 40px; gap: 6px; }
+.sc-author-theme .sc-reader-book .sc-button.sc-library-read > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sc-author-theme .sc-reader-book .sc-button.sc-library-more { width: 40px; min-height: 40px; padding: 0; flex: none; }
+@media (max-width: 767px) { .sc-author-theme .sc-reader-book .sc-button.sc-library-read, .sc-author-theme .sc-reader-book .sc-button.sc-library-more { min-height: 44px; } .sc-author-theme .sc-reader-book .sc-button.sc-library-more { width: 44px; } }
 .sc-book-cover { position: relative; display: block; aspect-ratio: 2 / 3; overflow: hidden; border-radius: 10px; background: var(--sc-surface); border: 1px solid var(--sc-border); box-shadow: 0 4px 12px rgb(var(--sc-text-rgb) / .08); }
 .sc-book-cover img { width: 100%; height: 100%; object-fit: cover; }
 .sc-book-cover .sc-cover-placeholder { padding: 24px 16px; border-left: 8px solid rgb(var(--sc-primary-rgb) / .25); background: linear-gradient(135deg, var(--sc-primary-soft), var(--sc-neutral-bg)); color: var(--sc-text); font-family: var(--sc-font); font-size: 17px; line-height: 1.6; box-shadow: inset 4px 0 8px rgb(var(--sc-text-rgb) / .06); }
@@ -465,3 +468,19 @@
 }
 
 .sc-author-profile-avatar .mantine-Avatar-placeholder { font-size: inherit; background: var(--sc-primary-soft); color: var(--sc-primary-text); }
+
+/* UI-04: Story Brain tabs in two labelled rows; counts sit in small pills so labels never wrap. */
+.sc-animated-tabs-list.sc-memory-tabs { flex-direction: column; flex-wrap: nowrap; gap: 0; }
+.sc-memory-tabs .sc-memory-tab-row { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 4px; }
+.sc-memory-tabs .sc-memory-tab-row + .sc-memory-tab-row { border-top: 1px dashed var(--sc-border); }
+.sc-memory-tabs .sc-animated-tab { display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; white-space: nowrap; }
+.sc-memory-tabs .sc-memory-tab-group {
+  margin-inline: 8px 2px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--sc-text-muted);
+}
+.sc-memory-tabs .sc-memory-tab-row:first-child .sc-memory-tab-group { margin-inline-start: 16px; padding-inline-start: 12px; border-inline-start: 1px solid var(--sc-border); }
+.sc-memory-tabs .sc-memory-tab-row:last-child .sc-memory-tab-group { margin-inline-start: 0; }
+.sc-memory-count {
+  min-width: 20px; padding: 0 6px; border-radius: 999px; background: var(--sc-surface-subtle); color: var(--sc-text-muted);
+  font-size: 12px; font-weight: 600; line-height: 18px; text-align: center;
+}
+.sc-memory-count.is-pending { background: var(--sc-warning-bg); color: var(--sc-warning); }

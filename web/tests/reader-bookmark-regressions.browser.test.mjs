@@ -86,7 +86,7 @@ test('a bookmark on API page two is removable without reopening the library or r
       await target.click({ position: { x: 8, y: 8 } });
       await expect(page.locator('.sc-reading-bookmark-action')).toBeDisabled();
       release(true);
-      const remove = page.getByRole('button', { name: 'Xóa bookmark', exact: true });
+      const remove = page.getByRole('button', { name: 'Bỏ đánh dấu', exact: true });
       await expect(remove).toBeEnabled();
       await expect(remove).toHaveAttribute('aria-pressed', 'true');
       await remove.click();
@@ -95,7 +95,7 @@ test('a bookmark on API page two is removable without reopening the library or r
       assert.equal(items().length, 50);
       assert.ok(items().every(item => item.updatedAt === '2026-11-17T00:00:00Z'));
       await expect(page.locator('.sc-reading-bookmark-action')).toHaveAttribute('aria-pressed', 'false');
-      await expect(page.locator('.sc-reading-bookmark-action')).toHaveAccessibleName('Bookmark');
+      await expect(page.locator('.sc-reading-bookmark-action')).toHaveAccessibleName('Đánh dấu đoạn');
     } finally { release(true); }
   }
 });
@@ -107,15 +107,15 @@ test('a failed later bookmark page cannot offer an incorrect save and can be ret
   await page.locator('.chapter-prose > p').nth(50).click({ position: { x: 8, y: 8 } });
   await expect(page.locator('.sc-reading-bookmark-action')).toBeDisabled();
   assert.deepEqual(writes, []);
-  await page.getByRole('complementary', { name: 'Công cụ đọc chương' }).getByRole('button', { name: 'Bookmark', exact: true }).click();
-  const drawer = page.getByRole('dialog', { name: 'Bookmark', exact: true });
+  await page.getByRole('complementary', { name: 'Công cụ đọc chương' }).getByRole('button', { name: 'Đoạn đã đánh dấu', exact: true }).click();
+  const drawer = page.getByRole('dialog', { name: 'Đoạn đã đánh dấu', exact: true });
   await expect(drawer.getByRole('alert')).toContainText('Không tải được trang bookmark tiếp theo.');
   fail = false;
   await drawer.getByRole('button', { name: 'Thử lại', exact: true }).click();
   await expect(drawer.locator('.sc-reading-bookmark-entry')).toHaveCount(51);
   await drawer.getByRole('button', { name: 'Đóng hộp thoại', exact: true }).click();
   await page.locator('.chapter-prose > p').nth(50).click({ position: { x: 8, y: 8 } });
-  await expect(page.getByRole('button', { name: 'Xóa bookmark', exact: true })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Bỏ đánh dấu', exact: true })).toBeEnabled();
   assert.deepEqual(writes, []);
 });
 
@@ -137,7 +137,7 @@ test('leading separators retain a real Tab entry, arrow navigation and stable bo
     await page.keyboard.press('Enter');
     await expect(page.locator('.sc-reading-bookmark-action')).toBeFocused();
     await page.locator('.sc-reading-bookmark-action').click();
-    await expect(page.getByRole('button', { name: 'Xóa bookmark', exact: true })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Bỏ đánh dấu', exact: true })).toBeEnabled();
     const saved = role === 'READER' ? writes[0].input : await page.evaluate(() => JSON.parse(localStorage.getItem('storycraft-guest-reading-bookmarks'))[0]);
     assert.equal(saved.paragraphIndex, 2, 'Persisted indices must still include separators');
     await page.keyboard.press('Escape'); await expect(first).toBeFocused();
@@ -171,7 +171,7 @@ test('a restored first bookmark retains Tab entry after blur, rerenders and relo
       await page.keyboard.press('Tab');
       await expect(entry).toBeFocused();
       await page.keyboard.press('Enter');
-      await expect(page.getByRole('button', { name: 'Xóa bookmark', exact: true })).toBeFocused();
+      await expect(page.getByRole('button', { name: 'Bỏ đánh dấu', exact: true })).toBeFocused();
       await page.keyboard.press('Escape');
       await expect(entry).toBeFocused();
       await page.keyboard.press('Tab');
@@ -242,7 +242,7 @@ test('bookmark action is icon-only, dismisses on outside click, and leaves no ou
     await first.click({ position: { x: 10, y: 10 } });
     const action = page.locator('.sc-reading-bookmark-action');
     await expect(action).toBeVisible();
-    await expect(action).toHaveAccessibleName('Bookmark');
+    await expect(action).toHaveAccessibleName('Đánh dấu đoạn');
     await expect(action).toHaveText('bookmark_add');
     await expect(action).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     await expect(action).toHaveCSS('border-top-style', 'none');
@@ -302,7 +302,7 @@ test('failed bookmark undo retains the retry affordance until restoration succee
     failSave: () => shouldFailSave
   });
   await page.goto(`${base}/reader/bookmarks?novelId=novel-1`);
-  const removeBtn = page.getByRole('button', { name: /^Xóa bookmark/ });
+  const removeBtn = page.getByRole('button', { name: /^Bỏ đánh dấu/ });
   await expect(removeBtn).toBeVisible();
   await removeBtn.click();
 
@@ -325,7 +325,7 @@ test('failed bookmark undo retains the retry affordance until restoration succee
   // Guest mode storage write failure should also preserve Undo until retry succeeds
   const guest = await fixture(t, { role: 'GUEST', items: [initialItem] });
   await guest.page.goto(`${base}/public/bookmarks?novelId=novel-1`);
-  await guest.page.getByRole('button', { name: /^Xóa bookmark/ }).click();
+  await guest.page.getByRole('button', { name: /^Bỏ đánh dấu/ }).click();
   const guestUndoBanner = guest.page.locator('.sc-reading-bookmark-undo');
   const guestUndoBtn = guest.page.getByRole('button', { name: 'Hoàn tác', exact: true });
   await expect(guestUndoBanner).toBeVisible();
@@ -334,7 +334,7 @@ test('failed bookmark undo retains the retry affordance until restoration succee
     Storage.prototype.setItem = () => { throw new Error('QuotaExceededError'); };
   });
   await guestUndoBtn.click();
-  await expect(guest.page.locator('.sc-toast[data-tone="error"]')).toContainText('Không lưu được bookmark');
+  await expect(guest.page.locator('.sc-toast[data-tone="error"]')).toContainText('Không lưu được đoạn đánh dấu');
   await expect(guestUndoBanner).toBeVisible();
   await expect(guestUndoBtn).toBeEnabled();
   await guest.page.evaluate(() => {

@@ -87,6 +87,11 @@ import {
   type GroupApproval
 } from './author-memory-api';
 
+/** Small count next to a memory tab label; highlighted when the author has work waiting. */
+function MemoryCount({ value, highlight = false }: { value: number; highlight?: boolean }) {
+  return <span className={`sc-memory-count${highlight ? ' is-pending' : ''}`}>{value.toLocaleString('vi-VN')}</span>;
+}
+
 export function AuthorMemoryPanel(props: {
   novelId: string; chapterId: string; content: string; opened: boolean; onClose: () => void; saved: boolean; onOpenPlanning?:(step:PlanningStep)=>void; allowOfflineSetupTest?:boolean; initialTab?:string;
 }) {
@@ -453,6 +458,10 @@ function ScopedAuthorMemoryPanel({
     eventCount={eventsNaming(e.entity_id)} disabled={pending} perform={perform} />;
 
   const currentBrainVersion = memory.data?.brain_version ?? brain.data?.brain_version ?? 1;
+  const pendingTotal = pendingReviews.entityCount + (queue.data?.length ?? 0);
+  // Only say "nothing to review" once both lists actually loaded (the AI service may be down).
+  const reviewStatusKnown = pendingReviews.known && Array.isArray(queue.data);
+  const lockedRelations = memory.data?.relations?.filter(r => r.locked).length ?? 0;
   const autoBlock = auto.data?.status === 'running' ? null
     : fullAutoBlockReason({ brainStatus: brain.data?.status, plan: plan.data, planLoading: plan.isLoading });
 
@@ -462,19 +471,15 @@ function ScopedAuthorMemoryPanel({
       onClose={onClose}
       position="left"
       size="xl"
-      title="Bộ nhớ và định hướng tiểu thuyết"
+      title="Bộ nhớ cốt truyện"
       classNames={{ content: 'sc-author-theme' }}
       styles={{ content: { background: 'var(--sc-surface-elevated)' } }}
     >
       <Stack gap="sm">
-        <Group justify="space-between" align="center" wrap="wrap">
-          <Text size="xs" c="dimmed">
-            Trạng thái: {brainStatusLabel(brain.data?.status)} · Đề xuất chưa duyệt chưa vào bộ nhớ truyện.
-          </Text>
-          <Badge variant="outline" size="xs">
-            Bộ nhớ chính thức v{currentBrainVersion}
-          </Badge>
-        </Group>
+        <Text size="xs" c="dimmed">
+          Trạng thái: {brainStatusLabel(brain.data?.status)} · Đề xuất chưa duyệt chưa vào bộ nhớ truyện ·{' '}
+          <span title="Số phiên bản bộ nhớ đã duyệt, tăng mỗi lần bạn chấp nhận thay đổi">phiên bản v{currentBrainVersion}</span>
+        </Text>
 
         {(message ||
           action.error ||
@@ -497,22 +502,28 @@ function ScopedAuthorMemoryPanel({
         )}
 
         <Tabs value={tab} onValueChange={(value: string) => { setTab(value || 'review'); setProfileTabOpened(value === 'profiles'); }}>
-          <Tabs.List style={{ flexWrap: 'nowrap', overflowX: 'auto', scrollbarWidth: 'thin' }}>
-            <Tabs.Tab value="review" aria-label={`Chờ duyệt: ${pendingReviews.entityCount} chương chờ duyệt danh tính, ${queue.data?.length ?? 0} đề xuất`}>
-              Chờ duyệt ({pendingReviews.entityCount + (queue.data?.length ?? 0)})
-            </Tabs.Tab>
-            <Tabs.Tab value="profiles" style={{ marginInlineStart: 6, borderInlineStart: '1px solid var(--sc-border)' }}>Hồ sơ Codex</Tabs.Tab>
-            <Tabs.Tab value="characters">Nhân vật ({category(['character', 'per', 'person']).length})</Tabs.Tab>
-            <Tabs.Tab value="relations">
-              Quan hệ ({memory.data?.relations?.filter(r => r.locked).length ?? 0} khóa)
-            </Tabs.Tab>
-            <Tabs.Tab value="facts">Dữ kiện ({memory.data?.facts?.length ?? 0})</Tabs.Tab>
-            <Tabs.Tab value="history">Sự kiện ({memory.data?.events?.length ?? 0})</Tabs.Tab>
-            <Tabs.Tab value="locations">Địa danh</Tabs.Tab>
-            <Tabs.Tab value="items">Vật phẩm</Tabs.Tab>
-            <Tabs.Tab value="setup" style={{ marginInlineStart: 6, borderInlineStart: '1px solid var(--sc-border)' }}>Trích xuất</Tabs.Tab>
-            <Tabs.Tab value="plan">Định hướng</Tabs.Tab>
-            <Tabs.Tab value="auto">Full auto</Tabs.Tab>
+          {/* UI-04: 11 tabs in two labelled rows (review + setup, then lookup) so no label wraps
+              and the author sees at a glance where the pending work is. */}
+          <Tabs.List className="sc-memory-tabs" aria-label="Các mục của bộ nhớ cốt truyện">
+            <div className="sc-memory-tab-row">
+              <Tabs.Tab value="review" aria-label={`Chờ duyệt: ${pendingReviews.entityCount} chương chờ duyệt danh tính, ${queue.data?.length ?? 0} đề xuất`}>
+                Chờ duyệt <MemoryCount value={pendingTotal} highlight={pendingTotal > 0} />
+              </Tabs.Tab>
+              <span className="sc-memory-tab-group" aria-hidden="true">Thiết lập</span>
+              <Tabs.Tab value="setup">Trích xuất</Tabs.Tab>
+              <Tabs.Tab value="plan">Định hướng</Tabs.Tab>
+              <Tabs.Tab value="auto">Tự động</Tabs.Tab>
+            </div>
+            <div className="sc-memory-tab-row">
+              <span className="sc-memory-tab-group" aria-hidden="true">Tra cứu</span>
+              <Tabs.Tab value="profiles">Hồ sơ</Tabs.Tab>
+              <Tabs.Tab value="characters">Nhân vật <MemoryCount value={category(['character', 'per', 'person']).length} /></Tabs.Tab>
+              <Tabs.Tab value="relations" title={`${lockedRelations} quan hệ đã khóa`}>Quan hệ <MemoryCount value={memory.data?.relations?.length ?? 0} /></Tabs.Tab>
+              <Tabs.Tab value="facts">Dữ kiện <MemoryCount value={memory.data?.facts?.length ?? 0} /></Tabs.Tab>
+              <Tabs.Tab value="history">Sự kiện <MemoryCount value={memory.data?.events?.length ?? 0} /></Tabs.Tab>
+              <Tabs.Tab value="locations">Địa danh</Tabs.Tab>
+              <Tabs.Tab value="items">Vật phẩm</Tabs.Tab>
+            </div>
           </Tabs.List>
 
           {/* ──────────────────────────────────────────
@@ -520,6 +531,20 @@ function ScopedAuthorMemoryPanel({
              ────────────────────────────────────────── */}
           <Tabs.Panel value="review" pt="md">
             <Stack gap="md">
+              <Alert
+                variant="light"
+                color={pendingTotal > 0 ? 'orange' : reviewStatusKnown ? 'teal' : 'gray'}
+                data-testid="memory-review-status"
+                title={pendingTotal > 0
+                  ? `Có ${pendingTotal} mục chờ bạn duyệt`
+                  : reviewStatusKnown ? 'Không có việc chờ duyệt' : 'Chưa tải được trạng thái duyệt'}
+              >
+                {pendingTotal > 0
+                  ? `${pendingReviews.entityCount} chương chờ xác nhận tên · ${queue.data?.length ?? 0} đề xuất cho bộ nhớ truyện. Bộ nhớ chỉ thay đổi sau khi bạn duyệt.`
+                  : reviewStatusKnown
+                    ? 'Bộ nhớ đã khớp với các chương đã phân tích. Khi bạn lưu chương mới hoặc phân tích lại, việc cần duyệt sẽ hiện ở đây.'
+                    : 'Chưa kết nối được bộ nhớ truyện nên chưa biết có việc chờ duyệt hay không. Hãy thử lại sau.'}
+              </Alert>
               <EntityExtractionReview
                 novelId={novelId}
                 disabled={pending}
@@ -1025,7 +1050,7 @@ function ScopedAuthorMemoryPanel({
                   })
                 }
               >
-                {auto.data?.status === 'running' ? 'Full auto đang chạy' : 'Bật full auto'}
+                {auto.data?.status === 'running' ? 'Chế độ tự động đang chạy' : 'Bật chế độ tự động'}
               </Button>
               <Button
                 variant="default"
@@ -1036,7 +1061,7 @@ function ScopedAuthorMemoryPanel({
                   );
                 }}
               >
-                Dừng full auto
+                Dừng chế độ tự động
               </Button>
               <Text size="xs" c="dimmed">
                 Tiến trình chạy trên máy chủ. Bạn có thể rời trang rồi quay lại theo dõi.
