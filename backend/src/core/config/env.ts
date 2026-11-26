@@ -38,6 +38,7 @@ const envSchema = z.object({
   PRIVATE_COMMENTS_ENABLED: booleanStringSchema.default(false),
   MODERATOR_ENABLED: booleanStringSchema.default(false),
   NOVEL_SELECTION_ENABLED: booleanStringSchema.default(false),
+  NOVEL_FEATURED_PLACEMENTS_ENABLED: booleanStringSchema.default(false),
   NOVEL_SELECTION_RECONSIDERATION_WRITES_ENABLED: booleanStringSchema.default(true),
   PORT: z.coerce.number().int().positive().default(4000),
   API_PREFIX: z.string().default('/api/v1'),

@@ -25,6 +25,7 @@ const navigation = [
   ['/admin/withdraws', 'payments', 'Yêu cầu rút Xu'],
   ['/admin/appeals', 'forum', 'Khiếu nại'],
   ['/admin/selection-reconsiderations', 'fact_check', 'Xét lại tuyển chọn'],
+  ['/admin/placements', 'calendar_month', 'Lịch giới thiệu'],
   ['/admin/audit', 'history', 'Nhật ký quản trị']
 ] as const;
 
@@ -62,6 +63,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
 
   const can = (path: string) => {
     const permissions = access.data?.permissions || [];
+    if (path.startsWith('/admin/placements')) return permissions.includes('placement.manage');
     if (path.startsWith('/admin/selection-reconsiderations')) return permissions.includes('selection.reconsider');
     const permission: Permission | undefined =
       path === '/admin'

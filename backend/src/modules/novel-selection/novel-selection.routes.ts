@@ -6,6 +6,8 @@ import { successResponse } from '../../core/response/response.js';
 import { requireModeratorOperational } from '../moderator/moderator-access.js';
 import { requireAdminPermission } from '../admin/admin-access.js';
 import { authorReconsiderations, listReconsiderations, resolveReconsideration, submitReconsideration } from './selection-reconsiderations.js';
+import { assertPlacementAccess, cancelPlacementBody, changePlacement, createPlacement, createPlacementBody,
+  featuredSelections, listPlacements, placementCandidates, updatePlacementBody } from './novel-featured-placements.js';
 import { caseParams, decisionBody, nominationBody, nominationKey, novelParams, pageQuery, supplementBody, supplementParams } from './novel-selection.schemas.js';
 import { decide, getAuthorSelection, getReview, getReviewChapter, listOwnNominations, listSelectionReviews, nominate, requireSelectionEnabled, supplement } from './novel-selection.service.js';
 
@@ -34,6 +36,37 @@ const reconsiderationReason = z.string().trim().min(1).max(2000);
 const reconsiderationVersion = z.number().int().positive();
 
 export const novelSelectionRoutes = Router();
+novelSelectionRoutes.get('/reading/featured-selections', (_request, response, next) => {
+  response.set('Cache-Control', 'no-store');
+  return respond(featuredSelections)(_request, response, next);
+});
+novelSelectionRoutes.get('/moderator/placements', requireAuth, respond(async request => {
+  const actor = auth(request);
+  await assertPlacementAccess(actor);
+  const { page, limit } = pageQuery.parse(request.query);
+  return listPlacements(actor.userId, page, limit);
+}));
+novelSelectionRoutes.post('/moderator/placements', requireAuth, async (request, response, next) => {
+  try {
+    const actor = auth(request);
+    await assertPlacementAccess(actor);
+    const { placement, created } = await createPlacement(actor, createPlacementBody.parse(request.body),
+      nominationKey.parse(request.get('Idempotency-Key')));
+    response.status(created ? 201 : 200).json(successResponse(placement));
+  } catch (error) { next(error); }
+});
+novelSelectionRoutes.get('/moderator/placements/candidates', requireAuth, respond(async request => {
+  const actor = auth(request);
+  await assertPlacementAccess(actor);
+  return placementCandidates(actor.userId, z.object({ q: z.string().trim().max(150).default('') }).parse(request.query).q);
+}));
+const placementParams = z.object({ placementId: z.string().uuid() });
+novelSelectionRoutes.patch('/moderator/placements/:placementId', requireAuth, respond(request =>
+  changePlacement(auth(request), placementParams.parse(request.params).placementId,
+    { kind: 'priority', ...updatePlacementBody.parse(request.body) })));
+novelSelectionRoutes.delete('/moderator/placements/:placementId', requireAuth, respond(request =>
+  changePlacement(auth(request), placementParams.parse(request.params).placementId,
+    { kind: 'cancel', ...cancelPlacementBody.parse(request.body) })));
 novelSelectionRoutes.post('/novels/:novelId/nominations', enabled, requireAuth, async (request, response, next) => {
   try {
     const { novelId } = novelParams.parse(request.params);

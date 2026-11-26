@@ -21,6 +21,7 @@ import { ModeratorDiscussionsPage } from '../features/moderator/ModeratorDiscuss
 import { ModeratorHistoryPage } from '../features/moderator/ModeratorHistoryPage';
 import { ModeratorSelectionDetailPage, ModeratorSelectionsPage, MyNominationsPage } from '../features/novel-selection/SelectionPages';
 import { AdminReconsiderationsPage } from '../features/novel-selection/AdminReconsiderationsPage';
+import { PlacementPage } from '../features/novel-selection/PlacementPage';
 import { AuthorNovelCommentsPage } from '../features/author-projects/AuthorNovelCommentsPage';
 import { AuthorNovelReviewsPage } from '../features/author-projects/AuthorNovelReviewsPage';
 import { AuthorNavbar, AuthorTheme } from '../shared/components/AuthorTheme';
@@ -308,6 +309,7 @@ export const router = createBrowserRouter([
         { path: '/admin/audit', element: <AdminAuditPage /> },
         { path: '/admin/appeals', element: <AdminAppealsPage /> },
         { path: '/admin/selection-reconsiderations', element: <AdminReconsiderationsPage /> },
+        { path: '/admin/placements', element: <PlacementPage /> },
         { path: '/admin/discussions', element: <AdminDiscussionsPage /> },
         { path: '/admin/users/:userId', element: <AdminUserDetailPage /> },
         { path: '/admin/withdraws/:requestId', element: <AdminReconciliationPage /> }
@@ -430,6 +432,10 @@ export const router = createBrowserRouter([
       {
         path: '/moderator/selections',
         element: <RoleGuard roles={['MODERATOR']}><ModeratorSelectionsPage /></RoleGuard>
+      },
+      {
+        path: '/moderator/placements',
+        element: <RoleGuard roles={['MODERATOR']}><PlacementPage /></RoleGuard>
       },
       {
         path: '/moderator/selections/:caseId',

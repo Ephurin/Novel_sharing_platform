@@ -163,11 +163,15 @@ export function ModeratorSelectionLink() {
 }
 
 export function ModeratorSelectionsPage() {
+  const access = useQuery({ queryKey: ['moderator-access'], queryFn: getModeratorAccess });
   const [page, setPage] = useState(1);
   const [view, setView] = useState<'queue' | 'selected'>('queue');
   const query = useQuery({ queryKey: ['selection-queue', page, view], queryFn: () => getSelectionQueue(page, view), retry: false });
   return <>
-    <AdminHeader title="Tuyển chọn tác phẩm" />
+    <AdminHeader title="Tuyển chọn tác phẩm">
+      {access.data?.permissions.includes('placement.manage') &&
+        <Button component={Link} to="/moderator/placements" variant="default">Lịch giới thiệu</Button>}
+    </AdminHeader>
     <AdminPanel>
       <Select label="Hồ sơ" value={view} data={[{ value: 'queue', label: 'Cần xử lý' }, { value: 'selected', label: 'Đã công nhận' }]}
         onChange={(value) => { setView(value === 'selected' ? 'selected' : 'queue'); setPage(1); }} maw={250} mb="md" />
@@ -213,7 +217,9 @@ export function ModeratorSelectionDetailPage() {
       setShortStory(false);
       await Promise.all([cache.invalidateQueries({ queryKey: ['selection-queue'] }), query.refetch(),
         cache.invalidateQueries({ queryKey: ['reader-novel', item.novel_id] }),
-        cache.invalidateQueries({ queryKey: ['public-reader-novel', item.novel_id] })]);
+        cache.invalidateQueries({ queryKey: ['public-reader-novel', item.novel_id] }),
+        cache.invalidateQueries({ queryKey: ['featured-selections'] }),
+        cache.invalidateQueries({ queryKey: ['featured-placements'] })]);
     },
     onError: () => { void query.refetch(); }
   });

@@ -12,7 +12,11 @@ export const moderatorPermissions = [
   'escalation.submit'
 ] as const;
 
-export type ModeratorPermission = (typeof moderatorPermissions)[number] | 'selection.review';
+export type ModeratorPermission = (typeof moderatorPermissions)[number] | 'selection.review' | 'placement.manage';
+
+export function placementsEnabled() {
+  return env.NOVEL_SELECTION_ENABLED && env.NOVEL_FEATURED_PLACEMENTS_ENABLED;
+}
 
 export const permissionNamespace = [
   ...moderatorPermissions,
@@ -27,7 +31,10 @@ export const permissionNamespace = [
 
 export function moderatorPermissionsFor(role: UserRole): ModeratorPermission[] {
   if (role !== 'MODERATOR' || !env.MODERATOR_ENABLED) return [];
-  return env.NOVEL_SELECTION_ENABLED ? [...moderatorPermissions, 'selection.review'] : [...moderatorPermissions];
+  const permissions: ModeratorPermission[] = [...moderatorPermissions];
+  if (env.NOVEL_SELECTION_ENABLED) permissions.push('selection.review');
+  if (placementsEnabled()) permissions.push('placement.manage');
+  return permissions;
 }
 
 export function assertIndependentActor(

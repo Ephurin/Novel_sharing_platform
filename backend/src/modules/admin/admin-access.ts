@@ -4,8 +4,9 @@ import { getPostgresPool } from '../../core/database/postgres.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { env } from '../../core/config/env.js';
+import { placementsEnabled } from '../../core/security/moderation-policy.js';
 
-export type AdminPermission = 'content' | 'users' | 'finance' | 'access' | 'audit' | 'selection.reconsider';
+export type AdminPermission = 'content' | 'users' | 'finance' | 'access' | 'audit' | 'selection.reconsider' | 'placement.manage';
 export type AdminScope = 'SUPER_ADMIN' | 'MODERATOR' | 'USER_MANAGER' | 'FINANCE';
 export const scopePermissions: Record<AdminScope, AdminPermission[]> = {
   SUPER_ADMIN: ['content', 'users', 'finance', 'access', 'audit'],
@@ -23,9 +24,10 @@ export async function adminAccess(auth: AccessActor, client?: PoolClient) {
   if (!result.rows[0] || !scopePermissions[result.rows[0].scope as AdminScope])
     throw new AppError(403, 'ADMIN_ACCESS', 'Tài khoản không có quyền quản trị đang hoạt động.');
   const scope = result.rows[0].scope as AdminScope;
-  const permissions = scopePermissions[scope];
-  return { scope, permissions: env.NOVEL_SELECTION_ENABLED && scope === 'SUPER_ADMIN'
-    ? [...permissions, 'selection.reconsider' as const] : permissions };
+  const permissions = [...scopePermissions[scope]];
+  if (scope === 'SUPER_ADMIN' && env.NOVEL_SELECTION_ENABLED) permissions.push('selection.reconsider');
+  if (scope === 'SUPER_ADMIN' && placementsEnabled()) permissions.push('placement.manage');
+  return { scope, permissions };
 }
 export async function assertAdminPermission(
   auth: AccessActor,

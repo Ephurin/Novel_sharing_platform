@@ -23,7 +23,7 @@ function mapPreference(row: QueryResultRow) {
   };
 }
 
-function mapNovelSummary(row: QueryResultRow) {
+export function mapNovelSummary(row: QueryResultRow) {
   return {
     novelId: row.novel_id,
     title: row.title,
