@@ -68,6 +68,8 @@ test('author/admin motion preserves filters, actions, values and reader role exc
         else if(pathname.endsWith('/media')){mediaCalls++;croppedData=route.request().postDataJSON().data;data={path:'/test-uploaded-cover.jpg'};}
         return route.fulfill({json:{success:true,data,meta:{totalItems:Array.isArray(data)?data.length:0,totalPages:1}}});
       });
+      // C04: on phones genre, view mode, pinned and saved filters sit behind "Bộ lọc khác".
+      const showMoreFilters=async()=>{if(!mobile)return;const toggle=page.getByRole('button',{name:/^Bộ lọc khác/});if(await toggle.getAttribute('aria-expanded')!=='true')await toggle.click();};
       try {
         await page.goto(base+'/author',{waitUntil:'domcontentloaded'});
         await page.evaluate(()=>document.fonts.ready);
@@ -84,12 +86,12 @@ test('author/admin motion preserves filters, actions, values and reader role exc
         await projectPreview.getByRole('button',{name:'Sau',exact:true}).click();
         await expect(page.getByRole('dialog',{name:'Tác phẩm 2',exact:true})).toBeVisible();
         await page.keyboard.press('Escape');await expect(page.getByRole('article')).toHaveCount(3);
-        await page.getByTitle('Danh sách',{exact:true}).click();await expect(page.locator('.sc-motion-project')).toHaveCount(3);
+        await showMoreFilters();await page.getByTitle('Danh sách',{exact:true}).click();await expect(page.locator('.sc-motion-project')).toHaveCount(3);
         await expect.poll(()=>page.locator('.sc-motion-project').first().evaluate(el=>el.tagName)).toBe('DIV');
         await expect(page.getByRole('link',{name:'Quản lý',exact:true})).toHaveCount(3);
         await page.reload();await expect(page.locator('.sc-motion-project')).toHaveCount(3);
         assert.equal(await page.locator('.sc-motion-project').first().evaluate(el=>el.tagName),'DIV','view mode persists after reload');
-        await page.getByTitle('Lưới',{exact:true}).click();await expect(page.getByRole('article')).toHaveCount(3);
+        await showMoreFilters();await page.getByTitle('Lưới',{exact:true}).click();await expect(page.getByRole('article')).toHaveCount(3);
         await expect(page.locator('.sc-motion-project')).toHaveCount(3);
         const results=page.locator('.sc-results-surface');
         const surface=results.locator('..').locator('..');const height=(await surface.boundingBox()).height;
@@ -107,21 +109,21 @@ test('author/admin motion preserves filters, actions, values and reader role exc
         await page.getByRole('button',{name:'Bỏ bộ lọc Tìm: Tác phẩm',exact:true}).click();
         await page.getByRole('button',{name:'Ghim Tác phẩm 3',exact:true}).click();
         await expect(page.locator('.sc-motion-project').first()).toContainText('Tác phẩm 3');
-        await page.getByRole('checkbox',{name:'Chỉ tác phẩm đã ghim'}).check();
+        await showMoreFilters();await page.getByRole('checkbox',{name:'Chỉ tác phẩm đã ghim'}).check();
         await expect(page.getByRole('article')).toHaveCount(1);
-        await page.reload();await expect(page.getByRole('checkbox',{name:'Chỉ tác phẩm đã ghim'})).toBeChecked();
+        await page.reload();await showMoreFilters();await expect(page.getByRole('checkbox',{name:'Chỉ tác phẩm đã ghim'})).toBeChecked();
         await expect(page.getByRole('article')).toHaveCount(1);
         await page.getByRole('checkbox',{name:'Chỉ tác phẩm đã ghim'}).uncheck();
         await page.getByRole('button',{name:'Bỏ ghim Tác phẩm 3',exact:true}).click();
         await search.fill('Tác phẩm 1');await page.getByRole('button',{name:/^Bản nháp/}).click();
-        await page.getByRole('button',{name:/^Bộ lọc đã lưu/}).click();
+        await showMoreFilters();await page.getByRole('button',{name:/^Bộ lọc đã lưu/}).click();
         await page.getByRole('textbox',{name:'Tên bộ lọc',exact:true}).fill('Bản nháp của tôi');
         await page.getByRole('button',{name:'Lưu bộ lọc',exact:true}).click();
         await page.reload();await expect(search).toHaveValue('Tác phẩm 1');await expect(page.getByRole('article')).toHaveCount(1);
         assert.equal(new URL(page.url()).searchParams.get('status'),'DRAFT');
         await page.getByRole('button',{name:'Bỏ bộ lọc Tìm: Tác phẩm 1',exact:true}).click();
         await page.getByRole('button',{name:'Bỏ bộ lọc Bản nháp',exact:true}).click();
-        await page.getByRole('button',{name:/^Bộ lọc đã lưu/}).click();
+        await showMoreFilters();await page.getByRole('button',{name:/^Bộ lọc đã lưu/}).click();
         await page.getByRole('button',{name:'Bản nháp của tôi',exact:true}).click();
         await expect(search).toHaveValue('Tác phẩm 1');await expect(page.getByRole('article')).toHaveCount(1);
         await expect(page.locator('.sc-filter-presets-popover')).toHaveCount(0);
