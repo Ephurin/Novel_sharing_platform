@@ -383,9 +383,11 @@ svg[data-combobox-chevron] path { visibility: hidden; }
 .sc-chapter-drag-handle .material-symbols-outlined { font-size: 20px; }
 .sc-author-theme .sc-shell-content > .min-h-screen { min-height: 0; padding: 0; }
 
-/* V2-04: on one-row desktop headers the search box gives up its width before any nav link is clipped. */
+/* V2-04: on one-row desktop headers the search box gives up its width before any nav link is clipped.
+   The search shrinks first (large factor); the nav keeps factor 1 so it can still shrink and scroll when nothing
+   else can give way (e.g. 200% zoom). A factor below 1 would leave the overflow undistributed and widen the page. */
 @media (min-width: 1101px) {
-  .sc-global-nav { flex-shrink: 0.001; }
+  .sc-navbar-inner > .sc-nav-search { flex-shrink: 1000; }
 }
 @media (max-width: 1100px) {
   .sc-navbar-inner { flex-wrap: wrap; gap: 8px 16px; }
