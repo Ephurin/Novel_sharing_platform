@@ -198,3 +198,6 @@ html:has(.sc-writing-studio) { scrollbar-gutter: auto; overflow: hidden; }
 @media(prefers-reduced-motion:reduce) { .sc-studio-note-tabs button, .sc-studio-editor-mode button { transition: none; } }
 @media(prefers-reduced-motion:reduce) { .sc-studio-notes-sidebar { transition: none; } }
 @media(max-width:600px) { .sc-studio-workbench-bar { padding-inline: 8px; } .sc-studio-tool-panel { max-height: 34dvh; } .sc-studio-tool-row label:has(input:not([type="checkbox"])) { width: 100%; } .sc-studio-tool-panel input:not([type="checkbox"]) { width: 100%; } }
+/* UI-13: "Trợ lý viết ▾" split button — the two halves share one outline. */
+.sc-author-theme .sc-writing-studio .sc-studio-command-actions .sc-studio-ai-split button { border: 0; box-shadow: none; padding: 0 8px; }
+.sc-author-theme .sc-writing-studio .sc-studio-command-actions .sc-studio-ai-split button + button { padding: 0 4px; border-left: 1px solid rgb(var(--sc-primary-rgb, 194 92 52) / .25); }

@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { facetCheckbox, facetTrigger, filterBar, statusRadio } from './helpers/reader-filters.mjs';
 
 test('public homepage keeps root URL, uses live catalog sections and links guests/readers to their catalog', { timeout: 180000 }, async () => {
   const output = await readerEvidence('storycraft-reader-home-');
@@ -141,7 +142,7 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
         if (width === 1440 && theme === 'light') {
           await journeyCard.click();
           await expect(page).toHaveURL(`${base}${catalog}?tag=${encodeURIComponent('Phiêu lưu')}&sort=views:desc`);
-          await expect(page.locator('#sc-catalog-sidebar').getByRole('checkbox', { name: 'Phiêu lưu', exact: true })).toBeChecked();
+          await expect(await facetCheckbox(page, 'Thẻ', 'Phiêu lưu')).toBeChecked();
           await page.goto(base);
 
           // Random button must pick from the dedicated full-catalog endpoint (including novels outside top lists).

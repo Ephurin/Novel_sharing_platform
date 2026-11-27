@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { openPlanning, backToDraftButton } from './helpers/studio-planning.mjs';
 
 // P2-10 completion regressions (mocked HTTP, fake provider, no network outside the Vite origin).
 // - #133: a novel without World Setup is pointed to the existing manuscript route into memory.
@@ -99,7 +100,7 @@ test('P2-10 completion: #133 memory entry, #134 future target, #135 cross-tab ba
   async function openPlanning(page) {
     await page.goto(`${origin}/author/ide?novelId=${novelId}&chapterId=${chapterIds[0]}`, { waitUntil: 'domcontentloaded', timeout: 90000 });
     await page.waitForLoadState('networkidle');
-    await page.getByRole('button', { name: 'Lập kế hoạch', exact: true }).click();
+    await openPlanning(page);
     const studio = page.getByRole('region', { name: 'Planning Studio' });
     await expect(studio).toBeVisible({ timeout: 10000 });
     await expect(studio).toHaveAttribute('aria-busy', 'false', { timeout: 10000 });
@@ -142,8 +143,8 @@ test('P2-10 completion: #133 memory entry, #134 future target, #135 cross-tab ba
       await openPlanning(page);
       await expect(page.getByTestId('planning-memory-from-chapters')).toHaveCount(0);
       state.chapters = [{ n: 1, wordCount: 30 }]; // the author writes ch.1 and autosave stores it
-      await page.getByRole('button', { name: 'Viết bản thảo', exact: true }).click();
-      await page.getByRole('button', { name: 'Lập kế hoạch', exact: true }).click();
+      await backToDraftButton(page).click();
+      await openPlanning(page);
       await expect(page.getByTestId('planning-memory-from-chapters')).toBeVisible({ timeout: 10000 });
       await context.close();
     }

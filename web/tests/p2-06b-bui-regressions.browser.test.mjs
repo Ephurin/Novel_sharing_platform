@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { openPlanning, backToDraftButton } from './helpers/studio-planning.mjs';
 
 // P2-06B BUI regressions (BUI-01..04 + E1).
 //
@@ -145,7 +146,7 @@ test('P2-06B BUI-01..04 regressions against contract-enforcing mocks', { timeout
     });
     await page.goto(`${origin}/author/ide?novelId=${novelId}&chapterId=${chapterId}`, { waitUntil: 'domcontentloaded', timeout: 90000 });
     await page.waitForLoadState('networkidle');
-    await page.getByRole('button', { name: 'Lập kế hoạch', exact: true }).click();
+    await openPlanning(page);
     await expect(page.getByRole('region', { name: 'Planning Studio' })).toBeVisible({ timeout: 10000 });
     const step = async name => {
       await page.getByRole('navigation', { name: 'Các bước lập kế hoạch' }).getByRole('button', { name: new RegExp(name) }).click();
@@ -272,7 +273,7 @@ test('P2-06B BUI-01..04 regressions against contract-enforcing mocks', { timeout
 
       await page.reload();
       await page.waitForLoadState('networkidle');
-      await page.getByRole('button', { name: 'Lập kế hoạch', exact: true }).click();
+      await openPlanning(page);
       await step('Nhân vật');
       const noteAfter = page.getByRole('textbox', { name: 'Ghi chú nhân vật 1 (chỉ trên thiết bị)' });
       await expect(noteAfter).toBeVisible();

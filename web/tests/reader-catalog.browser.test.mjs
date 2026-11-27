@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { facetCheckbox, facetTrigger, filterBar, statusRadio } from './helpers/reader-filters.mjs';
 
 test('reader catalog: cover cards, unified sorting, selectable filters and scroll navigation', { timeout: 120000 }, async () => {
   const output = await readerEvidence('storycraft-reader-catalog-');
@@ -58,18 +59,14 @@ test('reader catalog: cover cards, unified sorting, selectable filters and scrol
         await expect.poll(() => `${searchParams?.get('sort')}:${searchParams?.get('order')}`).toBe('wordCount:desc');
         await page.locator('#reader-sort').selectOption('title:asc');
         await expect.poll(() => `${searchParams?.get('sort')}:${searchParams?.get('order')}`).toBe('title:asc');
-        if (width === 390) await page.locator('.sc-catalog-filter-open').click();
-        const sidebar = page.locator('#sc-catalog-sidebar');
-        await sidebar.getByRole('checkbox', { name: 'Fantasy', exact: true }).check();
+        await (await facetCheckbox(page, 'Thể loại', 'Fantasy')).check();
         await expect.poll(() => searchParams?.get('genres')).toBe('Fantasy');
-        await sidebar.getByRole('checkbox', { name: 'Magic', exact: true }).check();
+        await (await facetCheckbox(page, 'Thẻ', 'Magic')).check();
         await expect.poll(() => searchParams?.get('tags')).toBe('Magic');
-        await sidebar.getByRole('checkbox', { name: 'Fantasy', exact: true }).uncheck();
+        await (await facetCheckbox(page, 'Thể loại', 'Fantasy')).uncheck();
         await expect.poll(() => searchParams?.get('genres')).toBe(null);
-        if (width === 390) {
-          await sidebar.getByRole('button', { name: /Xem kết quả/ }).click();
-          await expect(sidebar).not.toHaveClass(/open/);
-        }
+        await page.keyboard.press('Escape');
+        await expect(facetTrigger(page, 'Thể loại')).toBeFocused();
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
         await page.screenshot({ path: path.join(output, `${width}-${theme}-catalog.png`) });
         await page.getByRole('navigation', { name: 'Điều hướng chính' }).getByRole('link', { name: 'Danh sách truyện', exact: true }).click();

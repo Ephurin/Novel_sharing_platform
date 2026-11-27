@@ -5,6 +5,7 @@ import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createServer } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { openPlanning, backToDraftButton } from './helpers/studio-planning.mjs';
 
 // P2-07A Regression Test Suite:
 // UX-01: Mobile Sidebar & Mode Switching (390px vs desktop, resize, keyboard navigation, Escape)
@@ -149,8 +150,9 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
     await mobilePage.goto(origin + 'author/ide?novelId=' + A + '&chapterId=' + C, { waitUntil: 'domcontentloaded', timeout: 90000 });
     await mobilePage.waitForLoadState('networkidle');
 
-    const planBtn = mobilePage.getByRole('button', { name: 'Lập kế hoạch', exact: true });
-    const writeBtn = mobilePage.getByRole('button', { name: 'Viết bản thảo', exact: true });
+    // UI-13: planning opens from the "Trợ lý viết ▾" menu and closes through "Quay lại bản thảo".
+    const planBtn = { click: () => openPlanning(mobilePage) };
+    const writeBtn = backToDraftButton(mobilePage);
     const sidebar = mobilePage.locator('.sc-studio-sidebar');
     const backdrop = mobilePage.locator('.sc-sidebar-backdrop');
     const toggleSidebarBtn = mobilePage.getByTitle('Đóng/Mở thanh danh sách chương');
@@ -174,7 +176,7 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
 
     // 1.4 CRITICAL UX-01 CHECK: Click "Lập kế hoạch" when sidebar is OPEN on mobile
     // Must NOT timeout and must NOT be intercepted by sidebar!
-    await planBtn.click({ timeout: 5000 });
+    await planBtn.click();
     await expect(mobilePage.getByRole('region', { name: 'Planning Studio', exact: true })).toBeVisible();
     await mobilePage.screenshot({ path: join(out, 'ux01-mobile-switch-to-planning-success.png') });
     console.log('✓ UX-01: Successfully switched Planning from mobile while sidebar open without pointer interception!');
@@ -270,8 +272,8 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
     await resizePage.goto(origin + 'author/ide?novelId=' + A + '&chapterId=' + C, { waitUntil: 'domcontentloaded', timeout: 90000 });
     await resizePage.waitForLoadState('networkidle');
 
-    const deskPlanBtn = resizePage.getByRole('button', { name: 'Lập kế hoạch', exact: true });
-    const deskWriteBtn = resizePage.getByRole('button', { name: 'Viết bản thảo', exact: true });
+    const deskPlanBtn = { click: () => openPlanning(resizePage) };
+    const deskWriteBtn = backToDraftButton(resizePage);
     const deskSidebar = resizePage.locator('.sc-studio-sidebar');
     const deskBackdrop = resizePage.locator('.sc-sidebar-backdrop');
 
@@ -294,7 +296,7 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
     await resizePage.waitForTimeout(300);
 
     // After resize to mobile, switching modes must still work without interception
-    await deskPlanBtn.click({ timeout: 5000 });
+    await deskPlanBtn.click();
     await expect(resizePage.getByRole('region', { name: 'Planning Studio', exact: true })).toBeVisible();
 
     // Dynamic resize back: 390 -> 1280
@@ -324,7 +326,7 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
     await zeroChapterPage.waitForLoadState('networkidle');
 
     // 3.1 Switch to Planning Studio, navigate to Step 5
-    await zeroChapterPage.getByRole('button', { name: 'Lập kế hoạch', exact: true }).click();
+    await openPlanning(zeroChapterPage);
     await zeroChapterPage.getByRole('button', { name: '5. Bắt đầu viết' }).click();
     await expect(zeroChapterPage.getByText('Không bắt buộc có dàn ý')).toBeVisible();
 

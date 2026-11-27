@@ -67,10 +67,10 @@ Tài liệu giao cho team dev. Gộp ba bản đánh giá độc lập, đã b�
 | UI-21 | Chữ phụ (và placeholder) đổi sang `rgb(107 103 99)`, đạt 5,2:1 trên nền kem (trước 4,39:1). Nút chính bị khóa chuyển sang nền trung tính, chữ phụ (4,9:1) thay vì cam mờ; độ mờ chung của nút bị khóa từ 0,5 lên 0,7. `contrast.test.mjs` có thêm ba cặp kiểm tra. |
 | UI-18 (bổ sung) | Thể loại và thẻ trùng tên (Cultivation/cultivation, Cyberpunk) là do dữ liệu mẫu gắn tên thể loại làm thẻ. Bộ lọc độc giả không liệt kê thẻ trùng tên thể loại nữa; lọc theo thể loại vẫn tìm thấy truyện chỉ gắn thẻ đó. Trang chi tiết truyện không hiện thẻ trùng thể loại. Script seed không tạo thẻ trùng nữa. |
 | UI-22 | Chốt tên StoryCraft: bỏ "Ephurin" ở trợ lý AI, nội dung đơn nạp VNPay ("Nap N Xu StoryCraft") và log khởi động API. |
+| UI-13 (bổ sung) | Bỏ công tắc "Lập kế hoạch / Viết bản thảo". Nút "Trợ lý viết" vẫn mở khung trợ lý; mũi tên ▾ bên cạnh mở menu: Viết tiếp từ con trỏ, Hỏi về đoạn đang chọn, Mở khung trò chuyện, Lập kế hoạch truyện. Trong màn hình kế hoạch có nút "← Quay lại bản thảo" (bước "Bắt đầu viết" vẫn đưa về chương). Truyện chưa có chương có thêm nút "Lập kế hoạch truyện trước". |
+| UI-18 (bổ sung) | Danh sách truyện và Tìm kiếm dùng chung `ReaderFilterBar`: nút Thể loại / Thẻ / Tình trạng mở bảng chọn ngay dưới, sắp xếp ở cuối hàng, bên dưới là các bộ lọc đang áp dụng (bấm ✕ để bỏ) và "Đặt lại bộ lọc" (giữ từ khóa). Bỏ cột checkbox và ngăn kéo lọc trên mobile ở Danh sách; Tìm kiếm không còn tách trang cơ bản / nâng cao (đường dẫn `/tim-kiem-nang-cao` vẫn mở được). Chọn bộ lọc áp dụng ngay. |
 
 **Chưa làm:**
-- UI-13: chưa gom các lối vào AI thành một menu "Trợ lý viết ▾". "Lập kế hoạch" là chế độ của Studio, đổi thành mục menu cần thiết kế lại luồng.
-- UI-18: bộ lọc ở Danh sách và Tìm kiếm vẫn hai kiểu khác nhau.
 - UI-21: chưa chụp và rà riêng các màn hình độc giả ở 375 px. Các bộ test trình duyệt hiện có đã chạy ở 375 px.
 
 ## Bảng tóm tắt

@@ -1098,18 +1098,38 @@ export function AuthorWritingIde() {
 
   const studioPrimaryActions = !planning && (
     <>
-      <button
-        onClick={toggleAiDrawer}
-        aria-expanded={aiDrawerOpen}
-        aria-controls="studio-ai-panel"
-        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-meta font-semibold rounded-lg bg-primary-50 text-primary-600 hover:bg-primary-100 border border-primary-200/90 transition-all shadow-2xs"
-        title="Mở trợ lý sáng tác AI"
-        aria-label="Trợ lý viết"
-        type="button"
-      >
-        <span className="material-symbols-outlined text-primary-600 text-[16px] fill-icon" aria-hidden="true">auto_awesome</span>
-        <span className="hidden sm:inline sc-studio-ai-label">Trợ lý viết</span>
-      </button>
+      {/* UI-13: one AI entry point. The main half opens the assistant; the chevron lists the other AI actions,
+          including story planning, which is a place you visit and return from rather than a second mode. */}
+      <div className="sc-studio-ai-split inline-flex items-stretch rounded-lg border border-primary-200/90 bg-primary-50 shadow-2xs">
+        <button
+          onClick={toggleAiDrawer}
+          aria-expanded={aiDrawerOpen}
+          aria-controls="studio-ai-panel"
+          className="inline-flex items-center gap-1.5 pl-2.5 pr-2 py-1 text-meta font-semibold rounded-l-lg text-primary-600 hover:bg-primary-100 transition-all"
+          title="Mở trợ lý sáng tác AI"
+          aria-label="Trợ lý viết"
+          type="button"
+        >
+          <span className="material-symbols-outlined text-primary-600 text-[16px] fill-icon" aria-hidden="true">auto_awesome</span>
+          <span className="hidden sm:inline sc-studio-ai-label">Trợ lý viết</span>
+        </button>
+        <Menu position="bottom-end">
+          <Menu.Target>
+            <button type="button" className="inline-flex items-center px-1 rounded-r-lg border-l border-primary-200/90 text-primary-600 hover:bg-primary-100" aria-label="Thêm lệnh trợ lý viết" title="Thêm lệnh trợ lý viết">
+              <span className="material-symbols-outlined text-[16px]" aria-hidden="true">expand_more</span>
+            </button>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Label>Trong chương này</Menu.Label>
+            <Menu.Item disabled={!studioReady || isGeneratingAi} leftSection={<span className="material-symbols-outlined text-[16px]" aria-hidden="true">edit_note</span>} onClick={() => { rememberEditorSelection(); openAiDrawer(true); void handleGenerateAi('Viết tiếp phân cảnh này tự nhiên bám sát giọng văn', 'continue'); }}>Viết tiếp từ con trỏ</Menu.Item>
+            <Menu.Item disabled={!studioReady} leftSection={<span className="material-symbols-outlined text-[16px]" aria-hidden="true">help</span>} onClick={() => { rememberEditorSelection(); setAiScope('selection'); openAiDrawer(true); }}>Hỏi về đoạn đang chọn</Menu.Item>
+            <Menu.Item leftSection={<span className="material-symbols-outlined text-[16px]" aria-hidden="true">right_panel_open</span>} onClick={() => openAiDrawer(true)}>Mở khung trò chuyện</Menu.Item>
+            <Menu.Divider />
+            <Menu.Label>Cả truyện</Menu.Label>
+            <Menu.Item leftSection={<span className="material-symbols-outlined text-[16px]" aria-hidden="true">account_tree</span>} onClick={() => void openPlanning()}>Lập kế hoạch truyện</Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      </div>
 
       <button
         onClick={() => setPublishModalOpen(true)}
@@ -1225,12 +1245,12 @@ export function AuthorWritingIde() {
         )}
         </div>
 
-        {/* Right: Studio Mode Switch */}
-        <Group gap="xs" wrap="nowrap" aria-label="Chế độ Author IDE" className="shrink-0">
-          {/* UI-13: the mode switch is a toggle, not a second primary action competing with "Gửi duyệt chương". */}
-          <Button size="xs" aria-pressed={planning} variant={planning ? 'light' : 'subtle'} color={planning ? undefined : 'gray'} onClick={() => void openPlanning()}>Lập kế hoạch</Button>
-          <Button size="xs" aria-pressed={!planning} variant={!planning ? 'light' : 'subtle'} color={!planning ? undefined : 'gray'} onClick={() => setPlanning(false)}>Viết bản thảo</Button>
-        </Group>
+        {/* UI-13: planning is entered from "Trợ lý viết ▾" and left through this one way back to the chapter. */}
+        {planning && (
+          <Button size="xs" variant="light" className="shrink-0" title={title ? `Quay lại ${title}` : undefined} leftSection={<span className="material-symbols-outlined text-[16px]" aria-hidden="true">arrow_back</span>} onClick={() => setPlanning(false)}>
+            Quay lại bản thảo
+          </Button>
+        )}
       </section>
 
       {/* ──────────────────────────────────────────
@@ -1457,6 +1477,7 @@ export function AuthorWritingIde() {
               >
                 {createChapterMutation.isError ? 'Thử lại tạo chương' : 'Tạo chương đầu tiên'}
               </Button>
+              <Button size="sm" variant="subtle" mt="xs" onClick={() => void openPlanning()}>Lập kế hoạch truyện trước</Button>
             </div>
           ) : (
             <>

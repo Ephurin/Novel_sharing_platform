@@ -1,0 +1,33 @@
+/* UI-18: shared reader filter bar (Danh sách truyện, Tìm kiếm). */
+.sc-filter-bar { display: flex; flex-direction: column; gap: 10px; margin: 0 0 18px; }
+.sc-filter-triggers { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.sc-filter-trigger {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 10px 0 14px;
+  border: 1px solid var(--sc-border); border-radius: 999px; background: var(--sc-surface); color: var(--sc-text);
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.sc-filter-trigger:hover, .sc-filter-trigger[aria-expanded='true'] { border-color: var(--sc-primary-text); }
+.sc-filter-trigger.is-active { background: var(--sc-primary-soft); color: var(--sc-primary-text); border-color: transparent; }
+.sc-filter-trigger .material-symbols-outlined { font-size: 18px; transition: transform .15s ease; }
+.sc-filter-trigger[aria-expanded='true'] .material-symbols-outlined { transform: rotate(180deg); }
+.sc-filter-trigger-count { min-width: 20px; padding: 0 6px; border-radius: 999px; background: var(--sc-primary-text); color: var(--sc-surface); font-size: 12px; line-height: 20px; text-align: center; }
+.sc-filter-trailing { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.sc-filter-panel {
+  /* In flow, so an open panel never covers the active-filter row or the results. */
+  width: 100%; max-width: 760px; box-sizing: border-box;
+  padding: 14px; border: 1px solid var(--sc-border); border-radius: 14px; background: var(--sc-surface);
+}
+.sc-filter-panel.is-compact { max-width: 420px; }
+.sc-filter-options { display: flex; flex-wrap: wrap; gap: 6px; max-height: 280px; overflow-y: auto; }
+.sc-filter-option { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 12px; border: 1px solid var(--sc-border); border-radius: 999px; background: var(--sc-surface-subtle); color: var(--sc-text); font-size: 13px; cursor: pointer; }
+.sc-filter-option:has(input:checked) { background: var(--sc-primary-soft); color: var(--sc-primary-text); border-color: var(--sc-primary-text); }
+.sc-filter-option input { accent-color: var(--sc-primary-text); margin: 0; }
+.sc-filter-empty { margin: 0; color: var(--sc-text-muted); font-size: 13px; }
+.sc-filter-active { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.sc-filter-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 10px; border: 0; border-radius: 999px; background: var(--sc-primary-soft); color: var(--sc-primary-text); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.sc-filter-reset, .sc-filter-retry { min-height: 30px; padding: 0 8px; border: 0; background: transparent; color: var(--sc-text-muted); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.sc-filter-reset:hover, .sc-filter-retry:hover { color: var(--sc-text); }
+@media (max-width: 680px) {
+  .sc-filter-trailing { margin-left: 0; width: 100%; }
+  .sc-filter-options { max-height: 50vh; }
+}

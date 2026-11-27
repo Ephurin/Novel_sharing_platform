@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { createServer } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { openPlanning } from './helpers/studio-planning.mjs';
 
 // P2-06B AI Brainstorming UI Regression Test Suite:
 // 1. Modal launch & scope selection (all, world_rules, characters, future_events).
@@ -363,9 +364,8 @@ test('P2-06B Regression: AI Brainstorming UI Draft-Only Adoption & Invariant Lif
     await page.waitForLoadState('networkidle');
 
     // Click "Lập kế hoạch" to enter Planning Studio
-    const planModeBtn = page.getByRole('button', { name: 'Lập kế hoạch', exact: true });
-    await expect(planModeBtn).toBeVisible({ timeout: 10000 });
-    await planModeBtn.click();
+    await expect(page.getByRole('button', { name: 'Thêm lệnh trợ lý viết', exact: true })).toBeVisible({ timeout: 10000 });
+    await openPlanning(page);
 
     await expect(page.getByRole('region', { name: 'Planning Studio' })).toBeVisible({ timeout: 10000 });
 
