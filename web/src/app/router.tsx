@@ -258,7 +258,7 @@ export const router = createBrowserRouter([
   },
   {
     path: staticRouteTargets['/account/nominations'],
-    element: <AuthGate><AuthorTheme><MyNominationsPage /></AuthorTheme></AuthGate>
+    element: <AuthGate><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><MyNominationsPage /></main></AuthorTheme></AuthGate>
   },
   {
     path: staticRouteTargets['/wallet'],
