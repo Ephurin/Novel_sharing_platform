@@ -525,8 +525,9 @@ export function AuthorProjectsPage() {
                         {/* Right: Novel Info (Title, Status, Genre, Stats, Updated time) */}
                         <div className="flex flex-col flex-1 min-w-0 justify-between self-stretch py-0.5">
                           <div>
-                            <div className="flex items-center justify-between gap-1 mb-1">
-                              <span className="text-meta font-medium text-stone-500 truncate">
+                            {/* C09: a short genre wraps beside the badge instead of being cut ("Trinh th..."). */}
+                            <div className="flex flex-wrap items-center justify-between gap-1 mb-1">
+                              <span className="text-meta font-medium text-stone-500 min-w-0 [overflow-wrap:anywhere]">
                                 {project.genre || 'Chưa phân loại'}
                               </span>
                               <div className="flex items-center gap-1 shrink-0">
