@@ -1,14 +1,23 @@
 import { formatDateTime, formatNumber } from '../../shared/lib/format-vi';
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Alert, Button, Group, Select, SimpleGrid, Stack, Text, Textarea } from '@mantine/core';
+import { Alert, Button, Group, SimpleGrid, Stack, Text, Textarea } from '@mantine/core';
 import { AnimatedModal as Modal } from '../../shared/components/AnimatedModal';
 import { CopyTextButton, FeedbackReveal } from '../../shared/components/ActionFeedback';
 import { AnimatedSaveButton } from '../../shared/components/SaveFeedback';
 import { apiClient, type ApiEnvelope, getApiErrorMessage } from '../../shared/api/api-client';
 import { LoadingState, ErrorState } from '../../shared/components/PageStates';
+import './revision-history.css';
 
-type Revision = { revisionId: string; content: string; createdAt: string; wordCount: number };
+type Revision = { revisionId: string; content: string; createdAt: string; wordCount: number; sourceType?: string | null };
+
+const sourceLabels: Record<string, string> = {
+  AUTHOR_MANUAL: 'Lưu tay',
+  AI_DRAFT_ACCEPT: 'Nhận bản nháp AI',
+  BOOTSTRAP: 'Bản đầu tiên'
+};
+
+const countWords = (text: string) => text.trim() ? text.trim().split(/\s+/u).length : 0;
 type RevisionHistoryProps = {
   chapterId: string;
   content: string;
@@ -40,6 +49,7 @@ export function RevisionHistory({ chapterId, content, onRestore, onClose }: Revi
     }
   });
   const chosen = revisions.data?.find(item => item.revisionId === selected);
+  const currentWords = countWords(content);
 
   return (
     <Modal opened onClose={() => !restore.isPending && !snapshot.isPending && onClose()} closeOnEscape={!restore.isPending && !snapshot.isPending} closeOnClickOutside={!restore.isPending && !snapshot.isPending} withCloseButton={!restore.isPending && !snapshot.isPending} title="Lịch sử bản thảo" size="xl" centered>
@@ -53,17 +63,29 @@ export function RevisionHistory({ chapterId, content, onRestore, onClose }: Revi
         {(snapshot.error || restore.error) && <Alert color="red">{getApiErrorMessage(snapshot.error || restore.error)}</Alert>}
         {snapshot.isSuccess && <Text size="sm" c="dimmed" role="status">Đã lưu mốc hiện tại vào lịch sử.</Text>}
         {revisions.data?.length === 0 && <Text c="dimmed">Chưa có mốc lưu. Lưu một mốc để so sánh và khôi phục sau.</Text>}
-        <Select
-          label="Mốc lưu"
-          placeholder="Chọn phiên bản"
-          value={selected}
-          disabled={restore.isPending || snapshot.isPending}
-          onChange={setSelected}
-          data={(revisions.data ?? []).map(item => ({
-            value: item.revisionId,
-            label: `${formatDateTime(item.createdAt)} · ${formatNumber(item.wordCount)} từ`
-          }))}
-        />
+        {/* UI-16: a list of save points with time, size and source instead of a bare dropdown. */}
+        {!!revisions.data?.length && (
+          <fieldset className="sc-revision-list" disabled={restore.isPending || snapshot.isPending}>
+            <legend>Mốc lưu</legend>
+            {revisions.data.map((item) => {
+              const delta = item.wordCount - currentWords;
+              return (
+                <label key={item.revisionId} className="sc-revision-item" data-selected={item.revisionId === selected || undefined}>
+                  <input type="radio" name="revision" value={item.revisionId} checked={item.revisionId === selected} onChange={() => setSelected(item.revisionId)} />
+                  <span className="sc-revision-time">
+                    <time dateTime={item.createdAt} title={formatDateTime(item.createdAt)}>{formatDateTime(item.createdAt, 'relative')}</time>
+                    <small>{formatDateTime(item.createdAt)}</small>
+                  </span>
+                  <span className="sc-revision-meta">
+                    <span>{formatNumber(item.wordCount)} từ</span>
+                    <small>{delta === 0 ? 'bằng bản đang viết' : `${delta > 0 ? '+' : '−'}${formatNumber(Math.abs(delta))} từ so với bản đang viết`}</small>
+                  </span>
+                  <span className="sc-revision-source">{sourceLabels[item.sourceType ?? ''] ?? 'Mốc lưu'}</span>
+                </label>
+              );
+            })}
+          </fieldset>
+        )}
         {chosen && (
           <FeedbackReveal key={chosen.revisionId}>
             <SimpleGrid cols={{ base: 1, sm: 2 }}>

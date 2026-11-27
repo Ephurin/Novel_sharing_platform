@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import test from 'node:test';
 import { expect } from '@playwright/test';
 import { createHarness, hash, until } from './helpers/p1-real-stack.mjs';
+import { openPlanning, backToDraftButton } from './helpers/studio-planning.mjs';
 
 const scenario = process.env.P207A_SCENARIO;
 assert.ok(['S1', 'S2', 'S3-5', 'S3-10', 'S3-21', 'S4'].includes(scenario));
@@ -77,7 +78,7 @@ test(`${scenario} first chapter through the real Gateway`, {
     await h.step('Author IDE Brainstorm works without an active Story Plan', async () => {
       await page.addInitScript(token => localStorage.setItem('ephurin_access_token', token), author.token);
       await page.goto(`${h.origin}/author/ide?novelId=${novelId}`);
-      await page.getByRole('button', { name: 'Lập kế hoạch', exact: true }).click();
+      await openPlanning(page);
       await go(/Ý tưởng/);
       await page.getByTestId('brainstorm-open-idea-btn').click();
       const response = page.waitForResponse(res =>
@@ -211,7 +212,7 @@ test(`${scenario} first chapter through the real Gateway`, {
         }, author.token, [409]);
         assert.equal(stale.json.error.code, 'PLAN_VERSION_CONFLICT');
         await page.reload();
-        await page.getByRole('button', { name: 'Lập kế hoạch', exact: true }).click();
+        await openPlanning(page);
         await go(/Dàn ý chương/);
         await expect(page.getByRole('textbox', { name: /^Tiêu đề chương \d+$/ })).toHaveCount(planSize);
         for (const [i, row] of rows.entries()) {

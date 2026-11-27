@@ -77,6 +77,10 @@ for (const theme of ['light', 'dark']) {
     ['soft button label (hover)', color('--sc-primary-text-strong-rgb'), blend(color('--sc-primary-rgb'), color('--sc-primary-soft-rgb'), 0.16)],
     ['body text on surface', color('--sc-text-rgb'), surface],
     ['body text on page background', color('--sc-text-rgb'), color('--sc-bg-rgb')],
+    // UI-21: secondary text, placeholders and disabled primary buttons use the muted token.
+    ['muted text on surface', color('--sc-muted-rgb'), surface],
+    ['muted text on page background', color('--sc-muted-rgb'), color('--sc-bg-rgb')],
+    ['disabled primary button label', color('--sc-muted-rgb'), color('--sc-neutral-bg')],
     ['danger label on surface', color('--sc-danger'), surface],
     ['success label on surface', color('--sc-success'), surface],
     ['warning label on surface', color('--sc-warning'), surface],

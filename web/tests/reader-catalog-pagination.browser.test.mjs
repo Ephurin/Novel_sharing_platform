@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { facetCheckbox, facetTrigger, filterBar, statusRadio } from './helpers/reader-filters.mjs';
 
 test('catalog paginates real totals, remembers filters and exposes quick previews for guests and readers', { timeout: 150000 }, async () => {
   const output = await readerEvidence('storycraft-catalog-pagination-');
@@ -57,13 +58,10 @@ test('catalog paginates real totals, remembers filters and exposes quick preview
         await expect(page).toHaveURL(/page=3/);
         await page.locator('#reader-sort').selectOption('title:asc');
         await expect.poll(() => searches.at(-1)?.get('page')).toBe('1');
-        const sidebar = page.locator('#sc-catalog-sidebar');
-        if (width === 375) await page.locator('.sc-catalog-filter-open').click();
-        await sidebar.getByRole('checkbox', { name: 'Fantasy', exact: true }).check();
-        await sidebar.getByRole('checkbox', { name: 'Cultivation', exact: true }).check();
-        await sidebar.getByRole('checkbox', { name: 'Magic', exact: true }).check();
-        await sidebar.getByRole('checkbox', { name: 'Adventure', exact: true }).check();
-        if (width === 375) await sidebar.getByRole('button', { name: /Xem kết quả/ }).click();
+        await (await facetCheckbox(page, 'Thể loại', 'Fantasy')).check();
+        await (await facetCheckbox(page, 'Thể loại', 'Cultivation')).check();
+        await (await facetCheckbox(page, 'Thẻ', 'Magic')).check();
+        await (await facetCheckbox(page, 'Thẻ', 'Adventure')).check();
         await expect(page.locator('.sc-catalog-title-count')).toHaveText('(8)');
         await expect(page.locator('.sc-catalog-story')).toHaveCount(8);
         assert.deepEqual(searches.at(-1).getAll('genres'), ['Fantasy', 'Cultivation']);
@@ -71,13 +69,11 @@ test('catalog paginates real totals, remembers filters and exposes quick preview
         await page.reload();
         await expect(page.locator('.sc-catalog-story')).toHaveCount(8);
         await expect(page.locator('#reader-sort')).toHaveValue('title:asc');
-        if (width === 375) await page.locator('.sc-catalog-filter-open').click();
-        await expect(sidebar.getByRole('checkbox', { name: 'Fantasy', exact: true })).toBeChecked();
-        await expect(sidebar.getByRole('checkbox', { name: 'Cultivation', exact: true })).toBeChecked();
-        await expect(sidebar.getByRole('checkbox', { name: 'Magic', exact: true })).toBeChecked();
-        await expect(sidebar.getByRole('checkbox', { name: 'Adventure', exact: true })).toBeChecked();
-        await sidebar.getByRole('button', { name: /Đặt lại bộ lọc/ }).click();
-        if (width === 375) await sidebar.getByRole('button', { name: /Xem kết quả/ }).click();
+        await expect((await facetCheckbox(page, 'Thể loại', 'Fantasy'))).toBeChecked();
+        await expect((await facetCheckbox(page, 'Thể loại', 'Cultivation'))).toBeChecked();
+        await expect((await facetCheckbox(page, 'Thẻ', 'Magic'))).toBeChecked();
+        await expect((await facetCheckbox(page, 'Thẻ', 'Adventure'))).toBeChecked();
+        await filterBar(page).getByRole('button', { name: /Đặt lại bộ lọc/ }).click();
         await expect(page.locator('.sc-catalog-story')).toHaveCount(20);
         await expect(page.locator('.sc-catalog-title-count')).toHaveText('(47)');
         await page.goto(`${base}${catalog}?q=none`);

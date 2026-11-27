@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { chromium, expect } from '@playwright/test';
 import { createServer } from 'vite';
+import { openPlanning, backToDraftButton } from './helpers/studio-planning.mjs';
 
 function parseRgba(cssColor) {
   const nums = cssColor.match(/\d+(\.\d+)?/g)?.map(Number) ?? [];
@@ -461,9 +462,10 @@ test('StoryCraft portaled modals, dark-mode WCAG AA contrast, WAI-ARIA tabpanels
 
       // PR195-002: AuthorWritingIde 409 conflict reload confirmation <Button color="red"> + variant="filled"
       await page.goto(`${base}/author/ide?novelId=novel-1&chapterId=ch-1`, { waitUntil: 'domcontentloaded' });
-      const writeModeBtn = page.getByRole('button', { name: 'Viết bản thảo', exact: true });
+      // UI-13: the mode switch is gone; "Gửi duyệt chương" is now the toolbar's only filled button.
+      const writeModeBtn = page.getByRole('button', { name: 'Gửi duyệt chương', exact: true });
       await expect(writeModeBtn).toBeVisible();
-      await assertButtonContrast(writeModeBtn, `AuthorWritingIde ${theme} filled mode-switch button`);
+      await assertButtonContrast(writeModeBtn, `AuthorWritingIde ${theme} filled submit button`);
 
       const titleInput = page.getByPlaceholder('Đặt tiêu đề chương tại đây...', { exact: true });
       await expect(titleInput).toHaveValue('Chương mở đầu');
@@ -520,7 +522,7 @@ test('StoryCraft portaled modals, dark-mode WCAG AA contrast, WAI-ARIA tabpanels
 
       // PR195-003 / PR195-004 / PR195-005: PlanningStudio + BrainstormingModal real call sites
       await page.goto(`${base}/author/ide?novelId=novel-1&chapterId=ch-1`, { waitUntil: 'domcontentloaded' });
-      await page.getByRole('button', { name: 'Lập kế hoạch', exact: true }).click();
+      await openPlanning(page);
       const studio = page.getByRole('region', { name: 'Planning Studio', exact: true });
       await expect(studio).toBeVisible();
       await expect(studio.getByText('Chưa kích hoạt thiết lập', { exact: true })).toBeVisible();

@@ -11,6 +11,7 @@ import {
   markNotificationRead,
   notificationHref,
   notificationTypeLabel,
+  groupNotifications,
   type AppNotification
 } from './notification-api';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -37,7 +38,12 @@ export function NotificationsPage() {
   });
 
   const mark = useMutation({
-    mutationFn: (item: AppNotification) => markNotificationRead(item.notificationId),
+    // A grouped card marks every notice it stands for.
+    mutationFn: async (item: AppNotification & { grouped?: AppNotification[] }) => {
+      for (const notice of item.grouped ?? [item]) {
+        if (notice.status === 'UNREAD') await markNotificationRead(notice.notificationId);
+      }
+    },
     onSuccess: () => cache.invalidateQueries({ queryKey: ['notifications'] })
   });
   const markAll = useMutation({
@@ -88,7 +94,8 @@ export function NotificationsPage() {
 
         <ResultsSurface identity={`${filter}-${page}`} busy={query.isFetching}>
           <Stack gap="sm">
-            {query.data?.data.map((item) => {
+            {groupNotifications(query.data?.data ?? []).map((group) => {
+              const item = { ...group.lead, grouped: group.items };
               const href = notificationHref(item, reader);
               const isMarkingThis = mark.isPending && mark.variables?.notificationId === item.notificationId;
               return (
@@ -96,7 +103,6 @@ export function NotificationsPage() {
                   key={item.notificationId}
                   p="md"
                   withBorder
-                  style={item.status === 'UNREAD' ? { borderLeft: '3px solid var(--sc-primary)' } : undefined}
                   data-testid={`notification-card-${item.notificationId}`}
                 >
                   <Stack gap="xs">
@@ -113,7 +119,7 @@ export function NotificationsPage() {
                       {notificationTypeLabel(item.type)}
                     </Badge>
                     <Text size="sm" style={{ overflowWrap: 'anywhere' }}>
-                      {item.content}
+                      {group.content}
                     </Text>
                     <Text size="xs" c="dimmed">
                       <time dateTime={item.createdAt} title={formatDateTime(item.createdAt)}>{formatDateTime(item.createdAt, 'relative')}</time>

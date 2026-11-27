@@ -5,6 +5,7 @@ import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createServer } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { openPlanning, backToDraftButton } from './helpers/studio-planning.mjs';
 
 // P2-07F Regression Test Suite (Updated for GPT-6 UXF-01, UXF-02, UXF-03 Review):
 // 1. UXF-03: Pre-M0 guard prevents amendments; automatic sync to active M0 & new Brain version without manual reload.
@@ -514,7 +515,7 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
     await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 90000 });
     await page.waitForLoadState('networkidle');
 
-    await button('Lập kế hoạch').click();
+    await openPlanning(page);
     await expect(page.getByRole('region', { name: 'Planning Studio' })).toBeVisible();
 
     // Navigate to World step

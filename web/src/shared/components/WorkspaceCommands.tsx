@@ -42,7 +42,7 @@ export function WorkspaceCommands({ commands, author = false }: { commands: Work
   }, [enabled, author]);
   if (!enabled) return null;
   return <div className="sc-workspace-tools">
-    <button type="button" onClick={open} aria-label="Lệnh nhanh" title="Lệnh nhanh (Ctrl + K)"><span className="material-symbols-outlined" aria-hidden="true">search</span></button>
+    <button type="button" onClick={open} aria-label="Lệnh nhanh" title="Lệnh nhanh (Ctrl + K)"><span className="material-symbols-outlined" aria-hidden="true">bolt</span></button>
     <button type="button" onClick={() => setHelp(true)} aria-label="Phím tắt" title="Phím tắt (?)"><span className="material-symbols-outlined" aria-hidden="true">keyboard</span></button>
     <AnimatedModal opened={opened} onClose={() => setOpened(false)} title="Lệnh nhanh" centered>
       <input className="sc-command-input" aria-label="Tìm lệnh" role="combobox" aria-expanded="true" aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={items.length ? `${id}-${Math.min(active, items.length - 1)}` : undefined} value={query}

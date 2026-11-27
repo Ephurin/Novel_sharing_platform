@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { FocusTrap } from '@mantine/core';
-import { useDebouncedValue, useMediaQuery } from '@mantine/hooks';
+import { useEffect, useState } from 'react';
+import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { useListScroll, useUrlFilters } from '../../shared/components/WorkspacePreferences';
 import { getReadingFilters, searchPublishedNovelPage, type ReaderNovel, type SearchPublishedNovelsInput } from './reader-api';
+import { ReaderFilterBar } from './ReaderFilterBar';
 import './reader-catalog.css';
 
 const PAGE_SIZE = 20;
@@ -78,19 +78,6 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
   const [debounced] = useDebouncedValue(q, 250);
   const waiting = q !== debounced;
   const [sortField, order] = sort.split(':');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const isMobileViewport = useMediaQuery('(max-width: 820px)');
-  const isMobileDrawer = Boolean(isMobileViewport && sidebarOpen);
-  const filterTriggerRef = useRef<HTMLButtonElement>(null);
-  const sidebarRef = useRef<HTMLElement>(null);
-
-  const closeSidebar = useCallback((restoreFocus = true) => {
-    setSidebarOpen(false);
-    if (restoreFocus) {
-      requestAnimationFrame(() => filterTriggerRef.current?.focus({ preventScroll: true }));
-    }
-  }, []);
-
   const key = ['reader-catalog', publicMode, debounced, genre, tag, status, sort, page];
   const result = useQuery({
     queryKey: key,
@@ -127,54 +114,21 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
     }
   }, [waiting, result.data?.totalPages, page]);
 
-  useEffect(() => {
-    if (!isMobileViewport && sidebarOpen) {
-      setSidebarOpen(false);
-    }
-  }, [isMobileViewport, sidebarOpen]);
-
-  useEffect(() => {
-    if (!isMobileDrawer) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const focusTimer = requestAnimationFrame(() => {
-      const firstControl = sidebarRef.current?.querySelector<HTMLElement>('input, button, select, a[href], [tabindex]:not([tabindex="-1"])');
-      (firstControl ?? sidebarRef.current)?.focus({ preventScroll: true });
-    });
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        closeSidebar(true);
-      }
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      cancelAnimationFrame(focusTimer);
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [isMobileDrawer, closeSidebar]);
-
   const busy = waiting || result.isPending;
   useListScroll(!busy);
 
   const change = (patch: Partial<typeof defaults>) => filters.update({ ...patch, page: 1 });
   const reset = () => filters.update(defaults);
 
-  const toggleMulti = (field: 'genre' | 'tag', value: string) => {
-    const current = filters.values[field];
-    const next = current.includes(value)
-      ? current.filter((item) => item !== value)
-      : [...current, value];
-    change({ [field]: next });
-  };
 
   const items = busy ? [] : result.data?.items ?? [];
+  // UI-18: when most cards on the page were updated this week, "Mới" tells the reader nothing.
+  const recentCount = items.filter((novel) => isRecentlyUpdated(novel.lastUpdatedAt ?? novel.updatedAt)).length;
+  const newBadgeMeaningful = recentCount <= items.length / 2;
   const totalItems = result.data?.totalItems;
   const totalPages = result.data?.totalPages ?? 1;
 
-  const activeFilterCount = genre.length + tag.length + (status ? 1 : 0);
-  const hasAnyFilter = activeFilterCount > 0 || Boolean(q.trim());
+  const hasAnyFilter = genre.length + tag.length + (status ? 1 : 0) > 0 || Boolean(q.trim());
   const base = publicMode ? '/public' : '/reader';
 
   const genreOptions = [...new Set([...(taxonomy.data?.genres ?? []), ...genre])];
@@ -189,7 +143,7 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
   return (
     <div className="sc-catalog-page">
       <div className="sc-catalog-columns">
-        <section className="sc-catalog-left" aria-label="Kết quả truyện" aria-busy={busy || result.isFetching} inert={isMobileDrawer}>
+        <section className="sc-catalog-left" aria-label="Kết quả truyện" aria-busy={busy || result.isFetching}>
           <div className="sc-catalog-topbar">
             <h1 className="sc-catalog-title">
               DANH SÁCH TRUYỆN
@@ -197,32 +151,34 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
                 <span className="sc-catalog-title-count"> ({totalItems.toLocaleString('vi-VN')})</span>
               )}
             </h1>
-            <button
-              ref={filterTriggerRef}
-              type="button"
-              className="sc-catalog-filter-open"
-              onClick={() => setSidebarOpen(true)}
-              aria-expanded={sidebarOpen}
-              aria-controls="sc-catalog-sidebar"
-            >
-              ☷ &nbsp;Bộ lọc{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
-            </button>
-            <div className="sc-catalog-order">
-              <span>Sắp xếp</span>
-              <select
-                id="reader-sort"
-                aria-label="Sắp xếp truyện"
-                value={sort}
-                onChange={(event) => change({ sort: event.target.value })}
-              >
-                {sorts.map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
+
+          <ReaderFilterBar
+            value={{ genres: genre, tags: tag, status }}
+            genreOptions={genreOptions}
+            tagOptions={tagOptions}
+            statuses={statuses}
+            taxonomy={{ pending: taxonomy.isPending, error: taxonomy.isError, retry: () => void taxonomy.refetch() }}
+            onChange={(patch) => change({ ...(patch.genres ? { genre: patch.genres } : {}), ...(patch.tags ? { tag: patch.tags } : {}), ...(patch.status !== undefined ? { status: patch.status } : {}) })}
+            onReset={() => change({ genre: [], tag: [], status: '' })}
+            trailing={
+              <div className="sc-catalog-order">
+                <span>Sắp xếp</span>
+                <select
+                  id="reader-sort"
+                  aria-label="Sắp xếp truyện"
+                  value={sort}
+                  onChange={(event) => change({ sort: event.target.value })}
+                >
+                  {sorts.map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            }
+          />
 
           <div className="sc-catalog-stories">
             {busy ? (
@@ -263,7 +219,7 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
               </div>
             ) : (
               items.map((novel) => (
-                <CatalogCard key={novel.novelId} novel={novel} to={`${base}/novels/${novel.novelId}`} />
+                <CatalogCard key={novel.novelId} novel={novel} to={`${base}/novels/${novel.novelId}`} newBadgeMeaningful={newBadgeMeaningful} />
               ))
             )}
           </div>
@@ -310,118 +266,6 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
           )}
         </section>
 
-        <div
-          className={`sc-catalog-sidebar-overlay${sidebarOpen ? ' open' : ''}`}
-          onClick={() => closeSidebar(true)}
-          aria-hidden="true"
-        />
-
-        <FocusTrap active={isMobileDrawer}>
-          <aside
-            ref={sidebarRef}
-            id="sc-catalog-sidebar"
-            className={`sc-catalog-sidebar${sidebarOpen ? ' open' : ''}`}
-            role={isMobileDrawer ? 'dialog' : undefined}
-            aria-modal={isMobileDrawer ? true : undefined}
-            aria-label={isMobileDrawer ? 'Bộ lọc' : 'Bộ lọc truyện'}
-            tabIndex={isMobileDrawer ? -1 : undefined}
-          >
-          <div className="sc-catalog-side-head">
-            <strong>☷ &nbsp; Bộ lọc nâng cao</strong>
-            <span>{activeFilterCount} đang chọn</span>
-          </div>
-
-          <div className="sc-catalog-side-content">
-            <div className="sc-catalog-filterblock">
-              <div className="sc-catalog-filter-title">Tình trạng</div>
-              <div className="sc-catalog-checks" role="radiogroup" aria-label="Lọc theo tình trạng">
-                {statuses.map(([value, label]) => (
-                  <label key={value || 'all'} className="sc-catalog-check">
-                    <input
-                      type="radio"
-                      name="catalog-status"
-                      value={value}
-                      checked={status === value}
-                      onChange={() => change({ status: value })}
-                    />
-                    <span>{label}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="sc-catalog-filterblock">
-              <div className="sc-catalog-filter-title">Thể loại</div>
-              {taxonomy.isError ? (
-                <button type="button" className="sc-catalog-reset" onClick={() => void taxonomy.refetch()}>
-                  ↻ Tải lại thể loại
-                </button>
-              ) : genreOptions.length === 0 ? (
-                <p className="sc-catalog-filter-empty">
-                  {taxonomy.isPending ? 'Đang tải…' : 'Chưa có thể loại'}
-                </p>
-              ) : (
-                <div className="sc-catalog-checks" translate="no">
-                  {genreOptions.map((name) => (
-                    <label key={name} className="sc-catalog-check">
-                      <input
-                        type="checkbox"
-                        value={name}
-                        checked={genre.includes(name)}
-                        onChange={() => toggleMulti('genre', name)}
-                      />
-                      <span>{name}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="sc-catalog-filterblock">
-              <div className="sc-catalog-filter-title">Thẻ / đặc trưng</div>
-              {taxonomy.isError ? (
-                <button type="button" className="sc-catalog-reset" onClick={() => void taxonomy.refetch()}>
-                  ↻ Tải lại thẻ
-                </button>
-              ) : tagOptions.length === 0 ? (
-                <p className="sc-catalog-filter-empty">
-                  {taxonomy.isPending ? 'Đang tải…' : 'Chưa có thẻ'}
-                </p>
-              ) : (
-                <div className="sc-catalog-checks" translate="no">
-                  {tagOptions.map((name) => (
-                    <label key={name} className="sc-catalog-check">
-                      <input
-                        type="checkbox"
-                        value={name}
-                        checked={tag.includes(name)}
-                        onChange={() => toggleMulti('tag', name)}
-                      />
-                      <span>{name}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="sc-catalog-footbar">
-            <button type="button" className="sc-catalog-reset" onClick={reset}>
-              ↻ Đặt lại bộ lọc
-            </button>
-            <button
-              type="button"
-              className="sc-catalog-apply"
-              onClick={() => {
-                closeSidebar(true);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-            >
-              Xem kết quả →
-            </button>
-          </div>
-          </aside>
-        </FocusTrap>
       </div>
     </div>
   );
@@ -433,7 +277,7 @@ const cardStatusLabels: Record<string, string> = {
   HIATUS: 'Tạm ngưng'
 };
 
-function CatalogCard({ novel, to }: { novel: ReaderNovel; to: string }) {
+function CatalogCard({ novel, to, newBadgeMeaningful = true }: { novel: ReaderNovel; to: string; newBadgeMeaningful?: boolean }) {
   const [failedUrl, setFailedUrl] = useState<string>();
   const statusCode = novel.serialStatus ?? novel.status ?? 'ONGOING';
   const statusLabel = cardStatusLabels[statusCode] ?? 'Đang ra';
@@ -451,7 +295,7 @@ function CatalogCard({ novel, to }: { novel: ReaderNovel; to: string }) {
   const hash = hashString(novel.novelId || novel.title);
   const variant = placeholderVariants[hash % placeholderVariants.length];
   const symbol = placeholderSymbols[hash % placeholderSymbols.length];
-  const showNewBadge = isRecentlyUpdated(novel.lastUpdatedAt ?? novel.updatedAt);
+  const showNewBadge = newBadgeMeaningful && isRecentlyUpdated(novel.lastUpdatedAt ?? novel.updatedAt);
 
   return (
     <article className="sc-catalog-story">

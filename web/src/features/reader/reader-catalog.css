@@ -49,7 +49,8 @@
 /* Main two-column layout */
 .sc-catalog-columns {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
+  /* UI-18: filters moved from the right column to the shared bar above the results. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
   align-items: start;
 }
@@ -311,11 +312,12 @@
 }
 
 .sc-catalog-new-badge {
-  font-size: 9px;
+  font-size: 12px;
+  line-height: 16px;
   white-space: nowrap;
-  padding: 3px 6px;
-  background: #fff4ec;
-  color: #c26f52;
+  padding: 2px 6px;
+  background: var(--sc-primary-soft);
+  color: var(--sc-primary-text);
   border-radius: 5px;
   font-weight: 600;
 }
@@ -951,4 +953,9 @@
 [data-sc-color-scheme="dark"] .sc-catalog-read {
   background: var(--sc-primary-soft);
   color: var(--sc-primary-text);
+}
+
+/* UI-18: without the filter column the result grid can use the full width. */
+@media (min-width: 1180px) {
+  .sc-catalog-stories { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }

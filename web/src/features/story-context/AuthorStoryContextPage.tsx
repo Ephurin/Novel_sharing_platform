@@ -51,9 +51,9 @@ type RoleFilter = 'ALL' | 'PROTAGONIST' | 'SUPPORTING' | 'ANTAGONIST' | 'MINOR';
 
 const characterRoles: { value: CharacterRole; label: string; badgeClass: string }[] = [
   { value: 'PROTAGONIST', label: 'Tuyến chính', badgeClass: 'bg-primary-600 text-white' },
-  { value: 'ANTAGONIST', label: 'Đối đầu / Phản diện', badgeClass: 'bg-red-50 text-red-700 border border-red-200' },
+  { value: 'ANTAGONIST', label: 'Phản diện', badgeClass: 'bg-red-50 text-red-700 border border-red-200' },
   { value: 'SUPPORTING', label: 'Tuyến phụ', badgeClass: 'bg-primary-50 text-primary-700 border border-primary-200' },
-  { value: 'MINOR', label: 'Quần chúng / Then chốt', badgeClass: 'bg-stone-100 text-stone-600 border border-stone-200' }
+  { value: 'MINOR', label: 'Quần chúng', badgeClass: 'bg-stone-100 text-stone-600 border border-stone-200' }
 ];
 
 export const ROLE_PRESET_TITLES: Record<CharacterRole, string[]> = {
@@ -654,7 +654,8 @@ export function AuthorStoryContextPage() {
                       { key: 'ALL', label: `Tất cả (${characters.length})` },
                       { key: 'PROTAGONIST', label: 'Tuyến chính' },
                       { key: 'SUPPORTING', label: 'Tuyến phụ' },
-                      { key: 'ANTAGONIST', label: 'Phản diện' }
+                      { key: 'ANTAGONIST', label: 'Phản diện' },
+                      { key: 'MINOR', label: 'Quần chúng' }
                     ] as { key: RoleFilter; label: string }[]
                   ).map((rf) => {
                     const active = roleFilter === rf.key;
@@ -716,7 +717,8 @@ export function AuthorStoryContextPage() {
                 {filteredCharacters.map((c: CharacterProfile) => {
                   const isSelected = !isCreatingCharacter && c.characterId === selectedCharacterId;
                   const { customTitle: cardCustomTitle } = parseCharacterDescription(c.description);
-                  const roleShortLabel = c.role === 'PROTAGONIST' ? 'Chính' : c.role === 'ANTAGONIST' ? 'Đối đầu' : c.role === 'SUPPORTING' ? 'Phụ' : 'Then chốt';
+                  // UI-20: one set of role names everywhere (filter, form, card, IDE).
+                  const roleShortLabel = characterRoles.find((role) => role.value === c.role)?.label ?? 'Quần chúng';
                   return (
                     <button
                       type="button"

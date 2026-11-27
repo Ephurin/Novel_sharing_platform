@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { facetTrigger, filterBar } from './helpers/reader-filters.mjs';
 
 // Run after npm run build: exercise the actual router and production CSS together.
 test('main reader UI retains animated tools, themes and guest author profiles', { timeout: 180000 }, async () => {
@@ -48,22 +49,16 @@ test('main reader UI retains animated tools, themes and guest author profiles', 
         await expect(page.locator('.sc-catalog-story')).toHaveCount(1);
         await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
         if (width === 390) {
-          const trigger = page.locator('.sc-catalog-filter-open');
+          // UI-18: the filter panels open in place under the shared bar and stay inside the viewport.
+          const trigger = facetTrigger(page, 'Thể loại');
           await trigger.click();
-          const dialog = page.getByRole('dialog', { name: 'Bộ lọc', exact: true });
-          await expect(dialog).toBeVisible();
-          await expect(dialog).toHaveAttribute('aria-modal', 'true');
-          await expect.poll(() => page.evaluate(() => document.getElementById('sc-catalog-sidebar')?.contains(document.activeElement) ?? false)).toBe(true);
-          const bounds = await dialog.boundingBox();
+          const panel = filterBar(page).getByRole('group', { name: 'Lọc theo thể loại', exact: true });
+          await expect(panel).toBeVisible();
+          const bounds = await panel.boundingBox();
           assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= width + 1);
           await page.screenshot({ path: path.join(output, `${width}-${theme}-filters.png`) });
           await page.keyboard.press('Escape');
-          await expect(dialog).toHaveCount(0);
-          await expect(trigger).toBeFocused();
-          await trigger.click();
-          await expect(dialog).toBeVisible();
-          await dialog.getByRole('button', { name: /Xem kết quả/ }).click();
-          await expect(dialog).toHaveCount(0);
+          await expect(panel).toHaveCount(0);
           await expect(trigger).toBeFocused();
         }
         await noOverflow();
