@@ -138,11 +138,12 @@ function parseChapters(markdown: string) {
   return matches.map((match, index) => {
     const startIndex = match.index ?? 0;
     const endIndex = matches[index + 1]?.index ?? markdown.length;
-    const rawContent = markdown.slice(startIndex, endIndex).trim();
+    // The "# Chương N: …" heading is the chapter title; the reader page already shows it above the text.
+    const body = markdown.slice(startIndex + match[0].length, endIndex).trim();
 
     return {
       title: match[1].trim(),
-      content: rawContent
+      content: body
     };
   });
 }
