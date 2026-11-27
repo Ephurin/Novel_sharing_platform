@@ -23,7 +23,10 @@ test('localized URLs retain edit authorization and scoped admin navigation', { t
   const novelId = '02b216e1-1900-4522-867d-1a1a032362b0';
   const novel = { novelId, slug: 'thien-su-nha-ben-20abc18e', title: 'Thiên sứ nhà bên', authorId: owner.userId, status: 'DRAFT', genres: [] };
   const chapterId = 'c4d79a04-c3e6-4148-8d37-98a22398b0a6';
-  const chapter = { chapterId, novelId, slug: 'chuong-1-bat-dau-2aeedda0', title: 'Bắt đầu', chapterNumber: 1, status: 'DRAFT' };
+  const chapter = {
+    chapterId, novelId, slug: 'chuong-1-bat-dau-2aeedda0', title: 'Bắt đầu',
+    chapterNumber: 1, status: 'DRAFT', wordCount: 0, isVip: false, priceCoins: 0
+  };
   const reviewId = 'd1b18436-62be-4b97-9d27-c9b544cc4743';
   const review = { reviewId, reviewSlug: novel.slug + '--13', targetId: novelId, targetType: 'NOVEL', status: 'PENDING', target: novel };
   const errors = [];
