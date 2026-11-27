@@ -4,7 +4,7 @@ const panelNames = { 'Thể loại': 'Lọc theo thể loại', 'Thẻ': 'Lọc 
 export const filterBar = page => page.getByRole('group', { name: 'Bộ lọc truyện', exact: true });
 
 export function facetTrigger(page, facet) {
-  const pattern = facet === 'Tình trạng' ? /^Tình trạng(: .+)?$/ : new RegExp(`^${facet}( \d+)?$`);
+  const pattern = facet === 'Tình trạng' ? /^Tình trạng(: .+)?$/ : new RegExp(`^${facet}( ?[0-9]+)?$`);
   return filterBar(page).getByRole('button', { name: pattern });
 }
 

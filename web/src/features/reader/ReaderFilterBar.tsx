@@ -64,7 +64,7 @@ export function ReaderFilterBar({ value, genreOptions, tagOptions, statuses, tax
       onClick={() => setOpen(current => (current === facet ? null : facet))}
     >
       <span>{label}</span>
-      {count > 0 && <span className="sc-filter-trigger-count">{count}</span>}
+      {count > 0 && <>{' '}<span className="sc-filter-trigger-count">{count}</span></>}
       <span className="material-symbols-outlined" aria-hidden="true">expand_more</span>
     </button>
   );
