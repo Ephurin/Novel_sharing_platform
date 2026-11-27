@@ -7,7 +7,7 @@ These live-test findings are real, but the author can catch and fix each one qui
 | AA1 | [Long run 5](P2_LIVE_LONGRUN5_2026-11-17.md) | Name drift: the writer called the approved skill "Huyết Nha Ma Công" "Hắc Nha Ma Công" from ch. 14, and analysis proposed a new entity | In the name review, link "Hắc Nha Ma Công" to the existing skill, or edit the chapter text | Warn when a new name is one syllable away from an approved name of the same type; remind the writer of approved skill names |
 | AA2 | Long run 5 | The idiom "Quỷ Môn Quan" (brink of death) became a place | Reject it in the name review ("Không phải tên riêng") | Keep a list of common idioms that are not names |
 | AA3 | Long run 5 | "Thiên nhãn" (the dragon's eye) became an item | Reject it in the name review | Tell verification that body parts are not items |
-| BB1 | [R4 consistency](P2_LIVE_R4_CONSISTENCY_2026-11-17.md) | One contradiction is reported twice (against the last-seen place and against the location fact), so 3 findings show for 2 problems | Read both; they cite the same sentence | Merge findings with the same quote and subject |
+| BB1 | [R4 consistency](P2_LIVE_R4_CONSISTENCY_2026-11-17.md) | One contradiction is reported twice (against the last-seen place and against the location fact), so 3 findings show for 2 problems | Read both; they cite the same sentence | **Fixed 2026-11-27:** findings about the same character whose quotes overlap are merged into one, listing every fact (`canon_refs`) |
 | UI-10 | [UI walkthrough](P2_LIVE_UI_WALKTHROUGH_2026-11-17.md) | Facts repeat each chapter (Trần Vũ's hair colour again), and a passing pose became a fact | Reject the repeated or transient fact in the proposal group | Give fact extraction the approved facts; drop transient details such as posture |
 | DD1 | [Demo walkthrough](P2_DEMO_WALKTHROUGH_2026-11-17.md) | Older facts of the test novel store English values from the model (`silver`, `in the chest of Trần Vũ`, `lost_memories`, ch. 9–16) | Edit or reject the fact in the Facts tab | Ask fact and state extraction for Vietnamese values, as event summaries already are |
 | DD2 | Demo walkthrough | A vague place ("không gian bên trong") became Mạc Độc's current location | Correct the location fact | Do not take a location from a phrase that is not a named place |
@@ -35,5 +35,5 @@ The demo novel "Kiếm Ấn Lôi Sơn" was then cleaned with live off. Memory we
 | DD2 | Mạc Độc's location → "thung lũng lơ lửng bên trong không gian phong ấn", through an event correction (ch. 16) and its approval |
 | DD3 | Ch. 18 renamed to "Chương 18". Ch. 1 is renamed in the draft only: the published title changes when the chapter is published again, which starts an analysis and so needs live |
 
-Still open: BB1 and UI-10 (left for later), the published title of ch. 1, and the 16 other test novels on the test account.
+Still open: UI-10 (left for later; BB1 fixed on 2026-11-27), the published title of ch. 1, and the 16 other test novels on the test account.
 
