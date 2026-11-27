@@ -40,7 +40,7 @@ if (env.DB_CONNECT_ON_START) {
 }
 
 const server = app.listen(env.PORT, () => {
-  logger.info(`Ephurin API listening on port ${env.PORT}`);
+  logger.info(`StoryCraft API listening on port ${env.PORT}`);
 });
 
 async function shutdown(signal: string) {

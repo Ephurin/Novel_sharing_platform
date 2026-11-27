@@ -1730,7 +1730,7 @@ export function AuthorWritingIde() {
                   <span className="material-symbols-outlined text-[17px] fill-icon">auto_awesome</span>
                 </div>
                 <div>
-                  <h3 className="text-meta font-bold text-stone-900 leading-none">Trợ lý sáng tác AI • Ephurin</h3>
+                  <h3 className="text-meta font-bold text-stone-900 leading-none">Trợ lý sáng tác AI</h3>
                   <span className="text-meta text-stone-400">Viết theo bộ nhớ truyện của bạn</span>
                 </div>
               </div>
@@ -1862,7 +1862,7 @@ export function AuthorWritingIde() {
                 <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 text-stone-700">
                   <div className="flex items-center justify-between mb-1 text-meta font-semibold text-stone-500 uppercase">
                     <span>Sẵn sàng hỗ trợ</span>
-                    <span className="text-meta text-stone-400">Ephurin AI</span>
+                    <span className="text-meta text-stone-400">StoryCraft AI</span>
                   </div>
                   <p className="text-meta leading-normal text-stone-600">
                     Nhập yêu cầu vào ô bên dưới hoặc bấm vào các tác vụ nhanh để AI phân tích bối cảnh truyện và viết tiếp.

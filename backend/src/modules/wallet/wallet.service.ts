@@ -85,7 +85,7 @@ export async function createDepositSession(auth: AuthContext, input: CreateDepos
         config,
         txnRef: toVnpayTxnRef(session.depositSessionId),
         amountVnd,
-        orderInfo: `Nap ${session.amountCoins} Xu Ephurin`,
+        orderInfo: `Nap ${session.amountCoins} Xu StoryCraft`,
         ipAddr: context.ipAddr ?? '127.0.0.1',
         createdAt: session.createdAt,
         expiresAt: session.expiresAt!

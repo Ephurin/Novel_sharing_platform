@@ -51,6 +51,9 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
   // UAT 2026-11-21 (BUG-007): the saved age rating was never shown to readers.
   const ageLabel = novel.ageRating === 'MATURE' ? '18+' : novel.ageRating === 'TEEN' ? '16+' : null;
   const genres = novel.genres?.length ? novel.genres : novel.genre ? [novel.genre] : [];
+  // UI-18: a tag that repeats a genre name is shown once, as the genre.
+  const genreKeys = new Set(genres.map(genre => genre.toLowerCase()));
+  const tags = (novel.tags ?? []).filter(tag => !genreKeys.has(tag.toLowerCase()));
   const stats = statistics.data;
   const score = typeof stats?.ratingAverage === 'number' ? `${stats.ratingAverage.toLocaleString('vi-VN', { maximumFractionDigits: 1 })}/10` : 'Chưa có';
   const updated = novel.lastUpdatedAt;
@@ -77,7 +80,7 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
         {novel.authorName && <p className="sc-reader-author">Tác giả: {authorLink ? <Link to={authorLink}>{novel.authorName}</Link> : <span>{novel.authorName}</span>}</p>}
         <div className="sc-reader-taxonomy" aria-label="Thể loại và thẻ" translate="no">
           {!!genres.length && <div className="sc-reader-genres" aria-label="Thể loại">{genres.map(genre => <Link key={genre} to={`${catalogPath}?genre=${encodeURIComponent(genre)}`} className="sc-genre-tag">{genre}</Link>)}</div>}
-          {!!novel.tags?.length && <div className="sc-reader-tags" aria-label="Thẻ">{novel.tags.map(tag => <Link key={tag} to={`${catalogPath}?tag=${encodeURIComponent(tag)}`} className="sc-reader-tag">#{tag}</Link>)}</div>}
+          {!!tags.length && <div className="sc-reader-tags" aria-label="Thẻ">{tags.map(tag => <Link key={tag} to={`${catalogPath}?tag=${encodeURIComponent(tag)}`} className="sc-reader-tag">#{tag}</Link>)}</div>}
         </div>
         <div className="sc-reader-primary-actions">
           {actions}

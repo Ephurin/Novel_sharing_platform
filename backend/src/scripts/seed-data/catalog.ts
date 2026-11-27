@@ -241,7 +241,8 @@ export function buildCatalogSpecs(existingTitles: Set<string>): NovelSpec[] {
         title,
         pack: packName,
         genre: genre.genre,
-        tags: genre.tags,
+        // A tag that repeats the genre only duplicates it in reader filters (UI-18).
+        tags: genre.tags.filter(tag => tag.toLowerCase() !== genre.genre.toLowerCase()),
         synopsis,
         cast: { hero, ally, rival, elder, minor },
         places: [place0, place1, place2, place3],

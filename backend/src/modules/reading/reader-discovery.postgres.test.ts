@@ -65,6 +65,13 @@ test('reader catalog, published metadata and unified follow/library state', {
       if (name !== 'Unused') await pool.query(`insert into novel_tags (novel_id, tag_id) values ($1, $2)`, [ids[0], tag]);
     }
     assert.deepEqual(await listReadingFilters(), { genres: ['Secondary genre'], tags: ['Adventure', 'Magic', 'Unused'] });
+    // UI-18: a tag repeating a genre name (any case) is listed once, as the genre, and the genre filter still finds it.
+    const echoTag = randomUUID();
+    await pool.query(`insert into genres (name, slug) values ('Cyberpunk', 'cyberpunk-genre')`);
+    await pool.query(`insert into tags (tag_id, name, slug) values ($1, 'cyberpunk', 'cyberpunk')`, [echoTag]);
+    await pool.query(`insert into novel_tags (novel_id, tag_id) values ($1, $2)`, [ids[2], echoTag]);
+    assert.deepEqual(await listReadingFilters(), { genres: ['Cyberpunk', 'Secondary genre'], tags: ['Adventure', 'Magic', 'Unused'] });
+    assert.deepEqual((await search({ genre: 'Cyberpunk' })).items.map(item => item.novelId), [ids[2]]);
     await pool.query("update novels set serial_status='COMPLETED' where novel_id=$1", [ids[1]]);
     await pool.query("update novels set serial_status='HIATUS' where novel_id=$1", [ids[2]]);
     for (const [status, id] of [['ONGOING', ids[0]], ['COMPLETED', ids[1]], ['HIATUS', ids[2]]]) {
