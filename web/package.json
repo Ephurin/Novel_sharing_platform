@@ -36,7 +36,8 @@
     "test:p1-checkpoint-real": "node --test tests/p1-entity-checkpoint-real.browser.test.mjs",
     "test:p2-ux05": "node --test tests/p2-07f-ux05-world-amendment.browser.test.mjs",
     "test:p2-06b": "node --test tests/p2-06b-brainstorming.browser.test.mjs tests/p2-06b-bui-regressions.browser.test.mjs",
-    "test:p2-10": "node --test tests/p2-10-completion.browser.test.mjs"
+    "test:p2-10": "node --test tests/p2-10-completion.browser.test.mjs",
+    "test:ide-mobile": "node --test tests/ide-mobile-layout.browser.test.mjs"
   },
   "dependencies": {
     "@animate-ui/react": "2.3.0",
