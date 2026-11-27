@@ -418,6 +418,8 @@ svg[data-combobox-chevron] path { visibility: hidden; }
   .sc-navbar .sc-continue { width: 36px; padding: 0; }
   .sc-navbar .sc-continue > span:last-child { display: none; }
   .sc-navbar-actions { gap: 6px; }
+  .sc-navbar-inner { column-gap: 10px; }
+  .sc-navbar-actions > .sc-button:not(.sc-continue) { padding-inline: 10px; }
   .sc-global-nav { scrollbar-width: none; }
   .sc-global-nav::-webkit-scrollbar { display: none; }
   .sc-author-theme h1 { font-size: 22px; line-height: 30px; }
