@@ -147,7 +147,7 @@ export function PublicReaderNovelDetailPage() {
       {novelQuery.isError ? <ErrorState error={novelQuery.error} onRetry={() => void novelQuery.refetch()} /> : null}
       {novel ? (
         <>
-          <Breadcrumb back={{ to: '/public', label: 'Thư viện công khai' }} current={novel.title} />
+          <Breadcrumb back={{ to: '/public', label: navigationLabels.publicHome }} current={novel.title} />
           <NovelOverview
             novel={novel}
             chapters={chapters}

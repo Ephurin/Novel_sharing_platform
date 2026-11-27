@@ -69,9 +69,9 @@ Tài liệu giao cho team dev. Gộp ba bản đánh giá độc lập, đã b�
 | UI-22 | Chốt tên StoryCraft: bỏ "Ephurin" ở trợ lý AI, nội dung đơn nạp VNPay ("Nap N Xu StoryCraft") và log khởi động API. |
 | UI-13 (bổ sung) | Bỏ công tắc "Lập kế hoạch / Viết bản thảo". Nút "Trợ lý viết" vẫn mở khung trợ lý; mũi tên ▾ bên cạnh mở menu: Viết tiếp từ con trỏ, Hỏi về đoạn đang chọn, Mở khung trò chuyện, Lập kế hoạch truyện. Trong màn hình kế hoạch có nút "← Quay lại bản thảo" (bước "Bắt đầu viết" vẫn đưa về chương). Truyện chưa có chương có thêm nút "Lập kế hoạch truyện trước". |
 | UI-18 (bổ sung) | Danh sách truyện và Tìm kiếm dùng chung `ReaderFilterBar`: nút Thể loại / Thẻ / Tình trạng mở bảng chọn ngay dưới, sắp xếp ở cuối hàng, bên dưới là các bộ lọc đang áp dụng (bấm ✕ để bỏ) và "Đặt lại bộ lọc" (giữ từ khóa). Bỏ cột checkbox và ngăn kéo lọc trên mobile ở Danh sách; Tìm kiếm không còn tách trang cơ bản / nâng cao (đường dẫn `/tim-kiem-nang-cao` vẫn mở được). Chọn bộ lọc áp dụng ngay. |
+| UI-21 (375 px) | Rà 23 màn hình độc giả và tài khoản ở 375 px trên stack local có dữ liệu seed: không trang nào tràn ngang. Sửa: dải tab Thư viện / Đánh dấu / Lịch sử không còn rớt xuống hai hàng; ô Sắp xếp lên trên các nút lọc để bảng chọn mở ngay dưới nút; breadcrumb của khách ghi "Danh sách truyện" giống menu (trước ghi "Thư viện công khai"). |
 
-**Chưa làm:**
-- UI-21: chưa chụp và rà riêng các màn hình độc giả ở 375 px. Các bộ test trình duyệt hiện có đã chạy ở 375 px.
+**Chưa làm:** không còn mục nào trong UI-01 → UI-22.
 
 ## Bảng tóm tắt
 

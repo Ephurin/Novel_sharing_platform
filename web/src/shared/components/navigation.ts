@@ -2,7 +2,8 @@ export const navigationLabels = {
   home: 'Trang chủ',
   authorHome: 'Tác phẩm',
   readerHome: 'Danh sách truyện',
-  publicHome: 'Thư viện công khai',
+  // UI-21: guests see the same catalog name as the main menu.
+  publicHome: 'Danh sách truyện',
   authorProfile: 'Trang tác giả',
   authorWallet: 'Ví và doanh thu',
   readerWallet: 'Ví xu'

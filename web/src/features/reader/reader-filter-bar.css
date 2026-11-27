@@ -28,6 +28,7 @@
 .sc-filter-reset, .sc-filter-retry { min-height: 30px; padding: 0 8px; border: 0; background: transparent; color: var(--sc-text-muted); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 .sc-filter-reset:hover, .sc-filter-retry:hover { color: var(--sc-text); }
 @media (max-width: 680px) {
-  .sc-filter-trailing { margin-left: 0; width: 100%; }
+  /* Sort goes above the facet buttons so an open panel sits right under the button that opened it. */
+  .sc-filter-trailing { order: -1; margin-left: 0; width: 100%; justify-content: flex-end; }
   .sc-filter-options { max-height: 50vh; }
 }
