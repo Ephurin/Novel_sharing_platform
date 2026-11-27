@@ -48,6 +48,11 @@ test('Studio tooltips, numeric typography, symbols, context scope and always-ava
         await expect(preview.locator('.chapter-prose')).toContainText('Anh Hùng Goblin');
         await page.keyboard.press('Escape'); await expect(preview).toHaveCount(0);
 
+        // Phones reach the format controls from the "Thêm" sheet (C03/V2-06).
+        const phone = profile.width < 768, more = page.getByRole('dialog', { name: 'Thêm công cụ', exact: true });
+        const openMore = async () => { if (phone) { await page.getByRole('button', { name: 'Thêm', exact: true }).click(); await expect(more).toBeVisible(); } };
+        const closeMore = async () => { if (phone) { await page.keyboard.press('Escape'); await expect(more).toHaveCount(0); } };
+        await openMore();
         const font = page.getByRole('spinbutton', { name: 'Cỡ chữ', exact: true }), spacing = page.getByRole('spinbutton', { name: 'Giãn dòng', exact: true });
         await font.fill('24'); await font.press('Enter'); await expect(editor).toHaveCSS('font-size', '24px');
         await spacing.fill(''); await spacing.pressSequentially('2.35'); await spacing.press('Enter'); await expect(editor).toHaveCSS('line-height', '56.4px');
@@ -55,10 +60,11 @@ test('Studio tooltips, numeric typography, symbols, context scope and always-ava
         await font.fill('8'); await font.press('Enter'); await expect(font).toHaveValue('13');
         await font.fill('22'); await font.press('Enter'); await spacing.fill('2.35'); await spacing.press('Enter');
         await expect(canonical).toHaveValue(initial);
+        await closeMore();
         await page.reload(); await expect(canonical).toHaveValue(initial);
         if (profile.dark) await page.evaluate(() => window.setTheme('dark'));
         await expect(page.locator('html')).toHaveAttribute('data-theme', profile.dark ? 'dark' : 'light');
-        await expect(font).toHaveValue('22'); await expect(spacing).toHaveValue('2.35'); await expect(editor).toHaveCSS('font-size', '22px');
+        await openMore(); await expect(font).toHaveValue('22'); await expect(spacing).toHaveValue('2.35'); await expect(editor).toHaveCSS('font-size', '22px'); await closeMore();
 
         const select = async (start, end) => canonical.evaluate((el, range) => { if (el.hidden) el.dispatchEvent(new CustomEvent('studio-select-source', { detail: { ...range, scroll: false }, cancelable: true })); else { el.focus(); el.setSelectionRange(range.start, range.end); el.dispatchEvent(new Event('select', { bubbles: true })); } }, { start, end });
         await select(0, nameEnd);
@@ -79,7 +85,7 @@ test('Studio tooltips, numeric typography, symbols, context scope and always-ava
         await page.keyboard.press('Control+s'); await expect.poll(() => saved).toBe('「Anh Hùng Goblin」' + initial.slice(nameEnd));
         await page.keyboard.press('Control+z'); await expect(canonical).toHaveValue(initial);
         const at = initial.indexOf('xuất'); await select(at, at);
-        await page.getByRole('button', { name: 'Chèn ký tự đặc biệt', exact: true }).click();
+        await openMore(); await page.getByRole('button', { name: 'Chèn ký tự đặc biệt', exact: true }).click();
         await symbols.getByRole('searchbox', { name: 'Tìm ký tự đặc biệt', exact: true }).fill('tên tác phẩm');
         await symbols.getByRole('button', { name: 'Chèn Ngoặc tên tác phẩm', exact: true }).click();
         await expect(symbols).toHaveCount(0); await expect(editor).toBeFocused();

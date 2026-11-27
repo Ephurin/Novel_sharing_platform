@@ -201,3 +201,54 @@ html:has(.sc-writing-studio) { scrollbar-gutter: auto; overflow: hidden; }
 /* UI-13: "Trợ lý viết ▾" split button — the two halves share one outline. */
 .sc-author-theme .sc-writing-studio .sc-studio-command-actions .sc-studio-ai-split button { border: 0; box-shadow: none; padding: 0 8px; }
 .sc-author-theme .sc-writing-studio .sc-studio-command-actions .sc-studio-ai-split button + button { padding: 0 4px; border-left: 1px solid rgb(var(--sc-primary-rgb, 194 92 52) / .25); }
+/* C03 / V2-06: phones (< 768px) keep the studio header to one row and the editor toolbar to two rows
+   (menus, then AI + publish + "Thêm"). Format controls, chapter settings, theme and focus mode open
+   from the "Thêm" sheet. Every control here is at least 32 x 32px. Tablet and desktop are untouched. */
+@media (max-width: 767px) {
+  .sc-author-theme .sc-writing-studio .sc-studio-toolbar { flex-wrap: nowrap; align-items: center; gap: 8px; padding-block: 6px; }
+  .sc-author-theme .sc-writing-studio .sc-studio-toolbar > div:first-child { flex: 1 1 auto; gap: 6px; }
+  .sc-author-theme .sc-writing-studio .sc-studio-toolbar-center { order: 0; width: auto; flex: 0 0 auto; margin-inline: 0; }
+  .sc-author-theme .sc-writing-studio .sc-studio-tool-cluster { padding: 2px 4px; gap: 2px; }
+  .sc-author-theme .sc-writing-studio .sc-studio-cluster-btn { min-width: 32px; height: 32px; min-height: 32px; padding: 0 6px; }
+  /* The back arrow already leads to the novel, so phones keep only the chapter crumb. */
+  .sc-writing-studio .sc-studio-toolbar .sc-breadcrumbs li:not(:last-child), .sc-writing-studio .sc-studio-toolbar .sc-breadcrumbs li > .material-symbols-outlined { display: none; }
+  .sc-studio-command-row { padding-inline: 4px; gap: 0 4px; }
+  .sc-studio-command-left { gap: 0; flex: 1 1 100%; }
+  .sc-author-theme .sc-writing-studio .sc-studio-sidebar-toggle { width: 32px; min-width: 32px; height: 32px; min-height: 32px; }
+  .sc-studio-command-left > .sc-studio-cluster-divider { margin-inline: 1px; }
+  .sc-studio-command-row .sc-studio-workbench-bar { gap: 0; padding-inline: 0; }
+  .sc-author-theme .sc-writing-studio .sc-studio-workbench-bar > button { min-width: 32px; min-height: 32px; height: 32px; padding: 4px; justify-content: center; }
+  .sc-studio-command-right { flex: 1 1 100%; }
+  .sc-studio-command-actions { flex: 1 1 auto; min-width: 0; gap: 6px; }
+  .sc-author-theme .sc-writing-studio .sc-studio-command-actions button { min-height: 32px; height: 32px; }
+  .sc-author-theme .sc-writing-studio .sc-studio-command-actions .sc-studio-ai-split button { min-width: 32px; justify-content: center; }
+  .sc-author-theme .sc-writing-studio .sc-studio-command-actions .sc-studio-more-btn { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; padding: 0 10px; border: 1px solid var(--sc-border); border-radius: 8px; background: var(--sc-surface); color: var(--sc-text); font: 600 13px/18px var(--sc-font); cursor: pointer; }
+  .sc-studio-more-btn:hover, .sc-studio-more-btn[aria-expanded="true"] { background: var(--sc-primary-soft); color: var(--sc-primary-text); }
+  .sc-writing-studio .sc-manuscript-page { margin-top: 12px; }
+  .sc-author-theme .sc-writing-studio textarea.sc-chapter-title { display: block; min-height: 32px; font-size: 22px; line-height: 30px; resize: none; overflow: hidden; field-sizing: content; }
+  .sc-studio-editor-mode button { min-height: 32px; }
+}
+/* The sheet is portalled outside .sc-writing-studio, so it carries its own copies of the control styles. */
+.sc-studio-more { display: grid; gap: 16px; }
+.sc-studio-more > section { display: grid; gap: 8px; min-width: 0; }
+.sc-studio-more h3 { margin: 0; color: var(--sc-text-muted); font: 600 12px/18px var(--sc-font); }
+.sc-studio-more button { min-width: 32px; min-height: 32px; }
+.sc-studio-more-row, .sc-studio-more .sc-studio-settings, .sc-studio-more .sc-studio-settings-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 8px; }
+.sc-studio-more .sc-studio-settings { padding: 0; border: 0; background: transparent; min-height: 0; }
+.sc-studio-more .sc-studio-status-badge { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0 8px; border: 1px solid var(--sc-border); border-radius: 6px; font: 600 12px/18px var(--sc-font); white-space: nowrap; }
+.sc-studio-more .sc-studio-status-badge[data-status="draft"] { background: var(--sc-warning-bg); color: var(--sc-warning); border-color: color-mix(in srgb, var(--sc-warning) 28%, transparent); }
+.sc-studio-more .sc-studio-status-badge[data-status="published"] { background: var(--sc-success-bg); color: var(--sc-success); border-color: color-mix(in srgb, var(--sc-success) 28%, transparent); }
+.sc-studio-more .sc-studio-status-dot { width: 6px; height: 6px; border-radius: 999px; background: currentColor; }
+.sc-studio-more .sc-button { min-height: 36px; padding: 0 12px; background: transparent; color: var(--sc-text); }
+.sc-studio-more .sc-studio-history-btn::after { content: 'Lịch sử bản thảo'; }
+.sc-studio-more .sc-studio-vip-pill { display: inline-flex; align-items: center; gap: 2px; padding: 2px; border: 1px solid var(--sc-border); border-radius: 8px; background: var(--sc-neutral-bg); }
+.sc-studio-more .sc-studio-access-btn { display: inline-flex; align-items: center; gap: 4px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: var(--sc-text-muted); font: 500 13px/18px var(--sc-font); cursor: pointer; }
+.sc-studio-more .sc-studio-access-btn.is-active { background: var(--sc-surface); color: var(--sc-text); font-weight: 600; box-shadow: 0 1px 2px rgb(var(--sc-text-rgb) / .08); }
+.sc-studio-more .sc-studio-access-btn.is-active.is-vip { color: var(--sc-primary-text); }
+.sc-studio-more .sc-studio-vip-price { display: inline-flex; align-items: center; gap: 4px; padding: 0 6px; color: var(--sc-warning); font: 600 13px/18px var(--sc-font); }
+.sc-studio-more input.sc-studio-vip-input { width: 52px; height: 32px; padding: 0 4px; border: 1px solid var(--sc-border); border-radius: 6px; background: var(--sc-surface); color: var(--sc-text); font: 600 13px/20px var(--sc-font); text-align: center; appearance: textfield; }
+.sc-studio-more .sc-format-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; max-width: none; padding: 0; }
+.sc-studio-more .sc-format-controls > .w-px { display: none; }
+.sc-studio-more .sc-studio-number-field { width: 44px; height: 32px; padding: 0 2px; border: 0; border-radius: 4px; background: transparent; color: var(--sc-text); font: 600 14px/20px var(--sc-font); text-align: center; appearance: textfield; }
+.sc-studio-more .sc-studio-number-field:focus { outline: 2px solid var(--sc-focus-ring); outline-offset: -2px; }
+.sc-studio-more-sheet .sc-animated-modal-header .mantine-CloseButton-root { --cb-size: 32px; width: 32px; height: 32px; min-width: 32px; min-height: 32px; }

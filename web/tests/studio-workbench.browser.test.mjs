@@ -47,8 +47,11 @@ test('Studio workbench: undo, literal replacements, formatting, notes, scenes, e
         await page.goto('http://127.0.0.1:' + server.address().port);
         const editor = page.getByRole('textbox', { name: 'Nội dung bản thảo', exact: true });
         await expect(editor).toHaveValue(initial);
+        // Phones keep chapter settings in the "Thêm" sheet (C03/V2-06).
+        if (mobile) await page.getByRole('button',{name:'Thêm',exact:true}).click();
         await page.locator('.sc-studio-settings-controls').getByRole('button',{name:'Lịch sử bản thảo',exact:true}).click();
         await expect(page.getByRole('dialog',{name:'Lịch sử bản thảo',exact:true})).toBeVisible();await page.keyboard.press('Escape');
+        if (mobile) await page.getByRole('button',{name:'Thêm',exact:true}).click();
         await page.locator('.sc-studio-settings-controls').getByRole('button',{name:'Lên lịch',exact:true}).click();
         await expect(page.getByRole('dialog',{name:'Lên lịch xuất bản chương',exact:true})).toBeVisible();await page.keyboard.press('Escape');
         if (!mobile) { await page.screenshot({path:path.join(output,'compact-desktop.png')});assert.ok(await page.locator('.sc-studio-command-row').evaluate(el => el.getBoundingClientRect().height <= 48));assert.ok(await page.locator('.sc-format-toolbar').evaluate(el => el.getBoundingClientRect().height <= 56)); }
@@ -150,9 +153,11 @@ test('Studio workbench: undo, literal replacements, formatting, notes, scenes, e
         assert.equal((await canonical.inputValue()).replace(/\n+/g, '\n'), 'Một\nHai 🌙');
         await rich.fill('Đoạn một 🌙.\n\nĐoạn hai cần ghi chú.');
         await canonical.evaluate(el => el.dispatchEvent(new CustomEvent('studio-select-source', { detail: { start: 0, end: 8 }, cancelable: true })));
-        if (mobile) await page.getByTitle('In đậm (**văn bản**)', { exact: true }).tap(); else await page.getByTitle('In đậm (**văn bản**)', { exact: true }).click();
+        // Phones reach the format controls from the "Thêm" sheet (C03/V2-06); tapping one closes the sheet.
+        if (mobile) { await page.getByRole('button',{name:'Thêm',exact:true}).tap(); await page.getByTitle('In đậm (**văn bản**)', { exact: true }).tap(); } else await page.getByTitle('In đậm (**văn bản**)', { exact: true }).click();
         await expect(rich.locator('strong')).toHaveText('Đoạn một');
         await expect(canonical).toHaveValue('**Đoạn một** 🌙.\n\nĐoạn hai cần ghi chú.');
+        if (mobile) await page.getByRole('button',{name:'Thêm',exact:true}).click();
         await page.getByTitle('In nghiêng (*văn bản*)', { exact: true }).click();
         await expect(rich.locator('em')).toHaveText('Đoạn một');
         await expect(rich.locator('strong em')).toHaveText('Đoạn một');

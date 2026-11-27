@@ -35,6 +35,7 @@ import { useAuthStore } from '../auth/useAuthStore';
 import { useDraftPersistence } from './useDraftPersistence';
 import { resolveAuthorContext, writeAuthorContext } from './author-context';
 import { Alert, Button, Group, Text } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { ThemeControl } from '../../shared/components/ThemeControl';
 import { AuthorMemoryPanel } from '../ai-copilot/AuthorMemoryPanel';
 import { usePendingMemoryReviews } from '../ai-copilot/pending-memory-reviews';
@@ -251,6 +252,10 @@ export function AuthorWritingIde() {
   const [chapterToDelete, setChapterToDelete] = useState<Chapter | null>(null);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  // C03/V2-06: phones get two toolbar rows; everything else lives in the "Thêm" sheet.
+  const isPhone = useMediaQuery('(max-width: 767px)', undefined, { getInitialValueInEffect: false }) ?? false;
+  const [moreOpen, setMoreOpen] = useState(false);
+  const titleRef = useRef<HTMLTextAreaElement>(null);
   const [focusMode, setFocusMode] = useState(false);
   const [formatToolbarVisible, setFormatToolbarVisible] = useState(true);
   const [visualEditor, setVisualEditor] = useState(() => readEditorSetting('storycraft-studio-editor-mode') !== 'source');
@@ -1092,8 +1097,8 @@ export function AuthorWritingIde() {
 
           {/* Manuscript actions and chapter access share one toolbar. */}
           <div className="sc-studio-settings-controls">
-            {canSchedule && <button type="button" className="sc-button sc-button-ghost" onClick={openSchedule}>Lên lịch</button>}
-            <button type="button" className="sc-button sc-button-ghost sc-studio-history-btn" aria-label="Lịch sử bản thảo" title="Lịch sử bản thảo" onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}><span className="material-symbols-outlined" aria-hidden="true">history</span></button>
+            {canSchedule && <button type="button" className="sc-button sc-button-ghost" data-closes-sheet onClick={openSchedule}>Lên lịch</button>}
+            <button type="button" className="sc-button sc-button-ghost sc-studio-history-btn" data-closes-sheet aria-label="Lịch sử bản thảo" title="Lịch sử bản thảo" onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}><span className="material-symbols-outlined" aria-hidden="true">history</span></button>
             <div className="sc-studio-vip-pill" role="group" aria-label="Quyền truy cập chương">
               <button
                 onClick={() => handleAccessChange('free')}
@@ -1179,7 +1184,225 @@ export function AuthorWritingIde() {
         <span>{awaitingPublicationReview ? 'Chờ admin duyệt' : 'Gửi duyệt chương'}</span>
         <span className="material-symbols-outlined text-[15px]" aria-hidden="true">send</span>
       </button>
+      {isPhone && (
+        <button type="button" className="sc-studio-more-btn" aria-haspopup="dialog" aria-expanded={moreOpen} onClick={() => setMoreOpen(true)}>
+          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">more_horiz</span>
+          <span>Thêm</span>
+        </button>
+      )}
     </>
+  );
+
+  useLayoutEffect(() => {
+    const el = titleRef.current;
+    if (!el || CSS.supports?.('field-sizing', 'content')) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [title, isPhone, fontOption]);
+
+  // Desktop and tablet show these in the sticky format toolbar; phones open them from the "Thêm" sheet.
+  const formatControls = (
+    <div className="sc-format-controls py-0 px-1 flex items-center gap-1 max-w-4xl text-meta text-stone-700 select-none">
+      {/* Portalled menus remain usable inside the horizontally scrolling toolbar. */}
+      <Menu position="bottom-start" onCloseAutoFocus={preserveNextToolbarMenu}><Menu.Target><button className="font-medium flex items-center gap-1.5 px-2 py-1" title="Đổi kiểu chữ (7 phông chữ Việt hóa)" aria-label="Đổi kiểu chữ (7 phông chữ Việt hóa)" type="button">
+        <span className="material-symbols-outlined text-[16px]">text_fields</span><span>{currentFontConfig.name}</span><span className="material-symbols-outlined text-[15px]">expand_more</span>
+      </button></Menu.Target><Menu.Dropdown><Menu.Label>Phông chữ soạn thảo</Menu.Label>{AVAILABLE_FONTS.map(font => <Menu.Item key={font.id} onClick={() => setFontOption(font.id)} leftSection={fontOption === font.id ? '✓' : ' '}><span style={{fontFamily:font.fontFamily}}>{font.name}</span><span className="block text-meta text-stone-500">{font.tagline}</span></Menu.Item>)}</Menu.Dropdown></Menu>
+
+      <div className="h-4 w-px bg-stone-200 mx-1"></div>
+
+      {/* 2. Font Size Stepper */}
+      <div className="flex items-center bg-stone-100/80 rounded-lg p-0.5 border border-stone-200/60" title="Cỡ chữ">
+        <button
+          onClick={() => setFontSize((prev) => Math.max(13, prev - 1))}
+          disabled={fontSize <= 13}
+          className="w-6 h-6 flex items-center justify-center rounded hover:bg-surface-container-lowest text-stone-600 hover:text-stone-900 disabled:opacity-30 disabled:hover:bg-transparent font-medium text-meta transition-colors"
+          title="Giảm cỡ chữ (A-)"
+          aria-label="Giảm cỡ chữ (A-)"
+          type="button"
+        >
+          A-
+        </button>
+        <StudioNumberField value={fontSize} onChange={setFontSize} min={13} max={28} step={1} label="Cỡ chữ" />
+        <button
+          onClick={() => setFontSize((prev) => Math.min(28, prev + 1))}
+          disabled={fontSize >= 28}
+          className="w-6 h-6 flex items-center justify-center rounded hover:bg-surface-container-lowest text-stone-600 hover:text-stone-900 disabled:opacity-30 disabled:hover:bg-transparent font-medium text-meta transition-colors"
+          title="Tăng cỡ chữ (A+)"
+          aria-label="Tăng cỡ chữ (A+)"
+          type="button"
+        >
+          A+
+        </button>
+      </div>
+
+      <div className="h-4 w-px bg-stone-200 mx-1"></div>
+
+      {/* 3. Text Alignment Group */}
+      <div className="flex items-center bg-stone-100/80 rounded-lg p-0.5 border border-stone-200/60" role="group" aria-label="Căn lề bản thảo">
+        <button
+          onClick={() => setTextAlign('justify')}
+          aria-pressed={textAlign === 'justify'}
+          aria-label="Căn đều hai bên (Chuẩn sách xuất bản)"
+          className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
+            textAlign === 'justify' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
+          }`}
+          title="Căn đều hai bên (Chuẩn sách xuất bản)"
+          type="button"
+        >
+          <span className="material-symbols-outlined text-[15px]">format_align_justify</span>
+        </button>
+        <button
+          onClick={() => setTextAlign('left')}
+          aria-pressed={textAlign === 'left'}
+          aria-label="Căn trái"
+          className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
+            textAlign === 'left' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
+          }`}
+          title="Căn trái"
+          type="button"
+        >
+          <span className="material-symbols-outlined text-[15px]">format_align_left</span>
+        </button>
+        <button
+          onClick={() => setTextAlign('center')}
+          aria-pressed={textAlign === 'center'}
+          aria-label="Căn giữa (Thơ, tiêu đề phụ, lời đề từ)"
+          className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
+            textAlign === 'center' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
+          }`}
+          title="Căn giữa (Thơ, tiêu đề phụ, lời đề từ)"
+          type="button"
+        >
+          <span className="material-symbols-outlined text-[15px]">format_align_center</span>
+        </button>
+        <button
+          onClick={() => setTextAlign('right')}
+          aria-pressed={textAlign === 'right'}
+          aria-label="Căn phải (Ký tên, ngày tháng, xuất xứ)"
+          className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
+            textAlign === 'right' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
+          }`}
+          title="Căn phải (Ký tên, ngày tháng, xuất xứ)"
+          type="button"
+        >
+          <span className="material-symbols-outlined text-[15px]">format_align_right</span>
+        </button>
+      </div>
+
+      <div className="h-4 w-px bg-stone-200 mx-1"></div>
+
+      {/* 4. Line Spacing & Indent */}
+      <div className="sc-studio-spacing-control">
+        <span className="material-symbols-outlined" aria-hidden="true">format_line_spacing</span>
+        <StudioNumberField value={lineHeight} onChange={setLineHeight} min={1.2} max={3} step={0.05} label="Giãn dòng" /><span aria-hidden="true">x</span>
+        <Menu position="bottom-start" onCloseAutoFocus={preserveNextToolbarMenu}><Menu.Target><button title="Khoảng cách giãn dòng (Line-height)" aria-label="Chọn mức giãn dòng" type="button"><span className="material-symbols-outlined" aria-hidden="true">expand_more</span></button></Menu.Target><Menu.Dropdown><Menu.Label>Giãn dòng bản thảo</Menu.Label>{[{val:1.8,label:'1.8x • Gọn gàng'},{val:2.15,label:'2.15x • Chuẩn tiểu thuyết'},{val:2.5,label:'2.5x • Rộng rãi, thoáng'}].map(option => <Menu.Item key={option.val} onClick={() => setLineHeight(option.val)} leftSection={lineHeight === option.val ? '✓' : ' '}>{option.label}</Menu.Item>)}</Menu.Dropdown></Menu>
+      </div>
+
+      {/* First-line Indent Toggle */}
+      <button
+        onClick={() => setParagraphIndent((prev) => !prev)}
+        className={`h-7 px-2 flex items-center gap-1 rounded-lg transition-colors border ${
+          paragraphIndent
+            ? 'bg-primary-50/80 border-primary-200 text-primary-700 font-semibold'
+            : 'border-transparent hover:bg-stone-100 text-stone-500 hover:text-stone-800'
+        }`}
+        title="Thụt đầu dòng đoạn văn (~2.5rem - Quy chuẩn tiểu thuyết)"
+        aria-label="Thụt đầu dòng đoạn văn (~2.5rem - Quy chuẩn tiểu thuyết)"
+        aria-pressed={paragraphIndent}
+        type="button"
+      >
+        <span className="material-symbols-outlined text-[15px]">format_indent_increase</span>
+        <span className="sr-only">Thụt dòng</span>
+      </button>
+
+      <div className="h-4 w-px bg-stone-200 mx-1"></div>
+
+      {/* 5. Inline Formatting Tools */}
+      <button
+        onMouseDown={event => event.preventDefault()}
+        onClick={() => wrapSelection('**', '**', 'văn bản in đậm')}
+        aria-pressed={activeInlineFormats.bold}
+        aria-label="In đậm (**văn bản**)"
+      data-closes-sheet
+        className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors font-bold text-meta ${
+          activeInlineFormats.bold ? 'bg-primary-50 text-primary-700' : 'hover:bg-stone-100 text-stone-700 hover:text-stone-900'
+        }`}
+        title="In đậm (**văn bản**)"
+        type="button"
+      >
+        <span className="material-symbols-outlined text-[16px]">format_bold</span>
+      </button>
+
+      <button
+        onMouseDown={event => event.preventDefault()}
+        onClick={() => wrapSelection('*', '*', 'văn bản in nghiêng')}
+        aria-pressed={activeInlineFormats.italic}
+        aria-label="In nghiêng (*văn bản*)"
+      data-closes-sheet
+        className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors italic text-meta ${
+          activeInlineFormats.italic ? 'bg-primary-50 text-primary-700' : 'hover:bg-stone-100 text-stone-700 hover:text-stone-900'
+        }`}
+        title="In nghiêng (*văn bản*)"
+        type="button"
+      >
+        <span className="material-symbols-outlined text-[16px]">format_italic</span>
+      </button>
+
+      <button
+        onMouseDown={event => event.preventDefault()}
+        onClick={() => wrapSelection('<u>', '</u>', 'văn bản gạch chân')}
+        aria-pressed={activeInlineFormats.underline}
+        aria-label="Gạch chân (<u>văn bản</u>)"
+      data-closes-sheet
+        className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors text-meta ${
+          activeInlineFormats.underline ? 'bg-primary-50 text-primary-700' : 'hover:bg-stone-100 text-stone-700 hover:text-stone-900'
+        }`}
+        title="Gạch chân (<u>văn bản</u>)"
+        type="button"
+      >
+        <span className="material-symbols-outlined text-[16px]">format_underlined</span>
+      </button>
+
+      <button
+        onMouseDown={event => event.preventDefault()}
+        onClick={() => wrapSelection('~~', '~~', 'văn bản gạch ngang')}
+        aria-pressed={activeInlineFormats.strike}
+        aria-label="Gạch ngang (~~văn bản~~)"
+      data-closes-sheet
+        className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors text-meta ${
+          activeInlineFormats.strike ? 'bg-primary-50 text-primary-700' : 'hover:bg-stone-100 text-stone-700 hover:text-stone-900'
+        }`}
+        title="Gạch ngang (~~văn bản~~)"
+        type="button"
+      >
+        <span className="material-symbols-outlined text-[16px]">strikethrough_s</span>
+      </button>
+
+      <button
+        onMouseDown={event => event.preventDefault()}
+        onClick={() => wrapSelection('“', '”', 'lời thoại nhân vật')}
+        aria-label="Trích dẫn lời thoại “...”"
+      data-closes-sheet
+        className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-serif text-body transition-colors"
+        title="Trích dẫn lời thoại “...”"
+        type="button"
+      >
+        “”
+      </button>
+
+      <button
+        onMouseDown={event => event.preventDefault()}
+        onClick={insertDialogueDash}
+        aria-label="Gạch đầu dòng lời thoại (— )"
+      data-closes-sheet
+        className="px-1.5 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-serif text-meta transition-colors"
+        title="Gạch đầu dòng lời thoại (— )"
+        type="button"
+      >
+        —
+      </button>
+      <AnimatedTooltip label="Chèn ký tự đặc biệt"><button type="button" className="sc-studio-symbol-trigger" aria-label="Chèn ký tự đặc biệt" data-closes-sheet onMouseDown={event => event.preventDefault()} onClick={() => editorRef.current?.dispatchEvent(new CustomEvent('studio-open-symbols'))}>Ω</button></AnimatedTooltip>
+    </div>
   );
 
   if (requestedNovelSlug && novelLocator.isError) {
@@ -1224,10 +1447,10 @@ export function AuthorWritingIde() {
             <span className="sc-studio-cluster-divider hidden lg:block" aria-hidden="true" />
 
             {/* Secondary Tools Group */}
-            <ThemeControl />
-            <span className="sc-studio-cluster-divider" aria-hidden="true" />
+            {!isPhone && <><ThemeControl />
+            <span className="sc-studio-cluster-divider" aria-hidden="true" /></>}
             <div className="sc-studio-tool-buttons">
-              <button
+              {!isPhone && <button
                 onClick={() => setFormatToolbarVisible((visible) => !visible)}
                 aria-label={formatToolbarVisible ? 'Ẩn thanh công cụ' : 'Hiện thanh công cụ'}
                 aria-expanded={formatToolbarVisible}
@@ -1237,7 +1460,7 @@ export function AuthorWritingIde() {
                 type="button"
               >
                 <span className="material-symbols-outlined text-stone-500 text-[15px]" aria-hidden="true">text_format</span>
-              </button>
+              </button>}
               <button
                 onClick={() => setStoryBibleOpen(true)}
                 className="sc-studio-cluster-btn"
@@ -1269,7 +1492,7 @@ export function AuthorWritingIde() {
                   </span>
                 )}
               </button>
-              <button
+              {!isPhone && <button
                 onClick={() => setFocusMode((prev: boolean) => !prev)}
                 className="sc-studio-cluster-btn"
                 title="Chế độ tập trung"
@@ -1281,7 +1504,7 @@ export function AuthorWritingIde() {
                   {focusMode ? 'fullscreen_exit' : 'fullscreen'}
                 </span>
                 <span className="hidden md:inline">{focusMode ? 'Thoát Focus' : 'Tập trung'}</span>
-              </button>
+              </button>}
             </div>
           </div>
         )}
@@ -1300,6 +1523,22 @@ export function AuthorWritingIde() {
          ────────────────────────────────────────── */}
       {scheduleOpen && <ChapterSchedule chapterId={activeChapterId} novelId={activeNovelId} onClose={() => setScheduleOpen(false)} />}
       {historyOpen && <RevisionHistory chapterId={activeChapterId} content={content} onClose={() => setHistoryOpen(false)} onRestore={async next => { await persistence.flush(); setContent(next); triggerAutosave(title, next, isVip, priceCoins); await persistence.flush(); showToast('Đã khôi phục và lưu phiên bản bản thảo.'); }} />}
+      {/* C03/V2-06: one "Thêm" sheet holds the phone's secondary actions; desktop and tablet never open it. */}
+      <AnimatedModal opened={isPhone && moreOpen && !planning} onClose={() => setMoreOpen(false)} title="Thêm công cụ" side="right" className="sc-studio-more-sheet">
+        <div className="sc-studio-more" onClick={(event) => { if ((event.target as HTMLElement).closest('[data-closes-sheet]')) setMoreOpen(false); }}>
+          {chapterSettings && <section aria-label="Thiết lập chương"><h3>Chương</h3>{chapterSettings}</section>}
+          {Boolean(chaptersQuery.data?.length) && <section aria-label="Định dạng bản thảo"><h3>Định dạng</h3>{formatControls}</section>}
+          <section aria-label="Hiển thị"><h3>Hiển thị</h3>
+            <div className="sc-studio-more-row">
+              <ThemeControl />
+              <button type="button" className="sc-button sc-button-ghost" data-closes-sheet aria-pressed={focusMode} onClick={() => setFocusMode((prev: boolean) => !prev)}>
+                <span className="material-symbols-outlined" aria-hidden="true">{focusMode ? 'fullscreen_exit' : 'fullscreen'}</span>
+                {focusMode ? 'Thoát chế độ tập trung' : 'Chế độ tập trung'}
+              </button>
+            </div>
+          </section>
+        </div>
+      </AnimatedModal>
       {persistence.error && <Alert color="red" title="Bản nháp chưa được lưu">{persistence.error}<Group mt="xs"><Button size="xs" variant="light" onClick={() => void persistence.flush().catch(() => {})}>Thử lưu lại</Button><Button size="xs" variant="default" onClick={async () => { if (persistence.dirty) { setReloadServerConfirmOpen(true); return; } const result = await chapterQuery.refetch(); if (result.data) { const value = persistence.initialize(result.data, true); if (value) { setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); } } }}>Tải bản máy chủ</Button></Group></Alert>}
       <AnimatedModal opened={reloadServerConfirmOpen} onClose={() => setReloadServerConfirmOpen(false)} title="Tải lại bản máy chủ?" size="sm" centered>
         <p className="text-body mb-4">Tải bản máy chủ sẽ thay thế nội dung chưa lưu đang hiển thị. Hãy xuất bản đang viết trước nếu cần giữ.</p>
@@ -1331,7 +1570,7 @@ export function AuthorWritingIde() {
       </AnimatedModal>
       <StudioNovelSearch key={searchScope} opened={novelSearchOpen} chapters={chaptersQuery.data ?? []} activeChapterId={activeChapterId} content={content} onClose={() => setNovelSearchOpen(false)} onNavigate={navigateSearchHit} />
       {planningMounted&&novelQuery.data&&<div key={JSON.stringify([user?.userId,activeNovelId])} style={{display:planning?'flex':'none',flex:1,minHeight:0}}><PlanningStudio novelId={activeNovelId} title={novelQuery.data.title} step={planningStep} onStep={setPlanningStep} chapters={chaptersQuery.data??[]} onWrite={id=>{if(id)openStudioChapter(activeNovelId, id);setPlanning(false);}} onCreate={()=>createChapterMutation.mutate()} creating={createChapterMutation.isPending} onMemory={tab=>{setMemoryTab(tab??'review');setMemoryPanelOpen(true);}} onRefreshChapters={()=>void queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] })}/></div>}
-      {!planning && <StudioWorkbench onSearchNovel={() => setNovelSearchOpen(true)} notesOpen={rightPanel === 'notes'} onNotesOpenChange={changeNotesOpen} onLookup={setReferenceQuery} formatToolbarVisible={formatToolbarVisible} chapterSettings={chapterSettings} primaryActions={studioPrimaryActions} sidebarToggle={sidebarToggle} fileActions={manuscriptActions} key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
+      {!planning && <StudioWorkbench onSearchNovel={() => setNovelSearchOpen(true)} notesOpen={rightPanel === 'notes'} onNotesOpenChange={changeNotesOpen} onLookup={setReferenceQuery} formatToolbarVisible={formatToolbarVisible} chapterSettings={isPhone ? undefined : chapterSettings} primaryActions={studioPrimaryActions} sidebarToggle={sidebarToggle} fileActions={manuscriptActions} key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
         publishedContent={chapterQuery.data?.status === 'PUBLISHED' ? chapterQuery.data.content : undefined} chapterStatus={chapterQuery.data?.status}
         awaitingPublicationReview={awaitingPublicationReview} publicationReason={!focusMode ? chapterDecision?.reason : null} onPublish={() => setPublishModalOpen(true)}
         apply={applyStudioEdit} undo={() => moveStudioHistory()} redo={() => moveStudioHistory(true)} canUndo={studioHistory.canUndo} canRedo={studioHistory.canRedo}
@@ -1524,203 +1763,9 @@ export function AuthorWritingIde() {
           ) : (
             <>
           {/* Sticky Formatting Toolbar with Frosted-Glass Backdrop */}
-          {formatToolbarVisible && (
+          {formatToolbarVisible && !isPhone && (
             <div id="studio-format-toolbar" className="sc-format-toolbar sticky top-0 z-20 w-full py-2 px-3 sm:px-4 bg-surface/95 backdrop-blur-md border-b border-stone-200/60 flex items-center justify-center mb-2 shrink-0">
-              <div className="sc-format-controls py-0 px-1 flex items-center gap-1 max-w-4xl text-meta text-stone-700 select-none">
-                {/* Portalled menus remain usable inside the horizontally scrolling toolbar. */}
-                <Menu position="bottom-start" onCloseAutoFocus={preserveNextToolbarMenu}><Menu.Target><button className="font-medium flex items-center gap-1.5 px-2 py-1" title="Đổi kiểu chữ (7 phông chữ Việt hóa)" aria-label="Đổi kiểu chữ (7 phông chữ Việt hóa)" type="button">
-                  <span className="material-symbols-outlined text-[16px]">text_fields</span><span>{currentFontConfig.name}</span><span className="material-symbols-outlined text-[15px]">expand_more</span>
-                </button></Menu.Target><Menu.Dropdown><Menu.Label>Phông chữ soạn thảo</Menu.Label>{AVAILABLE_FONTS.map(font => <Menu.Item key={font.id} onClick={() => setFontOption(font.id)} leftSection={fontOption === font.id ? '✓' : ' '}><span style={{fontFamily:font.fontFamily}}>{font.name}</span><span className="block text-meta text-stone-500">{font.tagline}</span></Menu.Item>)}</Menu.Dropdown></Menu>
-
-                <div className="h-4 w-px bg-stone-200 mx-1"></div>
-
-                {/* 2. Font Size Stepper */}
-                <div className="flex items-center bg-stone-100/80 rounded-lg p-0.5 border border-stone-200/60" title="Cỡ chữ">
-                  <button
-                    onClick={() => setFontSize((prev) => Math.max(13, prev - 1))}
-                    disabled={fontSize <= 13}
-                    className="w-6 h-6 flex items-center justify-center rounded hover:bg-surface-container-lowest text-stone-600 hover:text-stone-900 disabled:opacity-30 disabled:hover:bg-transparent font-medium text-meta transition-colors"
-                    title="Giảm cỡ chữ (A-)"
-                    aria-label="Giảm cỡ chữ (A-)"
-                    type="button"
-                  >
-                    A-
-                  </button>
-                  <StudioNumberField value={fontSize} onChange={setFontSize} min={13} max={28} step={1} label="Cỡ chữ" />
-                  <button
-                    onClick={() => setFontSize((prev) => Math.min(28, prev + 1))}
-                    disabled={fontSize >= 28}
-                    className="w-6 h-6 flex items-center justify-center rounded hover:bg-surface-container-lowest text-stone-600 hover:text-stone-900 disabled:opacity-30 disabled:hover:bg-transparent font-medium text-meta transition-colors"
-                    title="Tăng cỡ chữ (A+)"
-                    aria-label="Tăng cỡ chữ (A+)"
-                    type="button"
-                  >
-                    A+
-                  </button>
-                </div>
-
-                <div className="h-4 w-px bg-stone-200 mx-1"></div>
-
-                {/* 3. Text Alignment Group */}
-                <div className="flex items-center bg-stone-100/80 rounded-lg p-0.5 border border-stone-200/60" role="group" aria-label="Căn lề bản thảo">
-                  <button
-                    onClick={() => setTextAlign('justify')}
-                    aria-pressed={textAlign === 'justify'}
-                    aria-label="Căn đều hai bên (Chuẩn sách xuất bản)"
-                    className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
-                      textAlign === 'justify' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
-                    }`}
-                    title="Căn đều hai bên (Chuẩn sách xuất bản)"
-                    type="button"
-                  >
-                    <span className="material-symbols-outlined text-[15px]">format_align_justify</span>
-                  </button>
-                  <button
-                    onClick={() => setTextAlign('left')}
-                    aria-pressed={textAlign === 'left'}
-                    aria-label="Căn trái"
-                    className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
-                      textAlign === 'left' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
-                    }`}
-                    title="Căn trái"
-                    type="button"
-                  >
-                    <span className="material-symbols-outlined text-[15px]">format_align_left</span>
-                  </button>
-                  <button
-                    onClick={() => setTextAlign('center')}
-                    aria-pressed={textAlign === 'center'}
-                    aria-label="Căn giữa (Thơ, tiêu đề phụ, lời đề từ)"
-                    className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
-                      textAlign === 'center' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
-                    }`}
-                    title="Căn giữa (Thơ, tiêu đề phụ, lời đề từ)"
-                    type="button"
-                  >
-                    <span className="material-symbols-outlined text-[15px]">format_align_center</span>
-                  </button>
-                  <button
-                    onClick={() => setTextAlign('right')}
-                    aria-pressed={textAlign === 'right'}
-                    aria-label="Căn phải (Ký tên, ngày tháng, xuất xứ)"
-                    className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
-                      textAlign === 'right' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
-                    }`}
-                    title="Căn phải (Ký tên, ngày tháng, xuất xứ)"
-                    type="button"
-                  >
-                    <span className="material-symbols-outlined text-[15px]">format_align_right</span>
-                  </button>
-                </div>
-
-                <div className="h-4 w-px bg-stone-200 mx-1"></div>
-
-                {/* 4. Line Spacing & Indent */}
-                <div className="sc-studio-spacing-control">
-                  <span className="material-symbols-outlined" aria-hidden="true">format_line_spacing</span>
-                  <StudioNumberField value={lineHeight} onChange={setLineHeight} min={1.2} max={3} step={0.05} label="Giãn dòng" /><span aria-hidden="true">x</span>
-                  <Menu position="bottom-start" onCloseAutoFocus={preserveNextToolbarMenu}><Menu.Target><button title="Khoảng cách giãn dòng (Line-height)" aria-label="Chọn mức giãn dòng" type="button"><span className="material-symbols-outlined" aria-hidden="true">expand_more</span></button></Menu.Target><Menu.Dropdown><Menu.Label>Giãn dòng bản thảo</Menu.Label>{[{val:1.8,label:'1.8x • Gọn gàng'},{val:2.15,label:'2.15x • Chuẩn tiểu thuyết'},{val:2.5,label:'2.5x • Rộng rãi, thoáng'}].map(option => <Menu.Item key={option.val} onClick={() => setLineHeight(option.val)} leftSection={lineHeight === option.val ? '✓' : ' '}>{option.label}</Menu.Item>)}</Menu.Dropdown></Menu>
-                </div>
-
-                {/* First-line Indent Toggle */}
-                <button
-                  onClick={() => setParagraphIndent((prev) => !prev)}
-                  className={`h-7 px-2 flex items-center gap-1 rounded-lg transition-colors border ${
-                    paragraphIndent
-                      ? 'bg-primary-50/80 border-primary-200 text-primary-700 font-semibold'
-                      : 'border-transparent hover:bg-stone-100 text-stone-500 hover:text-stone-800'
-                  }`}
-                  title="Thụt đầu dòng đoạn văn (~2.5rem - Quy chuẩn tiểu thuyết)"
-                  aria-label="Thụt đầu dòng đoạn văn (~2.5rem - Quy chuẩn tiểu thuyết)"
-                  aria-pressed={paragraphIndent}
-                  type="button"
-                >
-                  <span className="material-symbols-outlined text-[15px]">format_indent_increase</span>
-                  <span className="sr-only">Thụt dòng</span>
-                </button>
-
-                <div className="h-4 w-px bg-stone-200 mx-1"></div>
-
-                {/* 5. Inline Formatting Tools */}
-                <button
-                  onMouseDown={event => event.preventDefault()}
-                  onClick={() => wrapSelection('**', '**', 'văn bản in đậm')}
-                  aria-pressed={activeInlineFormats.bold}
-                  aria-label="In đậm (**văn bản**)"
-                  className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors font-bold text-meta ${
-                    activeInlineFormats.bold ? 'bg-primary-50 text-primary-700' : 'hover:bg-stone-100 text-stone-700 hover:text-stone-900'
-                  }`}
-                  title="In đậm (**văn bản**)"
-                  type="button"
-                >
-                  <span className="material-symbols-outlined text-[16px]">format_bold</span>
-                </button>
-
-                <button
-                  onMouseDown={event => event.preventDefault()}
-                  onClick={() => wrapSelection('*', '*', 'văn bản in nghiêng')}
-                  aria-pressed={activeInlineFormats.italic}
-                  aria-label="In nghiêng (*văn bản*)"
-                  className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors italic text-meta ${
-                    activeInlineFormats.italic ? 'bg-primary-50 text-primary-700' : 'hover:bg-stone-100 text-stone-700 hover:text-stone-900'
-                  }`}
-                  title="In nghiêng (*văn bản*)"
-                  type="button"
-                >
-                  <span className="material-symbols-outlined text-[16px]">format_italic</span>
-                </button>
-
-                <button
-                  onMouseDown={event => event.preventDefault()}
-                  onClick={() => wrapSelection('<u>', '</u>', 'văn bản gạch chân')}
-                  aria-pressed={activeInlineFormats.underline}
-                  aria-label="Gạch chân (<u>văn bản</u>)"
-                  className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors text-meta ${
-                    activeInlineFormats.underline ? 'bg-primary-50 text-primary-700' : 'hover:bg-stone-100 text-stone-700 hover:text-stone-900'
-                  }`}
-                  title="Gạch chân (<u>văn bản</u>)"
-                  type="button"
-                >
-                  <span className="material-symbols-outlined text-[16px]">format_underlined</span>
-                </button>
-
-                <button
-                  onMouseDown={event => event.preventDefault()}
-                  onClick={() => wrapSelection('~~', '~~', 'văn bản gạch ngang')}
-                  aria-pressed={activeInlineFormats.strike}
-                  aria-label="Gạch ngang (~~văn bản~~)"
-                  className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors text-meta ${
-                    activeInlineFormats.strike ? 'bg-primary-50 text-primary-700' : 'hover:bg-stone-100 text-stone-700 hover:text-stone-900'
-                  }`}
-                  title="Gạch ngang (~~văn bản~~)"
-                  type="button"
-                >
-                  <span className="material-symbols-outlined text-[16px]">strikethrough_s</span>
-                </button>
-
-                <button
-                  onMouseDown={event => event.preventDefault()}
-                  onClick={() => wrapSelection('“', '”', 'lời thoại nhân vật')}
-                  aria-label="Trích dẫn lời thoại “...”"
-                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-serif text-body transition-colors"
-                  title="Trích dẫn lời thoại “...”"
-                  type="button"
-                >
-                  “”
-                </button>
-
-                <button
-                  onMouseDown={event => event.preventDefault()}
-                  onClick={insertDialogueDash}
-                  aria-label="Gạch đầu dòng lời thoại (— )"
-                  className="px-1.5 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-serif text-meta transition-colors"
-                  title="Gạch đầu dòng lời thoại (— )"
-                  type="button"
-                >
-                  —
-                </button>
-                <AnimatedTooltip label="Chèn ký tự đặc biệt"><button type="button" className="sc-studio-symbol-trigger" aria-label="Chèn ký tự đặc biệt" onMouseDown={event => event.preventDefault()} onClick={() => editorRef.current?.dispatchEvent(new CustomEvent('studio-open-symbols'))}>Ω</button></AnimatedTooltip>
-              </div>
+              {formatControls}
             </div>
           )}
 
@@ -1728,7 +1773,20 @@ export function AuthorWritingIde() {
           <article className="sc-manuscript-page w-full max-w-3xl shrink-0 bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200/70">
             {/* Editable Chapter Title Header */}
             <div className="sc-studio-title-header mb-4 pb-3 border-b border-stone-100">
-              <input
+              {/* Phones wrap a long title onto more lines instead of cutting it off (C03). */}
+              {isPhone ? <textarea
+                ref={titleRef}
+                rows={1}
+                aria-label="Tiêu đề chương"
+                value={title}
+                maxLength={CHAPTER_TITLE_MAX}
+                readOnly={isAcceptingAi}
+                onChange={(e) => handleTitleChange(e.target.value.replace(/[\r\n]+/g, ' '))}
+                onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                placeholder="Đặt tiêu đề chương tại đây..."
+                style={{ fontFamily: currentFontConfig.fontFamily }}
+                className="sc-chapter-title w-full font-bold text-stone-900 border-none p-0 focus:ring-0 focus:outline-none placeholder-stone-300 tracking-tight bg-transparent"
+              /> : <input
                 type="text"
                 aria-label="Tiêu đề chương"
                 value={title}
@@ -1738,7 +1796,7 @@ export function AuthorWritingIde() {
                 placeholder="Đặt tiêu đề chương tại đây..."
                 style={{ fontFamily: currentFontConfig.fontFamily }}
                 className="sc-chapter-title w-full font-bold text-2xl md:text-3xl text-stone-900 border-none p-0 focus:ring-0 focus:outline-none placeholder-stone-300 tracking-tight bg-transparent"
-              />
+              />}
             </div>
 
             {/* Prose Editor Textarea: Auto-grow without internal scrollbar */}
