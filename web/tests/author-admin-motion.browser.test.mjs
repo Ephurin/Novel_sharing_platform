@@ -178,7 +178,7 @@ test('author/admin motion preserves filters, actions, values and reader role exc
         await page.evaluate(()=>scrollTo(0,0));await page.goBack();
         await expect(page.getByRole('article')).toHaveCount(3);
         await expect.poll(()=>page.evaluate(()=>scrollY)).toBe(350);
-        await page.getByText('Vừa làm việc',{exact:true}).click();
+        await showMoreFilters();await page.getByText('Vừa làm việc',{exact:true}).click();
         await expect(page.locator('.sc-disclosure').filter({has:page.getByText('Vừa làm việc',{exact:true})}).getByRole('link',{name:'Tác phẩm 1',exact:true})).toBeVisible();
 
         await page.goto(base+'/admin');await expect(page.locator('.admin-metric')).toHaveCount(4);
