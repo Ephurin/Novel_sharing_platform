@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { readdir, readFile } from 'node:fs/promises';
 import { Pool } from 'pg';
 import type { AddressInfo } from 'node:net';
 
@@ -18,9 +17,13 @@ test('author workflow: draft privacy, conflicts, revisions, idempotent imports, 
     const pg=await import('../../core/database/postgres.js'), mongo=await import('../../core/database/mongo.js');
     closePostgres=pg.disconnectPostgres; closeMongo=mongo.disconnectMongo; dropMongo=()=>mongo.getMongoDatabase().dropDatabase();
     const pool=pg.getPostgresPool();
-    // Apply every migration in order; a hand-picked list goes stale as soon as a later migration changes an enum or table.
-    const migrations=new URL('../../core/database/migrations/',import.meta.url);
-    for(const name of (await readdir(migrations)).filter(name=>name.endsWith('.sql')).sort()) await pool.query(await readFile(new URL(name,migrations),'utf8'));
+    const { runPostgresMigrations } = await import('../../core/database/migrate.js');
+    const migrationClient = await pool.connect();
+    try {
+      await runPostgresMigrations(migrationClient);
+    } finally {
+      migrationClient.release();
+    }
     const author=randomUUID(),reader=randomUUID(),other=randomUUID(),admin=randomUUID(),outsider=randomUUID();
     for(const [id,role] of [[author,'AUTHOR'],[reader,'READER'],[other,'READER'],[admin,'ADMIN'],[outsider,'AUTHOR']]) {
       await pool.query(`insert into users (user_id,email,username,password_hash,role) values ($1::uuid,$2,$1::text,'hash',$3)`,[id,id+'@test.invalid',role]);

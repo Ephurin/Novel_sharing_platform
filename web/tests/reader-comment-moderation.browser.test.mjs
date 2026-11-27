@@ -18,7 +18,7 @@ test('moderators can inspect a submitted GIF before approving its comment', { ti
         localStorage.setItem('storycraft-theme', theme);
       }, theme);
       let decision;
-      const review = { reviewId: 'review-1', targetType: 'COMMENT', targetId: 'comment-1', source: 'KEYWORD_FILTER', status: 'PENDING',
+      const review = { reviewId: '1d1e845f-7f4d-4bc6-9732-30436613c5a3', targetType: 'COMMENT', targetId: 'comment-1', source: 'KEYWORD_FILTER', status: 'PENDING',
         target: { title: 'Bình luận kèm GIF', content: '', gifId: 'fixtureGif', isSubmittedVersion: true },
         evidenceSummary: { matchedRules: [], reportCount: 0, summary: 'GIF attachment requires administrator review.' } };
       await page.route('**/api/v1/**', async route => {
@@ -28,14 +28,14 @@ test('moderators can inspect a submitted GIF before approving its comment', { ti
         else if (path.endsWith('/admin/access')) data = { scope: 'MODERATOR', permissions: ['content', 'audit'] };
         else if (path.endsWith('/media/giphy-config')) data = { apiKey: 'fixture-public-key' };
         else if (path.endsWith('/resolve')) { decision = route.request().postDataJSON().decision; review.status = decision; data = { status: decision }; }
-        else if (path.endsWith('/admin/moderation/reviews/review-1')) data = review;
+        else if (path.endsWith('/admin/moderation/reviews/1d1e845f-7f4d-4bc6-9732-30436613c5a3')) data = review;
         await route.fulfill({ json: { success: true, data } });
       });
       await page.route('https://api.giphy.com/**', route => route.fulfill({ json: { data: { id: 'fixtureGif', title: 'GIF cần duyệt',
         images: { original: { url: 'https://media.giphy.com/media/fixtureGif/giphy.gif' } } } } }));
       await page.route('https://media.giphy.com/**', route => route.fulfill({ contentType: 'image/gif',
         body: Buffer.from('R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==', 'base64') }));
-      await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/admin/moderation/review-1`);
+      await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/admin/moderation/1d1e845f-7f4d-4bc6-9732-30436613c5a3`);
       await expect(page.getByRole('img', { name: 'GIF cần duyệt', exact: true })).toBeVisible();
       assert.equal(decision, undefined);
       const approve = page.getByTestId('admin-approve-review-btn');

@@ -7,6 +7,7 @@ import { successResponse } from '../../core/response/response.js';
 import {
   getCommunityOverview,
   getTopic,
+  getTopicLocator,
   listCategories,
   listComments,
   listOwnTopics,
@@ -34,6 +35,7 @@ import {
   listTopicsSchema,
   recordViewSchema,
   topicIdParamsSchema,
+  topicSlugParamsSchema,
   topicReactionSchema,
   updateCommentSchema,
   updateTopicSchema,
@@ -187,6 +189,19 @@ discussionsRoutes.get(
 );
 
 discussionsRoutes.get(
+  '/discussions/by-slug/:topicSlug/locator',
+  optionalAuth,
+  validateRequest(topicSlugParamsSchema),
+  route(async (request) => getTopicLocator({ topicSlug: String(request.params.topicSlug) }))
+);
+discussionsRoutes.get(
+  '/discussions/:topicId/locator',
+  optionalAuth,
+  validateRequest(topicIdParamsSchema),
+  route(async (request) => getTopicLocator({ topicId: String(request.params.topicId) }))
+);
+
+discussionsRoutes.get(
   '/discussions/:topicId',
   optionalAuth,
   validateRequest(topicIdParamsSchema),
@@ -198,9 +213,7 @@ discussionsRoutes.post(
   requireAuth,
   createTopicRateLimit,
   validateRequest(createTopicSchema),
-  route(async (request: Request) => ({
-    topicId: await createTopic(request.auth!, request.body as CreateTopicInput)
-  }))
+  route(async (request: Request) => createTopic(request.auth!, request.body as CreateTopicInput))
 );
 
 discussionsRoutes.patch(

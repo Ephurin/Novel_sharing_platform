@@ -1,3 +1,4 @@
+import { isUuidRouteRef } from '../../shared/routes';
 import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
 import { getAdminList } from '../admin/admin-api';
 import type { ModerationEscalation, ModerationReview, ModerationReviewDetail, Paged } from '../admin/admin-api';
@@ -23,8 +24,9 @@ export async function listModeratorReviews(
 }
 
 export async function getModeratorReview(reviewId: string): Promise<ModerationReviewDetail> {
+  const reference = (isUuidRouteRef(reviewId) ? '' : 'by-slug/') + encodeURIComponent(reviewId);
   const response = await apiClient.get<ApiEnvelope<ModerationReviewDetail>>(
-    `/moderator/reviews/${reviewId}`
+    `/moderator/reviews/${reference}`
   );
   return response.data.data;
 }

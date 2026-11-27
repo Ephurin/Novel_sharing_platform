@@ -1,3 +1,5 @@
+import { useResourceId } from '../../app/ResourceRoute';
+import { managedNovelHref } from '../../shared/routes';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { ResultsSurface } from '../../shared/components/AuthorAdminMotion';
@@ -10,7 +12,7 @@ import { authorHomeCrumb } from '../../shared/components/navigation';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import React, { useEffect, useId, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
 import { getNovel, listChapters } from '../novels/novel-api';
 import type { Chapter } from '../novels/novel-types';
@@ -119,7 +121,7 @@ const emptySummaryForm: CreatePlotSummaryPayload = {
 };
 
 export function AuthorStoryContextPage() {
-  const { novelId = '' } = useParams();
+  const novelId = useResourceId('novelId') ?? '';
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -508,7 +510,7 @@ export function AuthorStoryContextPage() {
         <div className="flex flex-col gap-2 pb-5 border-b border-stone-200/70 mb-5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="flex flex-col gap-1">
-              <Breadcrumbs items={[authorHomeCrumb, { label: novelQuery.data?.title || 'Tác phẩm', to: `/author/novels/${novelId}` }, { label: 'Cẩm nang tác phẩm' }]} />
+              <Breadcrumbs items={[authorHomeCrumb, { label: novelQuery.data?.title || 'Tác phẩm', to: managedNovelHref('/author/novels/:novelId', { novelId, slug: novelQuery.data?.slug }) }, { label: 'Cẩm nang tác phẩm' }]} />
 
               <h1 className="text-page-title text-stone-900 pt-0.5">
                 Cẩm nang tác phẩm

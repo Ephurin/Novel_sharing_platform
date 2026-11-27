@@ -25,7 +25,10 @@ import { PlacementPage } from '../features/novel-selection/PlacementPage';
 import { AuthorNovelCommentsPage } from '../features/author-projects/AuthorNovelCommentsPage';
 import { AuthorNovelReviewsPage } from '../features/author-projects/AuthorNovelReviewsPage';
 import { AuthorNavbar, AuthorTheme } from '../shared/components/AuthorTheme';
-import { createBrowserRouter, Navigate, Outlet, useParams } from 'react-router-dom';
+import { createBrowserRouter, generatePath, Outlet, useLocation, useParams } from 'react-router-dom';
+import { routes, staticRouteTargets } from '../shared/routes';
+import { ManagedNovelRoute, ResourceRoute, UrlRedirect } from './ResourceRoute';
+import { useAuthStore } from '../features/auth/useAuthStore';
 import { AuthorWritingIde } from '../features/author-ide/AuthorWritingIde';
 import { WebAppShell } from './layout/WebAppShell';
 import { AuthorNovelMetadataPage } from '../features/author-projects/AuthorNovelMetadataPage';
@@ -61,50 +64,84 @@ import '../features/discussions/discussions.css';
 // Self-hosted display face for community headings (subset-scoped woff2).
 import '@fontsource/literata/600.css';
 
+function ReaderSurface({ view }: { view: 'catalog' | 'novel' | 'chapter' | 'reviews' | 'bookmarks' }) {
+  const user = useAuthStore(state => state.user);
+  const publicMode = !user || user.status === 'LOCKED';
+  if (publicMode) {
+    switch (view) {
+      case 'catalog': return <AuthorTheme><PublicReaderPage /></AuthorTheme>;
+      case 'novel': return <AuthorTheme><PublicReaderNovelDetailPage /></AuthorTheme>;
+      case 'chapter': return <AuthorTheme><PublicReaderChapterPage /></AuthorTheme>;
+      case 'reviews': return <AuthorTheme><ReaderNovelReviewsPage publicMode /></AuthorTheme>;
+      case 'bookmarks': return <AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><ReadingBookmarksPage publicMode /></main></AuthorTheme>;
+    }
+  }
+  const contents = {
+    catalog: <ReaderPage />,
+    novel: <ReaderNovelDetailPage />,
+    chapter: <ReaderChapterPage />,
+    reviews: <ReaderNovelReviewsPage />,
+    bookmarks: <ReaderCollectionsLayout><ReadingBookmarksPage /></ReaderCollectionsLayout>
+  }[view];
+  return <AuthorTheme><AuthorNavbar /><main className="sc-shell-content">{contents}</main></AuthorTheme>;
+}
+
+function StaticAlias({ target }: { target: string }) {
+  const params = useParams();
+  return <UrlRedirect pathname={generatePath(target, params)} />;
+}
+
+function AuthorOwnProfile() {
+  const userId = useAuthStore(state => state.user?.userId);
+  return userId ? <ResourceRoute kind="author" legacy legacyId={userId} /> : null;
+}
+
 export const router = createBrowserRouter([
+  ...Object.entries(staticRouteTargets).map(([path, target]) => ({ path, element: <StaticAlias target={target} /> })),
+  { path: '/discussions/:topicId', element: <ResourceRoute kind="topic" legacy /> },
+  { path: '/discussions/:topicId/edit', element: <AuthGate><ResourceRoute kind="topic" suffix="/chinh-sua" legacy /></AuthGate> },
+  { path: '/readers/:userId', element: <ResourceRoute kind="member" legacy /> },
+  { path: '/authors/:authorId', element: <OptionalSession><ResourceRoute kind="author" legacy /></OptionalSession> },
+  { path: routes.catalog, element: <OptionalSession><ReaderSurface view="catalog" /></OptionalSession> },
+  { path: routes.bookmarks, element: <OptionalSession><ReaderSurface view="bookmarks" /></OptionalSession> },
+  { path: routes.novel, element: <OptionalSession><ResourceRoute kind="novel"><ReaderSurface view="novel" /></ResourceRoute></OptionalSession> },
+  { path: routes.reviews, element: <OptionalSession><ResourceRoute kind="novel" suffix="/danh-gia"><ReaderSurface view="reviews" /></ResourceRoute></OptionalSession> },
+  { path: routes.chapter, element: <OptionalSession><ResourceRoute kind="chapter"><ReaderSurface view="chapter" /></ResourceRoute></OptionalSession> },
+  ...['/reader', '/public'].flatMap(base => [
+    { path: base, element: <UrlRedirect pathname={routes.catalog} /> },
+    { path: `${base}/bookmarks`, element: <UrlRedirect pathname={routes.bookmarks} /> },
+    { path: `${base}/novels/:novelId`, element: <ResourceRoute kind="novel" legacy /> },
+    { path: `${base}/novels/:novelId/reviews`, element: <ResourceRoute kind="novel" suffix="/danh-gia" legacy /> },
+    { path: `${base}/chapters/:chapterId`, element: <ResourceRoute kind="chapter" legacy /> }
+  ]),
+  { path: '/reader/library', element: <UrlRedirect pathname={routes.library} /> },
+  { path: '/reader/history', element: <UrlRedirect pathname={routes.history} /> },
   {
-    path: '/discussions',
+    path: staticRouteTargets['/discussions'],
     element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content sc-discussions-shell"><Outlet /></main></AuthorTheme></OptionalSession>,
     children: [
       { index: true, element: <DiscussionListPage /> },
-      { path: 'mine', element: <AuthGate><MyDiscussionsPage /></AuthGate> },
-      { path: 'new', element: <AuthGate><DiscussionEditorPage /></AuthGate> },
-      { path: ':topicId', element: <DiscussionTopicPage /> },
-      { path: ':topicId/edit', element: <AuthGate><DiscussionEditorPage /></AuthGate> }
+      { path: staticRouteTargets['/discussions/mine'], element: <AuthGate><MyDiscussionsPage /></AuthGate> },
+      { path: staticRouteTargets['/discussions/new'], element: <AuthGate><DiscussionEditorPage /></AuthGate> },
+      { path: routes.topic, element: <ResourceRoute kind="topic"><DiscussionTopicPage /></ResourceRoute> },
+      { path: routes.topicEdit, element: <AuthGate><ResourceRoute kind="topic" privatePage><DiscussionEditorPage /></ResourceRoute></AuthGate> }
     ]
   },
-  { path: '/readers/:userId', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><ReaderProfilePage /></main></AuthorTheme></OptionalSession> },
-  { path: '/public/bookmarks', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><ReadingBookmarksPage publicMode /></main></AuthorTheme></OptionalSession> },
+  { path: routes.member, element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><ResourceRoute kind="member"><ReaderProfilePage /></ResourceRoute></main></AuthorTheme></OptionalSession> },
   { path: '/tim-kiem', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><SearchResultsPage /></main></AuthorTheme></OptionalSession> },
   { path: '/tim-kiem-nang-cao', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><SearchResultsPage advanced /></main></AuthorTheme></OptionalSession> },
   {
     path: '/',
     element: <OptionalSession><AuthorTheme><ReaderHomePage /></AuthorTheme></OptionalSession>
   },
-  { path: '/appeals', element: <AccountAppealsPage /> },
+  { path: staticRouteTargets['/appeals'], element: <AccountAppealsPage /> },
   {
-    path: '/login',
+    path: staticRouteTargets['/login'],
     element: <AuthLanding />
   },
-  { path: '/verify-email', element: <AuthLanding confirmEmailFromLink /> },
+  { path: staticRouteTargets['/verify-email'], element: <AuthLanding confirmEmailFromLink /> },
   {
-    path: '/public',
-    element: <AuthorTheme><PublicReaderPage /></AuthorTheme>
-  },
-  {
-    path: '/public/novels/:novelId/reviews',
-    element: <OptionalSession><AuthorTheme><ReaderNovelReviewsPage publicMode /></AuthorTheme></OptionalSession>
-  },
-  {
-    path: '/public/novels/:novelId',
-    element: <AuthorTheme><PublicReaderNovelDetailPage /></AuthorTheme>
-  },
-  {
-    path: '/public/chapters/:chapterId',
-    element: <AuthorTheme><PublicReaderChapterPage /></AuthorTheme>
-  },
-  {
-    path: '/author/ide',
+    path: staticRouteTargets['/author/ide'],
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
@@ -116,43 +153,35 @@ export const router = createBrowserRouter([
     )
   },
   {
-    path: '/author/import/:novelId',
+    path: staticRouteTargets['/author/import/:novelId'],
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
-          <AuthorTheme>
-            <ManuscriptImportPage />
-          </AuthorTheme>
+          <ManagedNovelRoute route="/author/import/:novelId">
+            <AuthorTheme>
+              <ManuscriptImportPage />
+            </AuthorTheme>
+          </ManagedNovelRoute>
         </RoleGuard>
       </AuthGate>
     )
   },
   {
-    path: '/author/context/:novelId',
+    path: staticRouteTargets['/author/context/:novelId'],
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
-          <AuthorTheme>
-            <AuthorStoryContextPage />
-          </AuthorTheme>
+          <ManagedNovelRoute route="/author/context/:novelId">
+            <AuthorTheme>
+              <AuthorStoryContextPage />
+            </AuthorTheme>
+          </ManagedNovelRoute>
         </RoleGuard>
       </AuthGate>
     )
   },
   {
-    path: '/author',
-    element: (
-      <AuthGate>
-        <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
-          <AuthorTheme>
-            <AuthorProjectsPage />
-          </AuthorTheme>
-        </RoleGuard>
-      </AuthGate>
-    )
-  },
-  {
-    path: '/author/projects',
+    path: staticRouteTargets['/author'],
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
@@ -164,37 +193,43 @@ export const router = createBrowserRouter([
     )
   },
   {
-    path: '/author/novels/:novelId/comments',
+    path: staticRouteTargets['/author/novels/:novelId/comments'],
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
-          <AuthorTheme>
-            <AuthorNovelCommentsPage />
-          </AuthorTheme>
+          <ManagedNovelRoute route="/author/novels/:novelId/comments">
+            <AuthorTheme>
+              <AuthorNovelCommentsPage />
+            </AuthorTheme>
+          </ManagedNovelRoute>
         </RoleGuard>
       </AuthGate>
     )
   },
   {
-    path: '/author/novels/:novelId/reviews',
+    path: staticRouteTargets['/author/novels/:novelId/reviews'],
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
-          <AuthorTheme className="sc-reviews-theme">
-            <AuthorNovelReviewsPage />
-          </AuthorTheme>
+          <ManagedNovelRoute route="/author/novels/:novelId/reviews">
+            <AuthorTheme className="sc-reviews-theme">
+              <AuthorNovelReviewsPage />
+            </AuthorTheme>
+          </ManagedNovelRoute>
         </RoleGuard>
       </AuthGate>
     )
   },
   {
-    path: '/author/novels/:novelId',
+    path: staticRouteTargets['/author/novels/:novelId'],
     element: (
       <AuthGate>
         <RoleGuard roles={['AUTHOR', 'ADMIN', 'MODERATOR']}>
-          <AuthorTheme>
-            <AuthorNovelMetadataPage />
-          </AuthorTheme>
+          <ManagedNovelRoute route="/author/novels/:novelId">
+            <AuthorTheme>
+              <AuthorNovelMetadataPage />
+            </AuthorTheme>
+          </ManagedNovelRoute>
         </RoleGuard>
       </AuthGate>
     )
@@ -209,33 +244,24 @@ export const router = createBrowserRouter([
       </AuthGate>
     )
   },
-  {
-    path: '/author/profile',
-    element: (
-      <AuthGate>
-        <AuthorTheme>
-          <AuthorProfilePage />
-        </AuthorTheme>
-      </AuthGate>
-    )
-  },
+  { path: '/author/profile', element: <AuthGate><AuthorOwnProfile /></AuthGate> },
   {
     // Read-only public profile: guests may view it; follow and support still require login.
-    path: '/authors/:authorId',
+    path: routes.author,
     element: (
       <OptionalSession>
         <AuthorTheme>
-          <AuthorProfilePage />
+          <ResourceRoute kind="author"><AuthorProfilePage /></ResourceRoute>
         </AuthorTheme>
       </OptionalSession>
     )
   },
   {
-    path: '/account/nominations',
+    path: staticRouteTargets['/account/nominations'],
     element: <AuthGate><AuthorTheme><MyNominationsPage /></AuthorTheme></AuthGate>
   },
   {
-    path: '/wallet',
+    path: staticRouteTargets['/wallet'],
     element: (
       <AuthGate>
         <AuthorTheme>
@@ -246,7 +272,7 @@ export const router = createBrowserRouter([
   },
   {
     // VNPay sandbox Return URL (VNPAY_RETURN_URL defaults to `${WEB_ORIGIN}/wallet/vnpay-return`).
-    path: '/wallet/vnpay-return',
+    path: staticRouteTargets['/wallet/vnpay-return'],
     element: (
       <AuthGate>
         <AuthorTheme>
@@ -262,63 +288,38 @@ export const router = createBrowserRouter([
       </AuthGate>
     ),
     children: [
-      { path: '/reader/connections', element: <ConnectionsPage /> },
+      { path: staticRouteTargets['/reader/connections'], element: <ConnectionsPage /> },
 
-      { path: '/reader/feedback', element: <FeedbackPage /> },
-      {
-        path: '/reader',
-        element: <ReaderPage />
-      },
-      {
-        path: '/reader/novels/:novelId/reviews',
-        element: <ReaderNovelReviewsPage />
-      },
-      {
-        path: '/reader/novels/:novelId',
-        element: <ReaderNovelDetailPage />
-      },
-      {
-        path: '/reader/chapters/:chapterId',
-        element: <ReaderChapterPage />
-      },
+      { path: staticRouteTargets['/reader/feedback'], element: <FeedbackPage /> },
       {
         element: <ReaderCollectionsLayout />,
         children: [
-          { path: '/reader/library', element: <ReaderLibraryPage /> },
-          { path: '/reader/bookmarks', element: <ReadingBookmarksPage /> },
-          { path: '/reader/history', element: <ReaderHistoryPage /> }
+          { path: routes.library, element: <ReaderLibraryPage /> },
+          { path: routes.history, element: <ReaderHistoryPage /> }
         ]
       },
       {
-        path: '/notifications',
+        path: staticRouteTargets['/notifications'],
         element: <NotificationsPage />
       },
       {
-        path: '/profile/me',
+        path: staticRouteTargets['/profile/me'],
         element: <MyProfilePage />
       },
-      {
-        path: '/authors/:authorId',
-        element: (
-          <AuthorTheme>
-            <AuthorProfilePage />
-          </AuthorTheme>
-        )
-      },
       ...[
-        { path: '/admin/audit', element: <AdminAuditPage /> },
-        { path: '/admin/appeals', element: <AdminAppealsPage /> },
-        { path: '/admin/selection-reconsiderations', element: <AdminReconsiderationsPage /> },
-        { path: '/admin/placements', element: <PlacementPage /> },
-        { path: '/admin/discussions', element: <AdminDiscussionsPage /> },
-        { path: '/admin/users/:userId', element: <AdminUserDetailPage /> },
-        { path: '/admin/withdraws/:requestId', element: <AdminReconciliationPage /> }
+        { path: staticRouteTargets['/admin/audit'], element: <AdminAuditPage /> },
+        { path: staticRouteTargets['/admin/appeals'], element: <AdminAppealsPage /> },
+        { path: staticRouteTargets['/admin/selection-reconsiderations'], element: <AdminReconsiderationsPage /> },
+        { path: staticRouteTargets['/admin/placements'], element: <PlacementPage /> },
+        { path: staticRouteTargets['/admin/discussions'], element: <AdminDiscussionsPage /> },
+        { path: staticRouteTargets['/admin/users/:userId'], element: <AdminUserDetailPage /> },
+        { path: staticRouteTargets['/admin/withdraws/:requestId'], element: <AdminReconciliationPage /> }
       ].map((route) => ({
         ...route,
         element: <RoleGuard roles={['ADMIN']}>{route.element}</RoleGuard>
       })),
       {
-        path: '/admin',
+        path: staticRouteTargets['/admin'],
         element: (
           <RoleGuard roles={['ADMIN']}>
             <AdminOverviewPage />
@@ -326,7 +327,7 @@ export const router = createBrowserRouter([
         )
       },
       {
-        path: '/admin/users',
+        path: staticRouteTargets['/admin/users'],
         element: (
           <RoleGuard roles={['ADMIN']}>
             <AdminUsersPage />
@@ -334,7 +335,7 @@ export const router = createBrowserRouter([
         )
       },
       {
-        path: '/admin/novels',
+        path: staticRouteTargets['/admin/novels'],
         element: (
           <RoleGuard roles={['ADMIN']}>
             <AdminNovelsPage />
@@ -342,15 +343,17 @@ export const router = createBrowserRouter([
         )
       },
       {
-        path: '/admin/novels/:novelId',
+        path: staticRouteTargets['/admin/novels/:novelId'],
         element: (
           <RoleGuard roles={['ADMIN']}>
-            <AdminNovelDetailPage />
+            <ManagedNovelRoute route="/admin/novels/:novelId" scope="admin">
+              <AdminNovelDetailPage />
+            </ManagedNovelRoute>
           </RoleGuard>
         )
       },
       {
-        path: '/admin/taxonomy',
+        path: staticRouteTargets['/admin/taxonomy'],
         element: (
           <RoleGuard roles={['ADMIN']}>
             <AdminTaxonomyPage />
@@ -358,7 +361,7 @@ export const router = createBrowserRouter([
         )
       },
       {
-        path: '/admin/moderation',
+        path: staticRouteTargets['/admin/moderation'],
         element: (
           <RoleGuard roles={['ADMIN']}>
             <AdminModerationPage key="moderation" />
@@ -366,7 +369,7 @@ export const router = createBrowserRouter([
         )
       },
       {
-        path: '/admin/escalations',
+        path: staticRouteTargets['/admin/escalations'],
         element: (
           <RoleGuard roles={['ADMIN']}>
             <AdminEscalationsPage />
@@ -374,7 +377,7 @@ export const router = createBrowserRouter([
         )
       },
       {
-        path: '/admin/reports',
+        path: staticRouteTargets['/admin/reports'],
         element: (
           <RoleGuard roles={['ADMIN']}>
             <AdminReportsPage />
@@ -382,7 +385,7 @@ export const router = createBrowserRouter([
         )
       },
       {
-        path: '/admin/moderation/:reviewId',
+        path: staticRouteTargets['/admin/moderation/:reviewId'],
         element: (
           <RoleGuard roles={['ADMIN']}>
             <AdminModerationDetailPage />
@@ -390,7 +393,7 @@ export const router = createBrowserRouter([
         )
       },
       {
-        path: '/admin/withdraws',
+        path: staticRouteTargets['/admin/withdraws'],
         element: (
           <RoleGuard roles={['ADMIN']}>
             <AdminWithdrawsPage />
@@ -398,15 +401,15 @@ export const router = createBrowserRouter([
         )
       },
       {
-        path: '/moderator',
+        path: '/kiem-duyet',
         element: (
           <RoleGuard roles={['MODERATOR']}>
-            <Navigate to="/moderator/reviews" replace />
+            <UrlRedirect pathname={staticRouteTargets['/moderator/reviews']} />
           </RoleGuard>
         )
       },
       {
-        path: '/moderator/reviews',
+        path: staticRouteTargets['/moderator/reviews'],
         element: (
           <RoleGuard roles={['MODERATOR']}>
             <ModeratorReviewsPage />
@@ -414,7 +417,7 @@ export const router = createBrowserRouter([
         )
       },
       {
-        path: '/moderator/history',
+        path: staticRouteTargets['/moderator/history'],
         element: (
           <RoleGuard roles={['MODERATOR']}>
             <ModeratorHistoryPage />
@@ -422,7 +425,7 @@ export const router = createBrowserRouter([
         )
       },
       {
-        path: '/moderator/reviews/:reviewId',
+        path: staticRouteTargets['/moderator/reviews/:reviewId'],
         element: (
           <RoleGuard roles={['MODERATOR']}>
             <ModeratorReviewDetailPage />
@@ -430,19 +433,19 @@ export const router = createBrowserRouter([
         )
       },
       {
-        path: '/moderator/selections',
+        path: staticRouteTargets['/moderator/selections'],
         element: <RoleGuard roles={['MODERATOR']}><ModeratorSelectionsPage /></RoleGuard>
       },
       {
-        path: '/moderator/placements',
+        path: staticRouteTargets['/moderator/placements'],
         element: <RoleGuard roles={['MODERATOR']}><PlacementPage /></RoleGuard>
       },
       {
-        path: '/moderator/selections/:caseId',
+        path: staticRouteTargets['/moderator/selections/:caseId'],
         element: <RoleGuard roles={['MODERATOR']}><ModeratorSelectionDetailPage /></RoleGuard>
       },
       {
-        path: '/moderator/discussions',
+        path: staticRouteTargets['/moderator/discussions'],
         element: (
           <RoleGuard roles={['MODERATOR']}>
             <ModeratorDiscussionsPage />
@@ -453,13 +456,15 @@ export const router = createBrowserRouter([
   },
   {
     path: '*',
-    element: <Navigate to="/" replace />
+    element: <UrlRedirect pathname="/" search="" />
   }
 ]);
 
 function AuthorChapterDeepLink() {
   const { novelId = '', chapterId = '' } = useParams();
-  const params = new URLSearchParams({ novelId, chapterId });
-
-  return <Navigate to={`/author/ide?${params.toString()}`} replace />;
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  params.set('novelId', novelId);
+  params.set('chapterId', chapterId);
+  return <UrlRedirect pathname={staticRouteTargets['/author/ide']} search={'?' + params.toString()} />;
 }

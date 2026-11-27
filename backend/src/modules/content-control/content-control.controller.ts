@@ -50,7 +50,8 @@ export const listReviewsController: RequestHandler = async (request, response, n
 
 export const getReviewController: RequestHandler = async (request, response, next) => {
   try {
-    const result = await getModerationReview(String(request.params.reviewId), requireRequestAuth(request));
+    const { reviewId, reviewSlug } = request.params;
+    const result = await getModerationReview(String(reviewSlug ?? reviewId), requireRequestAuth(request), Boolean(reviewSlug));
     response.json(successResponse(result));
   } catch (error) {
     next(error);

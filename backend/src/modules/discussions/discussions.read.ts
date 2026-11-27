@@ -10,14 +10,14 @@ const topicVisible = "t.status = 'VISIBLE' and cat.is_active";
 const visibleComment = "(c.status = 'VISIBLE' and (c.root_id is null or root.status <> 'HIDDEN'))";
 const listedComment = "("+visibleComment+" or (c.status = 'DELETED' and c.root_id is null and replies.total > 0))";
 const author = (u: string, p: string) => "case when "+u+".user_id is not null then jsonb_build_object("+
-  "'userId', "+u+".user_id, 'displayName', coalesce("+p+".display_name, "+u+".username), 'avatarUrl', "+p+".avatar_url, 'role', "+u+".role) end";
+  "'userId', "+u+".user_id, 'displayName', coalesce("+p+".display_name, "+u+".username), 'avatarUrl', "+p+".avatar_url, 'publicKey', "+u+".public_key, 'role', "+u+".role) end";
 const authorJoin = (u: string, p: string, id: string) =>
   "left join users "+u+" on "+u+".user_id = "+id+" and "+u+".status = 'ACTIVE' and "+u+".deleted_at is null "+
   "left join user_profiles "+p+" on "+p+".user_id = "+u+".user_id";
 const categoryDto = "jsonb_build_object('categoryId', cat.category_id, 'slug', cat.slug, 'name', cat.name, "+
   "'sortOrder', cat.sort_order, 'postAdminOnly', cat.post_admin_only)";
 const topicDto = `jsonb_build_object(
-  'topicId', t.topic_id, 'category', ${categoryDto},
+  'topicId', t.topic_id, 'topicSlug', t.slug, 'category', ${categoryDto},
   'author', ${author('u', 'p')},
   'isPinned', t.is_pinned, 'isLocked', t.is_locked,
   'status', case when cat.is_active or t.status = 'DELETED' then t.status::text else 'HIDDEN' end,
@@ -181,6 +181,18 @@ export async function listTopics(input: TopicListInput, viewerId?: string, viewe
     }),
     nextCursor: paged.nextCursor
   };
+}
+
+export async function getTopicLocator(selector: { topicId: string } | { topicSlug: string }) {
+  const byId = 'topicId' in selector;
+  const { rows } = await getPostgresPool().query<{ topicId: string; topicSlug: string }>(
+    `select t.topic_id as "topicId", t.slug as "topicSlug"
+     from discussion_topics t join discussion_categories cat using(category_id)
+     where ${topicVisible} and ${byId ? 't.topic_id' : 't.slug'} = $1`,
+    [byId ? selector.topicId : selector.topicSlug]
+  );
+  if (!rows[0]) throw notFound();
+  return rows[0];
 }
 
 export async function getTopic(topicId: string, viewerId?: string): Promise<Topic> {  const { rows } = await getPostgresPool().query<{ item: Topic }>(

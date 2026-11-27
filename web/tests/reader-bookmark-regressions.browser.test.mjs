@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { mockReadingLocators } from './helpers/reader-locators.mjs';
 
 let server, browser, base;
 before(async () => {
@@ -69,6 +70,7 @@ async function fixture(t, { role = 'READER', width = 1440, theme = 'light', back
     }
     await route.fulfill({ json: { success: true, data, meta } });
   });
+  await mockReadingLocators(page, [{ novelId: 'novel-1', chapters }]);
   const prefix = role === 'READER' ? '/reader' : '/public';
   await page.goto(`${base}${prefix}/chapters/c-1${initialSearch}`);
   await expect(page.getByRole('article', { name: 'Nội dung chương' })).toBeVisible();

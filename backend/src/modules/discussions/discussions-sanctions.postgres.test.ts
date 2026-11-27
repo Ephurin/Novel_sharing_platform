@@ -135,7 +135,7 @@ test('direct discussion moderation hides through one reversible sanction shared 
     assert.equal(authorNotices.length, 1, 'the hidden author is notified exactly once');
     assert.equal(authorNotices[0].type, 'DISCUSSION_CONTENT_HIDDEN');
     assert.equal(authorNotices[0].payload.reason, 'ẩn trực tiếp');
-    assert.equal(authorNotices[0].payload.appealsUrl, '/appeals');
+    assert.equal(authorNotices[0].payload.appealsUrl, process.env.WEB_EMIT_CANONICAL_LINKS === 'false' ? '/appeals' : '/khieu-nai');
     assert.equal(await getMongoDatabase().collection('notifications').countDocuments({ userId: outsider.userId }), 0);
 
     // The author reads the decision and can open an appeal about it.
@@ -530,19 +530,30 @@ test('the two hide paths converge on one sanction: races, achieved report accept
         [rollbackTopic.data.topicId]
       )
     ).rows[0];
+    async function drainUntilDone() {
+      const deadline = Date.now() + 5_000;
+      do {
+        // Another drain may still hold the advisory lock after processing a concurrent moderation request.
+        await drainAdminJobs();
+        const job = (await db.query<{ status: string; attempts: number }>(
+          'select status, attempts from admin_jobs where job_id=$1', [jobRow.job_id]
+        )).rows[0];
+        if (job.status === 'DONE') return job.attempts;
+        assert.equal(job.status, 'PENDING');
+        await delay(20);
+      } while (Date.now() < deadline);
+      assert.fail('The notification job never completed');
+    }
+    const initialAttempts = await drainUntilDone();
     await db.query(
-      "update admin_jobs set status='PENDING',error='rehearsed worker crash',completed_at=null where job_id=$1",
+      "update admin_jobs set status='PENDING',error='rehearsed worker crash',completed_at=null,next_attempt_at=now() where job_id=$1",
       [jobRow.job_id]
     );
-    await drainAdminJobs();
+    assert.equal(await drainUntilDone(), initialAttempts + 1);
     assert.equal(await getMongoDatabase().collection('notifications').countDocuments({
       userId: author.userId,
       'payload.targetId': rollbackTopic.data.topicId
     }), 1, 'the retry delivers the notification exactly once');
-    const jobAfter = (
-      await db.query<{ status: string }>('select status from admin_jobs where job_id=$1', [jobRow.job_id])
-    ).rows[0];
-    assert.equal(jobAfter.status, 'DONE');
   } finally {
     env.MODERATOR_ENABLED = previousModeratorEnabled;
     if (server) await new Promise<void>(resolve => server!.close(() => resolve()));

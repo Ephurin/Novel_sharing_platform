@@ -1,3 +1,4 @@
+import { appealsPath } from '../../core/config/web-paths.js';
 import { lockFreshActor } from '../../core/security/transactional-identity.js';
 import type { PoolClient } from 'pg';
 import type { AuthContext } from '../../core/security/auth-context.js';
@@ -210,7 +211,7 @@ export async function applySanction(
         targetType: input.targetType,
         targetId: input.targetId,
         action: input.action,
-        appealsUrl: '/appeals',
+        appealsUrl: appealsPath,
         ...(removesNovel ? { novelTitle, reason, removedAt: removedAt.toISOString() } : {})
       }
     });

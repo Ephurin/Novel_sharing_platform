@@ -1,3 +1,4 @@
+import { appealsPath } from '../config/web-paths.js';
 import type { RequestHandler } from 'express';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
@@ -61,7 +62,7 @@ async function activeIdentity(token: string) {
     throw new AppError(
       403,
       'AUTH_ACCOUNT_INACTIVE',
-      'Tài khoản bị khóa hoặc không còn hoạt động. Bạn có thể gửi khiếu nại tại /appeals.'
+      `Tài khoản bị khóa hoặc không còn hoạt động. Bạn có thể gửi khiếu nại tại ${appealsPath}.`
     );
   if (identity.accessVersion !== Number(user.access_version ?? 0))
     throw new AppError(401, 'AUTH_009', 'Phiên đăng nhập đã đổi quyền. Hãy đăng nhập lại.');

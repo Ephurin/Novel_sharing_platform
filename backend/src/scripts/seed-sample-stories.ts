@@ -266,7 +266,8 @@ async function seedStory(story: StorySeed, authorId: string) {
     await client.query('begin');
 
     const genreId = await upsertGenre(story.genre);
-    await client.query('delete from novels where slug = $1 and novel_id <> $2', [story.slug, story.novelId]);
+    const existingSlug = await client.query('select 1 from novels where slug = $1 and novel_id <> $2', [story.slug, story.novelId]);
+    if (existingSlug.rowCount) throw new Error(`Fixture URL ${story.slug} belongs to a different novel`);
     const novelResult = await client.query(
       `
         insert into novels (
@@ -278,7 +279,6 @@ async function seedStory(story: StorySeed, authorId: string) {
         set author_id = excluded.author_id,
             title = excluded.title,
             synopsis = excluded.synopsis,
-            slug = excluded.slug,
             genre_id = excluded.genre_id,
             serial_status = 'ONGOING',
             status = 'PUBLISHED',
@@ -304,21 +304,30 @@ async function seedStory(story: StorySeed, authorId: string) {
       );
     }
 
-    await client.query('delete from chapters where novel_id = $1', [novelId]);
-
     for (const [index, chapter] of chapters.entries()) {
       const chapterId = story.chapterIds[index];
       if (!chapterId) {
         throw new Error(`Missing fixed chapter UUID for ${story.title} chapter ${index + 1}`);
       }
 
-      await client.query(
+      const result = await client.query(
         `
           insert into chapters (
             chapter_id, novel_id, title, chapter_number, content, word_count,
             is_vip, price_coins, status, published_at, updated_at
           )
           values ($1, $2, $3, $4, $5, $6, $7, $8, 'PUBLISHED', now(), now())
+          on conflict (chapter_id) do update
+          set title = excluded.title,
+              chapter_number = excluded.chapter_number,
+              content = excluded.content,
+              word_count = excluded.word_count,
+              is_vip = excluded.is_vip,
+              price_coins = excluded.price_coins,
+              status = excluded.status,
+              published_at = coalesce(chapters.published_at, excluded.published_at),
+              updated_at = now()
+          where chapters.novel_id = excluded.novel_id
         `,
         [
           chapterId,
@@ -331,18 +340,19 @@ async function seedStory(story: StorySeed, authorId: string) {
           story.directoryName === 'test_story' && index === chapters.length - 1 ? 50 : 0
         ]
       );
+      if (!result.rowCount) throw new Error(`Fixture chapter ${chapterId} belongs to a different novel`);
     }
 
     await client.query(
       `
         update novels
-        set chapters_count = $2,
+        set chapters_count = (select count(*) from chapters where novel_id = $1 and deleted_at is null),
             status = 'PUBLISHED',
             published_at = coalesce(published_at, now()),
             updated_at = now()
         where novel_id = $1
       `,
-      [novelId, chapters.length]
+      [novelId]
     );
 
     await client.query('commit');

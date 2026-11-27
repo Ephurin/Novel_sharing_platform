@@ -437,7 +437,7 @@ test('Real AuthorWritingIde: editor typing, autosave, S10 consistency checking &
       authorBBackup: localStorage.getItem(`storycraft-draft:${authorBId}:${chId}`)
     }), [config.accounts[0].userId, config.accounts[1].userId, chapterId]);
 
-    assert.equal(logoutState.pathname, '/login', 'AuthGate must redirect cleanly to /login on session exit');
+    assert.equal(logoutState.pathname, '/dang-nhap', 'AuthGate must redirect cleanly to the login page on session exit');
     assert.equal(logoutState.blockerCount, 0, 'useBlocker must unregister on unmount without deadlocking /login redirect');
     assert.ok(logoutState.authorABackup?.includes(unsavedBeforeLogout), 'Unsaved draft must remain preserved in author-scoped localStorage');
     assert.equal(logoutState.authorBBackup, null, 'Another account must never inherit the previous author draft');

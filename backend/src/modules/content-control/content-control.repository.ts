@@ -157,11 +157,28 @@ export async function findOpenReportByReporter(
   return result.rows[0] ?? null;
 }
 
+const reviewUrlProjection = `case
+  when target_type = 'NOVEL' and target_id ~* '^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$'
+    then (select n.slug from novels n where n.novel_id = target_id::uuid)
+  when target_type = 'CHAPTER' and target_id ~* '^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$'
+    then (select n.slug from chapters c join novels n using(novel_id) where c.chapter_id = target_id::uuid)
+  end as novel_slug`;
+
+export async function findReviewForRead(reference: { reviewId: string } | { urlNumber: number }) {
+  const byId = 'reviewId' in reference;
+  const result = await getPostgresPool().query(
+    `select moderation_reviews.*, ${reviewUrlProjection} from moderation_reviews
+       where ${byId ? 'review_id' : 'url_number'} = $1`,
+    [byId ? reference.reviewId : reference.urlNumber]
+  );
+  return result.rows[0] ?? null;
+}
+
 export async function listReviews(input: ListReviewsInput) {
   const offset = (input.page - 1) * input.limit;
   const result = await getPostgresPool().query(
     `
-      select moderation_reviews.*, (select count(*)::int from reports r where r.review_id=moderation_reviews.review_id) as report_count,
+      select moderation_reviews.*, ${reviewUrlProjection}, (select count(*)::int from reports r where r.review_id=moderation_reviews.review_id) as report_count,
         (select r.reason from reports r where r.review_id=moderation_reviews.review_id
           group by r.reason order by count(*) desc, min(r.created_at) limit 1) as top_reason
       from moderation_reviews

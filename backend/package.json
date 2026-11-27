@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "db:migrate": "tsx src/core/database/migrate.ts",
+    "db:backfill:url-identifiers": "tsx src/scripts/backfill-url-identifiers.ts",
     "db:seed:demo": "tsx src/scripts/seed-sample-stories.ts",
     "db:seed:novel-metadata": "tsx src/scripts/seed-novel-metadata-demo.ts",
     "db:seed:author": "tsx src/scripts/seed-author-workspace.ts",

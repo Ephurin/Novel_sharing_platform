@@ -21,7 +21,7 @@ const env = { ...process.env, READER_EVIDENCE_DIR: output,
   ADMIN_TEST_MONGO_URL: process.env.ADMIN_TEST_MONGO_URL || 'mongodb://127.0.0.1:27017' };
 for (const key of Object.keys(env)) if (/(?:API_KEY|PROVIDER_TOKEN)$/.test(key)) env[key] = '';
 const requiredBrowsers = [
-  'auth-landing.browser.test.mjs',
+  'auth-landing.browser.test.mjs', 'url-role-routes.browser.test.mjs',
   'comment-notification-links.browser.test.mjs',
   'reader-bookmark-regressions.browser.test.mjs',
   'reader-chapter-workspace.browser.test.mjs',
@@ -68,6 +68,7 @@ const steps = [
   ['backend-typecheck', 'backend', 'npm', ['run', 'typecheck']],
   ['web-build', 'web', 'npm', ['run', 'build']],
   ['reader-postgres', 'backend', process.execPath, ['scripts/run-isolated-tests.mjs',
+    'src/core/database/url-identifiers.postgres.test.ts',
     'src/modules/reading/chapter-reads.postgres.test.ts', 'src/modules/reading/reader-discovery.postgres.test.ts', 'src/modules/reading/reading-lifecycle.postgres.test.ts', 'src/modules/reading/reader-workspace.postgres.test.ts',
     'src/modules/reading/reading-bookmark-entries.postgres.test.ts',
     'src/modules/auth/auth-rate-limit.test.ts', 'src/modules/auth/auth-contract.postgres.test.ts',
@@ -104,6 +105,9 @@ try {
     if (name === 'reader-postgres') {
       await verifyCleanup(log);
       const requiredBackendTests = [
+        'latest migration directly upgrades existing URL-less data',
+        'URL upgrade resumes with the identifiers already committed',
+        'repeated seeds keep published URL mappings and refuse a foreign slug or chapter position',
         'authentication limits distinguish proxy clients and ignore forged direct headers',
         'password registration offers a browser-bound link and a one-time backup code',
         'native signup recovers an expired code with its original app ticket',

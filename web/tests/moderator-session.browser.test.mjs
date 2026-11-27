@@ -59,7 +59,7 @@ test('E02: a MODERATOR session keeps the ordinary web shell, menus and reader la
 
     const writeLink = page.getByRole('link', { name: 'Viết tiếp' });
     await writeLink.click();
-    await page.waitForURL('**/author');
+    await page.waitForURL('**/sang-tac');
     await expect(page.locator('[data-user-role="MODERATOR"]')).toHaveCount(1);
 
     assert.deepEqual(errors, [], 'uncaught page errors during the moderator session');

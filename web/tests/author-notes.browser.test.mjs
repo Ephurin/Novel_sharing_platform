@@ -20,7 +20,8 @@ test('author footnotes survive edits, undo, autosave and reload, then appear to 
       let saved = initial, published = initial, submitted = null, version = 1, patches = 0, submissions = 0;
       const noteBody = '“Huynh” là cách gọi anh kết nghĩa, không phải anh ruột.\nCách xưng hô này thể hiện sự kính trọng.';
       const updatedBody = noteBody + '\n<script>window.noteExecuted = true</script>';
-      const chapter = content => ({ chapterId: 'chapter-1', novelId: 'novel-1', chapterNumber: 1, title: 'Cách xưng hô', status: 'DRAFT', content, isVip: false, priceCoins: 0, draftVersion: version, draft: { content, title: 'Cách xưng hô', version } });
+      const location = { chapterId: 'chapter-1', novelId: 'novel-1', novelSlug: 'truyen-thu', chapterSlug: 'cach-xung-ho' };
+      const chapter = content => ({ ...location, chapterNumber: 1, title: 'Cách xưng hô', status: 'DRAFT', content, isVip: false, priceCoins: 0, draftVersion: version, draft: { content, title: 'Cách xưng hô', version } });
       const authorChapter = () => ({ ...chapter(published), status: 'PUBLISHED', pendingPublicationRevision: submitted !== null, draft: { content: saved, title: 'Cách xưng hô', version } });
       const routeApi = async route => {
         const url = new URL(route.request().url()), method = route.request().method();
@@ -28,6 +29,8 @@ test('author footnotes survive edits, undo, autosave and reload, then appear to 
         if (url.pathname.endsWith('/auth/me')) data = { userId: 'author-1', username: 'author', email: 'author@example.invalid', role: 'AUTHOR', status: 'ACTIVE' };
         else if (url.pathname.endsWith('/novels/me')) data = [{ novelId: 'novel-1', title: 'Truyện thử', status: 'PUBLISHED' }];
         else if (url.pathname.endsWith('/reading/novels/novel-1')) data = { novelId: 'novel-1', title: 'Truyện thử', chapters: [chapter(published)] };
+        else if (url.pathname.endsWith('/reading/chapters/chapter-1/locator') ||
+          url.pathname.endsWith('/reading/novels/by-slug/truyen-thu/chapters/cach-xung-ho/locator')) data = location;
         else if (url.pathname.endsWith('/reading/chapters/chapter-1')) data = chapter(published);
         else if (url.pathname.endsWith('/novels/novel-1/chapters')) data = [authorChapter()];
         else if (url.pathname.endsWith('/novels/novel-1')) data = { novelId: 'novel-1', authorId: 'author-1', title: 'Truyện thử', status: 'PUBLISHED' };
@@ -116,6 +119,7 @@ test('author footnotes survive edits, undo, autosave and reload, then appear to 
         await reader.route('**/api/v1/**', routeApi);
         try {
           await reader.goto(`${base}/public/chapters/chapter-1`);
+          await expect(reader).toHaveURL(`${base}/truyen/truyen-thu/chuong/cach-xung-ho`);
           await expect(reader.locator('.chapter-prose')).toBeVisible();
           await expect(reader.locator('.sc-author-note-reference')).toHaveCount(0);
           assert.equal(submissions, 0, 'saving and previewing a note must not submit the draft');

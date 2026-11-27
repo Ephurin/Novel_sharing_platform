@@ -228,7 +228,7 @@ test(
       const page = await context.newPage();
       page.on('pageerror', (e) => errors.push(e.message));
       const goto = async (route) => {
-        await page.goto(`${webOrigin}${route}`);
+        await page.goto(`${webOrigin}${route}`, { waitUntil: 'domcontentloaded', timeout: 60_000 });
         await page.locator('main h1, .admin-appeal-portal h1').waitFor();
       };
       await t.test('browser: compact IDs copy full UUIDs and preserve routing', async () => {
@@ -245,7 +245,7 @@ test(
           assert.equal(await page.evaluate(() => navigator.clipboard.readText()), id('review:1'));
           assert.equal(
             await row.getByRole('link', { name: 'Chi tiết →', exact: true }).getAttribute('href'),
-            `/admin/moderation/${id('review:1')}`
+            `${process.env.VITE_EMIT_CANONICAL_LINKS === 'false' ? '/admin/moderation' : '/quan-tri/kiem-duyet'}/${id('review:1')}`
           );
         }
         checks.push(

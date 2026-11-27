@@ -76,6 +76,7 @@ services:
       GIPHY_API_KEY: ${GIPHY_API_KEY:-}
       GIPHY_PUBLIC_API_KEY: ${GIPHY_PUBLIC_API_KEY:-}
       WEB_ORIGIN: http://localhost:8080
+      WEB_EMIT_CANONICAL_LINKS: "${WEB_EMIT_CANONICAL_LINKS:-true}"
       DB_CONNECT_ON_START: "true"
       PRIVATE_COMMENTS_ENABLED: ${PRIVATE_COMMENTS_ENABLED:-false}
       MODERATOR_ENABLED: ${MODERATOR_ENABLED:-true}
@@ -125,6 +126,7 @@ services:
       dockerfile: web/Dockerfile
       args:
         VITE_API_BASE_URL: /api/v1
+        VITE_EMIT_CANONICAL_LINKS: "${VITE_EMIT_CANONICAL_LINKS:-true}"
     ports:
       - "8080:80"
     depends_on:

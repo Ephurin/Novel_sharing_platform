@@ -93,7 +93,6 @@ async function seedNovel(client: PoolClient, novel: SeedNovel, authorId: string)
       on conflict (novel_id) do update
       set author_id = excluded.author_id,
           title = excluded.title,
-          slug = excluded.slug,
           synopsis = excluded.synopsis,
           cover_image_url = excluded.cover_image_url,
           genre_id = excluded.genre_id,
@@ -129,12 +128,10 @@ async function seedNovel(client: PoolClient, novel: SeedNovel, authorId: string)
   }
 
   const chapterIds = new Map(novel.chapters.map((chapter) => [chapter.key, seedUuid(`chapter:${chapter.key}`)]));
-  // The seed owns these novels: drop chapters that are not part of the seed content.
-  await client.query('delete from chapters where novel_id = $1 and chapter_id <> all($2::uuid[])', [novelId, [...chapterIds.values()]]);
 
   for (const [index, chapter] of novel.chapters.entries()) {
     const chapterPublishedAt = chapter.publishedDaysAgo === null ? null : daysAgo(chapter.publishedDaysAgo);
-    await client.query(
+    const result = await client.query(
       `
         insert into chapters (
           chapter_id, novel_id, title, chapter_number, content, word_count,
@@ -153,6 +150,7 @@ async function seedNovel(client: PoolClient, novel: SeedNovel, authorId: string)
             created_at = excluded.created_at,
             updated_at = excluded.updated_at,
             deleted_at = null
+        where chapters.novel_id = excluded.novel_id
       `,
       [
         chapterIds.get(chapter.key),
@@ -168,6 +166,7 @@ async function seedNovel(client: PoolClient, novel: SeedNovel, authorId: string)
         chapterPublishedAt ?? daysAgo(1)
       ]
     );
+    if (!result.rowCount) throw new Error(`Fixture chapter ${chapter.key} belongs to a different novel`);
   }
 
   await client.query(

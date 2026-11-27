@@ -163,7 +163,7 @@ export async function nominate(auth: AuthContext, novelId: string, reason: strin
 
 export async function listOwnNominations(userId: string, input: SelectionPage) {
   const { rows } = await getPostgresPool().query(`select n.nomination_id,n.kind,n.reason,n.created_at,s.case_id,s.status,
-    s.novel_id,v.title from novel_nominations n join novel_selection_cases s using(case_id) join novels v using(novel_id)
+    s.novel_id,v.slug as novel_slug,v.title from novel_nominations n join novel_selection_cases s using(case_id) join novels v using(novel_id)
     where n.nominator_id=$1 order by n.created_at desc,n.nomination_id desc limit $2 offset $3`,
   [userId, input.limit + 1, (input.page - 1) * input.limit]);
   return { items: rows.slice(0, input.limit), hasMore: rows.length > input.limit };

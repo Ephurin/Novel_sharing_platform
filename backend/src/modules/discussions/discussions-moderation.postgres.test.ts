@@ -252,7 +252,7 @@ test('accepted forum reports notify the discussion author once and rejections st
     assert.equal(ownerNotices.length, 1, 'accepted report notifies the discussion author exactly once');
     assert.equal(ownerNotices[0].payload.reviewId, acceptedReviewId);
     assert.equal(ownerNotices[0].payload.sanctionId, sanctionRow.sanction_id);
-    assert.equal(ownerNotices[0].payload.appealsUrl, '/appeals');
+    assert.equal(ownerNotices[0].payload.appealsUrl, process.env.WEB_EMIT_CANONICAL_LINKS === 'false' ? '/appeals' : '/khieu-nai');
     const ownerNotice = ownerNotices[0];
     assert.equal(ownerNotice.payload.targetType, 'DISCUSSION');
     assert.equal(ownerNotice.payload.targetId, acceptedTopic.data.topicId);

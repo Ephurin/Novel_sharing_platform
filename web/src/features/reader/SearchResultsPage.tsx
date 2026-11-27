@@ -1,3 +1,4 @@
+import { novelHref } from '../../shared/routes';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -300,7 +301,7 @@ export function SearchResultsPage({ advanced = false }: { advanced?: boolean }) 
             <SearchResultCard
               key={novel.novelId}
               novel={novel}
-              to={`${detailBase}/novels/${novel.novelId}`}
+              to={novelHref(novel, detailBase)}
             />
           ))
         )}

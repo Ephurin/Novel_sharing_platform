@@ -1,3 +1,4 @@
+import { chapterHref } from '../../shared/routes';
 import { formatDateTime, formatNumber } from '../../shared/lib/format-vi';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -8,8 +9,8 @@ const chapterTitle = (chapter: ReaderChapter) => {
   return title ? `Chương ${chapter.chapterNumber}: ${title}` : `Chương ${chapter.chapterNumber}`;
 };
 
-export function NovelChapterCatalog({ chapters, publicMode = false, readChapterIds = [], onReadFirst }: {
-  chapters: ReaderChapter[]; publicMode?: boolean; readChapterIds?: string[]; onReadFirst?: () => void;
+export function NovelChapterCatalog({ chapters, novelSlug, publicMode = false, readChapterIds = [], onReadFirst }: {
+  chapters: ReaderChapter[]; novelSlug?: string; publicMode?: boolean; readChapterIds?: string[]; onReadFirst?: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [descending, setDescending] = useState(false);
@@ -39,7 +40,7 @@ export function NovelChapterCatalog({ chapters, publicMode = false, readChapterI
       <div className="sc-chapter-table-scroll"><table className="sc-chapter-table" id="reader-chapter-list">
         <thead><tr><th>Chương</th><th className="hidden md:table-cell">Số từ</th><th className="hidden sm:table-cell">Ngày đăng</th><th>Quyền đọc</th></tr></thead>
         <tbody>{visible.map(chapter => {
-          const to = `${publicMode ? '/public' : '/reader'}/chapters/${chapter.chapterId}`;
+          const to = chapterHref({ ...chapter, novelSlug }, publicMode ? '/public' : '/reader');
           const label = chapterTitle(chapter);
           return <tr key={chapter.chapterId} data-read={read.has(chapter.chapterId) || undefined}>
             <td><Link to={to} className="sc-reader-chapter-title" data-testid={`read-chapter-${chapter.chapterId}`} title={label}>{label}{read.has(chapter.chapterId) && <span className="sr-only"> · Đã đọc</span>}</Link></td>

@@ -1,3 +1,4 @@
+import { verificationPath } from '../../core/config/web-paths.js';
 import bcrypt from 'bcryptjs';
 import { createHash, createHmac, randomBytes, randomInt, randomUUID, timingSafeEqual } from 'node:crypto';
 import jwt from 'jsonwebtoken';
@@ -54,6 +55,7 @@ const refreshTokenPayloadSchema = z.object({
 function toPublicUser(user: AuthUser): PublicAuthUser {
   return {
     userId: user.userId,
+    publicKey: user.publicKey,
     email: user.email,
     username: user.username,
     displayName: user.displayName,
@@ -136,7 +138,7 @@ function describeRegistration(registrationId: string, email: string, deadline: D
 }
 
 function recoveryUrl(email: string) {
-  const url = new URL('/verify-email', env.WEB_ORIGIN);
+  const url = new URL(verificationPath, env.WEB_ORIGIN);
   const token = jwt.sign({ email }, env.JWT_REFRESH_SECRET, {
     algorithm: 'HS256', audience: registrationRecoveryAudience, expiresIn: REGISTRATION_RECOVERY_MINUTES * 60
   });
@@ -164,7 +166,7 @@ function createRegistrationProofs(registrationId: string, channel: RegistrationC
   } while (codeHash === previousCodeHash);
   if (channel === 'native') return { code, codeHash, confirmationUrl: null, linkTokenHash: null };
   const linkToken = randomBytes(32).toString('base64url');
-  const confirmationUrl = new URL('/verify-email', env.WEB_ORIGIN);
+  const confirmationUrl = new URL(verificationPath, env.WEB_ORIGIN);
   confirmationUrl.hash = `token=${linkToken}`;
   return { code, codeHash, confirmationUrl: confirmationUrl.href, linkTokenHash: hashToken(linkToken) };
 }

@@ -33,6 +33,7 @@ export type Category = {
 
 export type TopicAuthor = {
   userId: string;
+  publicKey?: string;
   displayName: string | null;
   avatarUrl: string | null;
   /** Omitted when the role is not available for public display. */
@@ -43,6 +44,7 @@ export type TopicCategory = Category;
 
 export type Topic = {
   topicId: string;
+  topicSlug?: string;
   category: TopicCategory;
   author: TopicAuthor | null;
 
@@ -169,8 +171,8 @@ export async function getTopic(id: string): Promise<Topic> {
   return unwrap(response.data);
 }
 
-export async function createTopic(draft: TopicDraft): Promise<{ topicId: string }> {
-  const response = await apiClient.post<ApiEnvelope<{ topicId: string }>>('/discussions', {
+export async function createTopic(draft: TopicDraft): Promise<{ topicId: string; topicSlug?: string }> {
+  const response = await apiClient.post<ApiEnvelope<{ topicId: string; topicSlug?: string }>>('/discussions', {
     categoryId: draft.categoryId,
     title: draft.title,
     body: draft.body,

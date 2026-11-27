@@ -1,3 +1,4 @@
+import { managedNovelHref, studioHref, novelHref, navigationHref } from '../../shared/routes';
 import { chapterShortLabel } from '../novels/chapter-title';
 import { AuthorNovelStatusBadge } from './AuthorNovelStatusBadge';
 import { formatDateTime, formatNumber } from '../../shared/lib/format-vi';
@@ -183,7 +184,7 @@ export function AuthorProjectsPage() {
       setNewCoverUrl('');
       setCoverSource(null);
       showToast('Đã tạo tác phẩm mới thành công!');
-      navigate(`/author/novels/${novel.novelId}`);
+      navigate(managedNovelHref('/author/novels/:novelId', novel));
     },
     onError: (err: any) => {
       showToast('Lỗi tạo tác phẩm: ' + (err?.message || 'Không thể tạo tác phẩm'));
@@ -193,8 +194,8 @@ export function AuthorProjectsPage() {
   // UI walkthrough (UI-3): "Viết tiếp" opens the chapter the author edited last, not the chapter
   // remembered in this browser (which could be an old one) or the first chapter.
   const openIde = (novelId: string) => {
-    const latest = projects.find(project => project.novelId === novelId)?.latestChapter;
-    navigate(`/author/ide?novelId=${novelId}${latest ? `&chapterId=${latest.chapterId}` : ''}`);
+    const project = projects.find(item => item.novelId === novelId);
+    navigate(studioHref(project ?? { novelId }, project?.latestChapter ?? undefined));
   };
   const selectCover = (file: File) => {
     if (coverUpload.isPending || createProjectMutation.isPending) return;
@@ -425,7 +426,7 @@ export function AuthorProjectsPage() {
                 <AnimatedDisclosure className="sc-filter-presets" summary={<span>Vừa làm việc</span>}>
                   <div className="sc-workspace-row">
                     {recentIds.map(id => projects.find(p => p.novelId === id)).filter((p): p is Novel => Boolean(p)).slice(0, 5).map(project => (
-                      <Link className="sc-workspace-button" key={project.novelId} to={`/author/novels/${project.novelId}`}>{project.title}</Link>
+                      <Link className="sc-workspace-button" key={project.novelId} to={managedNovelHref('/author/novels/:novelId', project)}>{project.title}</Link>
                     ))}
                   </div>
                 </AnimatedDisclosure>
@@ -497,7 +498,7 @@ export function AuthorProjectsPage() {
                       <div className="flex gap-3.5 items-start">
                         {/* Left: Compact vertical novel cover (approx 96px wide, fixed 2:3 aspect ratio) */}
                         <Link
-                          to={`/author/novels/${project.novelId}`}
+                          to={managedNovelHref('/author/novels/:novelId', project)}
                           className="sc-cover-hover relative w-[96px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-stone-100 border border-stone-200/70 block group-hover:opacity-95 transition-opacity"
                         >
                           {cover ? <LoadedImage src={cover} alt={project.title} className="w-full h-full object-cover  transition-transform duration-300" /> : <span className="flex h-full items-center justify-center p-2 text-center text-meta text-stone-500">{project.title}</span>}
@@ -518,7 +519,7 @@ export function AuthorProjectsPage() {
 
                             {/* Novel Title: Prominently, up to 2 lines */}
                             <Link
-                              to={`/author/novels/${project.novelId}`}
+                              to={managedNovelHref('/author/novels/:novelId', project)}
                               className="text-body font-bold text-stone-900 line-clamp-2 leading-snug group-hover:text-primary-600 transition-colors"
                               title={project.title}
                             >
@@ -549,7 +550,7 @@ export function AuthorProjectsPage() {
                         <div className="flex items-center gap-1.5 flex-1">
                           {project.serialStatus === 'COMPLETED' ? (
                             <Link
-                              to={`/public/novels/${project.novelId}`}
+                              to={novelHref({ novelId: project.novelId, novelSlug: project.slug }, '/public')}
                               className="inline-flex items-center justify-center gap-1 flex-1 py-1 px-2.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-meta font-semibold shadow-2xs transition-colors"
                             >
                               <span className="material-symbols-outlined text-[15px]" aria-hidden="true">visibility</span>
@@ -567,7 +568,7 @@ export function AuthorProjectsPage() {
                           )}
 
                           <Link
-                            to={`/author/novels/${project.novelId}`}
+                            to={managedNovelHref('/author/novels/:novelId', project)}
                             className="inline-flex items-center justify-center gap-1 py-1 px-2.5 rounded-lg bg-stone-50 hover:bg-stone-100 text-meta font-medium text-stone-700 border border-stone-200/80 shadow-2xs transition-colors"
                           >
                             <span className="material-symbols-outlined text-[15px]" aria-hidden="true">settings</span>
@@ -596,21 +597,21 @@ export function AuthorProjectsPage() {
                             </Menu.Item>
                             <Menu.Item
                               component={Link}
-                              to={`/author/context/${project.novelId}`}
+                              to={managedNovelHref('/author/context/:novelId', project)}
                               leftSection={<span className="material-symbols-outlined text-[16px] text-primary-600" aria-hidden="true">menu_book</span>}
                             >
                               Cẩm nang bối cảnh
                             </Menu.Item>
                             <Menu.Item
                               component={Link}
-                              to={`/author/import/${project.novelId}`}
+                              to={managedNovelHref('/author/import/:novelId', project)}
                               leftSection={<span className="material-symbols-outlined text-[16px] text-emerald-600" aria-hidden="true">file_upload</span>}
                             >
                               Nhập bản thảo
                             </Menu.Item>
                             <Menu.Item
                               component={Link}
-                              to={`/public/novels/${project.novelId}`}
+                              to={novelHref({ novelId: project.novelId, novelSlug: project.slug }, '/public')}
                               leftSection={<span className="material-symbols-outlined text-[16px] text-stone-500" aria-hidden="true">visibility</span>}
                             >
                               Xem trang độc giả
@@ -636,7 +637,7 @@ export function AuthorProjectsPage() {
                     >
                       <div className="flex items-center gap-3.5 min-w-0 flex-1">
                         <Link
-                          to={`/author/novels/${project.novelId}`}
+                          to={managedNovelHref('/author/novels/:novelId', project)}
                           className="sc-cover-hover relative w-12 aspect-[2/3] shrink-0 rounded overflow-hidden bg-stone-100 border border-stone-200/60 block"
                         >
                           {cover ? <LoadedImage src={cover} alt={project.title} className="w-full h-full object-cover" /> : <span className="flex h-full items-center justify-center text-meta text-stone-500">{project.title.slice(0, 1)}</span>}
@@ -644,7 +645,7 @@ export function AuthorProjectsPage() {
                         <div className="flex flex-col min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <Link
-                              to={`/author/novels/${project.novelId}`}
+                              to={managedNovelHref('/author/novels/:novelId', project)}
                               className="text-meta font-bold text-stone-900 hover:text-primary-600 truncate transition-colors"
                             >
                               {project.title}
@@ -672,14 +673,14 @@ export function AuthorProjectsPage() {
                         <ProjectPin title={project.title} active={pinnedIds.includes(project.novelId)} onClick={() => togglePin(project.novelId)} />
                         <button type="button" className="sc-project-pin" aria-label={`Xem nhanh ${project.title}`} title="Xem nhanh tác phẩm" onClick={() => setPreviewId(project.novelId)}><span className="material-symbols-outlined" aria-hidden="true">visibility</span></button>
                         <Link
-                          to={`/author/novels/${project.novelId}`}
+                          to={managedNovelHref('/author/novels/:novelId', project)}
                           className="inline-flex items-center justify-center px-2.5 py-1 min-h-[32px] rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200/80 text-meta font-medium text-stone-700 shadow-2xs transition-colors"
                         >
                           Quản lý
                         </Link>
                         {project.serialStatus === 'COMPLETED' ? (
                           <Link
-                            to={`/public/novels/${project.novelId}`}
+                            to={novelHref({ novelId: project.novelId, novelSlug: project.slug }, '/public')}
                             className="inline-flex items-center justify-center px-3 py-1 min-h-[32px] rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-meta font-semibold shadow-2xs transition-colors"
                           >
                             Xem tác phẩm
@@ -705,7 +706,7 @@ export function AuthorProjectsPage() {
 
         </div>
       </main>
-      <WorkspacePreview selected={previewId} onSelect={setPreviewId} records={filteredProjects.map(project => ({ id: project.novelId, title: project.title, to: `/author/novels/${project.novelId}`, fields: [['Giới thiệu', project.synopsis || 'Chưa có giới thiệu'], ['Thể loại', project.genres?.join(', ') || project.genre || 'Chưa phân loại'], ['Chương', formatNumber(project.chaptersCount ?? 0)], ['Lượt đọc', (project.viewsCount ?? 0).toLocaleString('vi-VN')], ['Cập nhật', formatDateTime(project.latestChapter?.updatedAt ?? project.updatedAt, 'relative')]] }))} />
+      <WorkspacePreview selected={previewId} onSelect={setPreviewId} records={filteredProjects.map(project => ({ id: project.novelId, title: project.title, to: managedNovelHref('/author/novels/:novelId', project), fields: [['Giới thiệu', project.synopsis || 'Chưa có giới thiệu'], ['Thể loại', project.genres?.join(', ') || project.genre || 'Chưa phân loại'], ['Chương', formatNumber(project.chaptersCount ?? 0)], ['Lượt đọc', (project.viewsCount ?? 0).toLocaleString('vi-VN')], ['Cập nhật', formatDateTime(project.latestChapter?.updatedAt ?? project.updatedAt, 'relative')]] }))} />
 
       {/* ──────────────────────────────────────────
           3. Create Novel Modal Dialog

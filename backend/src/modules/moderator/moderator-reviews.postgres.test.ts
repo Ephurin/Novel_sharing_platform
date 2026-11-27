@@ -267,6 +267,34 @@ describe('PR-02: moderator review queue, variants and independence', { concurren
     assert.equal((await bearerCall(`/moderator/reviews/${authorReviewId}`, { token: mint(reader1, 'READER') })).status, 403);
   });
 
+  test('management slugs resolve the same novel and review under the existing role checks', async () => {
+    const ownerToken = mint(authorX, 'AUTHOR');
+    const adminToken = mint(admin, 'ADMIN');
+    const moderatorToken = mint(modIndependent, 'MODERATOR');
+    const authorUrl = '/novels/workspace/';
+    const adminUrl = '/admin/novels/';
+
+    const owned = await bearerCall(authorUrl + authorNovelId + '/locator', { token: ownerToken });
+    assert.equal(owned.status, 200);
+    const { slug } = owned.body.data;
+    assert.equal(typeof slug, 'string');
+    assert.equal((await bearerCall(authorUrl + slug + '/locator', { token: ownerToken })).body.data.novelId, authorNovelId);
+    assert.equal((await bearerCall(authorUrl + slug + '/locator', { token: moderatorToken })).status, 404);
+    assert.equal((await bearerCall(authorUrl + slug + '/locator')).status, 401);
+    assert.equal((await bearerCall(adminUrl + slug + '/locator', { token: adminToken })).body.data.novelId, authorNovelId);
+    assert.equal((await bearerCall(adminUrl + slug + '/locator', { token: moderatorToken })).status, 403);
+
+    const old = await bearerCall('/moderator/reviews/' + authorReviewId, { token: moderatorToken });
+    const { reviewSlug } = old.body.data;
+    assert.ok(reviewSlug.startsWith(slug + '--'));
+    const reviewUrl = '/moderator/reviews/by-slug/';
+    const detail = await bearerCall(reviewUrl + reviewSlug, { token: moderatorToken });
+    assert.equal(detail.body.data.reviewId, authorReviewId);
+    assert.equal((await bearerCall(reviewUrl + reviewSlug, { token: ownerToken })).status, 403);
+    assert.equal((await bearerCall(reviewUrl + 'nham-tac-pham' + reviewSlug.slice(slug.length), { token: moderatorToken })).status, 404);
+    assert.equal((await bearerCall('/admin/moderation/reviews/by-slug/' + reviewSlug, { token: adminToken })).body.data.reviewId, authorReviewId);
+  });
+
   test('D01: a moderator cannot resolve a review of their own work', async () => {
     const modNovelId = await insertNovel(
       modOwner,

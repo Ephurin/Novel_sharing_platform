@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { urlSegmentSchema } from '../../core/validation/url-segment.js';
+
+export const topicSlugParamsSchema = z.object({ params: z.object({ topicSlug: urlSegmentSchema }) });
 
 const CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
 const RAW_HTML_TAG = /<\/?[A-Za-z][A-Za-z0-9-]*(?:\s[^<>]*)?\/?>/;

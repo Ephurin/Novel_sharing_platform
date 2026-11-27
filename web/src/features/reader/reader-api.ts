@@ -1,7 +1,10 @@
+import { chapterHref } from '../../shared/routes';
 import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
 
 export type ReaderNovel = {
   novelId: string;
+  novelSlug?: string;
+  authorPublicKey?: string;
   authorId: string;
   authorName?: string;
   title: string;
@@ -22,7 +25,7 @@ export type ReaderNovel = {
   viewsCount?: number;
   chaptersCount?: number;
   updatedAt?: string;
-  latestChapter?: { chapterId: string; chapterNumber: number; title: string; publishedAt: string | null } | null;
+  latestChapter?: { chapterId: string; chapterSlug?: string; chapterNumber: number; title: string; publishedAt: string | null } | null;
 };
 
 export type ReaderChapter = {
@@ -30,6 +33,8 @@ export type ReaderChapter = {
   paragraphs?: { paragraphId: string; paragraphIndex: number; text: string }[];
   chapterId: string;
   novelId: string;
+  chapterSlug?: string;
+  novelSlug?: string;
   title: string;
   chapterNumber: number;
   content: string | null;
@@ -42,6 +47,8 @@ export type ReaderChapter = {
 
 export type LatestPublishedChapter = {
   chapterId: string;
+  chapterSlug?: string;
+  novelSlug?: string;
   novelId: string;
   chapterNumber: number;
   title: string;
@@ -54,6 +61,8 @@ export type LatestPublishedChapter = {
 
 export type ReadingHistoryItem = {
   readChapterIds?: string[];
+  chapterSlug?: string;
+  novelSlug?: string;
   novelId: string;
   chapterId: string;
   paragraphIndex: number;
@@ -79,6 +88,8 @@ export type ReadingPreferences = {
 };
 
 export type ReadingBookmark = {
+  chapterSlug?: string;
+  novelSlug?: string;
   startOffset?: number;
   endOffset?: number | null;
   novelId: string;
@@ -94,7 +105,7 @@ export type ReadingBookmarkEntry = ReadingBookmark & {
 export type ReadingBookmarkDraft = Omit<ReadingBookmarkEntry, 'bookmarkId' | 'updatedAt'>;
 
 export function readingBookmarkHref(bookmark: ReadingBookmark, base = '/reader') {
-  return `${base}/chapters/${encodeURIComponent(bookmark.chapterId)}?bookmark=1&paragraph=${bookmark.paragraphIndex}&offset=${bookmark.pageOffset}` +
+  return `${chapterHref(bookmark, base)}?bookmark=1&paragraph=${bookmark.paragraphIndex}&offset=${bookmark.pageOffset}` +
     (bookmark.endOffset != null ? `&start=${bookmark.startOffset ?? 0}&end=${bookmark.endOffset}` : '');
 }
 export async function listReadingBookmarkEntries(novelId: string | undefined, page: number) {
@@ -110,6 +121,9 @@ export async function removeReadingBookmarkEntry(bookmarkId: string) {
 }
 
 export type ReaderComment = {
+  authorPublicKey?: string;
+  chapterSlug?: string;
+  novelSlug?: string;
   mentions?: { userId: string; start: number; end: number }[];
   audience?: string;
   isSpoiler?: boolean;

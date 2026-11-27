@@ -27,6 +27,7 @@ export type Novel = {
   genre: string | null;
   latestChapter?: {
     chapterId: string;
+    slug?: string;
     chapterNumber: number;
     title: string;
     status: ChapterStatus;
@@ -41,6 +42,7 @@ export type ChapterStatus = 'DRAFT' | 'PENDING_MODERATION' | 'PUBLISHED' | 'REJE
 
 export type Chapter = {
   chapterId: string;
+  slug?: string;
   novelId: string;
   title: string;
   chapterNumber: number;

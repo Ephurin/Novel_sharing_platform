@@ -8,6 +8,7 @@ import {
   getNovelEarnings,
   listMyNovels,
   listNovels,
+  locateAuthorNovel,
   submitPublish,
   updateNovel
 } from './novels.service.js';
@@ -66,6 +67,14 @@ export const getNovelController: RequestHandler = async (request, response, next
     } else {
       response.json(successResponse(result));
     }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const locateAuthorNovelController: RequestHandler = async (request, response, next) => {
+  try {
+    response.json(successResponse(await locateAuthorNovel(String(request.params.novelRef), requireRequestAuth(request))));
   } catch (error) {
     next(error);
   }

@@ -32,7 +32,7 @@ test('notification links open the right comment and reply page, including existi
       });
       const notifications = [
         { notificationId: 'old', type: 'COMMENT_REPLY', payload: { href: '/public/novels/novel-1', commentId: 'linked-general' } },
-        { notificationId: 'chapter', type: 'AUTHOR_REPLY', payload: { href: '/reader/chapters/c-1?commentId=linked-chapter#reader-comments', commentId: 'linked-chapter' } },
+        { notificationId: 'chapter', type: 'AUTHOR_REPLY', webTarget: { kind: 'chapter', novelId: 'novel-1', novelSlug: 'truyen-thu', chapterId: 'c-1', chapterSlug: 'chuong-1' }, payload: { href: '/reader/chapters/c-1?commentId=linked-chapter#reader-comments', commentId: 'linked-chapter' } },
         { notificationId: 'root', type: 'COMMENT_REPLY', payload: { href: '/public/novels/novel-1', commentId: 'root-general' } },
         { notificationId: 'gone', type: 'COMMENT_REPLY', payload: { href: '/public/novels/novel-1', commentId: 'gone' } }
       ].map(item => ({ ...item, title: 'Có trả lời bình luận mới', content: novel.title, status: 'UNREAD', createdAt: '2026-11-17T00:00:00Z', readAt: null }));
@@ -44,7 +44,11 @@ test('notification links open the right comment and reply page, including existi
         if (url.pathname.endsWith('/auth/me')) data = { userId: 'reader-1', username: 'reader', role: 'READER', status: 'ACTIVE' };
         else if (url.pathname.endsWith('/notifications')) { data = notifications; meta = { totalItems: notifications.length, totalPages: 1 }; }
         else if (url.pathname.endsWith('/read')) data = { ...notifications[0], status: 'READ' };
-        else if (url.pathname.endsWith('/reading/novels/novel-1')) data = novel;
+        else if (url.pathname.endsWith('/locator')) {
+          data = url.pathname.includes('/chapters/')
+            ? { novelId: 'novel-1', novelSlug: 'truyen-thu', chapterId: 'c-1', chapterSlug: 'chuong-1' }
+            : { novelId: 'novel-1', novelSlug: 'truyen-thu' };
+        } else if (url.pathname.endsWith('/reading/novels/novel-1')) data = novel;
         else if (url.pathname.endsWith('/reading/chapters/c-1')) data = chapter;
         else if (url.pathname.endsWith('/reading/preferences/me')) data = { fontSize: 18, lineHeight: 1.8, background: 'SEPIA', fontFamily: 'Be Vietnam Pro' };
         else if (url.pathname.endsWith('/reading/bookmarks/me/novel-1')) data = null;
@@ -70,9 +74,9 @@ test('notification links open the right comment and reply page, including existi
       });
       try {
         for (const [noticeId, linkedId, targetPath] of [
-          ['old', 'linked-general', '/reader/novels/novel-1'],
-          ['chapter', 'linked-chapter', '/reader/chapters/c-1'],
-          ['root', 'root-general', '/reader/novels/novel-1']
+          ['old', 'linked-general', '/truyen/truyen-thu'],
+          ['chapter', 'linked-chapter', '/truyen/truyen-thu/chuong/chuong-1'],
+          ['root', 'root-general', '/truyen/truyen-thu']
         ]) {
           await page.goto(`${base}/notifications`);
           await page.getByTestId(`notification-card-${noticeId}`).getByRole('link', { name: 'Xem nội dung' }).click();

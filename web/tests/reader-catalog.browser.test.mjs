@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { mockReadingLocators } from './helpers/reader-locators.mjs';
 import { facetCheckbox, facetTrigger, filterBar, statusRadio } from './helpers/reader-filters.mjs';
 
 test('reader catalog: cover cards, unified sorting, selectable filters and scroll navigation', { timeout: 120000 }, async () => {
@@ -39,6 +40,7 @@ test('reader catalog: cover cards, unified sorting, selectable filters and scrol
         await route.fulfill({ json: { success: true, data, meta: { totalPages: 1, totalItems: Array.isArray(data) ? data.length : 1 } } });
       });
       try {
+        await mockReadingLocators(page, novels);
         await page.goto(`${base}/reader`);
         await expect(page.getByRole('heading', { name: /DANH SÁCH TRUYỆN/i })).toBeVisible();
         await expect(page.locator('.sc-catalog-title-count')).toHaveText('(30)');
@@ -87,7 +89,7 @@ test('reader catalog: cover cards, unified sorting, selectable filters and scrol
         await expect.poll(async () => (await page.locator('.sc-navbar').boundingBox()).y).toBe(0);
         await page.evaluate(() => window.scrollTo(0, 0));
         await card.getByRole('link', { name: `Đọc truyện: ${novels[0].title}`, exact: true }).click();
-        await expect(page).toHaveURL(/\/reader\/novels\/novel-0$/);
+        await expect(page).toHaveURL(/\/truyen\/novel-0$/);
         await expect(page.locator('.sc-navbar')).not.toHaveClass(/sc-navbar-hidden/);
         assert.deepEqual(errors, []);
       } finally { await context.close(); }

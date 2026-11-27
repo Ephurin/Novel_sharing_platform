@@ -1,3 +1,4 @@
+import { managedNovelHref, navigationHref } from '../../shared/routes';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Button, Select, Alert } from '@mantine/core';
@@ -37,6 +38,7 @@ type UserDetail = {
   };
   novels: Array<{
     novel_id: string;
+    slug?: string;
     title: string;
     status: string;
     deleted_at: string;
@@ -99,7 +101,7 @@ export function AdminUserDetailPage() {
   };
   return (
     <>
-      <Link className="admin-link" to="/admin/users">
+      <Link className="admin-link" to={navigationHref("/admin/users")}>
         ← Người dùng
       </Link>
       <AdminHeader
@@ -182,7 +184,7 @@ export function AdminUserDetailPage() {
         {novels.map((n) => (
           <div className="admin-task" key={n.novel_id}>
             {access.data?.permissions.includes('content') ? (
-              <Link className="admin-link" to={`/admin/novels/${n.novel_id}`}>
+              <Link className="admin-link" to={managedNovelHref('/admin/novels/:novelId', { novelId: n.novel_id, slug: n.slug })}>
                 {n.title}
               </Link>
             ) : (

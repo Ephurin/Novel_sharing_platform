@@ -1,3 +1,7 @@
+import { useAuthStore } from '../auth/useAuthStore';
+import { UrlRedirect } from '../../app/ResourceRoute';
+import { generatePath } from 'react-router-dom';
+import { navigationHref, staticRouteTargets } from '../../shared/routes';
 import { useState } from 'react';
 import { GiphyMedia } from '../reader/CommentGifPicker';
 import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
@@ -20,6 +24,7 @@ type Decision = 'APPROVED' | 'REJECTED' | 'REVISION_REQUIRED';
 
 export function ModeratorReviewDetailPage() {
   const { reviewId = '' } = useParams();
+  const viewerId = useAuthStore(state => state.user?.userId);
   const navigate = useNavigate();
   const cache = useQueryClient();
   const [decision, setDecision] = useState<Decision | null>(null);
@@ -30,8 +35,15 @@ export function ModeratorReviewDetailPage() {
   const [escalateReason, setEscalateReason] = useState('');
   const [accountEscalationAction, setAccountEscalationAction] = useState<'WARN' | 'LOCK'>('WARN');
   const query = useQuery({
-    queryKey: ['moderator-review-detail', reviewId],
-    queryFn: () => getModeratorReview(reviewId)
+    queryKey: ['moderator-review-detail', reviewId, viewerId],
+    queryFn: async () => {
+      const review = await getModeratorReview(reviewId);
+      if (review.reviewSlug && review.reviewSlug !== reviewId) {
+        cache.setQueryData(['moderator-review-detail', review.reviewSlug, viewerId], review);
+      }
+      return review;
+    },
+    staleTime: 30_000
   });
   const discussionReport = query.data?.source === 'USER_REPORT' &&
     (query.data.targetType === 'DISCUSSION' || query.data.targetType === 'DISCUSSION_COMMENT');
@@ -39,7 +51,7 @@ export function ModeratorReviewDetailPage() {
   const mutation = useMutation({
     mutationFn: () =>
       resolveModeratorReview(
-        reviewId,
+        query.data!.reviewId,
         decision!,
         reason,
         query.data?.source === 'USER_REPORT'
@@ -59,7 +71,7 @@ export function ModeratorReviewDetailPage() {
   });
   const escalateMutation = useMutation({
     mutationFn: () =>
-      proposeModeratorEscalation(reviewId, escalateReason, escalateAction),
+      proposeModeratorEscalation(query.data!.reviewId, escalateReason, escalateAction),
     onSuccess: async () => {
       setEscalateOpen(false);
       setEscalateReason('');
@@ -73,6 +85,9 @@ export function ModeratorReviewDetailPage() {
   if (query.isError) return <ErrorState error={query.error} onRetry={() => void query.refetch()} />;
   const review = query.data;
   if (!review) return <EmptyState description="Không tìm thấy hồ sơ điều hành." />;
+  if (review.reviewSlug && review.reviewSlug !== reviewId) {
+    return <UrlRedirect pathname={generatePath(staticRouteTargets['/moderator/reviews/:reviewId'], { reviewId: review.reviewSlug })} />;
+  }
   const report = review.source === 'USER_REPORT';
   const commentReport = report && review.targetType === 'COMMENT';
   const selectedAction = discussionReport ? 'HIDE' : reportAction || (commentReport ? 'HIDE' : 'WARN');
@@ -95,7 +110,7 @@ export function ModeratorReviewDetailPage() {
           </div>
           <p>{labels[review.source]} · {labels[review.targetType]}</p>
         </div>
-        <Button component={Link} to="/moderator/reviews" variant="default" size="sm">
+        <Button component={Link} to={navigationHref("/moderator/reviews")} variant="default" size="sm">
           Mở hàng đợi
         </Button>
       </header>

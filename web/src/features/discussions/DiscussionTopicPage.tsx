@@ -1,6 +1,8 @@
+import { profileHref, topicHref, navigationHref } from '../../shared/routes';
 import { formatDateTime, formatNumber } from '../../shared/lib/format-vi';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useResourceId } from '../../app/ResourceRoute';
 import { Avatar, Button, Group, Loader, Select, Stack, Text, TextInput } from '@mantine/core';
 import {
   IconAlertTriangle, IconArrowBackUp, IconDots, IconEye, IconHeart, IconLink, IconMessage,
@@ -30,7 +32,7 @@ const REPORT_REASONS = [
 ];
 
 const authorName = (author: TopicAuthor | null) => author?.displayName ?? 'Thành viên';
-const profilePath = (author: TopicAuthor) => `/${author.role === 'AUTHOR' ? 'authors' : 'readers'}/${author.userId}`;
+const profilePath = (author: TopicAuthor) => profileHref(author.role === 'AUTHOR' ? 'author' : 'member', author.userId, author.publicKey);
 
 const CATEGORY_ICONS: Record<string, typeof IconFeather> = {
   'thao-luan-chung': IconMessages,
@@ -52,14 +54,14 @@ function AuthorLink({ author, compact }: { author: TopicAuthor | null; compact?:
 function CategoryLabel({ category }: { category: Topic['category'] }) {
   const Icon = CATEGORY_ICONS[category.slug] ?? IconMessages;
   return (
-    <Link to={`/discussions?category=${category.slug}`} className="forum-badge forum-category-badge" data-category={category.slug}>
+    <Link to={navigationHref(`/discussions?category=${category.slug}`)} className="forum-badge forum-category-badge" data-category={category.slug}>
       <Icon size={15} aria-hidden="true" />{category.name}
     </Link>
   );
 }
 
 export function DiscussionTopicPage() {
-  const { topicId: id = '' } = useParams();
+  const id = useResourceId('topicId') ?? '';
   return <DiscussionTopic key={id} id={id} />;
 }
 
@@ -155,7 +157,7 @@ function DiscussionTopic({ id }: { id: string }) {
     mutationFn: () => updateComment(id, editing!.commentId, editing!.body.trim()),
     onSuccess: () => { setEditing(null); onSuccess('Đã cập nhật nội dung.'); }, onError
   });
-  const deleteTopicMutation = useMutation({ mutationFn: () => deleteTopic(id), onSuccess: () => { onSuccess('Đã xóa chủ đề.'); navigate('/discussions'); }, onError });
+  const deleteTopicMutation = useMutation({ mutationFn: () => deleteTopic(id), onSuccess: () => { onSuccess('Đã xóa chủ đề.'); navigate(navigationHref('/discussions')); }, onError });
   const deleteCommentMutation = useMutation({ mutationFn: (commentId: string) => deleteComment(id, commentId), onSuccess: () => onSuccess('Đã xóa bình luận.'), onError });
   const likeMutation = useMutation({
     mutationFn: (input: { commentId: string | null; liked: boolean }) => setLike(id, input.commentId, input.liked),
@@ -167,7 +169,7 @@ function DiscussionTopic({ id }: { id: string }) {
   });
 
   const copyPermalink = async (commentId: string) => {
-    const link = `${window.location.origin}/discussions/${id}?commentId=${commentId}#comment-${commentId}`;
+    const link = `${window.location.origin}${topicHref({ topicId: id, topicSlug: topicQuery.data?.topicSlug })}?commentId=${commentId}#comment-${commentId}`;
     try { await navigator.clipboard.writeText(link); setNotice({ type: 'info', text: 'Đã sao chép liên kết.' }); } catch { setNotice({ type: 'error', text: 'Không thể sao chép liên kết.' }); }
   };
 
@@ -204,9 +206,9 @@ function DiscussionTopic({ id }: { id: string }) {
   return (
     <div className="forum-topic sc-editorial-topic" data-category={topic.category.slug}>
       <nav className="forum-breadcrumb sc-topic-crumbs" aria-label="Đường dẫn">
-        <Link to="/discussions">Thảo luận</Link>
+        <Link to={navigationHref("/discussions")}>Thảo luận</Link>
         <span className="forum-breadcrumb-sep" aria-hidden="true">›</span>
-        <Link to={`/discussions?category=${topic.category.slug}`}>{topic.category.name}</Link>
+        <Link to={navigationHref(`/discussions?category=${topic.category.slug}`)}>{topic.category.name}</Link>
         <span className="forum-breadcrumb-sep" aria-hidden="true">›</span>
         <span className="forum-breadcrumb-crumb" aria-current="page" title={topic.title}>{topic.title}</span>
       </nav>
@@ -236,7 +238,7 @@ function DiscussionTopic({ id }: { id: string }) {
             {user && <AnimatedMenu>
               <AnimatedMenu.Target><button type="button" className="forum-icon-btn" aria-label="Tùy chọn chủ đề"><IconDots size={18} aria-hidden="true" /></button></AnimatedMenu.Target>
               <AnimatedMenu.Dropdown>
-                {isOwner && !locked ? <AnimatedMenu.Item component={Link} to={`/discussions/${id}/edit`} leftSection={<IconPencil size={16} />}>Sửa chủ đề</AnimatedMenu.Item> : null}
+                {isOwner && !locked ? <AnimatedMenu.Item component={Link} to={topicHref({ topicId: id, topicSlug: topic.topicSlug }, true)} leftSection={<IconPencil size={16} />}>Sửa chủ đề</AnimatedMenu.Item> : null}
                 {isOwner ? <AnimatedMenu.Item color="red" leftSection={<IconTrash size={16} />} onClick={() => setConfirmDelete({ scope: 'TOPIC' })}>Xóa chủ đề</AnimatedMenu.Item> : null}
                 {user && !isOwner ? <AnimatedMenu.Item leftSection={<IconReportAnalytics size={16} />} onClick={() => setReportTarget({ type: 'DISCUSSION', id })}>Báo cáo chủ đề</AnimatedMenu.Item> : null}
               </AnimatedMenu.Dropdown>
@@ -280,7 +282,7 @@ function DiscussionTopic({ id }: { id: string }) {
           {locked ? <div className="forum-callout" data-tone="warning">
             <Text size="sm">Chủ đề đã bị khoá. Bạn vẫn có thể báo cáo hoặc gỡ nội dung của mình.</Text>
           </div> : !canWrite ? <div className="forum-callout" data-tone="muted">
-            <Text size="sm">Đăng nhập để tham gia thảo luận.</Text><Button size="compact-xs" component={Link} to="/login">Đăng nhập</Button>
+            <Text size="sm">Đăng nhập để tham gia thảo luận.</Text><Button size="compact-xs" component={Link} to={navigationHref("/login")}>Đăng nhập</Button>
           </div> : <Stack gap={6}>
             <DiscussionComposer hideLabel value={composerBody} onChange={setComposerBody}
               label="Bình luận của bạn"
@@ -301,7 +303,7 @@ function DiscussionTopic({ id }: { id: string }) {
 
         {roots.length > 0 ? <div className="forum-threads sc-timeline" data-category={topic.category.slug}>
           {roots.map((root) => (
-            <CommentThread key={root.commentId} topicId={id} root={root} currentUserId={user?.userId} locked={locked}
+            <CommentThread key={root.commentId} topicId={id} topicSlug={topic.topicSlug} root={root} currentUserId={user?.userId} locked={locked}
               expand={expandedRoots[root.commentId] ?? located?.root.commentId === root.commentId}
               locatedReply={located?.comment.rootId === root.commentId ? located.comment : undefined}
               onExpand={() => setExpandedRoots((prev) => ({ ...prev, [root.commentId]: true }))}
@@ -358,7 +360,7 @@ function DiscussionTopic({ id }: { id: string }) {
 }
 
 type ThreadProps = {
-  topicId: string; root: Comment; currentUserId?: string; locked: boolean; expand: boolean; onExpand: () => void; onCollapse: () => void;
+  topicId: string; topicSlug?: string; root: Comment; currentUserId?: string; locked: boolean; expand: boolean; onExpand: () => void; onCollapse: () => void;
   onReply: (target: { rootId: string; replyToId: string; name: string }) => void; onEdit: (c: Comment) => void; onDelete: (c: Comment) => void;
   onLike: (c: Comment) => void; onReport: (c: Comment) => void; onPermalink: (id: string) => void;
   /** Reply field for the comment currently being answered, rendered in place. */
@@ -404,7 +406,7 @@ function CommentThread(props: ThreadProps) {
   );
 }
 
-function CommentRow({ comment, currentUserId, locked, topicId, onReply, onEdit, onDelete, onLike, onReport, onPermalink, root, replySlot }: ThreadProps & { comment: Comment; replySlot?: ReactNode }) {
+function CommentRow({ comment, currentUserId, locked, topicId, topicSlug, onReply, onEdit, onDelete, onLike, onReport, onPermalink, root, replySlot }: ThreadProps & { comment: Comment; replySlot?: ReactNode }) {
   const isOwner = Boolean(currentUserId && comment.author?.userId === currentUserId);
   const anchor = `comment-${comment.commentId}`;
   const isReply = comment.commentId !== root.commentId;
@@ -424,7 +426,7 @@ function CommentRow({ comment, currentUserId, locked, topicId, onReply, onEdit, 
             <time className="forum-time" dateTime={comment.createdAt} title={formatDateTime(comment.createdAt)}>{formatDateTime(comment.createdAt, 'relative')}</time>
             {comment.editedAt ? <><span className="sc-byline-dot" aria-hidden="true">·</span><span className="forum-time">đã sửa</span></> : null}
           </div>
-          {comment.replyToId && comment.replyToId !== root.commentId ? <Link className="forum-reply-ref" to={`/discussions/${topicId}?commentId=${comment.replyToId}#comment-${comment.replyToId}`}>
+          {comment.replyToId && comment.replyToId !== root.commentId ? <Link className="forum-reply-ref" to={`${topicHref({ topicId, topicSlug })}?commentId=${comment.replyToId}#comment-${comment.replyToId}`}>
             <IconArrowBackUp size={13} aria-hidden="true" /> Xem bình luận được trả lời</Link> : null}
           <div className="sc-comment-body"><DiscussionBody text={comment.body} /></div>
           <div className="forum-comment-actions sc-comment-actions">
@@ -444,7 +446,7 @@ function CommentRow({ comment, currentUserId, locked, topicId, onReply, onEdit, 
                 {isOwner && !locked ? <AnimatedMenu.Item leftSection={<IconPencil size={15} />} onClick={() => onEdit(comment)}>Sửa</AnimatedMenu.Item> : null}
                 {isOwner ? <AnimatedMenu.Item color="red" leftSection={<IconTrash size={15} />} onClick={() => onDelete(comment)}>Xóa</AnimatedMenu.Item> : null}
                 {currentUserId && !isOwner ? <AnimatedMenu.Item leftSection={<IconReportAnalytics size={15} />} onClick={() => onReport(comment)}>Báo cáo</AnimatedMenu.Item> : null}
-                {!currentUserId ? <AnimatedMenu.Item component={Link} to="/login" leftSection={<IconLock size={15} />}>Đăng nhập để tương tác</AnimatedMenu.Item> : null}
+                {!currentUserId ? <AnimatedMenu.Item component={Link} to={navigationHref("/login")} leftSection={<IconLock size={15} />}>Đăng nhập để tương tác</AnimatedMenu.Item> : null}
               </AnimatedMenu.Dropdown>
             </AnimatedMenu>
           </div>

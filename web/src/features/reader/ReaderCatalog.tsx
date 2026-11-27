@@ -1,3 +1,4 @@
+import { novelHref } from '../../shared/routes';
 import { useEffect, useState } from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -219,7 +220,7 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
               </div>
             ) : (
               items.map((novel) => (
-                <CatalogCard key={novel.novelId} novel={novel} to={`${base}/novels/${novel.novelId}`} newBadgeMeaningful={newBadgeMeaningful} />
+                <CatalogCard key={novel.novelId} novel={novel} to={novelHref(novel, base)} newBadgeMeaningful={newBadgeMeaningful} />
               ))
             )}
           </div>

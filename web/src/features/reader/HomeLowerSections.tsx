@@ -1,3 +1,4 @@
+import { novelHref, profileHref, chapterHref, navigationHref } from '../../shared/routes';
 import { formatDateTime } from '../../shared/lib/format-vi';
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -92,6 +93,7 @@ type CommunityEntry = {
 
 type AuthorEntry = {
   authorId: string;
+  publicKey?: string;
   authorName: string;
   novelsCount: number;
 };
@@ -420,7 +422,7 @@ export function HomeLowerSections({
                 score: typeof rev.score === 'number' ? rev.score : null,
                 content: text,
                 createdAt: rev.updatedAt || rev.createdAt,
-                href: `${catalogPath}/novels/${novel.novelId}/reviews`,
+                href: novelHref(novel, catalogPath, true),
               });
             }
           } else if (!firstError) {
@@ -435,8 +437,8 @@ export function HomeLowerSections({
               if (cmt.audience && cmt.audience !== 'PUBLIC') continue;
               if (cmt.status && cmt.status !== 'VISIBLE') continue;
               const targetHref = cmt.chapterId
-                ? `${catalogPath}/chapters/${cmt.chapterId}?commentId=${encodeURIComponent(cmt.commentId)}#reader-comments`
-                : `${catalogPath}/novels/${novel.novelId}?commentId=${encodeURIComponent(cmt.commentId)}#reader-comments`;
+                ? `${chapterHref({ chapterId: cmt.chapterId, chapterSlug: cmt.chapterSlug, novelSlug: novel.novelSlug }, catalogPath)}?commentId=${encodeURIComponent(cmt.commentId)}#reader-comments`
+                : `${novelHref(novel, catalogPath)}?commentId=${encodeURIComponent(cmt.commentId)}#reader-comments`;
               entries.push({
                 id: `cmt:${cmt.commentId}`,
                 kind: 'comment',
@@ -576,8 +578,8 @@ export function HomeLowerSections({
   const safeRecPage = Math.min(recPage, recTotalPages - 1);
   const visibleRecs = recommendedNovels.slice(safeRecPage * recPageSize, safeRecPage * recPageSize + recPageSize);
 
-  const novelPath = (novel: ReaderNovel) => `${catalogPath}/novels/${novel.novelId}`;
-  const writerCtaTo = isWriter ? '/author/projects' : user ? '/profile/me' : '/login';
+  const novelPath = (novel: ReaderNovel) => novelHref(novel, catalogPath);
+  const writerCtaTo = navigationHref(isWriter ? '/author/projects' : user ? '/profile/me' : '/login');
 
   return (
     <div className="sc-home-lower">
@@ -649,7 +651,7 @@ export function HomeLowerSections({
                       </span>
                     ))}
                     {spotlight.authorName && (
-                      <Link to={`/authors/${spotlight.authorId}`} className="sc-home-spotlight-author">
+                      <Link to={profileHref('author', spotlight.authorId, spotlight.authorPublicKey)} className="sc-home-spotlight-author">
                         <span className="material-symbols-outlined" aria-hidden="true">person</span>
                         <span>{spotlight.authorName}</span>
                       </Link>
@@ -1051,7 +1053,7 @@ export function HomeLowerSections({
           </div>
           <div className="sc-home-authors">
             {authors.map(author => (
-              <Link key={author.authorId} className="sc-home-author-item" to={`/authors/${author.authorId}`}>
+              <Link key={author.authorId} className="sc-home-author-item" to={profileHref('author', author.authorId, author.publicKey)}>
                 <span className="sc-home-author-avatar" aria-hidden="true">
                   {author.authorName.slice(0, 1).toUpperCase()}
                 </span>

@@ -137,7 +137,7 @@ describe('VNPay sandbox deposits', () => {
       assert.equal(query.vnp_Amount, '5000000');
       assert.equal(query.vnp_BankCode, 'VNBANK');
       assert.equal(query.vnp_TxnRef, toVnpayTxnRef(data.depositSessionId));
-      assert.equal(query.vnp_ReturnUrl, `${env.WEB_ORIGIN}/wallet/vnpay-return`);
+      assert.equal(query.vnp_ReturnUrl, new URL(env.WEB_EMIT_CANONICAL_LINKS ? '/vi/ket-qua-thanh-toan' : '/wallet/vnpay-return', env.WEB_ORIGIN).href);
       assert.equal(verifyVnpayCallback(query, secret).signatureValid, true);
 
       const row = await session(data.depositSessionId);

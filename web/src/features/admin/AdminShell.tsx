@@ -2,6 +2,7 @@ import { SessionMarker } from '../../shared/components/AuthorTheme';
 import { useEffect, useId, useState } from 'react';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { legacyStaticPaths, navigationHref } from '../../shared/routes';
 import { Button } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
@@ -40,6 +41,7 @@ export function AdminIcon({ name }: { name: string }) {
 export function AdminShell({ onLogout }: { onLogout: () => void }) {
   const user = useAuthStore((state) => state.user);
   const location = useLocation();
+  const legacyPath = legacyStaticPaths(location.pathname).find(path => path.startsWith('/admin')) ?? location.pathname;
   const [opened, setOpened] = useState(false);
   const isMobile = useMediaQuery('(max-width: 767px)');
   const reduce = useReducedMotion();
@@ -91,8 +93,8 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
       .reverse()
       .find(
         ([path]) =>
-          location.pathname === path ||
-          (path !== '/admin' && location.pathname.startsWith(`${path}/`))
+          legacyPath === path ||
+          (path !== '/admin' && legacyPath.startsWith(`${path}/`))
       )?.[2] ?? 'Bảng quản trị';
 
   return (
@@ -103,7 +105,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
         aria-label="Điều hướng quản trị"
         inert={Boolean(isMobile && !opened)}
       >
-        <Link className="admin-brand" to="/admin">
+        <Link className="admin-brand" to={navigationHref("/admin")}>
           <AdminIcon name="auto_stories" />
           <strong>StoryCraft</strong>
           <span>Quản trị</span>
@@ -116,7 +118,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
               .map(([path, icon, label]) => (
                 <NavLink
                   key={path}
-                  to={path}
+                  to={navigationHref(path)}
                   end={path === '/admin'}
                   onClick={() => setOpened(false)}
                 >
@@ -176,7 +178,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
               access.data
                 ? navigation
                     .filter(([path]) => can(path))
-                    .map(([to, icon, label]) => ({ to, icon, label }))
+                    .map(([to, icon, label]) => ({ to: navigationHref(to), icon, label }))
                 : []
             }
           />
@@ -194,7 +196,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
               </Button>
             </Menu.Target>
             <Menu.Dropdown>
-              <Menu.Item component={Link} to="/profile/me">
+              <Menu.Item component={Link} to={navigationHref("/profile/me")}>
                 Hồ sơ của tôi
               </Menu.Item>
               <Menu.Item color="red" onClick={onLogout} data-testid="shell-logout-btn">
@@ -209,10 +211,10 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
           <LoadingState label="Đang kiểm tra quyền quản trị..." />
         ) : access.isError ? (
           <ErrorState error={access.error} onRetry={() => void access.refetch()} />
-        ) : can(location.pathname) ? (
+        ) : can(legacyPath) ? (
           <Outlet />
         ) : (
-          <Navigate to={home} replace />
+          <Navigate to={navigationHref(home)} replace />
         )}
         <footer className="admin-footer">
           <AdminIcon name="auto_stories" />

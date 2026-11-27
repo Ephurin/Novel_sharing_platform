@@ -78,7 +78,7 @@ function App() {
           )
         },
         {
-          path: '/login',
+          path: '/dang-nhap',
           element: <div data-testid="login-page">Login Page</div>
         },
         {

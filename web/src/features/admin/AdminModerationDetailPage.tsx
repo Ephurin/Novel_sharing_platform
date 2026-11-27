@@ -1,3 +1,7 @@
+import { useAuthStore } from '../auth/useAuthStore';
+import { UrlRedirect } from '../../app/ResourceRoute';
+import { generatePath } from 'react-router-dom';
+import { managedNovelHref, navigationHref, staticRouteTargets } from '../../shared/routes';
 import { useState } from 'react';
 import { GiphyMedia } from '../reader/CommentGifPicker';
 import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
@@ -19,6 +23,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../shared/components/Pa
 
 export function AdminModerationDetailPage() {
   const { reviewId = '' } = useParams();
+  const viewerId = useAuthStore(state => state.user?.userId);
   const navigate = useNavigate();
   const cache = useQueryClient();
   const [decision, setDecision] = useState<'APPROVED' | 'REJECTED' | null>(null);
@@ -27,13 +32,20 @@ export function AdminModerationDetailPage() {
   const access = useAdminAccess();
   const [expanded, setExpanded] = useState(false);
   const query = useQuery({
-    queryKey: ['admin-moderation-detail', reviewId],
-    queryFn: () => getModerationReview(reviewId)
+    queryKey: ['admin-moderation-detail', reviewId, viewerId],
+    queryFn: async () => {
+      const review = await getModerationReview(reviewId);
+      if (review.reviewSlug && review.reviewSlug !== reviewId) {
+        cache.setQueryData(['admin-moderation-detail', review.reviewSlug, viewerId], review);
+      }
+      return review;
+    },
+    staleTime: 30_000
   });
   const mutation = useMutation({
     mutationFn: () =>
       resolveModerationReview(
-        reviewId,
+        query.data!.reviewId,
         decision!,
         reason,
         query.data?.source === 'USER_REPORT'
@@ -64,6 +76,9 @@ export function AdminModerationDetailPage() {
   if (query.isError) return <ErrorState error={query.error} onRetry={() => void query.refetch()} />;
   const review = query.data;
   if (!review) return <EmptyState description="Không tìm thấy mục kiểm duyệt." />;
+  if (review.reviewSlug && review.reviewSlug !== reviewId) {
+    return <UrlRedirect pathname={generatePath(staticRouteTargets['/admin/moderation/:reviewId'], { reviewId: review.reviewSlug })} />;
+  }
   const report = review.source === 'USER_REPORT';
   const commentReport = report && review.targetType === 'COMMENT';
   const discussionReport = report && review.targetType.startsWith('DISCUSSION');
@@ -88,7 +103,7 @@ export function AdminModerationDetailPage() {
         </div>
         <Button
           component={Link}
-          to={report ? '/admin/reports' : '/admin/moderation'}
+          to={report ? navigationHref('/admin/reports') : navigationHref('/admin/moderation')}
           variant="default"
           size="sm"
         >
@@ -104,7 +119,7 @@ export function AdminModerationDetailPage() {
                 <div className="admin-review-byline">
                   {review.target.username && <span>@{review.target.username}</span>}
                   {review.target.novelId ? (
-                    <Link className="admin-link" to={`/admin/novels/${review.target.novelId}`}>
+                    <Link className="admin-link" to={managedNovelHref('/admin/novels/:novelId', { novelId: review.target.novelId, slug: review.target.novelSlug })}>
                       {review.target.novelTitle || 'Mở truyện liên quan'} →
                     </Link>
                   ) : review.target.novelTitle && <span>{review.target.novelTitle}</span>}
@@ -190,7 +205,7 @@ export function AdminModerationDetailPage() {
             {escalationOpen && (
               <Alert color="blue" mb="sm" data-testid="admin-escalation-open-notice">
                 Hồ sơ đang chờ Admin quyết trong hàng đợi chuyển cấp. Truy cập{' '}
-                <Link to="/admin/escalations">hàng đợi chuyển cấp</Link> để xử lý.
+                <Link to={navigationHref("/admin/escalations")}>hàng đợi chuyển cấp</Link> để xử lý.
               </Alert>
             )}
             {report && review.status === 'PENDING' && (

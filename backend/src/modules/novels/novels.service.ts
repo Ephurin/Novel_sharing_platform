@@ -13,6 +13,7 @@ import { assertNovelReadyForPublication } from './novel-publication-eligibility.
 import {
   createNovel as createNovelRow,
   findNovelById,
+  findManagedNovelReference,
   getNovelUnlockEarnings,
   listNovels as listNovelRows,
   listNovelsByAuthor,
@@ -38,7 +39,7 @@ function assertNovelOwner(novel: { authorId: string }, auth: AuthContext) {
 const SLUG_BASE_MAX = 200;
 
 function makeUniqueSlug(title: string) {
-  const baseSlug = slugify(title).slice(0, SLUG_BASE_MAX).replace(/-+$/, '') || 'novel';
+  const baseSlug = slugify(title.replace(/[đĐ]/g, 'd')).slice(0, SLUG_BASE_MAX).replace(/-+$/, '') || 'novel';
   return `${baseSlug}-${randomUUID().slice(0, 8)}`;
 }
 
@@ -46,12 +47,16 @@ export async function createNovel(auth: AuthContext, input: CreateNovelInput) {
   return withPostgresTransaction(async (client) => {
     const genreId = await upsertGenre(client, input.genres !== undefined ? input.genres[0] : input.genre);
 
-    return createNovelRow(client, {
-      ...input,
-      authorId: auth.userId,
-      slug: makeUniqueSlug(input.title),
-      genreId
-    });
+    for (let attempt = 0; attempt < 8; attempt++) {
+      const novel = await createNovelRow(client, {
+        ...input,
+        authorId: auth.userId,
+        slug: makeUniqueSlug(input.title),
+        genreId
+      });
+      if (novel) return novel;
+    }
+    throw new AppError(409, 'CONTENT_014', 'Could not allocate a novel URL');
   });
 }
 
@@ -163,6 +168,14 @@ async function submitPublishLocked(auth: AuthContext, novelId: string, client: P
     moderationRequired: true,
     moderationReviewId: moderation.moderationReviewId
   };
+}
+
+export async function locateAuthorNovel(reference: string, auth: AuthContext) {
+  const novel = await findManagedNovelReference(reference);
+  if (!novel || (novel.status !== 'PUBLISHED' && novel.authorId !== auth.userId && !isContentAdmin(auth))) {
+    throw new AppError(404, 'CONTENT_001', 'Content not found');
+  }
+  return { novelId: novel.novelId, slug: novel.slug };
 }
 
 export async function readNovel(novelId: string, auth?: AuthContext) {

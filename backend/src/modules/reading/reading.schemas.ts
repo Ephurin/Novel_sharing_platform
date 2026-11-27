@@ -1,4 +1,8 @@
 import { z } from 'zod';
+import { urlSegmentSchema } from '../../core/validation/url-segment.js';
+
+export const novelSlugParamSchema = z.object({ params: z.object({ novelSlug: urlSegmentSchema }) });
+export const chapterSlugParamsSchema = z.object({ params: z.object({ novelSlug: urlSegmentSchema, chapterSlug: urlSegmentSchema }) });
 
 export const novelIdParamSchema = z.object({
   params: z.object({

@@ -7,6 +7,8 @@ import {
   getLatestPublishedChapters,
   getPreferences,
   getRandomPublishedNovel,
+  getNovelLocator,
+  getChapterLocator,
   getReaderChapter,
   getReaderNovel,
   getReadingFilters,
@@ -44,6 +46,24 @@ export const saveReadingBookmarkController: RequestHandler = async (request, res
 export const removeReadingBookmarkController: RequestHandler = async (request, response, next) => {
   try {
     response.json(successResponse(await removeReadingBookmark(requireRequestAuth(request), String(request.params.novelId))));
+  } catch (error) { next(error); }
+};
+
+export const getNovelLocatorController: RequestHandler = async (request, response, next) => {
+  try {
+    const locator = await getNovelLocator(request.params.novelSlug
+      ? { novelSlug: String(request.params.novelSlug) }
+      : { novelId: String(request.params.novelId) });
+    response.json(successResponse(locator));
+  } catch (error) { next(error); }
+};
+
+export const getChapterLocatorController: RequestHandler = async (request, response, next) => {
+  try {
+    const locator = await getChapterLocator(request.params.chapterSlug
+      ? { novelSlug: String(request.params.novelSlug), chapterSlug: String(request.params.chapterSlug) }
+      : { chapterId: String(request.params.chapterId) });
+    response.json(successResponse(locator));
   } catch (error) { next(error); }
 };
 

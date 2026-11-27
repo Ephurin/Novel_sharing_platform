@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { mockReadingLocators } from './helpers/reader-locators.mjs';
 import { readerEvidence } from './reader-browser-evidence.mjs';
 
 const chapters = [1, 2, 3].map(number => ({ chapterId: `c-${number}`, novelId: 'novel-1', chapterNumber: number, title: `Chương ${number}: Những mùa gió`, isVip: number === 3, priceCoins: number === 3 ? 10 : 0, wordCount: 2400 }));
@@ -67,6 +68,7 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
         await route.fulfill({ json: { success: true, data, meta } });
       });
       try {
+        await mockReadingLocators(page, [{ novelId: 'novel-1', chapters }]);
         const prefix = role === 'READER' ? '/reader' : '/public';
         await page.goto(`${base}${prefix}/chapters/c-1`);
         const rail = page.getByRole('complementary', { name: 'Công cụ đọc chương', includeHidden: true });
@@ -197,7 +199,7 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
         }, longExcerpt);
         await showTools();
         await rail.getByRole('link', { name: 'Chương sau', exact: true }).click();
-        await expect(page).toHaveURL(`${base}${prefix}/chapters/c-2`);
+        await expect(page).toHaveURL(`${base}/truyen/novel-1/chuong/c-2`);
         await expect(page.getByRole('heading', { name: chapters[1].title, exact: true })).toBeVisible();
         await expect(prose).toBeVisible(); await showTools();
         await rail.getByRole('button', { name: 'Mục lục', exact: true }).click();
@@ -217,7 +219,7 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
         assert.ok(removeBounds.width >= 36 && removeBounds.height >= 36);
         await marks.screenshot({ path: path.join(output, `${role}-${width}-${theme}-bookmark-drawer.png`) });
         await marks.locator('.sc-reading-bookmark-open').filter({ hasText: 'Đoạn 21.' }).click();
-        await expect(page).toHaveURL(new RegExp(`${prefix}/chapters/c-1\\?bookmark=1&paragraph=20&offset=`));
+        await expect(page).toHaveURL(new RegExp(`/truyen/novel-1/chuong/c-1\\?bookmark=1&paragraph=20&offset=`));
         await expect(page.getByRole('heading', { name: chapters[0].title, exact: true })).toBeVisible();
         await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(600);
         await expect(passage).toBeFocused();
@@ -268,7 +270,7 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
           await expect(prose).toBeVisible(); await showTools();
           await expect(rail.getByRole('button', { name: 'Chương sau', exact: true })).toBeDisabled();
           await rail.getByRole('link', { name: 'Về trang truyện', exact: true }).click();
-          await expect(page).toHaveURL(`${base}${prefix}/novels/novel-1`);
+          await expect(page).toHaveURL(`${base}/truyen/novel-1`);
           await expect(page.locator('.sc-navbar')).toBeVisible();
         } else { assert.equal(privateRequests, 0); await expect(page.getByRole('link', { name: 'Đăng nhập để mở khóa', exact: true })).toBeVisible(); }
         assert.ok(maximumSaves <= 1, 'Preference writes must be serialized');

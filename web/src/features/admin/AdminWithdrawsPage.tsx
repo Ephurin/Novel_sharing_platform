@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { formatDateTime } from '../../shared/lib/format-vi';
 import { useUrlFilters, useListScroll, WorkspaceTable, WorkspaceTableOptions } from '../../shared/components/WorkspacePreferences';
 import { AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
@@ -175,7 +176,7 @@ export function AdminWithdrawsPage() {
                           ) : (
                             <Button
                               component={Link}
-                              to={`/admin/withdraws/${request.withdrawRequestId}`}
+                              to={navigationHref(`/admin/withdraws/${request.withdrawRequestId}`)}
                               variant="subtle"
                               size="xs"
                             >

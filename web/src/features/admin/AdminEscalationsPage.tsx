@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { formatDateTime } from '../../shared/lib/format-vi';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -125,7 +126,7 @@ export function AdminEscalationsPage() {
                           {number(item.review.reportCount)} báo cáo
                         </div>
                         <small>
-                          <Link to={`/admin/moderation/${item.reviewId}`}>
+                          <Link to={navigationHref(`/admin/moderation/${item.reviewId}`)}>
                             Xem chứng cứ →
                           </Link>
                         </small>

@@ -1,3 +1,4 @@
+import { chapterHref, novelHref, profileHref, navigationHref } from '../../shared/routes';
 import { formatDateTime } from '../../shared/lib/format-vi';
 import { hasReaderCapability } from '../auth/auth-types';
 import { AuthorPrivateFeedback } from './PrivateComments';
@@ -13,7 +14,8 @@ import { NovelReviews } from './NovelReviews';
 import { useAuthStore } from '../auth/useAuthStore';
 import { followNovel } from '../novels/novel-statistics-api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useResourceId } from '../../app/ResourceRoute';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { getApiErrorMessage } from '../../shared/api/api-client';
@@ -61,7 +63,7 @@ export function PublicReaderPage() {
 // ─── Novel detail ───────────────────────────────────────────────────────────
 
 export function ReaderNovelDetailPage() {
-  const { novelId = '' } = useParams();
+  const novelId = useResourceId('novelId') ?? '';
   const navigate = useNavigate();
   const userId = useAuthStore(state => state.user?.userId);
   const novelQuery = useQuery({
@@ -86,7 +88,7 @@ export function ReaderNovelDetailPage() {
   const firstChapter = [...chapters].sort((a, b) => a.chapterNumber - b.chapterNumber)[0];
   const readChapterIds = continueQuery.data?.readChapterIds ?? [];
   const currentChapter = chapters.find(chapter => chapter.chapterId === continueQuery.data?.chapterId && readChapterIds.includes(chapter.chapterId));
-  const continueChapterId = currentChapter?.chapterId ?? firstChapter?.chapterId;
+  const continueChapter = currentChapter ?? firstChapter;
 
   return (
     <div className="flex flex-col gap-4">
@@ -98,12 +100,12 @@ export function ReaderNovelDetailPage() {
         <NovelOverview
           novel={novel}
           chapters={chapters}
-          authorLink={novel.authorId ? `/authors/${novel.authorId}` : undefined}
+          authorLink={novel.authorId ? profileHref('author', novel.authorId, novel.authorPublicKey) : undefined}
           notice={interactionNotice}
           actions={
             <>
-              {continueChapterId ? (
-                <NovelReadAction to={`/reader/chapters/${continueChapterId}`} label={currentChapter ? `Đọc tiếp · Chương ${currentChapter.chapterNumber}` : 'Bắt đầu đọc'} />
+              {continueChapter ? (
+                <NovelReadAction to={chapterHref({ ...continueChapter, novelSlug: novel.novelSlug })} label={currentChapter ? `Đọc tiếp · Chương ${currentChapter.chapterNumber}` : 'Bắt đầu đọc'} />
               ) : null}
 
             </>
@@ -114,10 +116,11 @@ export function ReaderNovelDetailPage() {
       {/* UI-15: the chapter list comes first; readers need it most. */}
       <NovelChapterCatalog
         chapters={chapters}
+        novelSlug={novel?.novelSlug}
         readChapterIds={readChapterIds}
-        onReadFirst={firstChapter ? () => navigate(`/reader/chapters/${firstChapter.chapterId}`) : undefined}
+        onReadFirst={firstChapter ? () => navigate(chapterHref({ ...firstChapter, novelSlug: novel?.novelSlug })) : undefined}
       />
-      <section id="reader-reviews" className="sc-reader-detail-section sc-reader-reviews-compact-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact reviewsPath={`/reader/novels/${novelId}/reviews`} /></section>
+      <section id="reader-reviews" className="sc-reader-detail-section sc-reader-reviews-compact-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact reviewsPath={novelHref({ novelId, novelSlug: novel?.novelSlug }, '/reader', true)} /></section>
       <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} authorFeedback={<AuthorPrivateFeedback target={{ kind: 'novel', id: novelId }} />} /></section>
     </div>
   );
@@ -129,10 +132,10 @@ function formatChapterTitle(chapterNumber: number, title: string) {
 }
 
 export function PublicReaderNovelDetailPage() {
-  const { novelId = '' } = useParams();
+  const novelId = useResourceId('novelId') ?? '';
   const readChapterIds = useReadChapterIds(novelId);
   const novelQuery = useQuery({
-    queryKey: ['public-reader-novel', novelId],
+    queryKey: ['reader-novel', novelId],
     queryFn: () => getReaderNovel(novelId),
     enabled: Boolean(novelId)
   });
@@ -147,22 +150,22 @@ export function PublicReaderNovelDetailPage() {
       {novelQuery.isError ? <ErrorState error={novelQuery.error} onRetry={() => void novelQuery.refetch()} /> : null}
       {novel ? (
         <>
-          <Breadcrumb back={{ to: '/public', label: navigationLabels.publicHome }} current={novel.title} />
+          <Breadcrumb back={{ to: navigationHref('/public'), label: navigationLabels.publicHome }} current={novel.title} />
           <NovelOverview
             novel={novel}
             chapters={chapters}
-            authorLink={novel.authorId ? `/authors/${novel.authorId}` : undefined}
+            authorLink={novel.authorId ? profileHref('author', novel.authorId, novel.authorPublicKey) : undefined}
             notice="Đăng nhập để theo dõi truyện, đánh giá và bình luận."
             actions={
               <>
                 {firstChapter ? (
-                  <NovelReadAction to={`/public/chapters/${firstChapter.chapterId}`} label="Đọc chương đầu" />
+                  <NovelReadAction to={chapterHref({ ...firstChapter, novelSlug: novel.novelSlug }, '/public')} label="Đọc chương đầu" />
                 ) : null}
               </>
             }
           />
-          <NovelChapterCatalog chapters={chapters} publicMode readChapterIds={readChapterIds} />
-          <section id="reader-reviews" className="sc-reader-detail-section sc-reader-reviews-compact-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact reviewsPath={`/public/novels/${novelId}/reviews`} /></section>
+          <NovelChapterCatalog chapters={chapters} novelSlug={novel.novelSlug} publicMode readChapterIds={readChapterIds} />
+          <section id="reader-reviews" className="sc-reader-detail-section sc-reader-reviews-compact-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact reviewsPath={novelHref(novel, '/public', true)} /></section>
           <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} authorFeedback={<AuthorPrivateFeedback target={{ kind: 'novel', id: novelId }} />} /></section>
         </>
       ) : null}
@@ -221,7 +224,7 @@ export function ReaderLibraryPage() {
           loadingLabel="Đang tải thư viện..."
           emptyTitle="Thư viện đang trống"
           emptyDescription="Bấm biểu tượng trái tim ở trang chi tiết để theo dõi truyện tại đây."
-          emptyAction={<Link to="/reader" className="sc-button sc-button-primary">Danh sách truyện</Link>}
+          emptyAction={<Link to={navigationHref("/reader")} className="sc-button sc-button-primary">Danh sách truyện</Link>}
         />
         <NovelGrid>
           {novels.map((novel) => (
@@ -270,14 +273,14 @@ export function ReaderHistoryPage() {
             {items.map((item) => (
               <article key={item.novelId} className="flex items-center gap-4 px-4 py-3 hover:bg-stone-50 transition-colors">
                 <Link
-                  to={`/reader/novels/${item.novelId}`}
+                  to={novelHref(item)}
                   className="w-12 shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-stone-100 border border-stone-200/70"
                 >
                   <Cover url={item.novel.coverImageUrl} title={item.novel.title} />
                 </Link>
                 <div className="flex-1 min-w-0">
                   <Link
-                    to={`/reader/novels/${item.novelId}`}
+                    to={novelHref(item)}
                     className="py-0.5 text-body font-bold text-stone-900 hover:text-primary-600 line-clamp-1 transition-colors"
                   >
                     {item.novel.title}
@@ -288,7 +291,7 @@ export function ReaderHistoryPage() {
                   <p className="text-meta text-stone-400">Lần cuối: <time dateTime={item.readAt} title={formatDateTime(item.readAt)}>{formatDateTime(item.readAt, 'relative')}</time></p>
                 </div>
                 <Link
-                  to={`/reader/chapters/${item.chapterId}`}
+                  to={chapterHref(item)}
                   className="sc-button sc-button-primary shrink-0"
                   data-testid={`reader-history-continue-${item.chapterId}`}
                 >
@@ -410,7 +413,7 @@ function LibraryCardActions({ novel, progress, progressPending, removing, disabl
       ) : null}
       <div className="sc-library-action-row">
         <Link
-          to={progress ? `/reader/chapters/${progress.chapterId}` : `/reader/novels/${novel.novelId}`}
+          to={progress ? chapterHref({ ...progress, novelSlug: progress.novelSlug ?? novel.novelSlug }) : novelHref(novel)}
           className="sc-button sc-button-primary sc-library-read"
           aria-label={progress ? `Đọc tiếp ${novel.title}, chương ${chapterNumber}` : `Bắt đầu đọc ${novel.title}`}
           data-testid={`reader-library-read-${novel.novelId}`}
@@ -442,7 +445,7 @@ function LibraryCardActions({ novel, progress, progressPending, removing, disabl
 }
 
 function NovelCard({ novel, extraAction, publicMode = false }: { novel: ReaderNovel; extraAction?: ReactNode; publicMode?: boolean }) {
-  const detailPath = `${publicMode ? '/public' : '/reader'}/novels/${novel.novelId}`;
+  const detailPath = novelHref(novel, publicMode ? '/public' : '/reader');
   const statusLabel = serialLabels[novel.serialStatus ?? novel.status ?? ''] ?? 'Đã xuất bản';
 
   return (

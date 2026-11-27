@@ -12,6 +12,34 @@ import type {
   ReadingBookmarkInput
 } from './reading.schemas.js';
 
+const publishedNovel = "n.status = 'PUBLISHED' and n.deleted_at is null";
+const publishedChapter = "c.status = 'PUBLISHED' and c.deleted_at is null";
+
+type NovelLocatorSelector = { novelId: string } | { novelSlug: string };
+type ChapterLocatorSelector = { chapterId: string } | { novelSlug: string; chapterSlug: string };
+
+export async function findNovelLocator(selector: NovelLocatorSelector) {
+  const byId = 'novelId' in selector;
+  const result = await getPostgresPool().query<{ novelId: string; novelSlug: string }>(
+    `select n.novel_id as "novelId", n.slug as "novelSlug"
+     from novels n where ${publishedNovel} and ${byId ? 'n.novel_id' : 'n.slug'} = $1`,
+    [byId ? selector.novelId : selector.novelSlug]
+  );
+  return result.rows[0];
+}
+
+export async function findChapterLocator(selector: ChapterLocatorSelector) {
+  const byId = 'chapterId' in selector;
+  const result = await getPostgresPool().query<{ novelId: string; novelSlug: string; chapterId: string; chapterSlug: string }>(
+    `select n.novel_id as "novelId", n.slug as "novelSlug", c.chapter_id as "chapterId", c.slug as "chapterSlug"
+     from chapters c join novels n using(novel_id)
+     where ${publishedNovel} and ${publishedChapter}
+       and ${byId ? 'c.chapter_id = $1' : 'n.slug = $1 and c.slug = $2'}`,
+    byId ? [selector.chapterId] : [selector.novelSlug, selector.chapterSlug]
+  );
+  return result.rows[0];
+}
+
 function mapPreference(row: QueryResultRow) {
   return {
     fontFamily: row.font_family,
@@ -26,8 +54,10 @@ function mapPreference(row: QueryResultRow) {
 export function mapNovelSummary(row: QueryResultRow) {
   return {
     novelId: row.novel_id,
+    novelSlug: row.slug,
     title: row.title,
     authorId: row.author_id,
+    authorPublicKey: row.author_public_key,
     authorName: row.author_name,
     synopsis: row.synopsis,
     coverImageUrl: row.cover_image_url,
@@ -49,6 +79,7 @@ export function mapNovelSummary(row: QueryResultRow) {
 function mapChapterSummary(row: QueryResultRow) {
   return {
     chapterId: row.chapter_id,
+    chapterSlug: row.slug,
     novelId: row.novel_id,
     title: row.title,
     chapterNumber: row.chapter_number,
@@ -64,6 +95,8 @@ function mapHistory(row: QueryResultRow) {
     readChapterIds: (row.read_chapter_ids ?? []) as string[],
     novelId: row.novel_id,
     chapterId: row.chapter_id,
+    chapterSlug: row.chapter_slug,
+    novelSlug: row.novel_slug,
     paragraphIndex: row.paragraph_index,
     pageOffset: row.page_offset === null ? null : Number(row.page_offset),
     readAt: row.read_at,
@@ -160,7 +193,7 @@ export async function listPositionBookmarks(userId: string, input: BookmarkEntri
         select 1 from chapter_unlocks u where u.user_id=$1 and u.chapter_id=c.chapter_id))`;
   const values = [userId, input.novelId ?? null, admin];
   const [rows, count] = await Promise.all([
-    getPostgresPool().query(`select b.*, n.title as novel_title, n.cover_image_url, c.title as chapter_title, c.chapter_number
+    getPostgresPool().query(`select b.*, n.slug as novel_slug, c.slug as chapter_slug, n.title as novel_title, n.cover_image_url, c.title as chapter_title, c.chapter_number
       ${filter} order by b.updated_at desc, b.bookmark_id limit $4 offset $5`, [...values, input.limit, (input.page - 1) * input.limit]),
     getPostgresPool().query(`select count(*)::int as total ${filter}`, values)
   ]);
@@ -168,6 +201,7 @@ export async function listPositionBookmarks(userId: string, input: BookmarkEntri
     bookmarkId: row.bookmark_id as string, novelId: row.novel_id as string, chapterId: row.chapter_id as string,
     paragraphIndex: Number(row.paragraph_index), pageOffset: Number(row.page_offset), excerpt: row.excerpt as string,
     startOffset: Number(row.start_offset), endOffset: row.end_offset == null ? null : Number(row.end_offset),
+    novelSlug: row.novel_slug as string, chapterSlug: row.chapter_slug as string,
     novelTitle: row.novel_title as string, coverImageUrl: row.cover_image_url as string | null,
     chapterTitle: row.chapter_title as string, chapterNumber: Number(row.chapter_number), updatedAt: row.updated_at as Date
   })) };
@@ -259,6 +293,7 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
     `
       select
         n.*,
+        max(u.public_key) as author_public_key,
         -- UI-07: readers only see published chapters, so count those (novels.chapters_count includes drafts).
         (select count(*)::int from chapters pc where pc.novel_id = n.novel_id and pc.deleted_at is null and pc.status = 'PUBLISHED') as published_chapters_count,
         coalesce(up.display_name, u.username) as author_name,
@@ -267,7 +302,7 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
           from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
           where ng.novel_id = n.novel_id) as genres,
         (select json_build_object(
-          'chapterId', c.chapter_id, 'chapterNumber', c.chapter_number,
+          'chapterId', c.chapter_id, 'chapterSlug', c.slug, 'chapterNumber', c.chapter_number,
           'title', c.title, 'publishedAt', c.published_at
         ) from chapters c
           where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null
@@ -370,6 +405,8 @@ export async function listLatestPublishedChapters(limit: number) {
       select
         c.chapter_id,
         c.novel_id,
+        n.slug as novel_slug,
+        c.slug as chapter_slug,
         c.chapter_number,
         c.title as chapter_title,
         coalesce(c.published_at, c.created_at) as published_at,
@@ -395,6 +432,8 @@ export async function listLatestPublishedChapters(limit: number) {
   return result.rows.map(row => ({
     chapterId: row.chapter_id as string,
     novelId: row.novel_id as string,
+    novelSlug: row.novel_slug as string,
+    chapterSlug: row.chapter_slug as string,
     chapterNumber: Number(row.chapter_number),
     title: row.chapter_title as string,
     publishedAt: row.published_at as Date | null,
@@ -408,7 +447,7 @@ export async function listLatestPublishedChapters(limit: number) {
 export async function findRandomPublishedNovel() {
   const result = await getPostgresPool().query(
     `
-      select novel_id, title
+      select novel_id, title, slug
       from novels
       where deleted_at is null
         and status = 'PUBLISHED'
@@ -417,7 +456,7 @@ export async function findRandomPublishedNovel() {
     `
   );
   const row = result.rows[0];
-  return row ? { novelId: row.novel_id as string, title: row.title as string } : null;
+  return row ? { novelId: row.novel_id as string, novelSlug: row.slug as string, title: row.title as string } : null;
 }
 
 export async function findPublishedNovelDetail(novelId: string, includeSelection = false) {
@@ -432,6 +471,7 @@ export async function findPublishedNovelDetail(novelId: string, includeSelection
         ${selectionEnabled ? `(select cardinality(branches)>0 from selection_eligibility) as selection_eligible,
           exists (select 1 from novel_selection_cases s cross join selection_eligibility e
             where s.novel_id=n.novel_id and s.status='SELECTED' and s.reviewed_branch=any(e.branches)) as selected,` : ''}
+        max(u.public_key) as author_public_key,
         coalesce(up.display_name, u.username) as author_name,
         g.name as genre_name,
         (select array_agg(gg.name order by (ng.genre_id = n.genre_id) desc, gg.name)
@@ -487,14 +527,12 @@ export async function listPublishedChaptersForNovel(novelId: string) {
 export async function findReadableChapter(chapterId: string) {
   const result = await getPostgresPool().query(
     `
-      select c.*, n.status as novel_status, n.author_id, n.title as novel_title
+      select c.*, n.slug as novel_slug, n.status as novel_status, n.author_id, n.title as novel_title
       from chapters c
       join novels n on n.novel_id = c.novel_id
       where c.chapter_id = $1
-        and c.deleted_at is null
-        and c.status = 'PUBLISHED'
-        and n.deleted_at is null
-        and n.status = 'PUBLISHED'
+        and ${publishedChapter}
+        and ${publishedNovel}
       limit 1
     `,
     [chapterId]
@@ -503,6 +541,7 @@ export async function findReadableChapter(chapterId: string) {
   return result.rows[0]
     ? {
         ...mapChapterSummary(result.rows[0]),
+        novelSlug: result.rows[0].novel_slug as string,
         content: result.rows[0].content,
         authorId: result.rows[0].author_id as string,
         novelTitle: result.rows[0].novel_title as string
@@ -537,7 +576,7 @@ export async function listReadingHistories(userId: string, input: HistoryListInp
   const offset = (input.page - 1) * input.limit;
   const dataResult = await getPostgresPool().query(
     `
-      select rh.*, n.title as novel_title, n.cover_image_url, c.title as chapter_title, c.chapter_number,
+      select rh.*, n.slug as novel_slug, c.slug as chapter_slug, n.title as novel_title, n.cover_image_url, c.title as chapter_title, c.chapter_number,
         array(select cr.chapter_id from chapter_reads cr
           where cr.user_id = rh.user_id and cr.novel_id = rh.novel_id and cr.verified_at is not null) as read_chapter_ids
       from reading_histories rh
@@ -563,7 +602,7 @@ export async function listReadingHistories(userId: string, input: HistoryListInp
 export async function findReadingHistory(userId: string, novelId: string) {
   const result = await getPostgresPool().query(
     `
-      select rh.*, n.title as novel_title, n.cover_image_url, c.title as chapter_title, c.chapter_number
+      select rh.*, n.slug as novel_slug, c.slug as chapter_slug, n.title as novel_title, n.cover_image_url, c.title as chapter_title, c.chapter_number
       from reading_histories rh
       join novels n on n.novel_id = rh.novel_id
       join chapters c on c.chapter_id = rh.chapter_id
@@ -620,6 +659,7 @@ export async function listBookmarks(userId: string, input: HistoryListInput) {
     `
       select
         n.*,
+        max(u.public_key) as author_public_key,
         -- UI-07: readers only see published chapters, so count those (novels.chapters_count includes drafts).
         (select count(*)::int from chapters pc where pc.novel_id = n.novel_id and pc.deleted_at is null and pc.status = 'PUBLISHED') as published_chapters_count,
         coalesce(up.display_name, u.username) as author_name,

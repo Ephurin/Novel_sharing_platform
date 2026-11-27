@@ -29,7 +29,7 @@ type SelectionDetail = SelectionCase & {
 };
 type Comparison = { title: string; content: string | null } | null;
 type Page<T> = { items: T[]; hasMore: boolean };
-type Nomination = { nomination_id: string; novel_id: string; reason: string; title: string; status: SelectionCase['status'] };
+type Nomination = { nomination_id: string; novel_id: string; novel_slug?: string; reason: string; title: string; status: SelectionCase['status'] };
 export const reconsiderationLabels = { OPEN: 'Chờ xét lại', ACCEPTED: 'Đã chấp nhận', REJECTED: 'Đã bác' };
 export type Reconsideration = {
   reconsideration_id: string; case_id: string; decision_version: number;

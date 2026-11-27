@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActionIcon, Anchor, Badge, Button, Card, Group, Loader, Modal, Pagination,
@@ -88,7 +89,7 @@ export function ModeratorDiscussionsPage() {
           <Title order={2}>Điều hành thảo luận</Title>
           <Text size="sm" c="dimmed">Ghim, khoá, ẩn hoặc chuyển chuyên mục của chủ đề và bình luận.</Text>
         </Stack>
-        <Anchor href="/moderator/reviews" size="sm"><Group gap={4}><IconReportAnalytics size={16} />Hàng đợi báo cáo</Group></Anchor>
+        <Anchor href={navigationHref("/moderator/reviews")} size="sm"><Group gap={4}><IconReportAnalytics size={16} />Hàng đợi báo cáo</Group></Anchor>
       </Group>
 
       <SegmentedControl

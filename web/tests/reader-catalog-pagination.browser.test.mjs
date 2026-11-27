@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { mockReadingLocators } from './helpers/reader-locators.mjs';
 import { facetCheckbox, facetTrigger, filterBar, statusRadio } from './helpers/reader-filters.mjs';
 
 test('catalog paginates real totals, remembers filters and exposes quick previews for guests and readers', { timeout: 150000 }, async () => {
@@ -44,6 +45,7 @@ test('catalog paginates real totals, remembers filters and exposes quick preview
       });
       try {
         const catalog = role === 'GUEST' ? '/public' : '/reader';
+        await mockReadingLocators(page, novels);
         await page.goto(base + catalog);
         await expect(page.locator('.sc-catalog-story')).toHaveCount(20);
         await expect(page.locator('.sc-catalog-title-count')).toHaveText('(47)');
@@ -52,7 +54,7 @@ test('catalog paginates real totals, remembers filters and exposes quick preview
         await expect(page.locator('.sc-catalog-title-count')).toHaveText('(47)');
         await expect(page).toHaveURL(/page=3/);
         await page.locator('.sc-catalog-cover').first().click();
-        await expect(page).toHaveURL(base + catalog + '/novels/n-40');
+        await expect(page).toHaveURL(base + '/truyen/n-40');
         await page.goBack();
         await expect(page.locator('.sc-catalog-story')).toHaveCount(7);
         await expect(page).toHaveURL(/page=3/);

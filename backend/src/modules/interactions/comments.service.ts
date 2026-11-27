@@ -82,12 +82,12 @@ async function list(id: string, kind: 'chapter' | 'novel', input: ListCommentsIn
 export function listComments(chapterId: string, input: ListCommentsInput, auth?: AuthContext) { return list(chapterId, 'chapter', input, auth); }
 export function listNovelComments(novelId: string, input: ListCommentsInput & { scope?: 'NOVEL' | 'ALL' }, auth?: AuthContext) { return list(novelId, 'novel', input, auth); }
 
-export async function present(result: { items: CommentDocument[]; totalItems: number }, input: { page: number; limit: number }, auth: AuthContext | undefined, novel: { authorId: string; status: string }) {
+export async function present(result: { items: CommentDocument[]; totalItems: number }, input: { page: number; limit: number }, auth: AuthContext | undefined, novel: { authorId: string; status: string; slug?: string }) {
   const ids = [...new Set(result.items.flatMap(comment => [comment.userId, ...(comment.replyToUserId ? [comment.replyToUserId] : [])]))];
   const chapterIds = [...new Set(result.items.map(comment => comment.chapterId).filter((id): id is string => Boolean(id)))];
   const [profiles, chapters, counts, reactions] = await Promise.all([
-    ids.length ? getPostgresPool().query(`select u.user_id, coalesce(p.display_name, u.username) as display_name, p.avatar_url from users u left join user_profiles p on p.user_id=u.user_id where u.user_id=any($1::uuid[]) and u.deleted_at is null`, [ids]) : { rows: [] },
-    chapterIds.length ? getPostgresPool().query('select chapter_id, title, chapter_number, status, deleted_at from chapters where chapter_id=any($1::uuid[])', [chapterIds]) : { rows: [] },
+    ids.length ? getPostgresPool().query(`select u.user_id, case when u.status = 'ACTIVE' then u.public_key end as public_key, coalesce(p.display_name, u.username) as display_name, p.avatar_url from users u left join user_profiles p on p.user_id=u.user_id where u.user_id=any($1::uuid[]) and u.deleted_at is null`, [ids]) : { rows: [] },
+    chapterIds.length ? getPostgresPool().query('select chapter_id, slug, title, chapter_number, status, deleted_at from chapters where chapter_id=any($1::uuid[])', [chapterIds]) : { rows: [] },
     countVisibleReplies(result.items.map(item => item.commentId), auth?.userId),
     commentReactionCounts(result.items.map(item => item.commentId), auth?.userId)
   ]);
@@ -108,6 +108,7 @@ export async function present(result: { items: CommentDocument[]; totalItems: nu
         canDelete: Boolean(auth && (auth.userId === comment.userId || (manager && !(auth.role === 'MODERATOR' && comment.userId !== auth.userId)))),
         canReply: Boolean(auth) && isCommentPublic(comment) && novel.status === 'PUBLISHED' && (!comment.chapterId || (chapter?.status === 'PUBLISHED' && !chapter.deleted_at)),
         chapterTitle: chapter?.title ?? null, chapterNumber: chapter?.chapter_number ?? null,
+        novelSlug: novel.slug, chapterSlug: chapter?.slug, authorPublicKey: byId.get(comment.userId)?.public_key ?? undefined,
         paragraphOffset: comment.paragraphOffset, content: comment.content, status: comment.status === 'APPROVED' && !isCommentPublic(comment) ? 'PENDING_MODERATION' : comment.status,
         isSpoiler: comment.isSpoiler ?? false, imageUrl: comment.imageUrl ?? null, gifId: comment.gifId ?? null,
         likesCount: reactionCounts.get(comment.commentId)?.likesCount ?? 0,

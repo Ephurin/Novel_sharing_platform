@@ -1,3 +1,4 @@
+import { chapterHref, navigationHref } from '../../shared/routes';
 import { hasReaderCapability } from '../auth/auth-types';
 import { useIsMutating, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -33,7 +34,7 @@ export function PreviewLibraryAction({ novelId, authorId }: { novelId: string; a
       if (useAuthStore.getState().user?.userId === variables.userId) showToast('Chưa cập nhật được trạng thái theo dõi. Hãy thử lại.', 'error');
     }
   });
-  if (!user) return <Link className="sc-home-library-action" to="/login">Đăng nhập để theo dõi truyện</Link>;
+  if (!user) return <Link className="sc-home-library-action" to={navigationHref("/login")}>Đăng nhập để theo dõi truyện</Link>;
   if (!canSave) return null;
   if (statistics.isError) return <button className="sc-home-library-action" type="button" onClick={() => void statistics.refetch()}>Tải lại trạng thái theo dõi</button>;
   const saved = statistics.data?.isFollowing ?? false;
@@ -96,7 +97,7 @@ export function ContinueReading({
           <span className="material-symbols-outlined sc-home-sec-icon" aria-hidden="true">menu_book</span>
           <h2>Đọc tiếp</h2>
         </div>
-        <Link className="sc-home-sec-link" to="/reader/history">Xem lịch sử đọc →</Link>
+        <Link className="sc-home-sec-link" to={navigationHref("/reader/history")}>Xem lịch sử đọc →</Link>
       </div>
 
       {history.isPending ? (
@@ -159,7 +160,7 @@ export function ContinueReading({
               <Link
                 key={entry.novelId}
                 className="sc-home-read-card"
-                to={`/reader/chapters/${entry.chapterId}`}
+                to={chapterHref(entry)}
                 title={`${entry.novel.title} — ${chapterLabel}`}
                 aria-label={`Đọc tiếp ${entry.novel.title}, ${chapterLabel}${progressPercent !== null ? `, đã đọc ${progressPercent}%` : ''}`}
               >

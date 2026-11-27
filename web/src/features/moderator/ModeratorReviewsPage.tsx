@@ -1,3 +1,4 @@
+import { reviewHref } from '../../shared/routes';
 import { useUrlFilters, useListScroll, WorkspaceTable, WorkspaceTableOptions } from '../../shared/components/WorkspacePreferences';
 import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { ResponsiveFilters } from '../../shared/components/InteractionWidgets';
@@ -145,7 +146,7 @@ export function ModeratorReviewsPage() {
                       <td>
                         <Button
                           component={Link}
-                          to={`/moderator/reviews/${review.reviewId}`}
+                          to={reviewHref('/moderator/reviews/:reviewId', review)}
                           variant="light"
                           size="xs"
                           data-testid={`moderator-review-inspect-${review.reviewId}`}

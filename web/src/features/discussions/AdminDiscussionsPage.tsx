@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActionIcon, Badge, Button, Card, Group, Loader, Menu, Modal, Pagination, Select,
@@ -118,7 +119,7 @@ export function AdminDiscussionsPage() {
           }
         }}
       >
-        <Button component={Link} to="/admin/reports" variant="subtle" leftSection={<IconReportAnalytics size={16} />}>
+        <Button component={Link} to={navigationHref('/admin/reports')} variant="subtle" leftSection={<IconReportAnalytics size={16} />}>
           Hàng đợi báo cáo
         </Button>
       </AdminHeader>

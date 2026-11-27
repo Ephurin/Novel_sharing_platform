@@ -6,6 +6,7 @@ import {
   getAuthorProfile,
   getPrivateProfile,
   getPublicProfile,
+  getProfileLocator,
   updateMyProfile,
   updateMySettings
 } from './users.service.js';
@@ -17,6 +18,13 @@ function requireRequestAuth(request: Parameters<RequestHandler>[0]) {
 
   return request.auth;
 }
+
+export const getProfileLocatorController = (author: boolean): RequestHandler =>
+  async (request, response, next) => {
+    try {
+      response.json(successResponse(await getProfileLocator(String(request.params.publicKey), author)));
+    } catch (error) { next(error); }
+  };
 
 export const getPublicProfileController: RequestHandler = async (request, response, next) => {
   try {

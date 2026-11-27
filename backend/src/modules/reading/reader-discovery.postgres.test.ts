@@ -21,12 +21,17 @@ test('reader catalog, published metadata and unified follow/library state', {
     for (const table of ['users', 'user_profiles', 'novels', 'genres', 'tags', 'novel_tags', 'novel_genres', 'chapters', 'bookmarks', 'likes', 'novel_follows', 'novel_ratings', 'notification_events', 'moderation_reviews']) {
       await pool.query(`create table "${table}" (like public."${table}" including all)`);
     }
+    // LIKE copies constraints, but trigger functions need to be installed for the fixture tables.
+    await pool.query(`create trigger users_assign_url_identifier before insert on users
+      for each row execute function public.assign_profile_url_identifier();
+      create trigger chapters_assign_url_identifier before insert on chapters
+      for each row execute function public.assign_chapter_url_identifier();`);
     await pool.query(await readFile(new URL('../../core/database/migrations/021_novel_notification_subscriptions.sql', import.meta.url), 'utf8'));
     const { searchPublishedNovels, listLatestPublishedChapters, findRandomPublishedNovel, listReadingFilters, findPublishedNovelDetail } = await import('./reading.repository.js');
     const { searchNovelsSchema } = await import('./reading.schemas.js');
     const author = randomUUID();
-    await pool.query(`insert into users (user_id, email, username, password_hash, role)
-      values ($1, 'author@example.invalid', 'author', 'unused', 'AUTHOR')`, [author]);
+    await pool.query(`insert into users (user_id, email, username, public_key, password_hash, role)
+      values ($1, 'author@example.invalid', 'author', 'author', 'unused', 'AUTHOR')`, [author]);
     const ids = [randomUUID(), randomUUID(), randomUUID(), randomUUID(), randomUUID()];
     for (const [index, title] of ['alpha', 'Beta', 'Zero', 'Draft', 'Deleted'].entries()) {
       await pool.query(`insert into novels (novel_id, author_id, title, slug, synopsis, status, deleted_at)
@@ -38,8 +43,8 @@ test('reader catalog, published metadata and unified follow/library state', {
       [ids[1], 1, 100, 'PUBLISHED', false], [ids[1], 2, 10000, 'DRAFT', false],
       [ids[1], 3, 100000, 'PUBLISHED', true]
     ]) {
-      await pool.query(`insert into chapters (novel_id, title, chapter_number, word_count, status, deleted_at)
-        values ($1, 'Test chapter', $2, $3, $4, $5)`, [novel, chapter, words, status, deleted ? new Date() : null]);
+      await pool.query(`insert into chapters (novel_id, title, chapter_number, word_count, status, deleted_at, slug)
+        values ($1, 'Test chapter', $2::int, $3, $4, $5, 'chuong-' || $2::int)`, [novel, chapter, words, status, deleted ? new Date() : null]);
     }
     const search = async (query: Record<string, unknown>) => searchPublishedNovels(searchNovelsSchema.parse({ query }).query);
     for (const [sort, expected] of [['wordCount', [ids[2], ids[1], ids[0]]], ['title', [ids[0], ids[1], ids[2]]]] as const) {
@@ -102,8 +107,8 @@ test('reader catalog, published metadata and unified follow/library state', {
     assert.equal(await findPublishedNovelDetail(ids[3]), null);
     assert.equal(await findPublishedNovelDetail(ids[4]), null);
     const reader = randomUUID(), other = randomUUID();
-    for (const id of [reader, other]) await pool.query(`insert into users (user_id,email,username,password_hash,role)
-      values ($1::uuid,$2,$1::text,'unused','READER')`, [id, `${id}@example.invalid`]);
+    for (const id of [reader, other]) await pool.query(`insert into users (user_id,email,username,public_key,password_hash,role)
+      values ($1::uuid,$2,$1::text,$1::text,'unused','READER')`, [id, `${id}@example.invalid`]);
     await pool.query('insert into bookmarks (novel_id,user_id) values ($1,$2)', [ids[0], reader]);
     await pool.query('insert into likes (novel_id,user_id) values ($1,$2)', [ids[1], reader]);
     await pool.query('update novels set likes_count = 1 where novel_id = $1', [ids[1]]);

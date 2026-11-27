@@ -155,7 +155,7 @@ async function lockTopic(client: PoolClient, topicId: string): Promise<LockedTop
   return topic;
 }
 
-export async function createTopic(auth: AuthContext, data: CreateTopicInput): Promise<string> {
+export async function createTopic(auth: AuthContext, data: CreateTopicInput) {
   const title = normalizeTitle(data.title);
   const body = normalizeBody(data.body, BODY_MAX);
 
@@ -165,19 +165,19 @@ export async function createTopic(auth: AuthContext, data: CreateTopicInput): Pr
 
     const searchDocument = await computeSearchDocument(client, title, body);
 
-    const { rows } = await client.query<InsertedRow>(
+    const { rows } = await client.query<{ topic_id: string; slug: string }>(
       `insert into discussion_topics(
          category_id, author_id, title, body, search_document, last_activity_at, last_activity_user_id
        )
        values ($1, $2, $3, $4, $5, now(), $2)
-       returning topic_id`,
+       returning topic_id, slug`,
       [category.category_id, auth.userId, title, body, searchDocument]
     );
-    const topicId = rows[0]?.topic_id;
-    if (!topicId) {
+    const topic = rows[0];
+    if (!topic) {
       throw new AppError(500, 'DISCUSSION_CREATE_FAILED', 'Could not create the topic');
     }
-    return topicId;
+    return { topicId: topic.topic_id, topicSlug: topic.slug };
   });
 }
 

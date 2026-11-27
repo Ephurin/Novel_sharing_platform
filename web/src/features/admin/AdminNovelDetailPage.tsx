@@ -1,6 +1,8 @@
+import { useResourceId } from '../../app/ResourceRoute';
+import { navigationHref } from '../../shared/routes';
 import { useState } from 'react';
 import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button, Select, TextInput } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAdminNovel, removeAdminNovel, restoreAdminNovel } from './admin-api';
@@ -20,7 +22,7 @@ import { AdminChapterPreview } from './AdminChapterPreview';
 import { AdminIcon } from './AdminShell';
 
 export function AdminNovelDetailPage() {
-  const { novelId = '' } = useParams();
+  const novelId = useResourceId('novelId') ?? '';
   const cache = useQueryClient();
   const [action, setAction] = useState<'remove' | 'restore' | null>(null);
   const [reason, setReason] = useState('');
@@ -66,18 +68,18 @@ export function AdminNovelDetailPage() {
   const visible = chapters.slice((page - 1) * 8, page * 8);
   return (
     <>
-      <Button component={Link} to="/admin/novels" variant="subtle" mb="md">
+      <Button component={Link} to={navigationHref("/admin/novels")} variant="subtle" mb="md">
         ← Quay lại danh sách
       </Button>
       <AdminHeader
         title="Chi tiết truyện"
         description={`Cập nhật lần cuối: ${dateTime(novel.updatedAt)}`}
       >
-        <Button component={Link} to="/admin/moderation" variant="subtle">
+        <Button component={Link} to={navigationHref("/admin/moderation")} variant="subtle">
           Hàng đợi kiểm duyệt
         </Button>
         {novel.pendingReviewId && (
-          <Button component={Link} to={`/admin/moderation/${novel.pendingReviewId}`} variant="light">
+          <Button component={Link} to={navigationHref(`/admin/moderation/${novel.pendingReviewId}`)} variant="light">
             Kiểm duyệt truyện
           </Button>
         )}
@@ -225,7 +227,7 @@ export function AdminNovelDetailPage() {
                         {ch.pendingReviewId && (
                           <Button
                             component={Link}
-                            to={`/admin/moderation/${ch.pendingReviewId}`}
+                            to={navigationHref(`/admin/moderation/${ch.pendingReviewId}`)}
                             variant="subtle"
                             size="xs"
                           >

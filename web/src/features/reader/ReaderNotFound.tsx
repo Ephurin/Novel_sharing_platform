@@ -1,3 +1,4 @@
+import { navigationHref } from '../../shared/routes';
 import { Link } from 'react-router-dom';
 import { ApiClientError } from '../../shared/api/api-client';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -15,6 +16,6 @@ export function ReaderNotFound({ publicMode = false, kind = 'chapter' }: { publi
     <h1 className="text-page-title">{kind === 'chapter' ? 'Không tìm thấy chương' : 'Không tìm thấy truyện'}</h1>
     <p className="text-body">{kind === 'chapter' ? 'Chương này không tồn tại, đã bị gỡ, hoặc truyện chưa được công khai.' : 'Truyện này không tồn tại, đã bị gỡ, hoặc chưa được công khai.'}</p>
     {isWriter && <p className="text-meta">Nếu bạn là tác giả, hãy kiểm tra trạng thái truyện trong trang quản lý tác phẩm.</p>}
-    <Link to={publicMode ? '/public' : '/reader'} className="sc-button sc-button-primary">Danh sách truyện</Link>
+    <Link to={publicMode ? navigationHref('/public') : navigationHref('/reader')} className="sc-button sc-button-primary">Danh sách truyện</Link>
   </section>;
 }

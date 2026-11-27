@@ -1,3 +1,4 @@
+import { reviewHref } from '../../shared/routes';
 import { formatDateTime } from '../../shared/lib/format-vi';
 import { useUrlFilters, useListScroll, WorkspaceTable, WorkspaceTableOptions } from '../../shared/components/WorkspacePreferences';
 import { AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
@@ -170,7 +171,7 @@ export function AdminModerationPage({ reports = false }: { reports?: boolean }) 
                       <td>
                         <Button
                           component={Link}
-                          to={`/admin/moderation/${review.reviewId}`}
+                          to={reviewHref('/admin/moderation/:reviewId', review)}
                           variant="light"
                           size="xs"
                           data-testid={`moderation-review-inspect-${review.reviewId}`}

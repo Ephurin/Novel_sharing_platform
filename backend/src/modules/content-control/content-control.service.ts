@@ -28,6 +28,7 @@ import {
   createReport as createReportRow,
   findOpenReview,
   findReviewById,
+  findReviewForRead,
   listActiveFilterRules,
   listReviews as listReviewRows,
   listReportsForReview,
@@ -291,6 +292,10 @@ export async function createUserReport(auth: AuthContext, input: CreateReportInp
   }
 }
 
+function reviewSlug(review: { novel_slug?: string; url_number?: number }) {
+  return review.url_number ? `${review.novel_slug || 'ho-so'}--${review.url_number}` : null;
+}
+
 const EXCERPT_LIMIT = 100;
 const excerptOf = (text: unknown) => {
   if (typeof text !== 'string') return null;
@@ -354,6 +359,7 @@ export async function listModerationReviews(input: ListReviewsInput) {
   return {
     data: result.items.map((row, index) => ({
       reviewId: row.review_id,
+      reviewSlug: reviewSlug(row),
       targetType: row.target_type,
       targetId: row.target_id,
       source: row.source,
@@ -373,13 +379,17 @@ export async function listModerationReviews(input: ListReviewsInput) {
   };
 }
 
-export async function getModerationReview(reviewId: string, auth?: AuthContext) {
-  const review = await findReviewById(reviewId);
+export async function getModerationReview(reference: string, auth?: AuthContext, bySlug = false) {
+  const number = bySlug ? Number(reference.split('--').at(-1)) : 0;
+  const review = bySlug
+    ? number > 0 && number <= 2_147_483_647 && await findReviewForRead({ urlNumber: number })
+    : await findReviewForRead({ reviewId: reference });
 
-  if (!review) {
+  if (!review || (bySlug && reviewSlug(review) !== reference)) {
     throw new AppError(404, 'ADMIN_001', 'Review item not found');
   }
 
+  const reviewId = review.review_id;
   if (auth?.role === 'MODERATOR') {
     assertModeratorOperational(auth, reviewPermissionFor(review));
     // The moderator workspace serves target evidence and bounded violation history,
@@ -425,6 +435,7 @@ export async function getModerationReview(reviewId: string, auth?: AuthContext) 
 
   return {
     reviewId: review.review_id,
+    reviewSlug: reviewSlug(review),
     targetType: review.target_type,
     targetId: review.target_id,
     status: review.status,

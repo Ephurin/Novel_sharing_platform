@@ -1,3 +1,4 @@
+import { topicHref, navigationHref } from '../../shared/routes';
 import { formatDateTime } from '../../shared/lib/format-vi';
 import { Alert, Avatar, Button, Group, Select, Stack, Text, TextInput, Title } from '@mantine/core';
 import {
@@ -6,7 +7,8 @@ import {
   IconSpeakerphone
 } from '@tabler/icons-react';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useResourceId } from '../../app/ResourceRoute';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getApiErrorMessage } from '../../shared/api/api-client';
 import { adminGet, type Access } from '../admin/admin-operations-api';
@@ -177,7 +179,7 @@ function TopicRow({ topic }: { topic: Topic }) {
   }
 
   return (
-    <Link to={`/discussions/${topic.topicId}`} className={className}
+    <Link to={topicHref(topic)} className={className}
       data-category={topic.category.slug} data-announce={topic.category.postAdminOnly || undefined}
       data-unread={unread || undefined}>
       {inner}
@@ -209,7 +211,7 @@ function NoticeCard({ items }: { items: Topic[] }) {
           <li key={topic.topicId}>
             {/* Accent bar and pill both resolve from the topic's own category
                 slug, so a notice keeps its category colour here as well. */}
-            <Link to={`/discussions/${topic.topicId}`} className="forum-notice" data-category={topic.category.slug}>
+            <Link to={topicHref(topic)} className="forum-notice" data-category={topic.category.slug}>
               <span className="forum-notice-icon" aria-hidden="true">
                 {topic.category.postAdminOnly ? <IconSpeakerphone size={13} /> : <IconPin size={13} />}
               </span>
@@ -252,7 +254,7 @@ function CommunitySidebar({ notices, trending }: {
             {trending.map((topic, index) => (
               <li key={topic.topicId}>
                 <span className="forum-trending-rank" aria-hidden="true">{index + 1}</span>
-                <Link to={`/discussions/${topic.topicId}`} className="forum-trending-link">
+                <Link to={topicHref(topic)} className="forum-trending-link">
                   <span className="forum-trending-body">
                     <span className="forum-trending-title">{topic.title}</span>
                     {/* Author, never the reply count: that number already sits in the
@@ -299,13 +301,13 @@ function BoardHeader({ createPath }: { createPath: string }) {
         {signedIn ? (
           <>
             {/* Outline first, filled CTA last: the primary action stays rightmost. */}
-            <Button component={Link} to="/discussions/mine" variant="default"
+            <Button component={Link} to={navigationHref("/discussions/mine")} variant="default"
               leftSection={<IconLayoutList size={15} aria-hidden="true" />}>Chủ đề của tôi</Button>
             <Button className="forum-create" component={Link} to={createPath}
               leftSection={<IconPencil size={15} aria-hidden="true" />}>Tạo chủ đề</Button>
           </>
         ) : sessionStatus === 'guest' ? (
-          <Button className="forum-create" component={Link} to="/login"
+          <Button className="forum-create" component={Link} to={navigationHref("/login")}
             leftSection={<IconPencil size={15} aria-hidden="true" />}>Đăng nhập để đăng bài</Button>
         ) : (
           <span className="forum-board-pending" aria-hidden="true" />
@@ -399,7 +401,7 @@ export function DiscussionListPage() {
 
   const hasFilters = Boolean(filters.category || filters.q);
   const activeCategory = categories.data?.find(category => category.slug === filters.category);
-  const createPath = activeCategory ? `/discussions/new?categoryId=${activeCategory.categoryId}` : '/discussions/new';
+  const createPath = navigationHref(activeCategory ? `/discussions/new?categoryId=${activeCategory.categoryId}` : '/discussions/new');
   const items = topics.data?.items ?? [];
   // Pinned topics and announcements are promoted only on the unfiltered first page, so a
   // paginated or searched view never hides a result the query asked for. Only the four
@@ -481,14 +483,14 @@ export function MyDiscussionsPage() {
   });
   if (!user) {
     return <EmptyState title="Cần đăng nhập" description="Đăng nhập để xem chủ đề của bạn."
-      action={<Button component={Link} to="/login">Đăng nhập</Button>} />;
+      action={<Button component={Link} to={navigationHref("/login")}>Đăng nhập</Button>} />;
   }
   return (
     <Stack className="forum-page" gap="lg">
       <PageMasthead title="Chủ đề của tôi" subtitle="Những cuộc trò chuyện bạn đã mở.">
-        <Button className="forum-create" component={Link} to="/discussions/new"
+        <Button className="forum-create" component={Link} to={navigationHref("/discussions/new")}
           leftSection={<IconPencil size={15} aria-hidden="true" />}>Tạo chủ đề</Button>
-        <Button component={Link} to="/discussions" variant="default"
+        <Button component={Link} to={navigationHref("/discussions")} variant="default"
           leftSection={<IconArrowLeft size={15} aria-hidden="true" />}>Tất cả thảo luận</Button>
       </PageMasthead>
       {topics.isPending ? <LoadingState variant="table" label="Đang tải chủ đề của bạn…" /> : null}
@@ -496,7 +498,7 @@ export function MyDiscussionsPage() {
       {topics.data && topics.data.items.length === 0 ? (
         <div className="forum-empty">
           <EmptyState description="Bạn chưa tạo chủ đề nào."
-            action={<Button component={Link} to="/discussions/new" size="xs">Tạo chủ đề đầu tiên</Button>} />
+            action={<Button component={Link} to={navigationHref("/discussions/new")} size="xs">Tạo chủ đề đầu tiên</Button>} />
         </div>
       ) : null}
       {topics.data && topics.data.items.length > 0 ? (
@@ -512,7 +514,7 @@ export function MyDiscussionsPage() {
 }
 
 export function DiscussionEditorPage() {
-  const { topicId } = useParams<{ topicId: string }>();
+  const topicId = useResourceId('topicId');
   const isEdit = Boolean(topicId);
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -551,12 +553,12 @@ export function DiscussionEditorPage() {
 
   if (!user) {
     return <EmptyState title="Cần đăng nhập" description="Đăng nhập để tạo hoặc sửa chủ đề."
-      action={<Button component={Link} to="/login">Đăng nhập</Button>} />;
+      action={<Button component={Link} to={navigationHref("/login")}>Đăng nhập</Button>} />;
   }
   if (isEdit && topic.isPending) return <LoadingState />;
   if (isEdit && topic.isError) return <ErrorState error={topic.error} onRetry={() => void topic.refetch()} />;
   if (isEdit && topic.data && topic.data.author?.userId !== user.userId) {
-    return <PermissionState requiredRole="Tác giả chủ đề" onBack={() => navigate(`/discussions/${topicId}`)} />;
+    return <PermissionState requiredRole="Tác giả chủ đề" onBack={() => navigate(topicHref({ topicId: topicId ?? '', topicSlug: topic.data?.topicSlug }))} />;
   }
 
   async function submit() {
@@ -568,10 +570,10 @@ export function DiscussionEditorPage() {
       if (isEdit && topicId) {
         await updateTopic(topicId, draft);
         await queryClient.invalidateQueries({ queryKey: ['discussion-topic', topicId] });
-        navigate(`/discussions/${topicId}`);
+        navigate(topicHref({ topicId: topicId ?? '', topicSlug: topic.data?.topicSlug }));
       } else {
-        const { topicId: created } = await createTopic(draft);
-        navigate(`/discussions/${created}`);
+        const created = await createTopic(draft);
+        navigate(topicHref(created));
       }
       void queryClient.invalidateQueries({ queryKey: ['discussions'] });
       void queryClient.invalidateQueries({ queryKey: ['discussions-mine'] });
@@ -586,9 +588,9 @@ export function DiscussionEditorPage() {
   return (
     <Stack className="forum-editor" gap="md">
       <nav className="forum-breadcrumb" aria-label="Đường dẫn">
-        <Link to="/discussions">Thảo luận</Link>
+        <Link to={navigationHref("/discussions")}>Thảo luận</Link>
         <span className="forum-breadcrumb-sep" aria-hidden="true">›</span>
-        {isEdit && topicId ? <Link to={`/discussions/${topicId}`}>Chủ đề</Link> : <span aria-current="page">Chủ đề mới</span>}
+        {isEdit && topicId ? <Link to={topicHref({ topicId, topicSlug: topic.data?.topicSlug })}>Chủ đề</Link> : <span aria-current="page">Chủ đề mới</span>}
         {isEdit && topicId ? <><span className="forum-breadcrumb-sep" aria-hidden="true">›</span><span className="forum-breadcrumb-crumb" aria-current="page">Chỉnh sửa</span></> : null}
       </nav>
       <div>
@@ -630,7 +632,7 @@ export function DiscussionEditorPage() {
           {body && bodyError ? <Text size="xs" c="red">{bodyError}</Text> : null}
           <Group justify="space-between">
             <Button variant="default" component={Link} disabled={busy}
-              to={isEdit && topicId ? `/discussions/${topicId}` : '/discussions'}>Hủy</Button>
+              to={isEdit && topicId ? topicHref({ topicId, topicSlug: topic.data?.topicSlug }) : navigationHref('/discussions')}>Hủy</Button>
             <Button type="submit" loading={busy} disabled={!canSubmit || locked}>{isEdit ? 'Lưu thay đổi' : 'Đăng chủ đề'}</Button>
           </Group>
         </form>

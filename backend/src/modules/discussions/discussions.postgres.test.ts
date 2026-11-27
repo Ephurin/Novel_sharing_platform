@@ -23,15 +23,20 @@ test('discussions use Postgres for public pagination, reply trees, counters and 
     const author = await createUser('AUTHOR');
     const categories = await read.listCategories();
     const categoryId = categories.find(category => category.slug === 'thao-luan-chung')!.categoryId;
-    const topicId = await write.createTopic(author, {
+    const { topicId, topicSlug } = await write.createTopic(author, {
       categoryId, title: 'Ki\u1ebfm hi\u1ec7p ' + stamp, body: 'First fixture'
     });
-    const second = await write.createTopic(reader, { categoryId, title: 'Kiem ' + stamp, body: 'Second fixture' });
+    const { topicId: second } = await write.createTopic(reader, { categoryId, title: 'Kiem ' + stamp, body: 'Second fixture' });
     const first = await read.listTopics({ q: 'kiem ' + stamp, sort: 'newest', limit: 1 });
     assert.equal(first.items[0].topicId, second);
     assert.ok(first.nextCursor);
     assert.equal((await read.listTopics({ q: 'kiem ' + stamp, sort: 'newest', limit: 1, cursor: first.nextCursor })).items[0].topicId, topicId);
     assert.equal((await read.getTopic(topicId)).category.categoryId, categoryId);
+    assert.deepEqual(await read.getTopicLocator({ topicSlug }), { topicId, topicSlug });
+    assert.deepEqual(await read.getTopicLocator({ topicId }), { topicId, topicSlug });
+    assert.equal((await read.getTopic(topicId)).viewCount, 0);
+    await write.updateTopic(author, topicId, { body: 'Edited by its owner' });
+    assert.equal((await read.getTopic(topicId)).body, 'Edited by its owner');
     await assert.rejects(write.updateTopic(reader, topicId, { body: 'Forbidden' }), { httpStatus: 403 });
     const root = await write.createComment(reader, topicId, { body: 'Root' });
     const reply = await write.createComment(author, topicId, { body: 'Reply', replyToId: root });
@@ -67,8 +72,12 @@ test('discussions use Postgres for public pagination, reply trees, counters and 
     await db.query("update discussion_topics set is_locked = true where topic_id = $1", [topicId]);
     await assert.rejects(write.createComment(author, topicId, { body: 'Blocked' }), { httpStatus: 409 });
     await assert.rejects(write.updateTopic(author, topicId, { title: 'Blocked' }), { httpStatus: 409 });
+    await db.query("update discussion_topics set status = 'HIDDEN' where topic_id=$1", [topicId]);
+    await assert.rejects(read.getTopicLocator({ topicSlug }), { httpStatus: 404 });
+    assert.ok((await read.listOwnTopics(author.userId)).items.some(item => item.topicId === topicId && item.status === 'HIDDEN'));
     await write.deleteTopic(author, topicId);
     await assert.rejects(read.getTopic(topicId), { httpStatus: 404 });
+    assert.ok((await read.listOwnTopics(author.userId)).items.some(item => item.topicId === topicId && item.status === 'DELETED'));
   } finally {
     await disconnectPostgres();
   }

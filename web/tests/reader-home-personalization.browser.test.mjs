@@ -8,6 +8,7 @@ import { chromium, expect } from '@playwright/test';
 
 const novels = Array.from({ length: 8 }, (_, i) => ({
   novelId: `n-${i}`,
+  novelSlug: `truyen-moi-${i}`,
   authorId: 'writer',
   authorName: 'Tác giả thử',
   title: `Truyện mới ${i + 1}`,
@@ -20,7 +21,7 @@ const novels = Array.from({ length: 8 }, (_, i) => ({
   serialStatus: 'ONGOING'
 }));
 const chapters = [1, 3, 7, 9].map((number, index) => ({ chapterId: `c-${index}`, novelId: 'n-0', chapterNumber: number, title: `Chương ${number}: Hành trình`, isVip: false, priceCoins: 0 }));
-const history = [{ novelId: 'n-0', chapterId: 'c-1', readChapterIds: ['c-1'], readAt: '2026-11-06T00:00:00Z', paragraphIndex: 3, pageOffset: 120, novel: { title: novels[0].title, coverImageUrl: null }, chapter: { title: chapters[1].title, chapterNumber: 3 } }];
+const history = [{ novelId: 'n-0', novelSlug: 'truyen-moi-0', chapterId: 'c-1', chapterSlug: 'chuong-3', readChapterIds: ['c-1'], readAt: '2026-11-06T00:00:00Z', paragraphIndex: 3, pageOffset: 120, novel: { title: novels[0].title, coverImageUrl: null }, chapter: { title: chapters[1].title, chapterNumber: 3 } }];
 const statistics = { novelId: 'n-0', totalWords: 1000, followersCount: 1, ratingAverage: null, ratingsCount: 0, isFollowing: false, notificationsEnabled: false, myRating: null, myReview: null };
 
 test('home supports search cancellation, keyboard suggestions, URL restoration and relevance live search', { timeout: 120000 }, async () => {
@@ -51,7 +52,8 @@ test('home supports search cancellation, keyboard suggestions, URL restoration a
           if (q === 'cu') { await new Promise(resolve => setTimeout(resolve, 1000)); data = [{ ...novels[0], title: 'Kết quả cũ' }]; }
           else if (q === 'long') data = novels.map(n => ({ ...n, title: `${n.title} ${'những cuộc phiêu lưu qua các miền đất xa '.repeat(5)}` }));
           else data = url.searchParams.get('sort') === 'likes' ? [...novels].reverse() : novels;
-        } else if (url.pathname.includes('/reading/novels/')) data = { ...novels.find(n => url.pathname.endsWith(n.novelId)), chapters };
+        } else if (url.pathname.endsWith('/locator')) data = novels.find(n => url.pathname.includes(`/${n.novelSlug}/locator`));
+        else if (url.pathname.includes('/reading/novels/')) data = { ...novels.find(n => url.pathname.endsWith(n.novelId)), chapters };
         else if (url.pathname.endsWith('/statistics')) data = statistics;
         try { await route.fulfill({ json: { success: true, data } }); } catch (error) { if (!route.request().failure()) throw error; }
       });
@@ -68,7 +70,7 @@ test('home supports search cancellation, keyboard suggestions, URL restoration a
         const remembered = page.url();
         assert.equal(new URL(remembered).searchParams.get('tab'), 'liked');
         await page.locator('.sc-home-featured-cover-link').first().click();
-        await expect(page).toHaveURL(`${base}/public/novels/n-7`);
+        await expect(page).toHaveURL(`${base}/truyen/truyen-moi-7`);
         await page.goBack();
         await expect(page).toHaveURL(remembered);
         await expect(page.getByRole('tab', { name: 'Được yêu thích', exact: true })).toHaveAttribute('aria-selected', 'true');
@@ -98,7 +100,7 @@ test('home supports search cancellation, keyboard suggestions, URL restoration a
         await page.keyboard.press('ArrowDown');
         await expect(page.getByRole('option', { name: /Truyện mới 1/ })).toBeVisible();
         await page.keyboard.press('Enter');
-        await expect(page).toHaveURL(`${base}/public/novels/n-0`);
+        await expect(page).toHaveURL(`${base}/truyen/truyen-moi-0`);
         await page.goBack();
         await expect(page).toHaveURL(remembered);
 
@@ -119,7 +121,7 @@ test('home supports search cancellation, keyboard suggestions, URL restoration a
 
         await page.locator('.sc-home-preview-trigger').first().click();
         await page.getByRole('dialog').getByRole('link', { name: 'Đăng nhập để theo dõi truyện', exact: true }).click();
-        await expect(page).toHaveURL(`${base}/login`);
+        await expect(page).toHaveURL(`${base}/dang-nhap`);
         assert.equal(privateRequests, 0);
         assert.deepEqual(errors, []);
       } finally { await context.close(); }
@@ -160,7 +162,7 @@ test('reader saves from preview with feedback, resumes real chapter position and
       try {
         await page.goto(base);
         const resume = page.getByRole('region', { name: 'Đọc tiếp', exact: true });
-        await expect(resume.locator('.sc-home-read-card').first()).toHaveAttribute('href', '/reader/chapters/c-1');
+        await expect(resume.locator('.sc-home-read-card').first()).toHaveAttribute('href', '/truyen/truyen-moi-0/chuong/chuong-3');
         await expect(resume.locator('.sc-home-progress-line')).toBeVisible();
         await resume.screenshot({ path: path.join(output, `resume-${width}-${theme}.png`) });
 

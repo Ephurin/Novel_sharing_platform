@@ -1,3 +1,4 @@
+import { navigationHref, profileHref, chapterHref, novelHref } from '../../shared/routes';
 import { formatDateTime } from '../../shared/lib/format-vi';
 import { hasReaderCapability } from '../auth/auth-types';
 import { Alert, Avatar, Badge, Button, Group, Pagination, Paper, Stack, Text, Title } from '@mantine/core';
@@ -68,7 +69,7 @@ export function CommentsSection({ kind, id, authorFeedback }: CommentTarget & { 
     <Stack ref={commentsRef} gap="md">
       {canComment ? <CommentComposer key={scope} value={draft} onChange={setDraft} label="Bình luận của bạn" submitLabel="Gửi bình luận" pending={create.isPending}
         onSubmit={draft => create.mutate({ target: { kind, id }, draft, account: user.userId, scope })} />
-        : <Text size="sm" c="dimmed">{!user ? <><Link to="/login">Đăng nhập</Link> để bình luận.</> : 'Tài khoản đang hoạt động mới được bình luận.'}</Text>}
+        : <Text size="sm" c="dimmed">{!user ? <><Link to={navigationHref("/login")}>Đăng nhập</Link> để bình luận.</> : 'Tài khoản đang hoạt động mới được bình luận.'}</Text>}
       {notice && <Text role="status" size="sm">{notice}</Text>}
       {create.isError && <Alert color="red">{getApiErrorMessage(create.error)}</Alert>}
       {authorFeedback}
@@ -126,9 +127,11 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
     <Group wrap="nowrap" align="flex-start">
       <Avatar src={comment.avatarUrl} alt={comment.displayName} size={36} radius="xl">{comment.displayName.trim().slice(0, 1) || '?'}</Avatar>
       <Stack gap={2} style={{ minWidth: 0, flex: 1 }}>
-        <Text fw={600} style={{ overflowWrap: 'anywhere' }}><Link to={`/readers/${comment.userId}`}>{comment.displayName}</Link>{own ? ' (Bạn)' : ''}{comment.isAuthor && <Badge ml="xs" size="xs" variant="light">Tác giả</Badge>}</Text>
+        <Text fw={600} style={{ overflowWrap: 'anywhere' }}><Link to={profileHref('member', comment.userId, comment.authorPublicKey)}>{comment.displayName}</Link>{own ? ' (Bạn)' : ''}{comment.isAuthor && <Badge ml="xs" size="xs" variant="light">Tác giả</Badge>}</Text>
         {showContext && <Link className="sc-comment-source" title={comment.chapterTitle ?? undefined}
-          to={comment.audience && comment.audience !== 'PUBLIC' ? `${base}/${comment.chapterId ? 'chapters/' + comment.chapterId : 'novels/' + comment.novelId}?threadId=${comment.parentCommentId ?? comment.commentId}&commentId=${comment.commentId}` : comment.chapterId ? `${base}/chapters/${comment.chapterId}` : `${base}/novels/${comment.novelId}#reader-comments`}>{source}</Link>}
+          to={comment.audience && comment.audience !== 'PUBLIC'
+            ? `${comment.chapterId ? chapterHref({ ...comment, chapterId: comment.chapterId }, base) : novelHref(comment, base)}?threadId=${comment.parentCommentId ?? comment.commentId}&commentId=${comment.commentId}`
+            : comment.chapterId ? chapterHref({ ...comment, chapterId: comment.chapterId }, base) : `${novelHref(comment, base)}#reader-comments`}>{source}</Link>}
         <Text component="time" dateTime={comment.createdAt} title={formatDateTime(comment.createdAt)} size="xs" c="dimmed">{formatDateTime(comment.createdAt, 'relative')}</Text>
       </Stack>
       {comment.status !== 'APPROVED' && <Badge variant="light" color={comment.status === 'REJECTED' ? 'red' : 'yellow'}>{comment.status === 'REJECTED' ? 'Không được duyệt' : 'Chờ duyệt'}</Badge>}

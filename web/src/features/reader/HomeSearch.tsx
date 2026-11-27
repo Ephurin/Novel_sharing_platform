@@ -1,3 +1,4 @@
+import { novelHref } from '../../shared/routes';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useDebouncedValue } from '@mantine/hooks';
@@ -53,7 +54,7 @@ export function HomeSearch({ catalogPath }: { catalogPath: string }) {
               setActive(index => !items.length ? -1 : index < 0 ? direction > 0 ? 0 : items.length - 1 : (index + direction + items.length) % items.length);
             }
             if (event.key === 'Enter' && expanded && selected >= 0) {
-              event.preventDefault(); setOpen(false); navigate(`${catalogPath}/novels/${items[selected].novelId}`);
+              event.preventDefault(); setOpen(false); navigate(novelHref(items[selected], catalogPath));
             }
           }} />
         {value.length > 0 && <button type="button" className="sc-home-search-clear" aria-label="Xóa từ khóa tìm kiếm" onClick={() => {
@@ -67,7 +68,7 @@ export function HomeSearch({ catalogPath }: { catalogPath: string }) {
       <p className="sc-home-search-status" role="status" aria-atomic="true">{!enabled || results.isPending ? 'Đang tìm…' : results.isError ? 'Chưa tải được gợi ý. Bạn vẫn có thể tìm bằng Enter.' : items.length ? `${items.length} gợi ý truyện` : 'Không có gợi ý phù hợp.'}</p>
       <ul id={listId} role="listbox" aria-label="Gợi ý truyện">
         {items.map((novel, index) => <li key={novel.novelId} role="presentation"><Link role="option" id={`${listId}-${index}`} aria-selected={selected === index}
-          tabIndex={-1} to={`${catalogPath}/novels/${novel.novelId}`} onMouseDown={event => event.preventDefault()} onClick={() => setOpen(false)}>
+          tabIndex={-1} to={novelHref(novel, catalogPath)} onMouseDown={event => event.preventDefault()} onClick={() => setOpen(false)}>
           <strong>{novel.title}</strong>{novel.authorName && <span>{novel.authorName}</span>}
         </Link></li>)}
       </ul>
