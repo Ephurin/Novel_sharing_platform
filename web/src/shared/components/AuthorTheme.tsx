@@ -3,8 +3,9 @@ import { NotificationBell } from '../../features/notifications/NotificationBell'
 import { readerCollections } from '../../features/reader/ReaderCollectionsLayout';
 import { GlobalSearchDropdown } from './GlobalSearchDropdown';
 import { ThemeControl } from './ThemeControl';
-import { WorkspaceCommands } from './WorkspaceCommands';
-import { FocusTrap, useComputedColorScheme } from '@mantine/core';
+import { WorkspaceCommands, requestWorkspaceCommands } from './WorkspaceCommands';
+import { FocusTrap, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { AnimatedMenu as Menu } from './AnimatedMenu';
 import { useQueryClient } from '@tanstack/react-query';
@@ -134,6 +135,28 @@ export function AuthorNavbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, [autoHide, path]);
   const reduce = useReducedMotion();
+  // C05: phones get one header layout for every role. Secondary controls move into the account menu and the
+  // tab row scrolls sideways with faded edges that show when more tabs are hidden.
+  const phone = useMediaQuery('(max-width: 640px)', undefined, { getInitialValueInEffect: false });
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
+  const navRef = useRef<HTMLElement>(null);
+  const [navOverflow, setNavOverflow] = useState({ start: false, end: false });
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const update = () => {
+      const start = nav.scrollLeft > 1;
+      const end = nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 1;
+      setNavOverflow((current) => (current.start === start && current.end === end ? current : { start, end }));
+    };
+    nav.querySelector<HTMLElement>('.is-active')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    update();
+    nav.addEventListener('scroll', update, { passive: true });
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
+    observer?.observe(nav);
+    return () => { nav.removeEventListener('scroll', update); observer?.disconnect(); };
+  }, [path, user?.role]);
+  const navProps = { ref: navRef, className: 'sc-global-nav', 'aria-label': 'Điều hướng chính', 'data-overflow-start': navOverflow.start || undefined, 'data-overflow-end': navOverflow.end || undefined };
   const readerLink = (active: boolean) => (active ? 'sc-nav-link is-active' : 'sc-nav-link');
   const navPill = <motion.span layoutId="sc-global-nav-pill" className="sc-nav-pill" aria-hidden="true" transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 34, mass: 0.8 }} />;
 
@@ -156,7 +179,7 @@ export function AuthorNavbar() {
         </Link>
         <LayoutGroup id="sc-global-nav">
           {isWriter ? (
-            <nav className="sc-global-nav" aria-label="Điều hướng chính">
+            <nav {...navProps}>
               {(() => {
                 const authorActive = path === staticRouteTargets['/author'] || path.startsWith(staticRouteTargets['/author'] + '/');
                 const readerActive = path === routes.catalog;
@@ -218,7 +241,7 @@ export function AuthorNavbar() {
               })()}
             </nav>
           ) : user ? (
-            <nav className="sc-global-nav" aria-label="Điều hướng chính">
+            <nav {...navProps}>
               {[
                 { to: '/', label: navigationLabels.home, active: path === '/' },
                 { to: navigationHref('/reader'), label: navigationLabels.readerHome, active: isCatalog || path.startsWith('/tac-gia/') },
@@ -231,7 +254,7 @@ export function AuthorNavbar() {
               ))}
             </nav>
           ) : (
-            <nav className="sc-global-nav" aria-label="Điều hướng chính">
+            <nav {...navProps}>
               {[
                 { to: '/', label: navigationLabels.home, active: path === '/' },
                 { to: navigationHref('/public'), label: navigationLabels.readerHome, active: isCatalog },
@@ -256,8 +279,8 @@ export function AuthorNavbar() {
             { label: navigationLabels.authorProfile, to: ownProfileHref, icon: 'person' },
             { label: 'Hồ sơ và cài đặt', to: navigationHref('/profile/me') }
           ]} />}
-          <ThemeControl />
-          {isWriter && path !== staticRouteTargets['/author/ide'] && <Link to={writingUrl} className="sc-button sc-button-primary sc-continue"><span className="material-symbols-outlined">edit_note</span><span>Viết tiếp</span></Link>}
+          {!(user && phone) && <ThemeControl />}
+          {isWriter && path !== staticRouteTargets['/author/ide'] && <Link to={writingUrl} className="sc-button sc-button-primary sc-continue" aria-label="Viết tiếp"><span className="material-symbols-outlined" aria-hidden="true">edit_note</span><span>Viết tiếp</span></Link>}
           {!user && <Link to={navigationHref("/login")} className="sc-button sc-button-primary"><span className="material-symbols-outlined">login</span><span>Đăng nhập</span></Link>}
           {user && <NotificationBell />}
           {user && <SessionMarker role={user.role} username={user.username} />}
@@ -358,6 +381,25 @@ export function AuthorNavbar() {
               >
                 Góp ý đã gửi
               </Menu.Item>
+              {phone && <>
+                <Menu.Divider />
+                <Menu.Label>Giao diện</Menu.Label>
+                {([['light', 'Sáng', 'light_mode'], ['dark', 'Tối', 'dark_mode'], ['auto', 'Theo hệ thống', 'contrast']] as const).map(([value, label, icon]) => (
+                  <Menu.Item
+                    key={value}
+                    onClick={() => setColorScheme(value)}
+                    aria-current={colorScheme === value ? 'true' : undefined}
+                    className={colorScheme === value ? 'is-active' : ''}
+                    leftSection={<span className="material-symbols-outlined" aria-hidden="true">{icon}</span>}
+                  >
+                    {label}
+                  </Menu.Item>
+                ))}
+                {isWriter && <>
+                  <Menu.Item onClick={() => requestWorkspaceCommands('palette')} leftSection={<span className="material-symbols-outlined" aria-hidden="true">bolt</span>}>Lệnh nhanh</Menu.Item>
+                  <Menu.Item onClick={() => requestWorkspaceCommands('help')} leftSection={<span className="material-symbols-outlined" aria-hidden="true">keyboard</span>}>Phím tắt</Menu.Item>
+                </>}
+              </>}
               <Menu.Divider />
               <Menu.Item
                 color="red"

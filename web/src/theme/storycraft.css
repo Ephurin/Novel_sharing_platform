@@ -297,6 +297,10 @@
 .sc-nav-link:hover { color: var(--sc-text); background: var(--sc-neutral-bg); }
 .sc-nav-link.active, .sc-nav-link.is-active { color: var(--sc-primary-text); border-color: transparent; background: transparent; }
 .sc-nav-pill { position: absolute; inset: 0; z-index: -1; border-radius: inherit; border: 1px solid var(--sc-border); background: var(--sc-primary-soft); pointer-events: none; }
+/* C05: faded edges tell the reader that the tab row scrolls (set from AuthorNavbar when it overflows). */
+.sc-global-nav[data-overflow-end] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); }
+.sc-global-nav[data-overflow-start] { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 40px), transparent); }
+.sc-global-nav[data-overflow-start][data-overflow-end] { -webkit-mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent); }
 /* V2-04: the moderator "Điều hành" menu trigger looks like the neighbouring nav links. */
 .sc-nav-link.sc-nav-menu-trigger { gap: 2px; padding-inline-end: 8px; background: transparent; font-family: inherit; cursor: pointer; }
 .sc-nav-link.sc-nav-menu-trigger:hover { background: var(--sc-neutral-bg); }
@@ -408,6 +412,14 @@ svg[data-combobox-chevron] path { visibility: hidden; }
   .sc-brand-edition { display: none; }
   .sc-nav-link { font-size: 13px; padding-inline: 10px; }
   .sc-continue { padding-inline: 8px; }
+  /* C05: one phone header for every role. Row 1: brand, search, write, bell, avatar; row 2: scrolling tabs.
+     Command/shortcut/theme buttons for signed-in users are in the account menu instead. */
+  .sc-navbar .sc-workspace-tools { display: none; }
+  .sc-navbar .sc-continue { width: 36px; padding: 0; }
+  .sc-navbar .sc-continue > span:last-child { display: none; }
+  .sc-navbar-actions { gap: 6px; }
+  .sc-global-nav { scrollbar-width: none; }
+  .sc-global-nav::-webkit-scrollbar { display: none; }
   .sc-author-theme h1 { font-size: 22px; line-height: 30px; }
   .sc-author-theme .sc-studio-toolbar { align-items: flex-start; flex-wrap: wrap; }
   .sc-author-theme .sc-studio-toolbar > div:last-child { max-width: 100%; flex-shrink: 1; flex-wrap: wrap; }
