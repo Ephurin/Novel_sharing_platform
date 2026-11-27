@@ -2,7 +2,7 @@
 
 A step-by-step script for presenting P2 at the defense (around 2026-12-01). It uses the test novel "Kiếm Ấn Lôi Sơn" on the local live stack. Most of the demo needs **no model calls**. Only the optional AI segment (section 4) needs the live model, and turning it on needs the owner's approval each time.
 
-Checked on 2026-11-19 against `main` @ `04b26100` (after #196), live model off. The results of that check are in section 7.
+Checked on 2026-11-19 against `main` @ `04b26100` (after #196), live model off. The results of that check are in section 7. The latest check (2026-11-21, `main` @ `61af3688`, after four UAT rounds) is in section 9, and section 2b adds a system-wide segment beyond the AI features.
 
 ## 1. Before the demo
 
@@ -47,11 +47,13 @@ A snapshot of the clean demo state (memory v29, novel renamed) was taken on 2026
 | Item | State on 2026-11-19 | Action |
 |---|---|---|
 | Demo novel title | Renamed on 2026-11-20 from "Kiếm Ấn Lôi Sơn — kiểm thử live 2026-11-15" to "Kiếm Ấn Lôi Sơn" | Nothing to do |
-| Other novels on the account | 16 test novels ("PT-CV-001 live …", "Kịch bản A …", "Hạm Đội Sao Băng …") | Hide or delete them, or say they are test runs. Deleting cannot be undone, so take a snapshot first |
+| Other novels on the account | 16 draft test novels ("PT-CV-001 live …", "Kịch bản A …", "Hạm Đội Sao Băng …"). "Kiếm Ấn Lôi Sơn" is first because it was edited last | Pin "Kiếm Ấn Lôi Sơn" ("Tác phẩm" → pin) so it stays first, and say the others are test runs. Deleting cannot be undone, so take a snapshot first if you delete |
 | Chapter 1 title | The draft reads "Chương 1", but the published copy and the chapter list still read "Chương 1: Bản thảo mới" | Republishing runs AI analysis, so it needs the live model. Otherwise leave it as is |
 | Memory state | v29, nothing pending; 5 characters, 32 facts, 47 events | Nothing to do |
 | Browser | Use a window at least 1440 px wide; the Story Brain drawer is cramped below that | Zoom to 100% |
 | Pre-sign-in | Optional | Sign in before the session starts, so the password is never typed on screen |
+| Accounts for section 2b | `reader02` admin, `reader03` author, `reader04` reader (1,000 coins), `reader06` reader with 5 coins. Passwords are in `backend/src/scripts/seed-sample-stories.ts` | Sign in each one in its own browser profile before the session |
+| Snapshot to restore after a rehearsal | `.eval-private/p2-live/snapshots/main-seeded-20261121-1209/` (seeded, all fixes) | Take a fresh one before the defense day |
 
 ## 2. Demo script without the model (about 10 minutes)
 
@@ -72,11 +74,31 @@ Each step lists what to click, what should appear, and the point to make.
 
 Do not press the confirm buttons in step 8 during the defense unless you will restore a snapshot afterwards.
 
+## 2b. System-wide segment without the model (about 8 minutes)
+
+The UAT rounds of 2026-11-20 and 2026-11-21 covered the whole system, not only the AI. Use this segment to show the platform around the AI. Steps marked **(changes data)** need a snapshot first and a restore afterwards.
+
+| # | Who | Click | What appears | Point to make |
+|---|---|---|---|---|
+| 1 | Guest | Discovery page, search "kiem" | The same 12 novels as for "kiếm" | Search ignores Vietnamese accents |
+| 2 | Guest | Open "Ashenhold" | Cover, synopsis, genres, chapter list, rating, and the **16+** badge | Age rating set by the author |
+| 3 | `reader04` | Open a VIP chapter (the "Quyền đọc" column marks it) | "Mở khóa chương này với 50 xu", "Số dư hiện tại: 1000 xu", button "Mở khóa · 50 xu" | The price is on the button before any coin is spent (SRS UC4: no extra confirm dialog) |
+| 4 | `reader06` | The same chapter | "Số dư hiện tại: 5 xu — chưa đủ…", the button is disabled, "Nạp thêm xu" | No charge when the balance is too low |
+| 5 | `reader03` | "Tác phẩm" → Ashenhold | Chapter table; "Sắp xếp chương" is disabled with a hint | Released chapter numbers never move, so readers' bookmarks and the AI memory stay valid |
+| 6 | `reader03` | **(changes data)** New chapter → "Quyền đọc & giá xu" → VIP → "Gửi duyệt chương" | The chapter is "Chờ duyệt" | Publishing goes through moderation |
+| 7 | `reader02` | **(changes data)** "Kiểm duyệt" → the chapter → "Duyệt xuất bản" | The chapter is published; `reader04` gets "chương mới" if they follow Ashenhold with notifications on (set both before step 6; the seed does not) | Moderation and notifications |
+| 8 | `reader04` | **(changes data)** Open the notification → "Mở khóa · N xu" | The chapter opens; the wallet shows the purchase | Pay per chapter |
+| 9 | `reader03` | "Ví Xu" → "Doanh thu theo thời gian" (7 / 30 / 365 days) | The unlock appears as revenue | Author income |
+| 10 | `reader02` | "Tổng quan", then "Người dùng", "Báo cáo", "Yêu cầu rút Xu", "Nhật ký audit" | Dashboard numbers; each admin screen loads | Operations and audit trail |
+
+Steps 6–8 take about 3 minutes. Without a restore, skip them and show steps 1–5, 9 and 10 only.
+
 ## 3. Points to make
 
 - **The author approves everything.** The model proposes, and memory changes only after the author approves ("Chờ duyệt").
 - **Name review comes first.** For each chapter, new names are reviewed before events and facts are extracted, so one wrong name does not spread.
 - **Free-tier safety.** Every model call goes through the quota gateway. Live is off by default and needs an explicit enable step.
+- **Tested as a whole system.** Four UAT rounds on 2026-11-20 and 2026-11-21, one scenario per use case (36 scenarios). The last round had 30 passed, 0 failed and 6 blocked. All six are blocked by configuration: live model off, private comments off, no SMTP, no real cover image.
 - **Corrections keep history.** Correcting a fact, removing an entity and correcting an event all keep the old record. The version check (`BRAIN_VERSION_CONFLICT`) stops two windows from overwriting each other.
 
 ## 4. Optional: the AI writing loop (live model)
@@ -145,3 +167,14 @@ The stack was rebuilt from `main` @ `dc983ae3` (after #200 and #202) with live o
 | "Lập kế hoạch" → "2. Thế giới" | "Nguồn: /setup/world_rules/1"; "Quy tắc duyệt Canon" and other "Canon" wording | "Nguồn: Thiết lập · quy tắc thế giới 2"; "bộ nhớ truyện" |
 
 The merge dialog now lists "Trần Vũ · nhân vật", "Lôi Sơn · địa danh" … with no ID.
+
+## 9. Check on 2026-11-21
+
+The stack was rebuilt from `main` @ `61af3688` (after the UAT fixes #206, #208, #210 and #211) with live off. Two headless scripts ran without changing any data:
+
+| Script | Result |
+|---|---|
+| Section 2 (AI segment, test author) | Every step passed: Story Brain v29 with 5 characters, 32 facts and 47 events; retire, fact edit and remove, the status picker, event correction, the merge dialog, the world-rule screen and the AI panel. No developer wording left. No page errors; the only HTTP error was the expected 404 for "no active story plan" |
+| Section 2b, steps 1–5, 9 and 10 (read-only) | Every step passed: accent-insensitive search (12 = 12), the 16+ badge, the paywall price and balance, `reader06` refused at 5 coins, reorder locked with its hint, the author revenue chart, all eight admin screens, and a reader refused at `/admin`. No page errors; the only HTTP errors were the expected 402s for the locked VIP chapter |
+
+UAT status after round 4 (`docs/development/uat-runs/UAT_RUN_2026-11-21-r4.md`): 30 passed, 0 failed, 6 blocked by configuration. The keyboard on a real phone has not been checked; the round used an emulated phone in Edge.
