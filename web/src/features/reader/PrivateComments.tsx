@@ -3,7 +3,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
 import { apiClient, getApiErrorMessage, type ApiEnvelope } from '../../shared/api/api-client';
-import { ErrorState, LoadingState } from '../../shared/components/PageStates';
+import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
 import { useAuthStore } from '../auth/useAuthStore';
 import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
 import { CommentIcon } from './CommentComposer';
@@ -448,5 +448,5 @@ function AuthorPrivateSession({ target, account, requestedFeedback }: {
 export function FeedbackPage({ novelId, box = 'sent' }: { novelId?: string; box?: 'sent' | 'received' }) {
   const account = useAuthStore(s => s.user?.userId); const [page, setPage] = useState(1); const client = useQueryClient();
   const query = useQuery({ queryKey: ['private-comments', account, 'feedback', novelId, box, page], queryFn: () => list('/author-feedback', { novelId, box, page, limit: 10 }), enabled: Boolean(account), ...policy });
-  return <Stack><Title order={2}>{box === 'sent' ? 'Góp ý đã gửi' : 'Góp ý riêng'}</Title>{query.isPending && <LoadingState />}{query.isError && <ErrorState title="Không tải được góp ý" error={query.error} onRetry={() => void query.refetch()} />}{!query.isError && query.data?.items.map(comment => <CommentThread key={`${account}:${comment.commentId}`} comment={comment} onChanged={() => client.invalidateQueries()} />)}{query.data?.items.length === 0 && <Text c="dimmed">Chưa có góp ý.</Text>}{query.data && query.data.pages > 1 && <Pagination total={query.data.pages} value={page} onChange={setPage} />}</Stack>;
+  return <Stack><Title order={box === 'sent' ? 1 : 2} size="h2">{box === 'sent' ? 'Góp ý đã gửi' : 'Góp ý riêng'}</Title>{query.isPending && <LoadingState />}{query.isError && <ErrorState title="Không tải được góp ý" error={query.error} onRetry={() => void query.refetch()} />}{!query.isError && query.data?.items.map(comment => <CommentThread key={`${account}:${comment.commentId}`} comment={comment} onChanged={() => client.invalidateQueries()} />)}{query.data?.items.length === 0 && <EmptyState title="Chưa có góp ý" description={box === 'sent' ? 'Góp ý riêng bạn gửi cho tác giả từ trang đọc chương sẽ xuất hiện tại đây.' : 'Góp ý riêng độc giả gửi cho bạn sẽ xuất hiện tại đây.'} />}{query.data && query.data.pages > 1 && <Pagination total={query.data.pages} value={page} onChange={setPage} />}</Stack>;
 }
