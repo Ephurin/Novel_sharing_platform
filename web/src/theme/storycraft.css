@@ -297,6 +297,12 @@
 .sc-nav-link:hover { color: var(--sc-text); background: var(--sc-neutral-bg); }
 .sc-nav-link.active, .sc-nav-link.is-active { color: var(--sc-primary-text); border-color: transparent; background: transparent; }
 .sc-nav-pill { position: absolute; inset: 0; z-index: -1; border-radius: inherit; border: 1px solid var(--sc-border); background: var(--sc-primary-soft); pointer-events: none; }
+/* V2-04: the moderator "Điều hành" menu trigger looks like the neighbouring nav links. */
+.sc-nav-link.sc-nav-menu-trigger { gap: 2px; padding-inline-end: 8px; background: transparent; font-family: inherit; cursor: pointer; }
+.sc-nav-link.sc-nav-menu-trigger:hover { background: var(--sc-neutral-bg); }
+.sc-nav-link.sc-nav-menu-trigger .material-symbols-outlined { font-size: 18px; }
+.sc-nav-link.sc-nav-menu-trigger[aria-expanded="true"] .material-symbols-outlined { transform: rotate(180deg); }
+.sc-nav-link.sc-nav-menu-trigger:focus-visible { outline: 2px solid var(--sc-focus-ring); outline-offset: 2px; }
 .sc-navbar-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 .sc-button { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 8px 12px; gap: 8px; border: 1px solid var(--sc-border); border-radius: var(--sc-radius-control); font: 600 14px/20px var(--sc-font); text-decoration: none; white-space: nowrap; }
 .sc-button-primary { background: var(--sc-primary); border-color: var(--sc-primary); color: var(--sc-on-primary); }
@@ -373,10 +379,20 @@ svg[data-combobox-chevron] path { visibility: hidden; }
 .sc-chapter-drag-handle .material-symbols-outlined { font-size: 20px; }
 .sc-author-theme .sc-shell-content > .min-h-screen { min-height: 0; padding: 0; }
 
+/* V2-04: on one-row desktop headers the search box gives up its width before any nav link is clipped. */
+@media (min-width: 1101px) {
+  .sc-global-nav { flex-shrink: 0.001; }
+}
 @media (max-width: 1100px) {
   .sc-navbar-inner { flex-wrap: wrap; gap: 8px 16px; }
   .sc-global-nav { order: 3; flex-basis: 100%; }
   .sc-navbar-actions { gap: 8px; }
+}
+/* V2-04: the moderator nav is the longest; it moves to its own row a little earlier. */
+@media (min-width: 1101px) and (max-width: 1200px) {
+  .sc-navbar-long-nav .sc-navbar-inner { flex-wrap: wrap; gap: 8px 16px; }
+  .sc-navbar-long-nav .sc-global-nav { order: 3; flex-basis: 100%; }
+  .sc-navbar-long-nav .sc-navbar-actions { gap: 8px; }
 }
 @media (max-width: 900px) {
   .sc-studio-body { flex-direction: column; position: relative; }

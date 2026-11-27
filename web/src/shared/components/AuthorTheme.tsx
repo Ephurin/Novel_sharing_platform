@@ -148,7 +148,7 @@ export function AuthorNavbar() {
   }
 
   return (
-    <header ref={navbarRef} className={`sc-navbar${discussionsActive ? ' sc-navbar-discussions' : ''}${navbarHidden ? ' sc-navbar-hidden' : ''}`} inert={navbarHidden} onFocusCapture={() => setNavbarHidden(false)}>
+    <header ref={navbarRef} className={`sc-navbar${user?.role === 'MODERATOR' ? ' sc-navbar-long-nav' : ''}${discussionsActive ? ' sc-navbar-discussions' : ''}${navbarHidden ? ' sc-navbar-hidden' : ''}`} inert={navbarHidden} onFocusCapture={() => setNavbarHidden(false)}>
       <div className="sc-navbar-inner">
         <Link to="/" className="sc-brand" aria-label={`StoryCraft — ${navigationLabels.home}`}>
           <span className="material-symbols-outlined">menu_book</span>
@@ -169,17 +169,37 @@ export function AuthorNavbar() {
                       {authorActive && navPill}
                       <span>{navigationLabels.authorHome}</span>
                     </NavLink>
+                    {/* V2-04: moderator destinations share one "Điều hành" menu so the header never clips a link. */}
                     {user?.role === 'MODERATOR' && (
-                      <NavLink to={navigationHref("/moderator/reviews")} className={moderatorActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
-                        {moderatorActive && navPill}
-                        <span>Hồ sơ điều hành</span>
-                      </NavLink>
-                    )}
-                    {user?.role === 'MODERATOR' && (
-                      <NavLink to={navigationHref("/moderator/history")} className={moderatorHistoryActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
-                        {moderatorHistoryActive && navPill}
-                        <span>Lịch sử thao tác</span>
-                      </NavLink>
+                      <Menu position="bottom-start">
+                        <Menu.Target>
+                          <button type="button" className={moderatorActive || moderatorHistoryActive ? 'sc-nav-link sc-nav-menu-trigger is-active' : 'sc-nav-link sc-nav-menu-trigger'}>
+                            {(moderatorActive || moderatorHistoryActive) && navPill}
+                            <span>Điều hành</span>
+                            <span className="material-symbols-outlined" aria-hidden="true">expand_more</span>
+                          </button>
+                        </Menu.Target>
+                        <Menu.Dropdown className="sc-account-menu">
+                          <Menu.Item
+                            component={Link}
+                            to={navigationHref("/moderator/reviews")}
+                            className={moderatorActive ? 'is-active' : ''}
+                            aria-current={moderatorActive ? 'page' : undefined}
+                            leftSection={<span className="material-symbols-outlined" aria-hidden="true">fact_check</span>}
+                          >
+                            Hồ sơ điều hành
+                          </Menu.Item>
+                          <Menu.Item
+                            component={Link}
+                            to={navigationHref("/moderator/history")}
+                            className={moderatorHistoryActive ? 'is-active' : ''}
+                            aria-current={moderatorHistoryActive ? 'page' : undefined}
+                            leftSection={<span className="material-symbols-outlined" aria-hidden="true">history</span>}
+                          >
+                            Lịch sử thao tác
+                          </Menu.Item>
+                        </Menu.Dropdown>
+                      </Menu>
                     )}
                     <NavLink to={navigationHref("/reader")} end className={readerActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
                       {readerActive && navPill}
@@ -226,7 +246,7 @@ export function AuthorNavbar() {
           )}
         </LayoutGroup>
         {/* UI-18: the search page has its own keyword box; a second one in the header is noise. */}
-        {path !== staticRouteTargets['/author/ide'] && path !== '/tim-kiem' && <GlobalSearchDropdown catalogPath={catalogPath} />}
+        {path !== staticRouteTargets['/author/ide'] && path !== '/tim-kiem' && <GlobalSearchDropdown catalogPath={catalogPath} compact={user?.role === 'MODERATOR' ? 'wide' : isWriter ? 'narrow' : undefined} />}
         <div className="sc-navbar-actions">
           {isWriter && <WorkspaceCommands author commands={[
             { label: navigationLabels.authorHome, to: navigationHref('/author/projects'), icon: 'menu_book' },

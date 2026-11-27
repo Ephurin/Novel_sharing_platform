@@ -21,7 +21,11 @@ const statusLabels: Record<string, string> = {
   HIATUS: 'Tạm ngưng'
 };
 
-export function GlobalSearchDropdown({ catalogPath }: { catalogPath: '/reader' | '/public' }) {
+/**
+ * `compact` collapses the desktop box into the same icon + popover used on phones:
+ * 'wide' from 1101px up (the moderator nav is longest), 'narrow' only between 1101px and 1279px.
+ */
+export function GlobalSearchDropdown({ catalogPath, compact }: { catalogPath: '/reader' | '/public'; compact?: 'wide' | 'narrow' }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -171,7 +175,7 @@ export function GlobalSearchDropdown({ catalogPath }: { catalogPath: '/reader' |
   }
 
   return (
-    <div ref={containerRef} className={`sc-nav-search${mobileOpen ? ' is-open' : ''}`}>
+    <div ref={containerRef} className={`sc-nav-search${compact ? ` sc-nav-search--compact-${compact}` : ''}${mobileOpen ? ' is-open' : ''}`}>
       <button
         type="button"
         className="sc-nav-search-toggle"
