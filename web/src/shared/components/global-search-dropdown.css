@@ -359,3 +359,84 @@
     max-height: min(340px, 55vh);
   }
 }
+
+/* V2-04: when the role-specific nav needs the room, the desktop search collapses to an icon with a popover
+   instead of clipping the nav links. Phones keep the rules above. */
+@media (min-width: 1101px) {
+  .sc-nav-search.sc-nav-search--compact-wide {
+    flex: 0 0 36px;
+    width: 36px;
+    min-width: 36px;
+    max-width: 36px;
+    margin-left: auto;
+  }
+  .sc-nav-search--compact-wide .sc-nav-search-toggle {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--sc-border);
+    border-radius: 9px;
+    background: var(--sc-surface-subtle);
+    color: var(--sc-primary-text);
+    padding: 7px;
+    cursor: pointer;
+  }
+  .sc-nav-search--compact-wide .sc-nav-search-toggle svg {
+    width: 17px;
+    height: 17px;
+  }
+  .sc-nav-search--compact-wide .sc-nav-search-box {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 380px;
+    z-index: 80;
+  }
+  .sc-nav-search--compact-wide.is-open .sc-nav-search-box {
+    display: block;
+  }
+  .sc-nav-search--compact-wide .sc-nav-search-form {
+    filter: drop-shadow(0 6px 14px rgba(60, 43, 34, 0.14));
+  }
+}
+@media (min-width: 1101px) and (max-width: 1279px) {
+  .sc-nav-search.sc-nav-search--compact-narrow {
+    flex: 0 0 36px;
+    width: 36px;
+    min-width: 36px;
+    max-width: 36px;
+    margin-left: auto;
+  }
+  .sc-nav-search--compact-narrow .sc-nav-search-toggle {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--sc-border);
+    border-radius: 9px;
+    background: var(--sc-surface-subtle);
+    color: var(--sc-primary-text);
+    padding: 7px;
+    cursor: pointer;
+  }
+  .sc-nav-search--compact-narrow .sc-nav-search-toggle svg {
+    width: 17px;
+    height: 17px;
+  }
+  .sc-nav-search--compact-narrow .sc-nav-search-box {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 380px;
+    z-index: 80;
+  }
+  .sc-nav-search--compact-narrow.is-open .sc-nav-search-box {
+    display: block;
+  }
+  .sc-nav-search--compact-narrow .sc-nav-search-form {
+    filter: drop-shadow(0 6px 14px rgba(60, 43, 34, 0.14));
+  }
+}

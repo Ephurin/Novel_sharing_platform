@@ -49,6 +49,10 @@ export function AuthorProjectsPage() {
   const [selectedGenre, setSelectedGenre] = filters.field('genre');
   const [onlyPinned, setOnlyPinned] = filters.field('pinned');
   const [viewMode, setViewMode] = useWorkspacePreference<'grid' | 'list'>('project-view', 'grid', (v): v is 'grid' | 'list' => v === 'grid' || v === 'list');
+  const secondaryFilterCount = (selectedGenre !== 'ALL' ? 1 : 0) + (onlyPinned ? 1 : 0);
+  // Start expanded when a restored URL already applies one of the collapsed filters.
+  const [moreFiltersOpen, setMoreFiltersOpen] = useState(() => secondaryFilterCount > 0);
+  const moreFiltersId = useId();
   const [pinnedIds, setPinnedIds] = useWorkspacePreference<string[]>('pinned-projects', [], stringArray);
   const [recentIds] = useWorkspacePreference<string[]>('recent-projects', [], stringArray);
   const togglePin = (id: string) => setPinnedIds(ids => ids.includes(id) ? ids.filter(item => item !== id) : [id, ...ids].slice(0, 200));
@@ -215,7 +219,8 @@ export function AuthorProjectsPage() {
       <main className="w-full flex-1 pt-0 pb-16">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-6 flex flex-col gap-6">
           {/* Page Header & Main Title */}
-          <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          {/* C04: title and create button share one row on phones too, so the first work stays above the fold. */}
+          <header className="flex flex-row items-center md:items-end justify-between gap-3 md:gap-4">
             <div className="flex flex-col gap-1">
               <h1 className="font-headline-sm text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">
                 {navigationLabels.authorHome}
@@ -235,49 +240,49 @@ export function AuthorProjectsPage() {
             </div>
           </header>
 
-          {/* Compact Overview Statistics (3 Cards, Single Row) */}
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Compact Overview Statistics (3 Cards, Single Row). C04: phones keep the single row with smaller cards. */}
+          <section className="grid grid-cols-3 gap-2 md:gap-4" aria-label="Tổng quan tác phẩm">
             {/* Card 1: Tổng tác phẩm */}
-            <div className="bg-surface-container-lowest rounded-xl p-4 shadow-2xs border border-stone-200/80 flex items-center justify-between">
-              <div className="flex flex-col gap-1">
-                <span className="text-form-label text-stone-500">
+            <div className="bg-surface-container-lowest rounded-xl p-4 max-md:p-2.5 shadow-2xs border border-stone-200/80 flex items-center justify-between min-w-0">
+              <div className="flex flex-col gap-1 min-w-0">
+                <span className="text-form-label text-stone-500 max-md:text-[12px] max-md:leading-4">
                   Tổng tác phẩm
                 </span>
-                <span className="font-headline-sm text-2xl font-bold text-stone-900 leading-none">
+                <span className="font-headline-sm text-2xl max-md:text-xl font-bold text-stone-900 leading-none">
                   <AnimatedNumber value={counts.all} ready={Boolean(projectsQuery.data)} />
                 </span>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-primary-600/10 flex items-center justify-center text-primary-600 shrink-0">
+              <div className="hidden md:flex w-10 h-10 rounded-xl bg-primary-600/10 items-center justify-center text-primary-600 shrink-0">
                 <span className="material-symbols-outlined text-[22px]" aria-hidden="true">auto_stories</span>
               </div>
             </div>
 
             {/* Card 2: Tổng lượt đọc */}
-            <div className="bg-surface-container-lowest rounded-xl p-4 shadow-2xs border border-stone-200/80 flex items-center justify-between">
-              <div className="flex flex-col gap-1">
-                <span className="text-form-label text-stone-500">
+            <div className="bg-surface-container-lowest rounded-xl p-4 max-md:p-2.5 shadow-2xs border border-stone-200/80 flex items-center justify-between min-w-0">
+              <div className="flex flex-col gap-1 min-w-0">
+                <span className="text-form-label text-stone-500 max-md:text-[12px] max-md:leading-4">
                   Tổng lượt đọc
                 </span>
-                <span className="font-headline-sm text-2xl font-bold text-stone-900 leading-none">
+                <span className="font-headline-sm text-2xl max-md:text-xl font-bold text-stone-900 leading-none">
                   <AnimatedNumber value={totalReads} ready={Boolean(projectsQuery.data)} format={value => value >= 1000 ? `${(value / 1000).toFixed(1)}K` : String(value)} />
                 </span>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 shrink-0">
+              <div className="hidden md:flex w-10 h-10 rounded-xl bg-primary-50 items-center justify-center text-primary-600 shrink-0">
                 <span className="material-symbols-outlined text-[22px]" aria-hidden="true">visibility</span>
               </div>
             </div>
 
             {/* Card 3: Chương đã xuất bản */}
-            <div className="bg-surface-container-lowest rounded-xl p-4 shadow-2xs border border-stone-200/80 flex items-center justify-between">
-              <div className="flex flex-col gap-1">
-                <span className="text-form-label text-stone-500">
+            <div className="bg-surface-container-lowest rounded-xl p-4 max-md:p-2.5 shadow-2xs border border-stone-200/80 flex items-center justify-between min-w-0">
+              <div className="flex flex-col gap-1 min-w-0">
+                <span className="text-form-label text-stone-500 max-md:text-[12px] max-md:leading-4">
                   Chương đã xuất bản
                 </span>
-                <span className="font-headline-sm text-2xl font-bold text-stone-900 leading-none">
+                <span className="font-headline-sm text-2xl max-md:text-xl font-bold text-stone-900 leading-none">
                   <AnimatedNumber value={publishedChapters} ready={Boolean(projectsQuery.data)} />
                 </span>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center text-stone-700 shrink-0">
+              <div className="hidden md:flex w-10 h-10 rounded-xl bg-stone-100 items-center justify-center text-stone-700 shrink-0">
                 <span className="material-symbols-outlined text-[22px]" aria-hidden="true">history_edu</span>
               </div>
             </div>
@@ -363,6 +368,18 @@ export function AuthorProjectsPage() {
                   </div>
                 </LayoutGroup>
 
+                {/* C04: on phones genre, view mode and the saved/pinned options sit behind one toggle. */}
+                <button
+                  type="button"
+                  className="md:hidden inline-flex items-center gap-1 min-h-[32px] px-2.5 rounded-lg border border-stone-200/80 bg-stone-50/80 text-meta font-medium text-stone-700"
+                  aria-expanded={moreFiltersOpen}
+                  aria-controls={moreFiltersId}
+                  onClick={() => setMoreFiltersOpen(open => !open)}
+                >
+                  <span className="material-symbols-outlined text-[18px]" aria-hidden="true">tune</span>
+                  <span>Bộ lọc khác{secondaryFilterCount ? ` (${secondaryFilterCount})` : ''}</span>
+                </button>
+                <div id={moreFiltersId} className={`${moreFiltersOpen ? 'flex' : 'hidden'} md:contents flex-wrap items-center gap-2.5`}>
                 {/* Genre Dropdown */}
                 <div className="relative">
                   <select
@@ -416,10 +433,11 @@ export function AuthorProjectsPage() {
                     })}
                   </div>
                 </LayoutGroup>
+                </div>
               </div>
             </div>
 
-            <div className="sc-project-library-options">
+            <div className={`sc-project-library-options${moreFiltersOpen ? '' : ' max-md:hidden'}`}>
               <label className="text-meta"><input type="checkbox" checked={onlyPinned} onChange={e => setOnlyPinned(e.target.checked)} /> Chỉ tác phẩm đã ghim</label>
               <FilterPresets name="author-projects" fields={['q', 'status', 'sort', 'genre', 'pinned']} presentation="popover" />
               {recentIds.some(id => projects.some(p => p.novelId === id)) && (
@@ -507,8 +525,9 @@ export function AuthorProjectsPage() {
                         {/* Right: Novel Info (Title, Status, Genre, Stats, Updated time) */}
                         <div className="flex flex-col flex-1 min-w-0 justify-between self-stretch py-0.5">
                           <div>
-                            <div className="flex items-center justify-between gap-1 mb-1">
-                              <span className="text-meta font-medium text-stone-500 truncate">
+                            {/* C09: a short genre wraps beside the badge instead of being cut ("Trinh th..."). */}
+                            <div className="flex flex-wrap items-center justify-between gap-1 mb-1">
+                              <span className="text-meta font-medium text-stone-500 min-w-0 [overflow-wrap:anywhere]">
                                 {project.genre || 'Chưa phân loại'}
                               </span>
                               <div className="flex items-center gap-1 shrink-0">

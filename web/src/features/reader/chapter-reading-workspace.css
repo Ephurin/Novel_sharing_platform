@@ -117,7 +117,8 @@
 .sc-reader-toc-list a span { flex: 1; overflow-wrap: anywhere; }
 .sc-reader-toc-list a small { flex-shrink: 0; color: var(--sc-warning); font-size: 12px; }
 .sc-reader-toc-list a:hover { color: var(--sc-primary-text); text-decoration: none; }
-@media (max-width: 1199px) and (min-width: 768px) { .sc-reader-page { margin-right: 80px; } }
+/* V2-03: the fixed tool rail sits in the right 80px on tablets; keep the comments clear of it too. */
+@media (max-width: 1199px) and (min-width: 768px) { .sc-reader-page, .sc-reader-comments { margin-right: 80px; } }
 @media (max-width: 767px) {
   .sc-reader-page { padding: 32px 12px 0; }
   .sc-reader-chapter-heading { margin: 0 12px 32px; }

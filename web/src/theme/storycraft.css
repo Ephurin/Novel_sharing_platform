@@ -297,6 +297,16 @@
 .sc-nav-link:hover { color: var(--sc-text); background: var(--sc-neutral-bg); }
 .sc-nav-link.active, .sc-nav-link.is-active { color: var(--sc-primary-text); border-color: transparent; background: transparent; }
 .sc-nav-pill { position: absolute; inset: 0; z-index: -1; border-radius: inherit; border: 1px solid var(--sc-border); background: var(--sc-primary-soft); pointer-events: none; }
+/* C05: faded edges tell the reader that the tab row scrolls (set from AuthorNavbar when it overflows). */
+.sc-global-nav[data-overflow-end] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); }
+.sc-global-nav[data-overflow-start] { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 40px), transparent); }
+.sc-global-nav[data-overflow-start][data-overflow-end] { -webkit-mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent); }
+/* V2-04: the moderator "Điều hành" menu trigger looks like the neighbouring nav links. */
+.sc-nav-link.sc-nav-menu-trigger { gap: 2px; padding-inline-end: 8px; background: transparent; font-family: inherit; cursor: pointer; }
+.sc-nav-link.sc-nav-menu-trigger:hover { background: var(--sc-neutral-bg); }
+.sc-nav-link.sc-nav-menu-trigger .material-symbols-outlined { font-size: 18px; }
+.sc-nav-link.sc-nav-menu-trigger[aria-expanded="true"] .material-symbols-outlined { transform: rotate(180deg); }
+.sc-nav-link.sc-nav-menu-trigger:focus-visible { outline: 2px solid var(--sc-focus-ring); outline-offset: 2px; }
 .sc-navbar-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 .sc-button { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 8px 12px; gap: 8px; border: 1px solid var(--sc-border); border-radius: var(--sc-radius-control); font: 600 14px/20px var(--sc-font); text-decoration: none; white-space: nowrap; }
 .sc-button-primary { background: var(--sc-primary); border-color: var(--sc-primary); color: var(--sc-on-primary); }
@@ -373,10 +383,22 @@ svg[data-combobox-chevron] path { visibility: hidden; }
 .sc-chapter-drag-handle .material-symbols-outlined { font-size: 20px; }
 .sc-author-theme .sc-shell-content > .min-h-screen { min-height: 0; padding: 0; }
 
+/* V2-04: on one-row desktop headers the search box gives up its width before any nav link is clipped.
+   The search shrinks first (large factor); the nav keeps factor 1 so it can still shrink and scroll when nothing
+   else can give way (e.g. 200% zoom). A factor below 1 would leave the overflow undistributed and widen the page. */
+@media (min-width: 1101px) {
+  .sc-navbar-inner > .sc-nav-search { flex-shrink: 1000; }
+}
 @media (max-width: 1100px) {
   .sc-navbar-inner { flex-wrap: wrap; gap: 8px 16px; }
   .sc-global-nav { order: 3; flex-basis: 100%; }
   .sc-navbar-actions { gap: 8px; }
+}
+/* V2-04: the moderator nav is the longest; it moves to its own row a little earlier. */
+@media (min-width: 1101px) and (max-width: 1200px) {
+  .sc-navbar-long-nav .sc-navbar-inner { flex-wrap: wrap; gap: 8px 16px; }
+  .sc-navbar-long-nav .sc-global-nav { order: 3; flex-basis: 100%; }
+  .sc-navbar-long-nav .sc-navbar-actions { gap: 8px; }
 }
 @media (max-width: 900px) {
   .sc-studio-body { flex-direction: column; position: relative; }
@@ -392,6 +414,16 @@ svg[data-combobox-chevron] path { visibility: hidden; }
   .sc-brand-edition { display: none; }
   .sc-nav-link { font-size: 13px; padding-inline: 10px; }
   .sc-continue { padding-inline: 8px; }
+  /* C05: one phone header for every role. Row 1: brand, search, write, bell, avatar; row 2: scrolling tabs.
+     Command/shortcut/theme buttons for signed-in users are in the account menu instead. */
+  .sc-navbar .sc-workspace-tools { display: none; }
+  .sc-navbar .sc-continue { width: 36px; padding: 0; }
+  .sc-navbar .sc-continue > span:last-child { display: none; }
+  .sc-navbar-actions { gap: 6px; }
+  .sc-navbar-inner { column-gap: 10px; }
+  .sc-navbar-actions > .sc-button:not(.sc-continue) { padding-inline: 10px; }
+  .sc-global-nav { scrollbar-width: none; }
+  .sc-global-nav::-webkit-scrollbar { display: none; }
   .sc-author-theme h1 { font-size: 22px; line-height: 30px; }
   .sc-author-theme .sc-studio-toolbar { align-items: flex-start; flex-wrap: wrap; }
   .sc-author-theme .sc-studio-toolbar > div:last-child { max-width: 100%; flex-shrink: 1; flex-wrap: wrap; }

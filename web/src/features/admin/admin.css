@@ -45,8 +45,10 @@
 }
 .admin-definition {
   display: grid;
-  grid-template-columns: max-content 1fr;
+  /* C01: the label column may shrink and wrap; the value column keeps a readable minimum. */
+  grid-template-columns: minmax(0, max-content) minmax(120px, 1fr);
   gap: 8px 16px;
+  min-width: 0;
 }
 .admin-definition dt {
   color: var(--sc-text-muted);
@@ -243,6 +245,7 @@
   font-weight: 600;
 }
 .admin-panel {
+  min-width: 0;
   background: var(--sc-surface);
   border: 1px solid var(--sc-border);
   border-radius: 12px;
@@ -258,10 +261,16 @@
 }
 .admin-toolbar > .admin-search {
   flex: 1;
-  min-width: 200px;
+  /* C01: never wider than the card that holds it. */
+  min-width: min(200px, 100%);
+  max-width: 100%;
 }
 .admin-toolbar .mantine-Select-root {
-  min-width: 150px;
+  min-width: min(150px, 100%);
+  max-width: 100%;
+}
+.admin-toolbar > :is(.mantine-Button-root, button) {
+  max-width: 100%;
 }
 .admin-shell .mantine-Input-label,
 .admin-confirm .mantine-Input-label {
@@ -725,8 +734,7 @@
   .admin-breadcrumb > span:not(.material-symbols-outlined) {
     display: none;
   }
-}
-@media (max-width: 767px) {
+  /* C01: tablet uses the same drawer as mobile so the content area gets the full width. */
   .admin-sidebar {
     transform: translateX(-100%);
   }
@@ -742,14 +750,19 @@
   }
   .admin-main {
     margin-left: 0;
-    padding: 80px 16px 20px;
+    padding: 80px 24px 24px;
   }
   .admin-mobile-toggle {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    min-height: 36px;
     border: 0;
     padding: 4px;
     background: transparent;
     color: var(--sc-text);
+    cursor: pointer;
   }
   .admin-nav-overlay {
     position: fixed;
@@ -758,12 +771,28 @@
     background: var(--sc-overlay);
     z-index: 105;
   }
+}
+/* C01: two side-by-side panels only while each panel still has room for its tables and definitions. */
+@media (max-width: 900px) {
+  .admin-grid-two {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 767px) {
+  .admin-main {
+    padding: 80px 16px 20px;
+  }
   .admin-page-header {
     align-items: flex-start;
     flex-direction: column;
   }
-  .admin-grid-two {
-    grid-template-columns: 1fr;
+  /* C01: on phones the label sits above its value instead of squeezing the value column. */
+  .admin-definition {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+  .admin-definition dd + dt {
+    margin-top: 8px;
   }
   .admin-footer > span {
     display: none;

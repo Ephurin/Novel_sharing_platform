@@ -19,6 +19,7 @@
     "test:p1-hitl": "tsx --test tests/p1-author-ide-hitl-integration.test.ts && node --test tests/p1-hitl-interactions.browser.test.mjs && node --test tests/p1-entity-checkpoint-ux.browser.test.mjs",
     "test:p1-hitl-interactions": "node --test tests/p1-hitl-interactions.browser.test.mjs",
     "test:admin-browser": "node --test tests/admin-redesign.browser.test.mjs",
+    "test:layout-r2": "node --test tests/layout-review-r2.browser.test.mjs",
     "test:animated-tooltip": "node --test tests/animated-tooltip.browser.test.mjs",
     "test:animated-overlays": "node --test tests/animated-overlays.browser.test.mjs",
     "test:animated-feedback": "node --test tests/animated-feedback.browser.test.mjs",

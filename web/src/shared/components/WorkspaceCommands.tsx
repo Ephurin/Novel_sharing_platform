@@ -8,6 +8,8 @@ import { AnimatedModal } from './AnimatedModal';
 import { useAuthStore } from '../../features/auth/useAuthStore';
 import './workspace-tools.css';
 
+export const WORKSPACE_COMMANDS_EVENT = 'sc:workspace-commands';
+export function requestWorkspaceCommands(kind: 'palette' | 'help') { window.dispatchEvent(new CustomEvent(WORKSPACE_COMMANDS_EVENT, { detail: kind })); }
 export type WorkspaceCommand = { label: string; to?: string; action?: () => void; icon?: string };
 const fold = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLowerCase();
 export function isTyping(target: EventTarget | null) { return target instanceof HTMLElement && !!target.closest('input,textarea,select,[contenteditable="true"],[role="textbox"]'); }
@@ -30,6 +32,13 @@ export function WorkspaceCommands({ commands, author = false }: { commands: Work
   useEffect(() => { if (opened) document.getElementById(`${id}-${Math.min(active, items.length - 1)}`)?.scrollIntoView({ block: 'nearest' }); }, [opened, active, query, items.length, id]);
   const open = () => { setQuery(''); setActive(0); setOpened(true); };
   const run = (item: WorkspaceCommand) => { setOpened(false); if (item.to) navigate(item.to); else item.action?.(); };
+  // C05: on phones the command and shortcut buttons live in the account menu, which opens them through this event.
+  useEffect(() => {
+    if (!enabled) return;
+    const request = (event: Event) => { if ((event as CustomEvent<string>).detail === 'help') setHelp(true); else open(); };
+    window.addEventListener(WORKSPACE_COMMANDS_EVENT, request);
+    return () => window.removeEventListener(WORKSPACE_COMMANDS_EVENT, request);
+  }, [enabled]);
   useEffect(() => {
     if (!enabled) return;
     const keydown = (e: KeyboardEvent) => {

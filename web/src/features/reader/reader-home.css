@@ -2523,6 +2523,9 @@
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14);
 }
 
+/* A closing preview can linger in the DOM while its exit motion settles; it must never catch clicks meant for menus above it. */
+[data-radix-popper-content-wrapper]:has(> .sc-home-preview[data-state="closed"]),
+.sc-home-preview[data-state="closed"] { pointer-events: none; }
 .sc-home-preview header { display: flex; align-items: flex-start; gap: 8px; }
 .sc-home-preview h3 { flex: 1; margin: 0; font: 600 16px/24px var(--sc-font); }
 .sc-home-preview .material-symbols-outlined { font-family: 'Material Symbols Outlined Variable'; font-size: 16px; line-height: 20px; }
