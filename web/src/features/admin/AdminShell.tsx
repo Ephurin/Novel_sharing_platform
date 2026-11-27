@@ -43,14 +43,15 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
   const location = useLocation();
   const legacyPath = legacyStaticPaths(location.pathname).find(path => path.startsWith('/admin')) ?? location.pathname;
   const [opened, setOpened] = useState(false);
-  const isMobile = useMediaQuery('(max-width: 767px)');
+  // C01: below 1150px the sidebar becomes a drawer so tablet content gets the full width.
+  const isDrawer = useMediaQuery('(max-width: 1150px)');
   const reduce = useReducedMotion();
   const navGroupId = useId();
   const access = useAdminAccess();
 
   useEffect(() => {
-    if (!isMobile && opened) setOpened(false);
-  }, [isMobile, opened]);
+    if (!isDrawer && opened) setOpened(false);
+  }, [isDrawer, opened]);
 
   useEffect(() => {
     if (!opened) return;
@@ -103,7 +104,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
       <aside
         className={`admin-sidebar ${opened ? 'is-open' : ''}`}
         aria-label="Điều hướng quản trị"
-        inert={Boolean(isMobile && !opened)}
+        inert={Boolean(isDrawer && !opened)}
       >
         <Link className="admin-brand" to={navigationHref("/admin")}>
           <AdminIcon name="auto_stories" />
