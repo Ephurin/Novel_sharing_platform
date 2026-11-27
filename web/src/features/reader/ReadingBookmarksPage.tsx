@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Accordion, ActionIcon, Stack } from '@mantine/core';
 import { Link, useSearchParams } from 'react-router-dom';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
+import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
+import { homeCrumb, publicHomeCrumb } from '../../shared/components/navigation';
 import { useReadingBookmarks } from './useReadingBookmarks';
 import { readingBookmarkHref, type ReadingBookmarkEntry } from './reader-api';
 import './reading-bookmarks.css';
@@ -64,7 +66,10 @@ export function ReadingBookmarksPage({ publicMode = false }: { publicMode?: bool
   const novelId = params.get('novelId') || undefined;
   return <section className="sc-reading-bookmarks-page">
     <header className="sc-reading-bookmarks-header">
-      <h1 className="text-page-title">Đoạn đã đánh dấu</h1>
+      <div className="flex flex-col gap-1">
+        <Breadcrumbs items={[publicMode ? publicHomeCrumb : homeCrumb, { label: 'Đoạn đã đánh dấu' }]} />
+        <h1 className="text-page-title">Đoạn đã đánh dấu</h1>
+      </div>
       {publicMode && <Link to={navigationHref('/public')} className="sc-button">Danh sách truyện</Link>}
     </header>
     {novelId && <p className="sc-reading-bookmarks-filter"><Link to={publicMode ? navigationHref('/public/bookmarks') : navigationHref('/reader/bookmarks')} className="sc-review-link">Xem tất cả truyện</Link></p>}

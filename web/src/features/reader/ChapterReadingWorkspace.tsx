@@ -292,7 +292,8 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
         setToolsOpen(value => !value);
       }}>
       <header className="sc-reader-chapter-heading">
-        {novel?.title && <p className="sc-reader-novel-name">{novel.title}</p>}
+        {/* UI-19: a visible way out of the chapter, not only the icon rail. */}
+        {novel?.title && <p className="sc-reader-novel-name"><Link to={novelPath} className="sc-reader-back-link" aria-label={`Quay lại trang truyện ${novel.title}`}><Icon name="arrow_back" />{novel.title}</Link></p>}
         <h1 ref={heading} tabIndex={-1}>{chapterDisplayTitle(chapter)}</h1>
         <div className="sc-reader-chapter-meta">
           {chapter.wordCount != null && <span>{chapter.wordCount.toLocaleString('vi-VN')} từ</span>}

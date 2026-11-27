@@ -258,7 +258,7 @@ jobs:
           STORYCRAFT_URL_TEST_ORIGIN: http://localhost:8080
         run: |
           docker compose up -d --build --no-deps web
-          curl --fail --retry 15 --retry-connrefused --retry-delay 1 "$STORYCRAFT_URL_TEST_ORIGIN/" >/dev/null
+          curl --fail --retry 15 --retry-all-errors --retry-delay 1 --max-time 3 "$STORYCRAFT_URL_TEST_ORIGIN/api/v1/health" >/dev/null
           node --test web/tests/url-reader-stack.browser.test.mjs
       - name: Show service status
         if: always()

@@ -5,6 +5,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import {createServer} from 'vite';
 import {chromium,expect} from '@playwright/test';
+import { openPlanning, backToDraftButton } from './helpers/studio-planning.mjs';
 
 // Actual Vite main.tsx -> app/router.tsx -> AuthGate -> AuthorWritingIde.
 // Only HTTP is recorded/faked; this suite does not claim browser-to-database E2E.
@@ -70,7 +71,7 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
  const choose=async(label,value)=>{await page.getByRole('textbox',{name:label,exact:true}).click();await page.getByRole('option',{name:value,exact:true}).click();};
  try{
   await page.goto(origin+'author/ide?novelId='+A,{waitUntil:'domcontentloaded',timeout:90000});
-  await button('Lập kế hoạch').click();await expect(page.getByRole('region',{name:'Planning Studio'})).toBeVisible();
+  await openPlanning(page);await expect(page.getByRole('region',{name:'Planning Studio'})).toBeVisible();
   await expect(page.getByText('Chưa kích hoạt thiết lập',{exact:true})).toBeVisible();
   assert.equal(writes.length,0);
   await page.getByLabel('Ý tưởng & hướng đi (tương lai)',{exact:true}).fill('An Thành và bầu trời bị phong ấn');
@@ -78,7 +79,7 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
   await step('Nhân vật').click();for(let i=1;i<=2;i++){await button('Thêm nhân vật hoặc địa danh').click();await page.getByLabel('Tên '+i,{exact:true}).fill('Minh');}
   await step('Ý tưởng').click();await expect(page.getByLabel('Ý tưởng & hướng đi (tương lai)',{exact:true})).toHaveValue('An Thành và bầu trời bị phong ấn');
   assert.equal(writes.length,0,'typing/navigation must not mutate server');
-  await page.reload();await button('Lập kế hoạch').click();await button('Khôi phục thiết lập').click();
+  await page.reload();await openPlanning(page);await button('Khôi phục thiết lập').click();
   await step('Nhân vật').click();await expect(page.getByLabel('Tên 2',{exact:true})).toHaveValue('Minh');
   await button('Lưu và xử lý thiết lập').click();await expect(page.getByText('Tác giả khai báo',{exact:true})).toHaveCount(2);
   const submit=writes.find(w=>w.path.endsWith('/from-idea')).body;
@@ -101,7 +102,7 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
   await button('Xuống chương 1').click();planConflict=true;await button('Lưu bản nháp dàn ý').click();await expect(page.getByRole('alert').filter({hasText:'PLAN_VERSION_CONFLICT'})).toBeVisible();
   await button('Tải lại dàn ý').click();await expect(page.getByLabel('Tiêu đề chương 2',{exact:true})).toHaveValue('Gặp Minh');
   const attempted=writes.filter(w=>w.path.includes('edit-v1')).at(-1).body;assert.equal(attempted.objectives[1].objective_id,saved.objectives[0].objective_id);assert.deepEqual(attempted.objectives[1].events,saved.objectives[0].events);
-  await page.reload();await button('Lập kế hoạch').click();await step('Dàn ý chương').click();await expect(page.getByLabel('Tiêu đề chương 1',{exact:true})).toBeDisabled();await expect(button('Lưu bản nháp dàn ý')).toBeDisabled();await expect(button('Không dùng kế hoạch')).toBeDisabled();await expect(page.getByRole('textbox',{name:'Phiên bản đã lưu',exact:true})).toBeDisabled();await button('Khôi phục bản sửa dàn ý').click();await expect(page.getByLabel('Tiêu đề chương 2',{exact:true})).toHaveValue('Gặp Minh');
+  await page.reload();await openPlanning(page);await step('Dàn ý chương').click();await expect(page.getByLabel('Tiêu đề chương 1',{exact:true})).toBeDisabled();await expect(button('Lưu bản nháp dàn ý')).toBeDisabled();await expect(button('Không dùng kế hoạch')).toBeDisabled();await expect(page.getByRole('textbox',{name:'Phiên bản đã lưu',exact:true})).toBeDisabled();await button('Khôi phục bản sửa dàn ý').click();await expect(page.getByLabel('Tiêu đề chương 2',{exact:true})).toHaveValue('Gặp Minh');
   await button('Dùng bản máy chủ, bỏ bản sửa').click();planConflict=false;await expect(page.getByLabel('Tiêu đề chương 1',{exact:true})).toHaveValue('Gặp Minh');
   await step('Bắt đầu viết').click();assert.equal(writes.filter(w=>w.path.endsWith('/chapters')).length,0);
   await button('Tạo bản nháp chương mới').click();await expect(page.getByText(/OFFLINE_CREATE_RETRY/).first()).toBeVisible();await button('Tạo bản nháp chương mới').click();
@@ -110,7 +111,7 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
   await expect(page.getByPlaceholder('Bắt đầu câu từ chương truyện của bạn tại đây...')).toBeEditable();
   const creates=writes.filter(w=>w.path.endsWith('/chapters'));assert.equal(creates.length,2);assert.equal(creates[0].body.clientRequestId,creates[1].body.clientRequestId);assert.equal(creates[1].body.content,'');
   await page.getByPlaceholder('Bắt đầu câu từ chương truyện của bạn tại đây...').fill('Minh bước vào An Thành.');
-  await button('Lập kế hoạch').click();
+  await openPlanning(page);
   // Opening Planning flushes the Writer draft; wait for the PATCH to reach the mock instead of counting right after the click.
   await expect.poll(()=>writes.some(w=>w.method==='PATCH'&&w.body.content==='Minh bước vào An Thành.'),{timeout:5000}).toBe(true);
   await button('Đọc trạng thái mới').click();await expect(page.getByText(/Đã xác minh bản lưu đầu tiên/)).toBeVisible();
@@ -143,7 +144,7 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
   await page.evaluate(async()=>{const {useAuthStore}=await import('/src/features/auth/useAuthStore.ts');useAuthStore.getState().clearSession();});await expect(page).toHaveURL(/\/login/);
   await page.getByLabel('Email hoặc tên đăng nhập',{exact:true}).fill('offline-author');await page.getByLabel('Mật khẩu',{exact:true}).fill('offline-test-only');await button('Đăng nhập').click();await expect(page).toHaveURL(/\/author$/);
   await page.evaluate(async id=>{const {router}=await import('/src/app/router.tsx');await router.navigate('/author/ide?novelId='+id);},A);
-  await button('Lập kế hoạch').click();await step('Dàn ý chương').click();await button('Khôi phục bản sửa dàn ý').click();await expect(page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true})).toHaveValue('DevicePrivateOnly');
+  await openPlanning(page);await step('Dàn ý chương').click();await button('Khôi phục bản sửa dàn ý').click();await expect(page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true})).toHaveValue('DevicePrivateOnly');
   assert.equal(errors.length,0,errors.join('\n'));
   if(out)await writeFile(join(out,'mounted-readback.json'),JSON.stringify({route:page.url(),label:'Chromium actual app + HTTP mocks, not DB E2E',writes,errors},null,2));
  }catch(e){console.error('UI_DIAGNOSTIC',{url:page.url(),errors,recoveryTrace});if(out)await page.screenshot({path:join(out,'failure.png'),fullPage:true});throw e;}finally{releaseSummary();await browser.close();await server.close();}

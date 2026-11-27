@@ -225,7 +225,9 @@ export async function listReadingFilters() {
   const result = await getPostgresPool().query(`
     select
       coalesce((select json_agg(name order by name) from genres), '[]'::json) as genres,
-      coalesce((select json_agg(name order by name) from tags), '[]'::json) as tags
+      -- UI-18: tags that only repeat a genre name (Cyberpunk/cyberpunk) are not listed twice.
+      coalesce((select json_agg(t.name order by t.name) from tags t
+        where not exists (select 1 from genres g where lower(g.name) = lower(t.name) or g.slug = t.slug)), '[]'::json) as tags
   `);
   return result.rows[0] as { genres: string[]; tags: string[] };
 }
@@ -336,7 +338,10 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
         )
         and not exists (select 1 from unnest($2::text[]) as selected(value) where not (coalesce(lower(g.slug) = selected.value or lower(g.name) = selected.value, false) or exists (
           select 1 from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
-          where ng.novel_id = n.novel_id and (lower(gg.slug) = selected.value or lower(gg.name) = selected.value))))
+          where ng.novel_id = n.novel_id and (lower(gg.slug) = selected.value or lower(gg.name) = selected.value)) or exists (
+          -- UI-18: a tag that repeats a genre name is folded into that genre in the filter list.
+          select 1 from novel_tags ntg join tags tg on tg.tag_id = ntg.tag_id
+          where ntg.novel_id = n.novel_id and (lower(tg.slug) = selected.value or lower(tg.name) = selected.value))))
         and not exists (select 1 from unnest($3::text[]) as selected(value) where not exists (
           select 1 from novel_tags ntf join tags tf on tf.tag_id = ntf.tag_id
           where ntf.novel_id = n.novel_id and (lower(tf.slug) = selected.value or lower(tf.name) = selected.value)))
@@ -376,7 +381,10 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
         )
         and not exists (select 1 from unnest($2::text[]) as selected(value) where not (coalesce(lower(g.slug) = selected.value or lower(g.name) = selected.value, false) or exists (
           select 1 from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
-          where ng.novel_id = n.novel_id and (lower(gg.slug) = selected.value or lower(gg.name) = selected.value))))
+          where ng.novel_id = n.novel_id and (lower(gg.slug) = selected.value or lower(gg.name) = selected.value)) or exists (
+          -- UI-18: a tag that repeats a genre name is folded into that genre in the filter list.
+          select 1 from novel_tags ntg join tags tg on tg.tag_id = ntg.tag_id
+          where ntg.novel_id = n.novel_id and (lower(tg.slug) = selected.value or lower(tg.name) = selected.value))))
         and not exists (select 1 from unnest($3::text[]) as selected(value) where not exists (
           select 1 from novel_tags ntf join tags tf on tf.tag_id = ntf.tag_id
           where ntf.novel_id = n.novel_id and (lower(tf.slug) = selected.value or lower(tf.name) = selected.value)))

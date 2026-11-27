@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
 import { Pool } from 'pg';
 import type { AddressInfo } from 'node:net';
 
@@ -18,7 +17,13 @@ test('author launch checklist: scheduled publication, profile metadata, notifica
     const pg=await import('../../core/database/postgres.js'), mongo=await import('../../core/database/mongo.js');
     closePostgres=pg.disconnectPostgres; closeMongo=mongo.disconnectMongo; dropMongo=()=>mongo.getMongoDatabase().dropDatabase();
     const pool=pg.getPostgresPool();
-    for(const name of ['001_auth_user_wallet','002_novels','003_chapters','004_content_control','005_reports_description','006_reading_interactions','007_wallet_transactions','008_authoring_context','009_chapter_revisions','010_analysis_outbox','011_outbox_claim_token','012_reports_unique_open','012_novel_engagement','013_novel_review_text','014_novel_editorial_metadata','015_author_workflow','016_author_launch_checklist','017_transactional_moderation_evidence','018_admin_operations','019_admin_job_retries','021_novel_notification_subscriptions','025_admin_novel_draft_sync','042_moderator_role','043_user_access_version','044_chapter_notifications_moderator_capability','039_discussions','053_url_identifiers']) await pool.query(await readFile(new URL(`../../core/database/migrations/${name}.sql`,import.meta.url),'utf8'));
+    const { runPostgresMigrations } = await import('../../core/database/migrate.js');
+    const migrationClient = await pool.connect();
+    try {
+      await runPostgresMigrations(migrationClient);
+    } finally {
+      migrationClient.release();
+    }
     const author=randomUUID(),reader=randomUUID(),other=randomUUID(),admin=randomUUID(),outsider=randomUUID();
     for(const [id,role] of [[author,'AUTHOR'],[reader,'READER'],[other,'READER'],[admin,'ADMIN'],[outsider,'AUTHOR']]) {
       await pool.query(`insert into users (user_id,email,username,password_hash,role) values ($1::uuid,$2,$1::text,'hash',$3)`,[id,id+'@test.invalid',role]);
@@ -65,6 +70,11 @@ test('author launch checklist: scheduled publication, profile metadata, notifica
     assert.equal((await req('/reading/chapters/'+id)).status,404);
     await scheduler.publishDueChapters();assert.equal((await data(id)).status,'DRAFT');
     await due(id);await Promise.all([scheduler.publishDueChapters(),scheduler.publishDueChapters()]);
+    // Every publication, scheduled or not, waits for an admin decision before readers can see it.
+    assert.equal((await data(id)).status,'PENDING_MODERATION');assert.equal((await data(id)).publicationSchedule.status,'PENDING_MODERATION');
+    assert.equal((await req('/reading/chapters/'+id)).status,404);
+    const scheduledReview=(await pool.query('select moderation_review_id from chapter_publication_schedules where chapter_id=$1',[id])).rows[0].moderation_review_id;
+    assert.equal((await req('/admin/moderation/reviews/'+scheduledReview+'/resolve','POST',{decision:'APPROVED'},adminToken)).status,200);
     assert.equal((await data(id)).status,'PUBLISHED');assert.equal((await data(id)).publicationSchedule.status,'PUBLISHED');
     assert.equal((await req('/reading/chapters/'+id)).body.data.content,publishable('Scheduled text'));
     await scheduler.publishDueChapters();assert.equal((await pool.query("select count(*)::int as n from notification_events where type='CHAPTER_SCHEDULE'")).rows[0].n,1);
@@ -106,14 +116,18 @@ test('author launch checklist: scheduled publication, profile metadata, notifica
     await req('/chapters/'+moderated,'PATCH',{content:'Unreviewed new draft',expectedVersion:pending.draft.version},authorToken);
     assert.equal((await req('/admin/moderation/reviews/'+review+'/resolve','POST',{decision:'APPROVED'},adminToken)).status,200);
     const approved=await data(moderated);assert.equal(approved.content,publishable('flagged-schedule original content'));assert.equal(approved.draft.content,'Unreviewed new draft');assert.equal(approved.publicationSchedule.status,'PUBLISHED');
-    // An older review cannot overwrite a newer version that has already passed publication.
+    // While a scheduled submission waits for review, a newer version cannot be submitted over it;
+    // approving the pending review publishes exactly the version that was submitted.
     const stale=await create(publishable('flagged-schedule stale submission'));await req('/chapters/'+stale+'/schedule','POST',await plan(stale),authorToken);await due(stale);await scheduler.publishDueChapters();
     const staleDraft=await data(stale);const oldReview=(await pool.query('select moderation_review_id from chapter_publication_schedules where chapter_id=$1',[stale])).rows[0].moderation_review_id;
     assert.equal((await req('/chapters/'+stale+'/archive','POST',{},authorToken)).status,409);
     await req('/chapters/'+stale,'PATCH',{content:publishable('Clean new version'),expectedVersion:staleDraft.draft.version},authorToken);
-    assert.equal((await req('/chapters/'+stale+'/submit-publish','POST',{},authorToken)).status,200);
-    assert.equal((await req('/admin/moderation/reviews/'+oldReview+'/resolve','POST',{decision:'APPROVED'},adminToken)).status,409);
-    assert.equal((await data(stale)).content,publishable('Clean new version'));assert.equal((await data(stale)).publicationSchedule.status,'CANCELLED');
+    const resubmit=await req('/chapters/'+stale+'/submit-publish','POST',{},authorToken);
+    assert.equal(resubmit.status,409);assert.equal(resubmit.body.error.code,'CONTENT_REVIEW_PENDING');
+    assert.equal((await req('/admin/moderation/reviews/'+oldReview+'/resolve','POST',{decision:'APPROVED'},adminToken)).status,200);
+    const staleApproved=await data(stale);
+    assert.equal(staleApproved.content,publishable('flagged-schedule stale submission'));assert.equal(staleApproved.draft.content,publishable('Clean new version'));
+    assert.equal(staleApproved.publicationSchedule.status,'PUBLISHED');
     // New reader interactions and income each create durable, recipient-scoped events.
     assert.equal((await req('/novels/'+novel+'/rating','PUT',{score:8,review:'Reader review'},readerToken)).status,200);
     await req('/novels/'+novel+'/rating','PUT',{score:8,review:'Reader review'},readerToken);

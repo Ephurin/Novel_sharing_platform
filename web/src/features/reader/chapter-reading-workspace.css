@@ -23,6 +23,9 @@
 .sc-reader-chapter-heading h1 { margin: 0; color: var(--reader-ink); font: 700 24px/32px var(--sc-font); overflow-wrap: anywhere; }
 .sc-reader-chapter-heading h1:focus { outline: none; }
 .sc-reader-novel-name { margin: 0 0 12px; color: var(--reader-muted); font: 500 14px/22px var(--sc-font); }
+.sc-reader-back-link { display: inline-flex; align-items: center; gap: 4px; color: inherit; text-decoration: none; }
+.sc-reader-back-link:hover { color: var(--sc-primary-text); text-decoration: underline; }
+.sc-reader-back-link .material-symbols-outlined { font-size: 18px; }
 .sc-reader-chapter-meta { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 12px; color: var(--reader-muted); font-size: 12px; }
 .sc-reader-chapter-meta button { display: inline-flex; align-items: center; justify-content: center; color: var(--reader-muted); border: 0; background: transparent; }
 .sc-reader-chapter-meta button:hover { color: var(--reader-accent); }

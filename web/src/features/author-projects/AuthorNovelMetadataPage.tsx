@@ -440,7 +440,8 @@ export function AuthorNovelMetadataPage() {
                       type="button"
                       onClick={() => submitPublishMutation.mutate()}
                       disabled={submitPublishMutation.isPending || novel.status === 'PUBLISHED' || novel.status === 'PENDING_MODERATION'}
-                      className="sc-button sc-button-primary disabled:opacity-40"
+                      title={novel.status === 'PUBLISHED' ? 'Tác phẩm đã xuất bản; chương mới được gửi duyệt riêng.' : novel.status === 'PENDING_MODERATION' ? 'Tác phẩm đang chờ duyệt.' : undefined}
+                      className="sc-button sc-button-primary"
                       data-testid="submit-publish-btn"
                     >
                       <span className="material-symbols-outlined" aria-hidden="true">publish</span>
@@ -805,7 +806,8 @@ export function AuthorNovelMetadataPage() {
                             <button
                               onClick={() => openIde(chapter.chapterId)}
                               disabled={chapter.status === 'ARCHIVED'}
-                              className="px-2.5 py-1 rounded bg-primary-600 text-white font-label-sm text-meta hover:bg-primary-700 transition-colors font-medium cursor-pointer shadow-2xs"
+                              className="px-2.5 py-1 rounded border border-stone-200 bg-white text-stone-700 font-label-sm text-meta hover:bg-stone-50 transition-colors font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                              title={chapter.status === 'ARCHIVED' ? 'Chương đã lưu trữ, khôi phục trước khi mở Studio.' : undefined}
                               type="button"
                             >
                               Mở Studio

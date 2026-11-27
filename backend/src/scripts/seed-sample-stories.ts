@@ -35,7 +35,7 @@ const storySeeds: StorySeed[] = [
     synopsis:
       'A sample fantasy novel used for local reader and author workflow testing. It follows Kael Draven after the fall of Ashenhold, with published chapters available for search, detail, chapter reading, history, library, and interaction checks.',
     genre: 'Fantasy',
-    tags: ['sample', 'fantasy', 'test-story'],
+    tags: ['sample', 'test-story'],
     chapterIds: [
       'c660bede-0493-4a46-97f2-6d01c8ddd3db',
       '4332c8ab-b251-4cc0-ac91-329844c73501',
@@ -57,7 +57,7 @@ const storySeeds: StorySeed[] = [
     synopsis:
       'A second sample cultivation fantasy novel used for local reader workflow testing. It provides a smaller published story set for validating search, reader detail, chapter content, comments, library, and reading history flows.',
     genre: 'Cultivation',
-    tags: ['sample', 'cultivation', 'test-story'],
+    tags: ['sample', 'test-story'],
     chapterIds: [
       'd5dfd32b-a71e-48ce-b665-9d70624e9735',
       '1c9d99b6-215e-41f7-a144-b91eed06ba02',
@@ -138,11 +138,12 @@ function parseChapters(markdown: string) {
   return matches.map((match, index) => {
     const startIndex = match.index ?? 0;
     const endIndex = matches[index + 1]?.index ?? markdown.length;
-    const rawContent = markdown.slice(startIndex, endIndex).trim();
+    // The "# Chương N: …" heading is the chapter title; the reader page already shows it above the text.
+    const body = markdown.slice(startIndex + match[0].length, endIndex).trim();
 
     return {
       title: match[1].trim(),
-      content: rawContent
+      content: body
     };
   });
 }

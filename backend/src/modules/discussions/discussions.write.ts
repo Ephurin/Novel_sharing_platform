@@ -295,15 +295,31 @@ export async function createComment(
     await refreshTopicActivity(client, topicId);
 
     if (notificationUserId !== null && notificationUserId !== auth.userId) {
+      // UI-14: say who replied and in which topic, so the reader can tell notices apart.
+      const { rows: context } = await client.query<{ actor_name: string; topic_title: string }>(
+        `select coalesce(nullif(p.display_name, ''), u.username, 'Một thành viên') as actor_name,
+                t.title as topic_title
+           from discussion_topics t
+           left join users u on u.user_id = $2
+           left join user_profiles p on p.user_id = u.user_id
+          where t.topic_id = $1`,
+        [topicId, auth.userId]
+      );
+      const actorName = context[0]?.actor_name ?? 'Một thành viên';
+      const topicTitle = context[0]?.topic_title ?? '';
+      const what = replyToId ? 'bình luận của bạn' : 'chủ đề của bạn';
       await enqueueNotification(client, {
         eventKey: `discussion-comment:${commentId}`,
         userId: notificationUserId,
         type: 'DISCUSSION_REPLY',
-        title: 'Có phản hồi mới trong thảo luận',
-        content: 'Ai đó đã trả lời trong một thảo luận bạn quan tâm.',
+        title: topicTitle ? `Phản hồi mới trong "${topicTitle}"` : 'Có phản hồi mới trong thảo luận',
+        content: `${actorName} đã trả lời ${what}${topicTitle ? ` trong "${topicTitle}"` : ''}.`,
         payload: {
           topicId,
           commentId,
+          actorName,
+          topicTitle,
+          replyKind: replyToId ? 'COMMENT' : 'TOPIC',
           href: `/discussions/${topicId}?commentId=${commentId}#comment-${commentId}`,
         },
       });

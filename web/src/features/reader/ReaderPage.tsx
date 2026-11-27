@@ -21,7 +21,7 @@ import type { ReactNode } from 'react';
 import { getApiErrorMessage } from '../../shared/api/api-client';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { Breadcrumbs, type BreadcrumbItem } from '../../shared/components/Breadcrumbs';
-import { navigationLabels, readerHomeCrumb } from '../../shared/components/navigation';
+import { homeCrumb, navigationLabels, readerHomeCrumb } from '../../shared/components/navigation';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
 import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import { ReaderNotFound, isReaderNotFound } from './ReaderNotFound';
@@ -113,13 +113,14 @@ export function ReaderNovelDetailPage() {
         />
       ) : null}
 
-      <section id="reader-reviews" className="sc-reader-detail-section sc-reader-reviews-compact-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact reviewsPath={novelHref({ novelId, novelSlug: novel?.novelSlug }, '/reader', true)} /></section>
+      {/* UI-15: the chapter list comes first; readers need it most. */}
       <NovelChapterCatalog
         chapters={chapters}
         novelSlug={novel?.novelSlug}
         readChapterIds={readChapterIds}
         onReadFirst={firstChapter ? () => navigate(chapterHref({ ...firstChapter, novelSlug: novel?.novelSlug })) : undefined}
       />
+      <section id="reader-reviews" className="sc-reader-detail-section sc-reader-reviews-compact-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact reviewsPath={novelHref({ novelId, novelSlug: novel?.novelSlug }, '/reader', true)} /></section>
       <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} authorFeedback={<AuthorPrivateFeedback target={{ kind: 'novel', id: novelId }} />} /></section>
     </div>
   );
@@ -149,7 +150,7 @@ export function PublicReaderNovelDetailPage() {
       {novelQuery.isError ? <ErrorState error={novelQuery.error} onRetry={() => void novelQuery.refetch()} /> : null}
       {novel ? (
         <>
-          <Breadcrumb back={{ to: navigationHref('/public'), label: 'Thư viện công khai' }} current={novel.title} />
+          <Breadcrumb back={{ to: navigationHref('/public'), label: navigationLabels.publicHome }} current={novel.title} />
           <NovelOverview
             novel={novel}
             chapters={chapters}
@@ -163,8 +164,8 @@ export function PublicReaderNovelDetailPage() {
               </>
             }
           />
-          <section id="reader-reviews" className="sc-reader-detail-section sc-reader-reviews-compact-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact reviewsPath={novelHref(novel, '/public', true)} /></section>
           <NovelChapterCatalog chapters={chapters} novelSlug={novel.novelSlug} publicMode readChapterIds={readChapterIds} />
+          <section id="reader-reviews" className="sc-reader-detail-section sc-reader-reviews-compact-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact reviewsPath={novelHref(novel, '/public', true)} /></section>
           <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} authorFeedback={<AuthorPrivateFeedback target={{ kind: 'novel', id: novelId }} />} /></section>
         </>
       ) : null}
@@ -212,7 +213,7 @@ export function ReaderLibraryPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader crumbs={[readerHomeCrumb, { label: 'Thư viện của tôi' }]} title="Thư viện của tôi" />
+      <PageHeader crumbs={[homeCrumb, { label: 'Thư viện của tôi' }]} title="Thư viện của tôi" />
       <section className="flex flex-col gap-4">
         <SectionHeading title="Truyện đang theo dõi" count={libraryQuery.isSuccess ? `${novels.length} truyện` : undefined} />
         <QueryStates
@@ -255,7 +256,7 @@ export function ReaderHistoryPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader crumbs={[readerHomeCrumb, { label: 'Lịch sử đọc' }]} title="Lịch sử đọc" />
+      <PageHeader crumbs={[homeCrumb, { label: 'Lịch sử đọc' }]} title="Lịch sử đọc" />
       <section className="flex flex-col gap-4">
         <SectionHeading title="Đọc gần đây" count={historyQuery.isSuccess ? `${items.length} truyện` : undefined} />
         <QueryStates

@@ -5,6 +5,7 @@ import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createServer } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { openPlanning, backToDraftButton } from './helpers/studio-planning.mjs';
 
 // P2-07B Regression Test Suite (Updated for GPT-6 Review Evidence):
 // UX-03: World Setup Review Accessibility
@@ -288,7 +289,7 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
 
     console.log('--- TEST 1: Rule-Only Setup — Submit & Review directly in World Step ---');
     await page.goto(origin + 'author/ide?novelId=' + novelA, { waitUntil: 'domcontentloaded', timeout: 90000 });
-    await button('Lập kế hoạch').click();
+    await openPlanning(page);
     await expect(page.getByRole('region', { name: 'Planning Studio' })).toBeVisible();
 
     // Navigate to World step
@@ -334,7 +335,7 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
     // Clear and reset for mixed setup
     delete setupStates[novelA];
     await page.reload();
-    await button('Lập kế hoạch').click();
+    await openPlanning(page);
 
     // Add rule in World step
     await step('Thế giới').click();
@@ -469,7 +470,7 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
     // Verify page reload in completed state renders green alert without submit button or auto-POST
     const writesBeforeReload = writes.length;
     await page.reload();
-    await button('Lập kế hoạch').click();
+    await openPlanning(page);
     await step('Thế giới').click();
     await expect(page.getByText('Đã lưu quyết định duyệt.')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Lưu quyết định toàn nhóm' })).toHaveCount(0);
@@ -489,7 +490,7 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
     }, { novelA, snapId: completedSnapId });
 
     await page.reload();
-    await button('Lập kế hoạch').click();
+    await openPlanning(page);
     await step('Thế giới').click();
 
     // Verify stale draft warning is displayed and auto-submission is blocked
@@ -541,7 +542,7 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
     };
 
     await page.goto(origin + 'author/ide?novelId=' + novelA, { waitUntil: 'domcontentloaded' });
-    await button('Lập kế hoạch').click();
+    await openPlanning(page);
     await step('Thế giới').click();
 
     await choose('Quyết định thẻ 1', 'Duyệt');
@@ -601,7 +602,7 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
     });
 
     await page.goto(origin + 'author/ide?novelId=' + novelC, { waitUntil: 'domcontentloaded' });
-    await button('Lập kế hoạch').click();
+    await openPlanning(page);
     await step('Thế giới').click();
 
     // Verify Author A's secret choices are NOT rendered for Author B
@@ -635,7 +636,7 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
     });
 
     await page.goto(origin + 'author/ide?novelId=' + novelA, { waitUntil: 'domcontentloaded' });
-    await button('Lập kế hoạch').click();
+    await openPlanning(page);
     await step('Thế giới').click();
 
     const recoverBtn = page.getByRole('button', { name: 'Khôi phục quyết định' });
@@ -676,7 +677,7 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
 
     // Navigate to novelB
     await page.goto(origin + 'author/ide?novelId=' + novelB, { waitUntil: 'domcontentloaded' });
-    await button('Lập kế hoạch').click();
+    await openPlanning(page);
     await step('Thế giới').click();
 
     // Verify novelB does NOT show novelA draft choices
@@ -703,7 +704,7 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
 
     // Navigate back to novelA and confirm novelA choices are preserved
     await page.goto(origin + 'author/ide?novelId=' + novelA, { waitUntil: 'domcontentloaded' });
-    await button('Lập kế hoạch').click();
+    await openPlanning(page);
     await step('Thế giới').click();
 
     const recoverBtnA = page.getByRole('button', { name: 'Khôi phục quyết định' });

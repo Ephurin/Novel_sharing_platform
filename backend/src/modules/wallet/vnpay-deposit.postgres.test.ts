@@ -51,7 +51,7 @@ describe('VNPay sandbox deposits', () => {
     const fields: Record<string, string> = {
       vnp_Amount: '5000000',
       vnp_BankCode: 'NCB',
-      vnp_OrderInfo: 'Nap 500 Xu Ephurin',
+      vnp_OrderInfo: 'Nap 500 Xu StoryCraft',
       vnp_PayDate: '20261125101500',
       vnp_ResponseCode: '00',
       vnp_TmnCode: 'TESTCODE',

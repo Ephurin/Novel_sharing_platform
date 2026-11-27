@@ -2,6 +2,7 @@ import { novelHref } from '../../shared/routes';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { ReaderFilterBar } from './ReaderFilterBar';
 import { useAuthStore } from '../auth/useAuthStore';
 import { getReadingFilters, searchPublishedNovelPage, type ReaderNovel } from './reader-api';
 import {
@@ -20,8 +21,6 @@ import {
 import './search-results.css';
 
 const PAGE_SIZE = 15;
-const GENRE_PREVIEW_LIMIT = 8;
-const TAG_PREVIEW_LIMIT = 10;
 
 const placeholderVariants = ['violet', 'beige', 'sage', 'blue', 'night', 'rose'] as const;
 const placeholderSymbols = ['✦', '☁', '✺', '❋', '✧', '❧', '◌', '⌛'] as const;
@@ -54,21 +53,6 @@ function buildPaginationRange(current: number, total: number): Array<number | 'e
   return pages;
 }
 
-function sliceWithSelected(options: string[], selected: string[], limit: number, expanded: boolean) {
-  if (expanded || options.length <= limit) {
-    return { visible: options, hiddenCount: 0 };
-  }
-  const selectedSet = new Set(selected);
-  const ordered = [
-    ...options.filter((item) => selectedSet.has(item)),
-    ...options.filter((item) => !selectedSet.has(item))
-  ];
-  const take = Math.max(limit, selected.length);
-  return {
-    visible: ordered.slice(0, take),
-    hiddenCount: Math.max(0, ordered.length - take)
-  };
-}
 
 export function SearchResultsPage({ advanced = false }: { advanced?: boolean }) {
   const user = useAuthStore((s) => s.user);
@@ -84,8 +68,6 @@ export function SearchResultsPage({ advanced = false }: { advanced?: boolean }) 
 
   const urlState = useMemo(() => parseSearchParams(searchParams), [searchParams]);
   const [draft, setDraft] = useState<SearchQueryState>(urlState);
-  const [genresExpanded, setGenresExpanded] = useState(false);
-  const [tagsExpanded, setTagsExpanded] = useState(false);
 
   // Keep form inputs synchronized with URL on Back/Forward or external navigation
   useEffect(() => {
@@ -103,8 +85,7 @@ export function SearchResultsPage({ advanced = false }: { advanced?: boolean }) 
   const taxonomyQuery = useQuery({
     queryKey: ['reading-filters'],
     queryFn: getReadingFilters,
-    staleTime: 60_000,
-    enabled: advanced
+    staleTime: 60_000
   });
 
   useEffect(() => {
@@ -121,11 +102,8 @@ export function SearchResultsPage({ advanced = false }: { advanced?: boolean }) 
   const urlFilterCount =
     urlState.genres.length + urlState.tags.length + (urlState.status ? 1 : 0);
 
-  const genreOptions = [...new Set([...(taxonomyQuery.data?.genres ?? []), ...draft.genres])];
-  const tagOptions = [...new Set([...(taxonomyQuery.data?.tags ?? []), ...draft.tags])];
-
-  const genreSlice = sliceWithSelected(genreOptions, draft.genres, GENRE_PREVIEW_LIMIT, genresExpanded);
-  const tagSlice = sliceWithSelected(tagOptions, draft.tags, TAG_PREVIEW_LIMIT, tagsExpanded);
+  const genreOptions = [...new Set([...(taxonomyQuery.data?.genres ?? []), ...urlState.genres])];
+  const tagOptions = [...new Set([...(taxonomyQuery.data?.tags ?? []), ...urlState.tags])];
 
   function commitSearch(
     next: Partial<SearchQueryState>,
@@ -156,15 +134,7 @@ export function SearchResultsPage({ advanced = false }: { advanced?: boolean }) 
     navigate(currentPath);
   }
 
-  function toggleDraftMulti(field: 'genres' | 'tags', item: string) {
-    setDraft((prev) => {
-      const current = prev[field];
-      const next = current.includes(item)
-        ? current.filter((x) => x !== item)
-        : [...current, item];
-      return { ...prev, [field]: next };
-    });
-  }
+
 
   function handlePageChange(nextPage: number) {
     if (nextPage === urlState.page || nextPage < 1 || nextPage > totalPages) return;
@@ -180,29 +150,6 @@ export function SearchResultsPage({ advanced = false }: { advanced?: boolean }) 
       >
         <div className="sc-search-panel-head">
           <h1 className="sc-search-title">Tìm kiếm</h1>
-          {advanced ? (
-            <Link
-              to={buildSearchUrl(SEARCH_PATH, urlState)}
-              className="sc-search-mode-link"
-              data-testid="search-basic-link"
-            >
-              <span className="material-symbols-outlined" aria-hidden="true">
-                arrow_back
-              </span>
-              <span>Tìm kiếm cơ bản</span>
-            </Link>
-          ) : (
-            <Link
-              to={buildSearchUrl(ADVANCED_SEARCH_PATH, urlState)}
-              className="sc-search-mode-link"
-              data-testid="search-advanced-link"
-            >
-              <span className="material-symbols-outlined" aria-hidden="true">
-                tune
-              </span>
-              <span>Tìm kiếm nâng cao</span>
-            </Link>
-          )}
         </div>
 
         <form onSubmit={handleFormSubmit} autoComplete="off">
@@ -246,237 +193,42 @@ export function SearchResultsPage({ advanced = false }: { advanced?: boolean }) 
                 </button>
               )}
             </div>
-            {!advanced && (
-              <button type="submit" className="sc-search-submit-btn" data-testid="search-page-submit">
-                Tìm kiếm
-              </button>
-            )}
-          </div>
-
-          {advanced && (
-            <div className="sc-search-advanced-body">
-              <div className="sc-search-advanced-row">
-                <div className="sc-search-field">
-                  <div className="sc-search-field-label">Tình trạng</div>
-                  <div className="sc-search-radio-group" role="radiogroup" aria-label="Lọc theo tình trạng">
-                    {SEARCH_STATUSES.map(([val, label]) => (
-                      <label key={val || 'all'} className="sc-search-radio-pill">
-                        <input
-                          type="radio"
-                          name="advanced-status"
-                          value={val}
-                          checked={draft.status === val}
-                          onChange={() => setDraft((prev) => ({ ...prev, status: val as SearchStatusValue }))}
-                        />
-                        <span>{label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="sc-search-field sc-search-field-sort">
-                  <label className="sc-search-field-label" htmlFor="sc-advanced-sort">
-                    Sắp xếp theo
-                  </label>
-                  <select
-                    id="sc-advanced-sort"
-                    className="sc-search-select"
-                    value={draft.sort}
-                    onChange={(event) => {
-                      const nextSort = event.target.value as SearchSortValue;
-                      setDraft((prev) => ({ ...prev, sort: nextSort }));
-                    }}
-                  >
-                    {SEARCH_SORTS.map(([val, label]) => (
-                      <option key={val} value={val}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="sc-search-field">
-                <div className="sc-search-field-label">
-                  Thể loại
-                  {draft.genres.length > 0 && (
-                    <span className="sc-search-field-badge">{draft.genres.length}</span>
-                  )}
-                </div>
-                {taxonomyQuery.isError ? (
-                  <button
-                    type="button"
-                    className="sc-search-chip-clear"
-                    onClick={() => void taxonomyQuery.refetch()}
-                  >
-                    ↻ Tải lại danh sách thể loại
-                  </button>
-                ) : genreOptions.length === 0 ? (
-                  <span className="sc-search-advanced-count">
-                    {taxonomyQuery.isPending ? 'Đang tải thể loại…' : 'Chưa có thể loại.'}
-                  </span>
-                ) : (
-                  <div className="sc-search-chip-list" translate="no">
-                    {genreSlice.visible.map((name) => (
-                      <label key={name} className="sc-search-check-chip">
-                        <input
-                          type="checkbox"
-                          value={name}
-                          checked={draft.genres.includes(name)}
-                          onChange={() => toggleDraftMulti('genres', name)}
-                        />
-                        <span>{name}</span>
-                      </label>
-                    ))}
-                    {(genreSlice.hiddenCount > 0 || (genresExpanded && genreOptions.length > GENRE_PREVIEW_LIMIT)) && (
-                      <button
-                        type="button"
-                        className="sc-search-expand-btn"
-                        aria-expanded={genresExpanded}
-                        onClick={() => setGenresExpanded((prev) => !prev)}
-                      >
-                        {genresExpanded ? 'Thu gọn' : `Xem thêm (+${genreSlice.hiddenCount})`}
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="sc-search-field">
-                <div className="sc-search-field-label">
-                  Thẻ / đặc trưng
-                  {draft.tags.length > 0 && (
-                    <span className="sc-search-field-badge">{draft.tags.length}</span>
-                  )}
-                </div>
-                {taxonomyQuery.isError ? (
-                  <button
-                    type="button"
-                    className="sc-search-chip-clear"
-                    onClick={() => void taxonomyQuery.refetch()}
-                  >
-                    ↻ Tải lại danh sách thẻ
-                  </button>
-                ) : tagOptions.length === 0 ? (
-                  <span className="sc-search-advanced-count">
-                    {taxonomyQuery.isPending ? 'Đang tải thẻ…' : 'Chưa có thẻ.'}
-                  </span>
-                ) : (
-                  <div className="sc-search-chip-list" translate="no">
-                    {tagSlice.visible.map((name) => (
-                      <label key={name} className="sc-search-check-chip">
-                        <input
-                          type="checkbox"
-                          value={name}
-                          checked={draft.tags.includes(name)}
-                          onChange={() => toggleDraftMulti('tags', name)}
-                        />
-                        <span>{name}</span>
-                      </label>
-                    ))}
-                    {(tagSlice.hiddenCount > 0 || (tagsExpanded && tagOptions.length > TAG_PREVIEW_LIMIT)) && (
-                      <button
-                        type="button"
-                        className="sc-search-expand-btn"
-                        aria-expanded={tagsExpanded}
-                        onClick={() => setTagsExpanded((prev) => !prev)}
-                      >
-                        {tagsExpanded ? 'Thu gọn' : `Xem thêm (+${tagSlice.hiddenCount})`}
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="sc-search-advanced-actions">
-                <div className="sc-search-advanced-buttons">
-                  <button
-                    type="button"
-                    className="sc-search-reset-btn"
-                    data-testid="search-advanced-reset"
-                    onClick={handleResetFilters}
-                  >
-                    ↻ Đặt lại bộ lọc
-                  </button>
-                  <button
-                    type="submit"
-                    className="sc-search-submit-btn is-compact"
-                    data-testid="search-advanced-submit"
-                  >
-                    Tìm kiếm
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </form>
-
-        {!advanced && urlFilterCount > 0 && (
-          <div className="sc-search-active-chips" aria-label="Bộ lọc đang áp dụng">
-            {urlState.status && (
-              <button
-                type="button"
-                className="sc-search-chip"
-                onClick={() => commitSearch({ status: '', page: 1 })}
-              >
-                <span>Tình trạng: {statusLabels[urlState.status]}</span>
-                <span aria-hidden="true">×</span>
-              </button>
-            )}
-            {urlState.genres.map((g) => (
-              <button
-                key={`g:${g}`}
-                type="button"
-                className="sc-search-chip"
-                onClick={() =>
-                  commitSearch({ genres: urlState.genres.filter((x) => x !== g), page: 1 })
-                }
-              >
-                <span>Thể loại: {g}</span>
-                <span aria-hidden="true">×</span>
-              </button>
-            ))}
-            {urlState.tags.map((t) => (
-              <button
-                key={`t:${t}`}
-                type="button"
-                className="sc-search-chip"
-                onClick={() =>
-                  commitSearch({ tags: urlState.tags.filter((x) => x !== t), page: 1 })
-                }
-              >
-                <span>Thẻ: {t}</span>
-                <span aria-hidden="true">×</span>
-              </button>
-            ))}
-            <button type="button" className="sc-search-chip-clear" onClick={handleResetFilters}>
-              Xóa bộ lọc
+            <button type="submit" className="sc-search-submit-btn" data-testid="search-page-submit">
+              Tìm kiếm
             </button>
           </div>
-        )}
+
+        </form>
+
+        {/* UI-18: the same filter bar as Danh sách truyện; choices apply at once and keep the keywords. */}
+        <ReaderFilterBar
+          value={{ genres: urlState.genres, tags: urlState.tags, status: urlState.status }}
+          genreOptions={genreOptions}
+          tagOptions={tagOptions}
+          statuses={SEARCH_STATUSES}
+          taxonomy={{ pending: taxonomyQuery.isPending, error: taxonomyQuery.isError, retry: () => void taxonomyQuery.refetch() }}
+          onChange={(patch) => commitSearch({ ...patch, status: (patch.status ?? urlState.status) as SearchStatusValue, page: 1 })}
+          onReset={handleResetFilters}
+          trailing={
+            <div className="sc-search-sort-wrap">
+              <label htmlFor="sc-search-quick-sort">Sắp xếp</label>
+              <select
+                id="sc-search-quick-sort"
+                className="sc-search-select"
+                value={urlState.sort}
+                onChange={(event) => commitSearch({ sort: event.target.value as SearchSortValue, page: 1 })}
+              >
+                {SEARCH_SORTS.map(([val, label]) => (
+                  <option key={val} value={val}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          }
+        />
       </section>
 
-      {!advanced && (
-        <div className="sc-search-meta-bar">
-          <div className="sc-search-sort-wrap">
-            <label htmlFor="sc-search-quick-sort">Sắp xếp</label>
-            <select
-              id="sc-search-quick-sort"
-              className="sc-search-select"
-              value={urlState.sort}
-              onChange={(event) =>
-                commitSearch({ sort: event.target.value as SearchSortValue, page: 1 })
-              }
-            >
-              {SEARCH_SORTS.map(([val, label]) => (
-                <option key={val} value={val}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      )}
 
       <section
         className="sc-search-results-list"

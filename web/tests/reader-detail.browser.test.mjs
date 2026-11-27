@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
 import { mockReadingLocators } from './helpers/reader-locators.mjs';
+import { facetCheckbox, facetTrigger, filterBar, statusRadio } from './helpers/reader-filters.mjs';
 
 async function toggleWithStableLayout(page, button, pressed, message) {
   await expect(button).toBeEnabled();
@@ -132,22 +133,19 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
         await page.screenshot({ path: path.join(output, `${role}-${width}-${theme}-detail.png`), fullPage: true });
         await page.locator('.sc-reader-genres').getByRole('link', { name: 'Fantasy', exact: true }).click();
         await expect(page).toHaveURL(`${base}/danh-sach?genre=Fantasy`);
-        if (width < 1024) await page.locator('.sc-catalog-filter-open').click();
-        await expect(page.locator('#sc-catalog-sidebar').getByRole('checkbox', { name: 'Fantasy', exact: true })).toBeChecked();
+        await expect(await facetCheckbox(page, 'Thể loại', 'Fantasy')).toBeChecked();
         await expect.poll(() => searchParams?.get('genres')).toBe('Fantasy');
         await page.goto(detail);
         // UAT 2026-11-21 (BUG-007): the saved age rating is visible to readers.
         await expect(page.getByTestId('reader-age-rating')).toHaveText('18+');
         await page.locator('.sc-reader-status').click();
         await expect(page).toHaveURL(`${base}/danh-sach?status=ONGOING`);
-        if (width < 1024) await page.locator('.sc-catalog-filter-open').click();
-        await expect(page.getByRole('radiogroup', { name: 'Lọc theo tình trạng', exact: true }).getByRole('radio', { name: 'Đang ra', exact: true })).toBeChecked();
+        await expect(await statusRadio(page, 'Đang ra')).toBeChecked();
         await expect.poll(() => searchParams?.get('status')).toBe('ONGOING');
         await page.goto(detail);
         await page.locator('.sc-reader-tags').getByRole('link', { name: '#Adventure', exact: true }).click();
         await expect(page).toHaveURL(`${base}/danh-sach?tag=Adventure`);
-        if (width < 1024) await page.locator('.sc-catalog-filter-open').click();
-        await expect(page.locator('#sc-catalog-sidebar').getByRole('checkbox', { name: 'Adventure', exact: true })).toBeChecked();
+        await expect(await facetCheckbox(page, 'Thẻ', 'Adventure')).toBeChecked();
         await expect.poll(() => searchParams?.get('tags')).toBe('Adventure');
         await page.goto(detail);
         if (role === 'READER') {

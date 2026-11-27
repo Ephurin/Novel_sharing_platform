@@ -1,6 +1,7 @@
 import { locateManagedNovel } from '../../app/ResourceRoute';
 import { ErrorState } from '../../shared/components/PageStates';
 import { emitCanonicalLinks, managedNovelHref, navigationHref, studioSearchParams } from '../../shared/routes';
+import { chapterTitleWithoutNumber } from '../novels/chapter-title';
 import { formatDateTime, formatNumber } from '../../shared/lib/format-vi';
 import { motion, useReducedMotion } from 'motion/react';
 import NumberFlow from '@number-flow/react';
@@ -1135,27 +1136,48 @@ export function AuthorWritingIde() {
 
   const studioPrimaryActions = !planning && (
     <>
-      <button
-        onClick={toggleAiDrawer}
-        aria-expanded={aiDrawerOpen}
-        aria-controls="studio-ai-panel"
-        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-meta font-semibold rounded-lg bg-primary-50 text-primary-600 hover:bg-primary-100 border border-primary-200/90 transition-all shadow-2xs"
-        title="Mở trợ lý sáng tác AI"
-        aria-label="Trợ lý viết"
-        type="button"
-      >
-        <span className="material-symbols-outlined text-primary-600 text-[16px] fill-icon">auto_awesome</span>
-        <span className="hidden sm:inline sc-studio-ai-label">Trợ lý viết</span>
-      </button>
+      {/* UI-13: one AI entry point. The main half opens the assistant; the chevron lists the other AI actions,
+          including story planning, which is a place you visit and return from rather than a second mode. */}
+      <div className="sc-studio-ai-split inline-flex items-stretch rounded-lg border border-primary-200/90 bg-primary-50 shadow-2xs">
+        <button
+          onClick={toggleAiDrawer}
+          aria-expanded={aiDrawerOpen}
+          aria-controls="studio-ai-panel"
+          className="inline-flex items-center gap-1.5 pl-2.5 pr-2 py-1 text-meta font-semibold rounded-l-lg text-primary-600 hover:bg-primary-100 transition-all"
+          title="Mở trợ lý sáng tác AI"
+          aria-label="Trợ lý viết"
+          type="button"
+        >
+          <span className="material-symbols-outlined text-primary-600 text-[16px] fill-icon" aria-hidden="true">auto_awesome</span>
+          <span className="hidden sm:inline sc-studio-ai-label">Trợ lý viết</span>
+        </button>
+        <Menu position="bottom-end">
+          <Menu.Target>
+            <button type="button" className="inline-flex items-center px-1 rounded-r-lg border-l border-primary-200/90 text-primary-600 hover:bg-primary-100" aria-label="Thêm lệnh trợ lý viết" title="Thêm lệnh trợ lý viết">
+              <span className="material-symbols-outlined text-[16px]" aria-hidden="true">expand_more</span>
+            </button>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Label>Trong chương này</Menu.Label>
+            <Menu.Item disabled={!studioReady || isGeneratingAi} leftSection={<span className="material-symbols-outlined text-[16px]" aria-hidden="true">edit_note</span>} onClick={() => { rememberEditorSelection(); openAiDrawer(true); void handleGenerateAi('Viết tiếp phân cảnh này tự nhiên bám sát giọng văn', 'continue'); }}>Viết tiếp từ con trỏ</Menu.Item>
+            <Menu.Item disabled={!studioReady} leftSection={<span className="material-symbols-outlined text-[16px]" aria-hidden="true">help</span>} onClick={() => { rememberEditorSelection(); setAiScope('selection'); openAiDrawer(true); }}>Hỏi về đoạn đang chọn</Menu.Item>
+            <Menu.Item leftSection={<span className="material-symbols-outlined text-[16px]" aria-hidden="true">right_panel_open</span>} onClick={() => openAiDrawer(true)}>Mở khung trò chuyện</Menu.Item>
+            <Menu.Divider />
+            <Menu.Label>Cả truyện</Menu.Label>
+            <Menu.Item leftSection={<span className="material-symbols-outlined text-[16px]" aria-hidden="true">account_tree</span>} onClick={() => void openPlanning()}>Lập kế hoạch truyện</Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      </div>
 
       <button
         onClick={() => setPublishModalOpen(true)}
         disabled={awaitingPublicationReview}
-        className="inline-flex items-center gap-1.5 px-3 py-1 text-meta font-semibold rounded-lg text-white bg-primary-600 hover:bg-primary-700 shadow-sm shadow-primary-200 transition-all"
+        title={awaitingPublicationReview ? 'Chương đang chờ duyệt; bạn sẽ được báo khi có kết quả.' : undefined}
+        className="inline-flex items-center gap-1.5 px-3 py-1 text-meta font-semibold rounded-lg text-white bg-primary-600 hover:bg-primary-700 shadow-sm shadow-primary-200 transition-all disabled:bg-stone-100 disabled:text-stone-600 disabled:shadow-none disabled:border disabled:border-stone-200"
         type="button"
       >
         <span>{awaitingPublicationReview ? 'Chờ admin duyệt' : 'Gửi duyệt chương'}</span>
-        <span className="material-symbols-outlined text-[15px]">send</span>
+        <span className="material-symbols-outlined text-[15px]" aria-hidden="true">send</span>
       </button>
     </>
   );
@@ -1214,15 +1236,16 @@ export function AuthorWritingIde() {
                 className="sc-studio-cluster-btn is-icon"
                 type="button"
               >
-                <span className="material-symbols-outlined text-stone-500 text-[15px]">text_format</span>
+                <span className="material-symbols-outlined text-stone-500 text-[15px]" aria-hidden="true">text_format</span>
               </button>
               <button
                 onClick={() => setStoryBibleOpen(true)}
                 className="sc-studio-cluster-btn"
-                title="Cẩm nang thế giới truyện (Story Bible)"
+                title="Cẩm nang thế giới truyện"
+                aria-label="Cẩm nang"
                 type="button"
               >
-                <span className="material-symbols-outlined text-stone-500 text-[15px]">menu_book</span>
+                <span className="material-symbols-outlined text-stone-500 text-[15px]" aria-hidden="true">menu_book</span>
                 <span className="hidden xl:inline">Cẩm nang</span>
               </button>
               <button
@@ -1237,7 +1260,7 @@ export function AuthorWritingIde() {
                   : 'Bộ nhớ cốt truyện: nhân vật, quan hệ, sự kiện đã duyệt và kiểm tra nhất quán (Story Brain)'}
                 type="button"
               >
-                <span className="material-symbols-outlined text-stone-500 text-[15px]">psychology</span>
+                <span className="material-symbols-outlined text-stone-500 text-[15px]" aria-hidden="true">psychology</span>
                 <span className="hidden xl:inline">Bộ nhớ cốt truyện</span>
                 {pendingMemory.total > 0 && (
                   <span data-testid="story-brain-pending" aria-hidden="true"
@@ -1249,10 +1272,12 @@ export function AuthorWritingIde() {
               <button
                 onClick={() => setFocusMode((prev: boolean) => !prev)}
                 className="sc-studio-cluster-btn"
-                title="Chế độ tập trung (Zen Mode)"
+                title="Chế độ tập trung"
+                aria-label={focusMode ? 'Thoát chế độ tập trung' : 'Chế độ tập trung'}
+                aria-pressed={focusMode}
                 type="button"
               >
-                <span className="material-symbols-outlined text-stone-500 text-[15px]">
+                <span className="material-symbols-outlined text-stone-500 text-[15px]" aria-hidden="true">
                   {focusMode ? 'fullscreen_exit' : 'fullscreen'}
                 </span>
                 <span className="hidden md:inline">{focusMode ? 'Thoát Focus' : 'Tập trung'}</span>
@@ -1262,11 +1287,12 @@ export function AuthorWritingIde() {
         )}
         </div>
 
-        {/* Right: Studio Mode Switch */}
-        <Group gap="xs" wrap="nowrap" aria-label="Chế độ Author IDE" className="shrink-0">
-          <Button size="xs" aria-pressed={planning} variant={planning ? 'filled' : 'light'} onClick={() => void openPlanning()}>Lập kế hoạch</Button>
-          <Button size="xs" aria-pressed={!planning} variant={!planning ? 'filled' : 'light'} onClick={() => setPlanning(false)}>Viết bản thảo</Button>
-        </Group>
+        {/* UI-13: planning is entered from "Trợ lý viết ▾" and left through this one way back to the chapter. */}
+        {planning && (
+          <Button size="xs" variant="light" className="shrink-0" title={title ? `Quay lại ${title}` : undefined} leftSection={<span className="material-symbols-outlined text-[16px]" aria-hidden="true">arrow_back</span>} onClick={() => setPlanning(false)}>
+            Quay lại bản thảo
+          </Button>
+        )}
       </section>
 
       {/* ──────────────────────────────────────────
@@ -1438,7 +1464,7 @@ export function AuthorWritingIde() {
                         isActive ? 'font-semibold text-stone-900' : 'font-medium text-stone-700'
                       }`}
                     >
-                      {ch.title || `Chương ${ch.chapterNumber}`}
+                      {chapterTitleWithoutNumber(ch.title) || 'Chưa đặt tên'}
                     </p>
                     <div className="flex items-center justify-between text-meta text-stone-400 mt-0.5 pl-1">
                       <span>{ch.wordCount ? `${formatNumber(ch.wordCount)} từ` : 'Bản nháp'}</span>
@@ -1493,6 +1519,7 @@ export function AuthorWritingIde() {
               >
                 {createChapterMutation.isError ? 'Thử lại tạo chương' : 'Tạo chương đầu tiên'}
               </Button>
+              <Button size="sm" variant="subtle" mt="xs" onClick={() => void openPlanning()}>Lập kế hoạch truyện trước</Button>
             </div>
           ) : (
             <>
@@ -1766,7 +1793,7 @@ export function AuthorWritingIde() {
                   <span className="material-symbols-outlined text-[17px] fill-icon">auto_awesome</span>
                 </div>
                 <div>
-                  <h3 className="text-meta font-bold text-stone-900 leading-none">Trợ lý sáng tác AI • Ephurin</h3>
+                  <h3 className="text-meta font-bold text-stone-900 leading-none">Trợ lý sáng tác AI</h3>
                   <span className="text-meta text-stone-400">Viết theo bộ nhớ truyện của bạn</span>
                 </div>
               </div>
@@ -1898,7 +1925,7 @@ export function AuthorWritingIde() {
                 <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 text-stone-700">
                   <div className="flex items-center justify-between mb-1 text-meta font-semibold text-stone-500 uppercase">
                     <span>Sẵn sàng hỗ trợ</span>
-                    <span className="text-meta text-stone-400">Ephurin AI</span>
+                    <span className="text-meta text-stone-400">StoryCraft AI</span>
                   </div>
                   <p className="text-meta leading-normal text-stone-600">
                     Nhập yêu cầu vào ô bên dưới hoặc bấm vào các tác vụ nhanh để AI phân tích bối cảnh truyện và viết tiếp.

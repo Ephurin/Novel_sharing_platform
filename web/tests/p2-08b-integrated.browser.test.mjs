@@ -4,6 +4,7 @@ import test from 'node:test';
 import { expect } from '@playwright/test';
 import { createHarness, hash, until } from './helpers/p1-real-stack.mjs';
 import { fixtures } from './helpers/p1-fixtures.mjs';
+import { openPlanning, backToDraftButton } from './helpers/studio-planning.mjs';
 
 const scenario = process.env.P207A_SCENARIO;
 assert.ok(['S5', 'S6', 'S7'].includes(scenario));
@@ -14,7 +15,7 @@ async function novel(h, author, title) {
 }
 
 async function selectPlan(page) {
-  await page.getByRole('button', { name: 'Lập kế hoạch', exact: true }).click();
+  await openPlanning(page);
   await page.getByRole('navigation', { name: 'Các bước lập kế hoạch' }).getByRole('button', { name: /Dàn ý chương/ }).click();
   await expect(page.getByRole('region', { name: 'Planning Studio' })).toHaveAttribute('aria-busy', 'false');
 }
@@ -374,7 +375,7 @@ async function concurrency(h, author, id, api) {
         && r.request().method() === 'GET' && r.ok());
       await project.getByRole('button', { name: /Viết tiếp/ }).click();
       await expect(h.page).toHaveURL(new RegExp(`novelId=${otherId}`));
-      await h.page.getByRole('button', { name: 'Lập kế hoạch', exact: true }).click();
+      await openPlanning(h.page);
       await h.page.getByRole('navigation', { name: 'Các bước lập kế hoạch' })
         .getByRole('button', { name: /Dàn ý chương/ }).click();
       await hydrated;

@@ -530,19 +530,30 @@ test('the two hide paths converge on one sanction: races, achieved report accept
         [rollbackTopic.data.topicId]
       )
     ).rows[0];
+    async function drainUntilDone() {
+      const deadline = Date.now() + 5_000;
+      do {
+        // Another drain may still hold the advisory lock after processing a concurrent moderation request.
+        await drainAdminJobs();
+        const job = (await db.query<{ status: string; attempts: number }>(
+          'select status, attempts from admin_jobs where job_id=$1', [jobRow.job_id]
+        )).rows[0];
+        if (job.status === 'DONE') return job.attempts;
+        assert.equal(job.status, 'PENDING');
+        await delay(20);
+      } while (Date.now() < deadline);
+      assert.fail('The notification job never completed');
+    }
+    const initialAttempts = await drainUntilDone();
     await db.query(
-      "update admin_jobs set status='PENDING',error='rehearsed worker crash',completed_at=null where job_id=$1",
+      "update admin_jobs set status='PENDING',error='rehearsed worker crash',completed_at=null,next_attempt_at=now() where job_id=$1",
       [jobRow.job_id]
     );
-    await drainAdminJobs();
+    assert.equal(await drainUntilDone(), initialAttempts + 1);
     assert.equal(await getMongoDatabase().collection('notifications').countDocuments({
       userId: author.userId,
       'payload.targetId': rollbackTopic.data.topicId
     }), 1, 'the retry delivers the notification exactly once');
-    const jobAfter = (
-      await db.query<{ status: string }>('select status from admin_jobs where job_id=$1', [jobRow.job_id])
-    ).rows[0];
-    assert.equal(jobAfter.status, 'DONE');
   } finally {
     env.MODERATOR_ENABLED = previousModeratorEnabled;
     if (server) await new Promise<void>(resolve => server!.close(() => resolve()));

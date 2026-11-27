@@ -255,6 +255,11 @@ jobs:
         run: npx tsx --test --test-force-exit src/modules/novels/p1-production-persistence.postgres.test.ts
       - name: Run Fixture lifecycle and teardown resilience integration suite
         run: npx tsx --test --test-force-exit src/modules/novels/fixture-lifecycle-resilience.postgres.test.ts
+      # These two suites skip themselves unless RUN_AUTHOR_WORKFLOW_TESTS=1, so they went stale unnoticed.
+      - name: Run author workflow and launch checklist integration suites
+        env:
+          RUN_AUTHOR_WORKFLOW_TESTS: "1"
+        run: npx tsx --test --test-force-exit src/modules/interactions/author-workflow.integration.test.ts src/modules/interactions/author-launch.integration.test.ts
 
   root-compose-cutover-smoke:
     runs-on: ubuntu-latest

@@ -140,15 +140,13 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
               ))}
           </nav>
         </LayoutGroup>
-        {access.data?.permissions.includes('content') && (
-          <div className="admin-sidebar-footer">
-            <Link to={navigationHref("/author")}>
-              <AdminIcon name="open_in_new" />
-              Xem trang tác giả
-              <AdminIcon name="arrow_forward" />
-            </Link>
-          </div>
-        )}
+        {/* UI-19: an admin leaves the console for the home page, not the author workspace. */}
+        <div className="admin-sidebar-footer">
+          <Link to="/">
+            <AdminIcon name="home" />
+            Về trang chủ
+          </Link>
+        </div>
       </aside>
       {opened && (
         <button

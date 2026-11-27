@@ -64,6 +64,38 @@ export function notificationTypeLabel(type: string): string {
   return type;
 }
 
+export type NotificationGroup = { lead: AppNotification; items: AppNotification[]; content: string };
+
+// UI-14: replies in the same topic, with the same read state, share one card:
+// "Mai Linh và 1 người khác đã trả lời trong "Tên chủ đề"."
+export function groupNotifications(items: AppNotification[]): NotificationGroup[] {
+  const groups: NotificationGroup[] = [];
+  const byKey = new Map<string, NotificationGroup>();
+  for (const item of items) {
+    const topicId = item.type === 'DISCUSSION_REPLY' ? item.payload.topicId : undefined;
+    const key = typeof topicId === 'string' ? `${topicId}:${item.status}` : null;
+    const existing = key ? byKey.get(key) : undefined;
+    if (existing) {
+      existing.items.push(item);
+      continue;
+    }
+    const group = { lead: item, items: [item], content: item.content };
+    groups.push(group);
+    if (key) byKey.set(key, group);
+  }
+  for (const group of groups) {
+    if (group.items.length < 2) continue;
+    const names = [...new Set(group.items.map((item) => item.payload.actorName).filter((name): name is string => typeof name === 'string' && Boolean(name)))];
+    const title = group.items.map((item) => item.payload.topicTitle).find((value): value is string => typeof value === 'string' && Boolean(value));
+    const where = title ? ` trong "${title}"` : ' trong cùng một thảo luận';
+    const others = Math.max(names.length - 1, 0);
+    group.content = names.length
+      ? `${names[0]}${others ? ` và ${formatNumber(others)} người khác` : ''} đã trả lời${where} (${formatNumber(group.items.length)} phản hồi).`
+      : `Có ${formatNumber(group.items.length)} phản hồi mới${where}.`;
+  }
+  return groups;
+}
+
 export function notificationHref(item: AppNotification, reader = false) {
   if (item.type === 'DISCUSSION_REPLY') {
     const { topicId, commentId } = item.payload;

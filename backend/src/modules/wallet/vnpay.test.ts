@@ -28,7 +28,7 @@ function buildUrl(overrides: Partial<Parameters<typeof buildVnpayPaymentUrl>[0]>
     config,
     txnRef: toVnpayTxnRef(sessionId),
     amountVnd: 50_000,
-    orderInfo: 'Nạp 500 Xu Ephurin',
+    orderInfo: 'Nạp 500 Xu StoryCraft',
     ipAddr: '::1',
     createdAt: new Date('2026-11-25T03:04:05Z'),
     expiresAt: new Date('2026-11-25T03:19:05Z'),
@@ -44,7 +44,7 @@ function signedCallback(fields: Record<string, string>, secret = config.hashSecr
 const paidFields = {
   vnp_Amount: '5000000',
   vnp_BankCode: 'NCB',
-  vnp_OrderInfo: 'Nap 500 Xu Ephurin',
+  vnp_OrderInfo: 'Nap 500 Xu StoryCraft',
   vnp_ResponseCode: '00',
   vnp_TmnCode: 'TESTCODE',
   vnp_TransactionNo: '14123456',
@@ -83,7 +83,7 @@ describe('VNPay signing', () => {
     assert.equal(query.vnp_CurrCode, 'VND');
     assert.equal(query.vnp_BankCode, 'VNBANK');
     assert.equal(query.vnp_TxnRef, '3f1c2a9e7b4d4c1e9a0f1234567890ab');
-    assert.equal(query.vnp_OrderInfo, 'Nap 500 Xu Ephurin');
+    assert.equal(query.vnp_OrderInfo, 'Nap 500 Xu StoryCraft');
     assert.equal(query.vnp_ReturnUrl, config.returnUrl);
     assert.equal(query.vnp_IpAddr, '127.0.0.1');
     assert.equal(query.vnp_CreateDate, '20261125100405');

@@ -21,7 +21,8 @@
   --sc-primary-soft-rgb: 255 241 234;
   --sc-primary-text-rgb: 155 73 48;
   --sc-text-rgb: 37 43 42;
-  --sc-muted-rgb: 119 115 111;
+  /* UI-21: 107 103 99 keeps muted text at 4.5:1 or more on the cream background (was 4.39:1). */
+  --sc-muted-rgb: 107 103 99;
   --sc-border-rgb: 232 229 223;
   --sc-bg: rgb(var(--sc-bg-rgb));
   --sc-surface: rgb(var(--sc-surface-rgb));
@@ -49,7 +50,7 @@
   --sc-neutral-bg: #f1f0ed;
   --sc-content-width: 1240px;
   --sc-content-compact: 960px;
-  --sc-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%2377736f' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --sc-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%236b6763' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --sc-radius-card: 12px;
   --sc-radius-control: 8px;
 }
@@ -155,7 +156,9 @@
 :is(.sc-author-theme, .sc-animated-modal-body) :is(button, a, input, select, textarea) { -webkit-tap-highlight-color: transparent; }
 :is(.sc-author-theme, .sc-animated-modal-body) :is(button:where(:not(.sc-auth-theme-btn):not(.sc-auth-forgot-btn)), a[class*="inline-flex"]) { font-size: 14px; font-weight: 600; line-height: 20px; min-height: 36px; }
 :is(.sc-author-theme, .sc-animated-modal-body) :is(button, a[class*="inline-flex"]) > span:not(.material-symbols-outlined) { font-size: inherit; line-height: inherit; }
-:is(.sc-author-theme, .sc-animated-modal-body) button:disabled { opacity: .5; cursor: not-allowed; }
+:is(.sc-author-theme, .sc-animated-modal-body) button:disabled { opacity: .7; cursor: not-allowed; }
+/* UI-21: a disabled primary action turns neutral instead of a faded orange that is hard to read. */
+:is(.sc-author-theme, .sc-animated-modal-body) :is(button, a).sc-button-primary:is(:disabled, [aria-disabled="true"]) { opacity: 1; background: var(--sc-neutral-bg); border-color: var(--sc-border); color: var(--sc-text-muted); box-shadow: none; }
 :is(.sc-author-theme, .sc-animated-modal-body) :is(label, .mantine-InputWrapper-label) { font-size: 13px; font-weight: 500; line-height: 20px; }
 :is(.sc-author-theme, .sc-animated-modal-body) :is(input:not([type="checkbox"]):not([type="radio"]), select) { min-height: 40px; font-size: 14px; border-radius: var(--sc-radius-control); }
 :is(.sc-author-theme, .sc-animated-modal-body) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) { border-color: var(--sc-border); color: var(--sc-text); accent-color: var(--sc-primary-hover); }
@@ -304,16 +307,22 @@
 .sc-navbar-reading-tools .material-symbols-outlined { font-size: 20px; }
 .sc-navbar-reading-tools [aria-current="page"], .sc-reader-collections-nav [aria-current="page"] { color: var(--sc-primary-text); background: var(--sc-primary-soft); }
 .sc-navbar-reading-tools a:focus-visible, .sc-reader-collections-nav a:focus-visible { outline: 2px solid var(--sc-focus-ring); outline-offset: -2px; }
-.sc-reader-collections { display: grid; grid-template-columns: minmax(0, 1fr) 218px; align-items: start; gap: 24px; }
-.sc-reader-collections-content { grid-column: 1; grid-row: 1; min-width: 0; }
-.sc-reader-collections-nav { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; padding: 4px; gap: 2px; border: 1px solid var(--sc-border); border-radius: var(--sc-radius-control); background: var(--sc-surface); }
+/* UI-19: the library / bookmarks / history switcher sits above the content as tabs. */
+.sc-reader-collections { display: flex; flex-direction: column; align-items: stretch; gap: 16px; }
+.sc-reader-collections-content { min-width: 0; }
+.sc-reader-collections-nav { display: flex; flex-direction: row; flex-wrap: wrap; align-self: flex-start; padding: 4px; gap: 2px; border: 1px solid var(--sc-border); border-radius: var(--sc-radius-control); background: var(--sc-surface); }
 .sc-reader-collections-nav a { display: flex; align-items: center; min-height: 44px; gap: 8px; padding: 6px 10px; border-radius: var(--sc-radius-control); color: var(--sc-text); font-size: 14px; line-height: 20px; }
 .sc-reader-collections-nav .material-symbols-outlined { font-size: 19px; }
 .sc-reader-collections-nav a:not([aria-current]):hover { background: var(--sc-neutral-bg); }
 @media (max-width: 760px) {
-  .sc-reader-collections { display: flex; flex-direction: column; align-items: stretch; gap: 16px; }
-  .sc-reader-collections-nav { flex-direction: row; flex-wrap: wrap; }
+  .sc-reader-collections-nav { align-self: stretch; }
   .sc-reader-collections-nav a { flex: 1 0 auto; justify-content: center; }
+}
+/* UI-21: at phone width the three tabs share one row instead of wrapping "Lịch sử đọc" onto a second line. */
+@media (max-width: 480px) {
+  .sc-reader-collections-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sc-reader-collections-nav a { flex-direction: column; gap: 2px; padding: 6px 4px; font-size: 12.5px; line-height: 16px; text-align: center; }
+  .sc-reader-collections-nav .material-symbols-outlined { font-size: 18px; }
 }
 @media (pointer: coarse) {
   .sc-icon-button { min-width: 44px; min-height: 44px; }

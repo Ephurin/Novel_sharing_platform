@@ -399,7 +399,7 @@ test('Real AuthorWritingIde: editor typing, autosave, S10 consistency checking &
     assert.ok(finalRb.outbox.length > 0, 'Outbox event created for snapshot revision');
 
     // 8. Test Story Bible modal continuity
-    const bibleBtn = page.getByTitle('Cẩm nang thế giới truyện (Story Bible)');
+    const bibleBtn = page.getByTitle('Cẩm nang thế giới truyện', { exact: true });
     await bibleBtn.click();
     await page.getByText('Cẩm Nang Thế Giới (Story Bible)').waitFor({ timeout: 10000 });
     await page.getByRole('tab', { name: /Mối quan hệ/i }).click();
