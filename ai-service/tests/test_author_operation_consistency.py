@@ -66,3 +66,24 @@ class AuthorOperationConsistencyTests(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         findings = res.json()["data"]["findings"]
         self.assertEqual(len(findings), 0)
+
+    def test_merged_fact_conflict_lists_every_fact_once(self):
+        # BB1: check_canon merges one sentence that conflicts with two facts about the same character.
+        from unittest.mock import patch
+        merged = [{'rule_id': 'entity:e2:last_seen', 'rule_text': 'Lam Yên xuất hiện gần nhất ở Thiên Lôi Uyên (chương 17)',
+                   'kind': 'fact', 'quote': 'Lam Yên ngồi bên bếp lửa', 'explanation': 'Đang ở Thiên Lôi Uyên', 'subject': 'e2',
+                   'also': [{'rule_id': 'fact:f9', 'rule_text': 'Lam Yên: location = Thiên Lôi Uyên'}]}]
+        self.analysis._llm_service = object()
+        with patch('services.rule_consistency.check_canon', return_value=merged):
+            res = self.client.post(
+                f"/v1/story-brains/{self.novel_id}/author-operation",
+                headers={'X-Tenant-Id': '00000000-0000-0000-0000-000000000001'},
+                json=self.source('Bản thảo: Lam Yên ngồi bên bếp lửa.'),
+            )
+        self.assertEqual(res.status_code, 200)
+        findings = res.json()["data"]["findings"]
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0]["code"], "CANON_FACT_CONFLICT")
+        self.assertEqual(findings[0]["canon_ref"], 'entity:e2:last_seen')
+        self.assertEqual(findings[0]["canon_refs"], ['entity:e2:last_seen', 'fact:f9'])
+        self.assertIn('Thiên Lôi Uyên (chương 17); Lam Yên: location = Thiên Lôi Uyên', findings[0]["description"])

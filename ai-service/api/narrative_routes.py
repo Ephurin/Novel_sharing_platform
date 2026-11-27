@@ -1016,14 +1016,18 @@ def author_operation(
             if (rules or canon_facts) and llm is not None:
                 for item in check_canon(revision.content, rules, canon_facts, llm):
                     is_rule = item['kind'] == 'rule'
+                    also = item.get('also', [])
+                    fact_texts = '; '.join([item['rule_text'], *(other['rule_text'] for other in also)])
                     findings.append({
                         "code": "WORLD_RULE_VIOLATION" if is_rule else "CANON_FACT_CONFLICT",
                         "description": (f"Có thể vi phạm quy tắc thế giới: {item['rule_text']}" if is_rule
-                            else f"Có thể mâu thuẫn với dữ kiện đã duyệt: {item['rule_text']}")
+                            else f"Có thể mâu thuẫn với dữ kiện đã duyệt: {fact_texts}")
                             + (f" — {item['explanation']}" if item['explanation'] else ""),
                         "evidence": item["quote"],
                         "revision_id": revision_id,
                         **({"rule_fact_id": item["rule_id"]} if is_rule else {"canon_ref": item["rule_id"]}),
+                        # BB1: every fact a merged finding conflicts with.
+                        **({"canon_refs": [item["rule_id"], *(other["rule_id"] for other in also)]} if also else {}),
                     })
                 rule_check = "checked"
             elif rules or canon_facts:
